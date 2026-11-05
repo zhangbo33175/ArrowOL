@@ -228,14 +228,14 @@ namespace Honor.Runtime
             // 从持久化数据读取开关状态
             if (m_ResetGDPRToggle != null)
             {
-                m_ResetGDPRToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
-                    GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.HasUserConsent, true);
+                m_ResetGDPRToggle.isOn = HonorCoreManager.Instance.GetBool(HonorConstants.Persist.GDPR.WayType,
+                    HonorConstants.Persist.GDPR.ClassifyName, HonorConstants.Persist.GDPR.ItemKey.HasUserConsent, true);
             }
 
             if (m_ResetCCPAToggle != null)
             {
-                m_ResetCCPAToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
-                    GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.IsSell, true);
+                m_ResetCCPAToggle.isOn = HonorCoreManager.Instance.GetBool(HonorConstants.Persist.GDPR.WayType,
+                    HonorConstants.Persist.GDPR.ClassifyName, HonorConstants.Persist.GDPR.ItemKey.IsSell, true);
             }
         }
         #endregion
@@ -268,19 +268,19 @@ namespace Honor.Runtime
             // 保存 GDPR 授权
             if (m_ResetGDPRToggle != null)
             {
-                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
-                    GameConstants.Persist.GDPR.ItemKey.HasUserConsent, m_ResetGDPRToggle.isOn);
+                HonorCoreManager.Instance.SetBool(HonorConstants.Persist.GDPR.WayType, HonorConstants.Persist.GDPR.ClassifyName,
+                    HonorConstants.Persist.GDPR.ItemKey.HasUserConsent, m_ResetGDPRToggle.isOn);
             }
 
             // 保存 CCPA 授权
             if (m_ResetCCPAToggle != null)
             {
-                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
-                    GameConstants.Persist.GDPR.ItemKey.IsSell, m_ResetCCPAToggle.isOn);
+                HonorCoreManager.Instance.SetBool(HonorConstants.Persist.GDPR.WayType, HonorConstants.Persist.GDPR.ClassifyName,
+                    HonorConstants.Persist.GDPR.ItemKey.IsSell, m_ResetCCPAToggle.isOn);
             }
 
             // 持久化保存
-            HonorCoreManager.Instance.Save(GameConstants.Persist.GDPR.WayType);
+            HonorCoreManager.Instance.Save(HonorConstants.Persist.GDPR.WayType);
 
             // 关闭界面
             HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);

@@ -35,13 +35,13 @@ namespace Honor.Editor
         /// <summary>
         /// 等待界面（Loading）默认配置
         /// </summary>
-        private readonly string m_WaitingABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
+        private readonly string m_WaitingABPathDefault = HonorPathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
         private readonly string m_WaitingAssetNameDefault = "UIWaitingDefault";
 
         /// <summary>
         /// 飘字界面默认配置
         /// </summary>
-        private readonly string m_FloatWordsABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
+        private readonly string m_FloatWordsABPathDefault = HonorPathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
         private readonly string m_FloatWordsAssetNameDefault = "UIFloatWordsDefault";
         #endregion
 
@@ -148,13 +148,13 @@ namespace Honor.Editor
                 EditorGUILayout.BeginHorizontal("box");
                 {
                     DrawToolbarButton("打开UI表Excel",
-                        () => TableExportEditorUtility.OpenExcel(GamePathUtils.UI.GetExcelFileFullPath()));
+                        () => TableExportEditorUtility.OpenExcel(HonorPathUtils.UI.GetExcelFileFullPath()));
 
                     DrawToolbarButton("导出UI表Excel到Lua",
-                        () => ExportExcelToLuaFromUI(Path.GetFileNameWithoutExtension(GamePathUtils.UI.GetExcelFileFullPath())));
+                        () => ExportExcelToLuaFromUI(Path.GetFileNameWithoutExtension(HonorPathUtils.UI.GetExcelFileFullPath())));
 
                     DrawToolbarButton("打开UI表Excel所在文件夹",
-                        () => TableExportEditorUtility.OpenDirectory(GamePathUtils.UI.GetExcelRootDirectoryFullPath()));
+                        () => TableExportEditorUtility.OpenDirectory(HonorPathUtils.UI.GetExcelRootDirectoryFullPath()));
                 }
                 EditorGUILayout.EndHorizontal();
             }
@@ -535,9 +535,9 @@ namespace Honor.Editor
         /// </summary>
         public bool ExportExcelToLuaFromUI(string excelFileName)
         {
-            DataSet excelData = TableExportEditorUtility.GetExcelData(GamePathUtils.UI.GetExcelFileFullPath());
+            DataSet excelData = TableExportEditorUtility.GetExcelData(HonorPathUtils.UI.GetExcelFileFullPath());
             string luaFileName = "UIs";
-            string luaRootDirectory = GamePathUtils.UI.GetLuaScriptRootDirectoryFullPath();
+            string luaRootDirectory = HonorPathUtils.UI.GetLuaScriptRootDirectoryFullPath();
             string luaFilePath = HonorTxt.Format("{0}/{1}", luaRootDirectory, "UIs.lua.txt");
 
             if (!Directory.Exists(luaRootDirectory))

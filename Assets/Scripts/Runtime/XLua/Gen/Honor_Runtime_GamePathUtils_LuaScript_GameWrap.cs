@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsLuaScriptGameWrap 
+    public class HonorRuntimeHonorPathUtilsLuaScriptGameWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.LuaScript.Game);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.LuaScript.Game);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -46,7 +46,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.LuaScript.Game does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.LuaScript.Game does not have a constructor!");
         }
         
 		
@@ -69,7 +69,7 @@ namespace XLua.CSObjectWrap
                 {
                     bool _isEditorTool = LuaAPI.lua_toboolean(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath( _isEditorTool );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath( _isEditorTool );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -79,7 +79,7 @@ namespace XLua.CSObjectWrap
                 if(gen_param_count == 0) 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -91,7 +91,7 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath!");
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath!");
             
         }
         
@@ -108,7 +108,7 @@ namespace XLua.CSObjectWrap
                 {
                     bool _isEditorTool = LuaAPI.lua_toboolean(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.LuaScript.Game.GetRootDirectoryFullPath( _isEditorTool );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.LuaScript.Game.GetRootDirectoryFullPath( _isEditorTool );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -118,7 +118,7 @@ namespace XLua.CSObjectWrap
                 if(gen_param_count == 0) 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.LuaScript.Game.GetRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.LuaScript.Game.GetRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -130,7 +130,7 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.GamePathUtils.LuaScript.Game.GetRootDirectoryFullPath!");
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.HonorPathUtils.LuaScript.Game.GetRootDirectoryFullPath!");
             
         }
         

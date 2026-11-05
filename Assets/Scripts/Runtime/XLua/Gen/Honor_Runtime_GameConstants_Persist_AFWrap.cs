@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGameConstantsPersistAFWrap 
+    public class HonorRuntimeHonorConstantsPersistAFWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GameConstants.Persist.AF);
+			System.Type type = typeof(Honor.Runtime.HonorConstants.Persist.AF);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -34,8 +34,8 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginClassRegister(type, L, __CreateInstance, 3, 0, 0);
 			
 			
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WayType", Honor.Runtime.GameConstants.Persist.AF.WayType);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ClassifyName", Honor.Runtime.GameConstants.Persist.AF.ClassifyName);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WayType", Honor.Runtime.HonorConstants.Persist.AF.WayType);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ClassifyName", Honor.Runtime.HonorConstants.Persist.AF.ClassifyName);
             
 			
 			
@@ -46,7 +46,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GameConstants.Persist.AF does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorConstants.Persist.AF does not have a constructor!");
         }
         
 		

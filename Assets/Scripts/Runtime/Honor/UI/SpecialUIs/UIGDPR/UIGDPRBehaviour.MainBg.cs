@@ -296,20 +296,20 @@ namespace Honor.Runtime
             // 从持久化数据读取开关状态
             if (m_GDPRToggle != null)
             {
-                m_GDPRToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
-                    GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.HasUserConsent, true);
+                m_GDPRToggle.isOn = HonorCoreManager.Instance.GetBool(HonorConstants.Persist.GDPR.WayType,
+                    HonorConstants.Persist.GDPR.ClassifyName, HonorConstants.Persist.GDPR.ItemKey.HasUserConsent, true);
             }
 
             if (m_CCPAToggle != null)
             {
-                m_CCPAToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
-                    GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.IsSell, true);
+                m_CCPAToggle.isOn = HonorCoreManager.Instance.GetBool(HonorConstants.Persist.GDPR.WayType,
+                    HonorConstants.Persist.GDPR.ClassifyName, HonorConstants.Persist.GDPR.ItemKey.IsSell, true);
             }
 
             if (m_COPPAToggle != null)
             {
-                m_COPPAToggle.isOn = HonorCoreManager.Instance.GetBool(GameConstants.Persist.GDPR.WayType,
-                    GameConstants.Persist.GDPR.ClassifyName, GameConstants.Persist.GDPR.ItemKey.IsAgeReachStandard,
+                m_COPPAToggle.isOn = HonorCoreManager.Instance.GetBool(HonorConstants.Persist.GDPR.WayType,
+                    HonorConstants.Persist.GDPR.ClassifyName, HonorConstants.Persist.GDPR.ItemKey.IsAgeReachStandard,
                     true);
             }
         }
@@ -359,26 +359,26 @@ namespace Honor.Runtime
             // 保存 GDPR 开关
             if (m_GDPRToggle != null)
             {
-                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
-                    GameConstants.Persist.GDPR.ItemKey.HasUserConsent, m_GDPRToggle.isOn);
+                HonorCoreManager.Instance.SetBool(HonorConstants.Persist.GDPR.WayType, HonorConstants.Persist.GDPR.ClassifyName,
+                    HonorConstants.Persist.GDPR.ItemKey.HasUserConsent, m_GDPRToggle.isOn);
             }
 
             // 保存 CCPA 开关
             if (m_CCPAToggle != null)
             {
-                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
-                    GameConstants.Persist.GDPR.ItemKey.IsSell, m_CCPAToggle.isOn);
+                HonorCoreManager.Instance.SetBool(HonorConstants.Persist.GDPR.WayType, HonorConstants.Persist.GDPR.ClassifyName,
+                    HonorConstants.Persist.GDPR.ItemKey.IsSell, m_CCPAToggle.isOn);
             }
 
             // 保存 COPPA 开关
             if (m_COPPAToggle != null)
             {
-                HonorCoreManager.Instance.SetBool(GameConstants.Persist.GDPR.WayType, GameConstants.Persist.GDPR.ClassifyName,
-                    GameConstants.Persist.GDPR.ItemKey.IsAgeReachStandard, m_COPPAToggle.isOn);
+                HonorCoreManager.Instance.SetBool(HonorConstants.Persist.GDPR.WayType, HonorConstants.Persist.GDPR.ClassifyName,
+                    HonorConstants.Persist.GDPR.ItemKey.IsAgeReachStandard, m_COPPAToggle.isOn);
             }
 
             // 持久化保存
-            HonorCoreManager.Instance.Save(GameConstants.Persist.GDPR.WayType);
+            HonorCoreManager.Instance.Save(HonorConstants.Persist.GDPR.WayType);
 
             // 关闭界面
             HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);

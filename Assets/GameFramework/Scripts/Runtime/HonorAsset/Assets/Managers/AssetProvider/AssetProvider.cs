@@ -764,9 +764,9 @@ namespace Honor.Runtime
             string suffix = string.Empty;
             if (m_EditorResourceMode)
             {
-                if (Enum.TryParse(typeof(GameDefinitions.AssetType), typeName, out object tmpAssetType))
+                if (Enum.TryParse(typeof(HonorDefinitions.AssetType), typeName, out object tmpAssetType))
                 {
-                    suffix = GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)tmpAssetType];
+                    suffix = HonorDefinitions.AssetSuffix[(HonorDefinitions.AssetType)tmpAssetType];
                 }
             }
 

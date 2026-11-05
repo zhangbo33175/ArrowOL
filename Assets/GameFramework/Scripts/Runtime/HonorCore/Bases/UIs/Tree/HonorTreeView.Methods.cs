@@ -53,7 +53,7 @@ namespace Honor.Runtime
             // 容器内必须有一个节点模板，否则抛出异常
             if (m_Container.childCount.Equals(0))
             {
-                throw new GameException("TreeNode Template 不可为空。需要创建一个 Template 。");
+                throw new HonorException("TreeNode Template 不可为空。需要创建一个 Template 。");
             }
 
             // 获取根节点组件

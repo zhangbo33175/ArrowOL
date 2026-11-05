@@ -94,7 +94,7 @@ namespace Honor.Runtime
         /// <summary>
         /// Start：初始化游戏核心单例 + 初始化分类门面管理器
         /// <para>Mono 组件（Launcher/UI/Procedure/Scene/Debugger）由 HonorUIManager 在首次访问时
-        /// 经 GameComponentsGroup 自动获取并持有；纯代码单例组件由各门面 Manager 首次访问时自动 Init</para>
+        /// 经 HonorComponentGroup 自动获取并持有；纯代码单例组件由各门面 Manager 首次访问时自动 Init</para>
         /// </summary>
         private void Start()
         {
@@ -193,7 +193,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 初始化游戏核心单例
         /// <para>Mono 组件（Launcher/UI/Procedure/Scene/Debugger）统一由 HonorUIManager 门面
-        /// 在 Init 阶段经 GameComponentsGroup 获取持有，本类不再直接获取。</para>
+        /// 在 Init 阶段经 HonorComponentGroup 获取持有，本类不再直接获取。</para>
         /// </summary>
         private void SetupComponents()
         {

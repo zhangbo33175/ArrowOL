@@ -102,7 +102,7 @@ namespace Honor.Runtime
         /// <param name="bytes">原始及异或后的二进制流（即是输入也是输出）</param>
         /// <param name="code">异或二进制流</param>
         /// <param name="length">异或计算长度，若小于 0，则计算整个二进制流</param>
-        /// <exception cref="GameException">异或密钥无效时抛出异常</exception>
+        /// <exception cref="HonorException">异或密钥无效时抛出异常</exception>
         public static void GetSelfXorBytes(byte[] bytes, byte[] code, int length)
         {
             ApplySelfXor(bytes, code, length);
@@ -114,7 +114,7 @@ namespace Honor.Runtime
         /// <param name="bytes">待异或的字节流（输入输出同体）</param>
         /// <param name="code">循环异或密钥</param>
         /// <param name="length">处理长度，小于0或越界时按整段处理</param>
-        /// <exception cref="GameException">异或密钥为空或长度无效时抛出异常</exception>
+        /// <exception cref="HonorException">异或密钥为空或长度无效时抛出异常</exception>
         private static void ApplySelfXor(byte[] bytes, byte[] code, int length)
         {
             if (bytes == null)
@@ -124,13 +124,13 @@ namespace Honor.Runtime
 
             if (code == null)
             {
-                throw new GameException("异或二进制流Code无效。");
+                throw new HonorException("异或二进制流Code无效。");
             }
 
             int keyLength = code.Length;
             if (keyLength <= 0)
             {
-                throw new GameException("异或二进制流Code长度无效。");
+                throw new HonorException("异或二进制流Code长度无效。");
             }
 
             int sourceLength = bytes.Length;

@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -124,7 +124,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     
                         bool gen_ret = gen_to_be_invoked.HasDefaultLanguage( _language );
                         LuaAPI.lua_pushboolean(L, gen_ret);
@@ -180,7 +180,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     string _abPath = LuaAPI.lua_tostring(L, 3);
                     string _assetName = LuaAPI.lua_tostring(L, 4);
                     
@@ -210,7 +210,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     string _keyName = LuaAPI.lua_tostring(L, 3);
                     
                         bool gen_ret = gen_to_be_invoked.HasDefaultData( _language, _keyName );
@@ -240,7 +240,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     string _keyName = LuaAPI.lua_tostring(L, 3);
                     string _content = LuaAPI.lua_tostring(L, 4);
                     
@@ -270,7 +270,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     string _keyName = LuaAPI.lua_tostring(L, 3);
                     
                         bool gen_ret = gen_to_be_invoked.RemoveDefaultData( _language, _keyName );
@@ -309,9 +309,9 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 2&& translator.Assignable<Honor.Runtime.GameDefinitions.Language>(L, 2)) 
+                if(gen_param_count == 2&& translator.Assignable<Honor.Runtime.HonorDefinitions.Language>(L, 2)) 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     
                     gen_to_be_invoked.RemoveAllDefaultDatas( _language );
                     
@@ -341,7 +341,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     string _keyName = LuaAPI.lua_tostring(L, 3);
                     
                         string gen_ret = gen_to_be_invoked.GetDefaultData( _language, _keyName );
@@ -400,7 +400,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     Honor.Runtime.LocalizationFontData _fontData = (Honor.Runtime.LocalizationFontData)translator.GetObject(L, 3, typeof(Honor.Runtime.LocalizationFontData));
                     
                     gen_to_be_invoked.AddFontData( _language, _fontData );
@@ -456,7 +456,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameDefinitions.Language _language;translator.Get(L, 2, out _language);
+                    Honor.Runtime.HonorDefinitions.Language _language;translator.Get(L, 2, out _language);
                     System.Collections.Generic.List<Honor.Runtime.LocalizationFontData> _fontDatas;
                     
                     gen_to_be_invoked.GetFontDatas( _language, out _fontDatas );

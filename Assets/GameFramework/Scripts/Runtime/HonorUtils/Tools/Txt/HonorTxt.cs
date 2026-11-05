@@ -50,7 +50,7 @@ namespace Honor.Runtime
         {
             if (format == null)
             {
-                throw new GameException("格式无效。");
+                throw new HonorException("格式无效。");
             }
 
             EnsureCachedBuilder();
@@ -70,7 +70,7 @@ namespace Honor.Runtime
         {
             if (format == null)
             {
-                throw new GameException("格式无效。");
+                throw new HonorException("格式无效。");
             }
 
             EnsureCachedBuilder();
@@ -91,7 +91,7 @@ namespace Honor.Runtime
         {
             if (format == null)
             {
-                throw new GameException("格式无效。");
+                throw new HonorException("格式无效。");
             }
 
             EnsureCachedBuilder();
@@ -110,12 +110,12 @@ namespace Honor.Runtime
         {
             if (format == null)
             {
-                throw new GameException("格式无效。");
+                throw new HonorException("格式无效。");
             }
 
             if (args == null)
             {
-                throw new GameException("参数无效。");
+                throw new HonorException("参数无效。");
             }
 
             EnsureCachedBuilder();

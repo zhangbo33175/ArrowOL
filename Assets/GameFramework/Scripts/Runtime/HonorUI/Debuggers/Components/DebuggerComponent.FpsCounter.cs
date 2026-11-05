@@ -10,7 +10,7 @@
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent
+    public sealed partial class DebuggerComponent : HonorComponent
     {
         //=========================================================================
         // FPS 计数器（内部私有类）

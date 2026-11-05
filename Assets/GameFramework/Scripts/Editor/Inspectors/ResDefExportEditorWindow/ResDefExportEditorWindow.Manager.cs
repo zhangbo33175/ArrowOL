@@ -52,7 +52,7 @@ namespace Honor.Editor
 
             if (string.IsNullOrEmpty(ResDefInfos.LuaExportFolderPath))
             {
-                ResDefInfos.LuaExportFolderPath = GamePathUtils.Editor.ResDef.LuaFolderPath;
+                ResDefInfos.LuaExportFolderPath = HonorPathUtils.Editor.ResDef.LuaFolderPath;
             }
 
             if (!Directory.Exists(ResDefInfos.LuaExportFolderPath))
@@ -232,7 +232,7 @@ namespace Honor.Editor
         {
             string fullPath = AssetDatabase.GetAssetPath(findTargetAsset);
             bool isHaveAbPath = false;
-            string suffix = GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)m_SelectResType];
+            string suffix = HonorDefinitions.AssetSuffix[(HonorDefinitions.AssetType)m_SelectResType];
 
             if (Directory.Exists(fullPath))
             {
@@ -460,9 +460,9 @@ namespace Honor.Editor
         /// </summary>
         public string GetAssetsSuffixByType(string typeName)
         {
-            if (Enum.TryParse(typeof(GameDefinitions.AssetType), typeName, out object typeObj))
+            if (Enum.TryParse(typeof(HonorDefinitions.AssetType), typeName, out object typeObj))
             {
-                return GameDefinitions.AssetSuffix[(GameDefinitions.AssetType)typeObj];
+                return HonorDefinitions.AssetSuffix[(HonorDefinitions.AssetType)typeObj];
             }
             return string.Empty;
         }
@@ -515,7 +515,7 @@ namespace Honor.Editor
         public static void LoadABConfigs()
         {
             s_ABConfigs.Clear();
-            string jsonPath = GamePathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
+            string jsonPath = HonorPathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
             
             if (!File.Exists(jsonPath)) 
                 return;
@@ -870,13 +870,13 @@ namespace Honor.Editor
         /// </summary>
         public static bool ExportExcelToJsonFromABConfig(string excelName)
         {
-            string jsonDir = GamePathUtils.Json.GetRootDirectoryFullPath();
+            string jsonDir = HonorPathUtils.Json.GetRootDirectoryFullPath();
             string jsonPath = $"{jsonDir}/{excelName}.json";
 
             if (!Directory.Exists(jsonDir))
                 Directory.CreateDirectory(jsonDir);
 
-            return TableExportEditorUtility.ExportExcelToJson(GamePathUtils.AB.GetExcelFileFullPath(), jsonPath);
+            return TableExportEditorUtility.ExportExcelToJson(HonorPathUtils.AB.GetExcelFileFullPath(), jsonPath);
         }
         #endregion
     }

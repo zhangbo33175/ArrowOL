@@ -19,7 +19,7 @@ using DG.Tweening;
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent
+    public sealed partial class DebuggerComponent : HonorComponent
     {
         [Serializable]
         public sealed class ConsoleWindow : IDebuggerWindow
@@ -159,8 +159,8 @@ namespace Honor.Runtime
             public void InitLogShowStateFromSaveData()
             {
                 // 一次性从存档读取（读取成功后置位，避免每帧 OnDraw 重复读档覆盖交互中的开关状态）；
-                // 【修复】PersistComponent 已去 Singleton、去 GameComponent：由门面 HonorCoreManager
-                // 创建并持有（非 GameComponent 派生、也未注册进 GameComponentsGroup），
+                // 【修复】PersistComponent 已去 Singleton、去 HonorComponent：由门面 HonorCoreManager
+                // 创建并持有（非 HonorComponent 派生、也未注册进 HonorComponentGroup），
                 // 故仅经门面取用（HasPersist / GetBool），不再缓存组件引用。
                 if (m_LogShowStateLoaded) return;
                 if (!HonorCoreManager.Instance.HasPersist) return;
@@ -567,7 +567,7 @@ namespace Honor.Runtime
                     bool isDragMofidy = false;
                     // 计算并开始渲染log区域
                     {
-                        //if (debugComponent.FullWindowInDrag && debugComponent.WinModel == GameDefinitions.DebugWindowModel.FullWindow)
+                        //if (debugComponent.FullWindowInDrag && debugComponent.WinModel == HonorDefinitions.DebugWindowModel.FullWindow)
                         //{
                         //    m_SelectedNode = null;
                         //    if (debugComponent.FullWindowDownPos.y < debugComponent.LogScrollRect.y)
@@ -742,8 +742,8 @@ namespace Honor.Runtime
                                     if (jsonData.ContainsKey("code") && (int)jsonData["code"] == 0)
                                     {
                                         m_UploadButtonWords = "<color=#00FF00FF>上传日志成功</color>";
-                                        DOTween.Kill(GameDOTweenTypes.DebuggerLogTextTween);
-                                        DOTween.Sequence().AppendInterval(3).OnComplete(() =>{m_UploadButtonWords = "上传日志";}).SetUpdate(true).SetId(GameDOTweenTypes.DebuggerLogTextTween);
+                                        DOTween.Kill(HonorTweenType.DebuggerLogTextTween);
+                                        DOTween.Sequence().AppendInterval(3).OnComplete(() =>{m_UploadButtonWords = "上传日志";}).SetUpdate(true).SetId(HonorTweenType.DebuggerLogTextTween);
                                         Log.Debug($"日志 {fileName} 上传成功。");       
                                     }
                                 }
@@ -755,16 +755,16 @@ namespace Honor.Runtime
                         case HTTPRequestStates.TimedOut:
                             {
                                 m_UploadButtonWords = "<color=#FF0000FF>上传日志失败</color>";
-                                DOTween.Kill(GameDOTweenTypes.DebuggerLogTextTween);
-                                DOTween.Sequence().AppendInterval(3).OnComplete(() =>{m_UploadButtonWords = "上传日志";}).SetUpdate(true).SetId(GameDOTweenTypes.DebuggerLogTextTween);
+                                DOTween.Kill(HonorTweenType.DebuggerLogTextTween);
+                                DOTween.Sequence().AppendInterval(3).OnComplete(() =>{m_UploadButtonWords = "上传日志";}).SetUpdate(true).SetId(HonorTweenType.DebuggerLogTextTween);
                                 Log.Debug($"日志 {fileName} 上传失败。");
                             } 
                             break;
                     }
                 }, true, -1, -1, GetUrlHeader());
                 m_UploadButtonWords = "<color=#FFFF00FF>上传日志中...</color>";
-                DOTween.Kill(GameDOTweenTypes.DebuggerLogTextTween);
-                DOTween.Sequence().AppendInterval(30).OnComplete(() =>{m_UploadButtonWords = "上传日志";}).SetUpdate(true).SetId(GameDOTweenTypes.DebuggerLogTextTween);
+                DOTween.Kill(HonorTweenType.DebuggerLogTextTween);
+                DOTween.Sequence().AppendInterval(30).OnComplete(() =>{m_UploadButtonWords = "上传日志";}).SetUpdate(true).SetId(HonorTweenType.DebuggerLogTextTween);
                 Log.Debug($"日志 {fileName} 正在上传中......");
             }
 
@@ -792,12 +792,12 @@ namespace Honor.Runtime
                         && downPointY <= m_LogNodeJson.AllLogNodes[m_InShowLogs[i]].LogRect.y + m_LogNodeJson.AllLogNodes[m_InShowLogs[i]].LogRect.height)
                     {
                         m_DebugComponent.ControlInput();
-                        if (m_DebugComponent.WinModel == GameDefinitions.DebugWindowModel.FullWindow)
+                        if (m_DebugComponent.WinModel == HonorDefinitions.DebugWindowModel.FullWindow)
                         {
                             if (m_SelectedNode != m_LogNodeJson.AllLogNodes[m_InShowLogs[i]] && m_DebugComponent.FullWindowInDrag == false)
                             {
                                 m_SelectedNode = m_LogNodeJson.AllLogNodes[m_InShowLogs[i]];
-                                m_DebugComponent.WinModel = GameDefinitions.DebugWindowModel.PopWindow;
+                                m_DebugComponent.WinModel = HonorDefinitions.DebugWindowModel.PopWindow;
                                 m_DebugComponent.SelLogStackTrack = m_LogNodeJson.AllLogNodes[m_InShowLogs[i]].StackTrack;
                                 m_DebugComponent.SelLogString = GetSelectLogString();
                             }

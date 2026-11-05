@@ -87,7 +87,7 @@ namespace Honor.Editor.Inspectors.UIs
             m_SelectedMarkIndex = 0;
 
             // 读取项目多语言字体配置表 LocalizationFonts.json
-            string fontConfigPath = Runtime.GamePathUtils.Json.GetRootDirectoryRelativePath() + "/LocalizationFonts.json";
+            string fontConfigPath = Runtime.HonorPathUtils.Json.GetRootDirectoryRelativePath() + "/LocalizationFonts.json";
             if (!File.Exists(fontConfigPath))
             {
                 return;
@@ -157,7 +157,7 @@ namespace Honor.Editor.Inspectors.UIs
             serializedObject.Update();
 
             // 显示当前预览语言
-            EditorGUILayout.LabelField($"展示多语言: {((GameDefinitions.Language)m_LanguageProperty.enumValueIndex).ToString()}");
+            EditorGUILayout.LabelField($"展示多语言: {((HonorDefinitions.Language)m_LanguageProperty.enumValueIndex).ToString()}");
 
             // 多语言 Key 输入框
             EditorGUILayout.PropertyField(m_KeyNameProperty, new GUIContent("本地化字段名称"));

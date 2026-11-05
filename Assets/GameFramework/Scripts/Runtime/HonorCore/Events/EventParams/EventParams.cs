@@ -25,7 +25,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 事件命令ID（事件类型）
         /// </summary>
-        public GameEventCmd Cmd { get; set; }
+        public HonorEventCmd Cmd { get; set; }
 
         /// <summary>
         /// 事件参数键值对（string -> object）
@@ -42,7 +42,7 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="cmd">事件ID</param>
         /// <param name="objects">事件参数集合（可为null）</param>
-        public EventParams(GameEventCmd cmd, Dictionary<string, object> objects = null)
+        public EventParams(HonorEventCmd cmd, Dictionary<string, object> objects = null)
         {
             Cmd = cmd;
             Objects = objects;
@@ -58,7 +58,7 @@ namespace Honor.Runtime
         /// </summary>
         public void Clear()
         {
-            Cmd = GameEventCmd.None;
+            Cmd = HonorEventCmd.None;
             Objects = null;
         }
 

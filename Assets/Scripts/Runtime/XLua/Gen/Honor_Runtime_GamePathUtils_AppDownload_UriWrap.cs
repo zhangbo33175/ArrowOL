@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsAppDownloadUriWrap 
+    public class HonorRuntimeHonorPathUtilsAppDownloadUriWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.AppDownload.Uri);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.AppDownload.Uri);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -45,7 +45,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.AppDownload.Uri does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.AppDownload.Uri does not have a constructor!");
         }
         
 		
@@ -65,7 +65,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AppDownload.Uri.GetStoreUri(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AppDownload.Uri.GetStoreUri(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

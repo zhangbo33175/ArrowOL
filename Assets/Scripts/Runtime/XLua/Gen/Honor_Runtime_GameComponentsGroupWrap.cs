@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGameComponentsGroupWrap 
+    public class HonorRuntimeHonorComponentGroupWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GameComponentsGroup);
+			System.Type type = typeof(Honor.Runtime.HonorComponentGroup);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -47,7 +47,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GameComponentsGroup does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorComponentGroup does not have a constructor!");
         }
         
 		
@@ -72,7 +72,7 @@ namespace XLua.CSObjectWrap
                 {
                     System.Type _type = (System.Type)translator.GetObject(L, 1, typeof(System.Type));
                     
-                        Honor.Runtime.GameComponent gen_ret = Honor.Runtime.GameComponentsGroup.GetComponent( _type );
+                        Honor.Runtime.HonorComponent gen_ret = Honor.Runtime.HonorComponentGroup.GetComponent( _type );
                         translator.Push(L, gen_ret);
                     
                     
@@ -83,7 +83,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _typeName = LuaAPI.lua_tostring(L, 1);
                     
-                        Honor.Runtime.GameComponent gen_ret = Honor.Runtime.GameComponentsGroup.GetComponent( _typeName );
+                        Honor.Runtime.HonorComponent gen_ret = Honor.Runtime.HonorComponentGroup.GetComponent( _typeName );
                         translator.Push(L, gen_ret);
                     
                     
@@ -95,7 +95,7 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.GameComponentsGroup.GetComponent!");
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.HonorComponentGroup.GetComponent!");
             
         }
         
@@ -110,9 +110,9 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameComponent _component = (Honor.Runtime.GameComponent)translator.GetObject(L, 1, typeof(Honor.Runtime.GameComponent));
+                    Honor.Runtime.HonorComponent _component = (Honor.Runtime.HonorComponent)translator.GetObject(L, 1, typeof(Honor.Runtime.HonorComponent));
                     
-                    Honor.Runtime.GameComponentsGroup.RegisterComponent( _component );
+                    Honor.Runtime.HonorComponentGroup.RegisterComponent( _component );
                     
                     
                     
@@ -135,7 +135,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                    Honor.Runtime.GameComponentsGroup.Clear(  );
+                    Honor.Runtime.HonorComponentGroup.Clear(  );
                     
                     
                     

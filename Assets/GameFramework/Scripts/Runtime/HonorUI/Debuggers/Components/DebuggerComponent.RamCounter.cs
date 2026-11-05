@@ -10,7 +10,7 @@
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent
+    public sealed partial class DebuggerComponent : HonorComponent
     {
         //=========================================================================
         // 内存计数器（内部私有类）

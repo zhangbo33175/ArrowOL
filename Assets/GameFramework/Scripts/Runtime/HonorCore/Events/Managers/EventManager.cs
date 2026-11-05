@@ -61,7 +61,7 @@ namespace Honor.Runtime
         /// <param name="userData">用户数据</param>
         /// <param name="handler">事件回调</param>
         /// <returns>是否已注册</returns>
-        public bool Check(GameEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
+        public bool Check(HonorEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
         {
             return m_EventPool.Check(cmd, userData, handler);
         }
@@ -72,7 +72,7 @@ namespace Honor.Runtime
         /// <param name="cmd">事件命令 ID</param>
         /// <param name="userData">订阅时携带的用户数据</param>
         /// <param name="handler">事件回调</param>
-        public void Subscribe(GameEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
+        public void Subscribe(HonorEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
         {
             m_EventPool.Subscribe(cmd, userData, handler);
         }
@@ -83,7 +83,7 @@ namespace Honor.Runtime
         /// <param name="cmd">事件命令 ID</param>
         /// <param name="userData">订阅时的用户数据</param>
         /// <param name="handler">要取消的回调</param>
-        public void Unsubscribe(GameEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
+        public void Unsubscribe(HonorEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
         {
             m_EventPool.Unsubscribe(cmd, userData, handler);
         }

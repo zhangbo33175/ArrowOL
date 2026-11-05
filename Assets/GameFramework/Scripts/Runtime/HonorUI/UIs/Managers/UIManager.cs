@@ -690,7 +690,7 @@ namespace Honor.Runtime
                         ["BangsWidth"] = m_UIBangsSize.x,
                         ["BangsHeight"] = m_UIBangsSize.y
                     };
-                    HonorCoreManager.Instance.Fire(this, GameEventCmd.ScreenOrientationChanged, orientationParam);
+                    HonorCoreManager.Instance.Fire(this, HonorEventCmd.ScreenOrientationChanged, orientationParam);
                     m_ScreenOrientation = Screen.orientation;
                 }
             }

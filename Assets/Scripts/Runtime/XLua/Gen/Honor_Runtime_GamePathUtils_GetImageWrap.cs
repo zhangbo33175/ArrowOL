@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsGetImageWrap 
+    public class HonorRuntimeHonorPathUtilsGetImageWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.GetImage);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.GetImage);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -45,7 +45,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.GetImage does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.GetImage does not have a constructor!");
         }
         
 		
@@ -68,7 +68,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _spriteName = LuaAPI.lua_tostring(L, 1);
                     
-                        UnityEngine.Sprite gen_ret = Honor.Runtime.GamePathUtils.GetImage.GetImageByName( _spriteName );
+                        UnityEngine.Sprite gen_ret = Honor.Runtime.HonorPathUtils.GetImage.GetImageByName( _spriteName );
                         translator.Push(L, gen_ret);
                     
                     

@@ -166,7 +166,7 @@ namespace Honor.Runtime
         private void InitEditorLuaPathMapping()
         {
             m_LuaScriptsFullPathsMapForLoading.Clear();
-            string luaRoot = GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath();
+            string luaRoot = HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath();
             string[] files = Directory.GetFiles(luaRoot, "*.lua.txt", SearchOption.AllDirectories);
 
             foreach (string path in files)
@@ -190,7 +190,7 @@ namespace Honor.Runtime
             m_LuaModuleABPathCache.Clear();
             m_LuaModuleNotFoundCache.Clear();
             string luaABRoot = AssetBundleLoader
-                .GetABFormatPath(GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath())
+                .GetABFormatPath(HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath())
                 .Replace(".bundle", string.Empty);
 
             foreach (string key in HonorAssetManager.Instance.DependsDataList.Keys)

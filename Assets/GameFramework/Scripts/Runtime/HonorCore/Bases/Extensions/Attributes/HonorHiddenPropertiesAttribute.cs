@@ -1,0 +1,48 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  HonorHiddenPropertiesAttribute.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   游戏框架隐藏属性特性，用于标记需要在Inspector中隐藏的成员属性
+ *            配合框架自定义编辑器实现批量隐藏默认属性
+ ***************************************************************/
+
+using System;
+
+namespace Honor.Runtime
+{
+    #region 游戏框架 - 隐藏属性特性
+    /// <summary>
+    /// 游戏框架隐藏属性特性
+    /// </summary>
+    /// <remarks>
+    /// 用于标记在类上，指定需要在 Inspector 中隐藏的属性名称
+    /// 配合自定义编辑器使用，实现批量隐藏默认属性
+    /// </remarks>
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public class HonorHiddenPropertiesAttribute : Attribute
+    {
+        //=========================================================================
+        // 公共属性
+        //=========================================================================
+        /// <summary>
+        /// 需要在Inspector中隐藏的属性名称数组
+        /// </summary>
+        public string[] PropertiesNames { get; }
+
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        /// <summary>
+        /// 构造隐藏属性特性
+        /// </summary>
+        /// <param name="propertiesNames">需要隐藏的属性名称参数数组</param>
+        public HonorHiddenPropertiesAttribute(params string[] propertiesNames)
+        {
+            PropertiesNames = propertiesNames;
+        }
+    }
+    #endregion
+}

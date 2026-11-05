@@ -57,9 +57,9 @@ namespace Honor.Runtime
             // 存档版本升级逻辑（旧版本存档自动升级兼容）
             // ==============================================
             string versionStringInSave = HonorCoreManager.Instance.GetString(
-                GameConstants.Persist.Common.WayType,
-                GameConstants.Persist.Common.ClassifyName,
-                GameConstants.Persist.Common.ItemKey.Version,
+                HonorConstants.Persist.Common.WayType,
+                HonorConstants.Persist.Common.ClassifyName,
+                HonorConstants.Persist.Common.ItemKey.Version,
                 "1.3.0");
 
             if (Version.Parse(versionStringInSave) < Version.Parse("1.3.0"))
@@ -83,7 +83,7 @@ namespace Honor.Runtime
             RefreshVersionRecorders();
 
             // 注册 GDPR 隐私政策完成回调
-            HonorCoreManager.Instance.Subscribe(GameEventCmd.GDPROver, this, OnGDPRStateChanged);
+            HonorCoreManager.Instance.Subscribe(HonorEventCmd.GDPROver, this, OnGDPRStateChanged);
             
             // 非 WebGL 平台直接初始化启动
             InitLaunch(ownerMachine);
@@ -106,7 +106,7 @@ namespace Honor.Runtime
             base.OnLeave(ownerMachine, isShutdown);
 
             // 注销 GDPR 事件
-            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.GDPROver, this, OnGDPRStateChanged);
+            HonorCoreManager.Instance.Unsubscribe(HonorEventCmd.GDPROver, this, OnGDPRStateChanged);
         }
 
         #endregion
@@ -182,24 +182,24 @@ namespace Honor.Runtime
         private void RefreshVersionRecorders()
         {
             string versionStringInSave = HonorCoreManager.Instance.GetString(
-                GameConstants.Persist.Common.WayType,
-                GameConstants.Persist.Common.ClassifyName,
-                GameConstants.Persist.Common.ItemKey.Version,
-                GameConstants.MinGameVersion);
+                HonorConstants.Persist.Common.WayType,
+                HonorConstants.Persist.Common.ClassifyName,
+                HonorConstants.Persist.Common.ItemKey.Version,
+                HonorConstants.MinGameVersion);
 
             string versionStringInPackage = Application.version;
 
             if (versionStringInSave != versionStringInPackage)
             {
                 HonorCoreManager.Instance.SetString(
-                    GameConstants.Persist.Common.WayType,
-                    GameConstants.Persist.Common.ClassifyName,
-                    GameConstants.Persist.Common.ItemKey.Version,
+                    HonorConstants.Persist.Common.WayType,
+                    HonorConstants.Persist.Common.ClassifyName,
+                    HonorConstants.Persist.Common.ItemKey.Version,
                     versionStringInPackage);
 
                 HonorCoreManager.Instance.Save(
-                    GameConstants.Persist.Common.WayType,
-                    GameConstants.Persist.Common.ClassifyName);
+                    HonorConstants.Persist.Common.WayType,
+                    HonorConstants.Persist.Common.ClassifyName);
             }
         }
 

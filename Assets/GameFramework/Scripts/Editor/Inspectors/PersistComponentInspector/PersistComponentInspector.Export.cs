@@ -178,7 +178,7 @@ namespace Honor.Editor
                         // 返回代码
                         content += "----------------------------------------------------------------------------------------------\n";
 
-                        string path = Runtime.GamePathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/" + saveDataFileName + ".lua.txt";
+                        string path = Runtime.HonorPathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/" + saveDataFileName + ".lua.txt";
                         File.WriteAllText(path, stringBuilder.ToString() + content, new UTF8Encoding(false));
                         Log.Debug("生成 " + path + " 文件成功。");
 
@@ -226,7 +226,7 @@ namespace Honor.Editor
             rootStringBuilder.AppendLine(HonorTxt.Format(""));
             rootStringBuilder.AppendLine(HonorTxt.Format("return SaveRootData"));
 
-            string saveRootPath = Runtime.GamePathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/SaveRootData.lua.txt";
+            string saveRootPath = Runtime.HonorPathUtils.Save.GetLuaScriptRootDirectoryFullPath() + "/SaveRootData.lua.txt";
             File.WriteAllText(saveRootPath, rootStringBuilder.ToString(), new UTF8Encoding(false));
             Log.Debug("生成 " + saveRootPath + " 文件成功。");
         }
@@ -239,16 +239,16 @@ namespace Honor.Editor
         /// </summary>
         private static void GenerateLuaProtos()
         {
-            if (Directory.Exists(Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()))
+            if (Directory.Exists(Runtime.HonorPathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()))
             {
-                Directory.Delete(Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath(), true);
+                Directory.Delete(Runtime.HonorPathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath(), true);
             }
 
-            Directory.CreateDirectory(Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath());
-            Log.Debug(HonorTxt.Format("清空{0}文件夹成功。", Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()));
+            Directory.CreateDirectory(Runtime.HonorPathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath());
+            Log.Debug(HonorTxt.Format("清空{0}文件夹成功。", Runtime.HonorPathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath()));
             AssetDatabase.Refresh();
 
-            string[] fileFullPaths = Directory.GetFiles(Runtime.GamePathUtils.Proto.Save.GetRootDirectoryFullPath(), "*.proto", SearchOption.AllDirectories);
+            string[] fileFullPaths = Directory.GetFiles(Runtime.HonorPathUtils.Proto.Save.GetRootDirectoryFullPath(), "*.proto", SearchOption.AllDirectories);
             for (int index = 0; index < fileFullPaths.Length; index++)
             {
                 string path = fileFullPaths[index].Replace('\\', '/');
@@ -292,7 +292,7 @@ namespace Honor.Editor
                     .AppendLine("]]");
 
                 string luaScriptName = HonorTxt.Format("{0}.lua.txt", fileName);
-                string outputPath = HonorTxt.Format("{0}/{1}", Runtime.GamePathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath(), luaScriptName);
+                string outputPath = HonorTxt.Format("{0}/{1}", Runtime.HonorPathUtils.Proto.Save.GetLuaScriptProtosDirectoryFullPath(), luaScriptName);
                 File.WriteAllText(outputPath, stringBuilder.ToString(), new UTF8Encoding(false));
 
                 Log.Debug(HonorTxt.Format("生成{0}文件成功。", outputPath));
@@ -313,8 +313,8 @@ namespace Honor.Editor
         {
             luaFilesDeclaresLines = new List<List<string>>();
 
-            string[] protoSrcPaths = Directory.GetFiles(GamePathUtils.Proto.Save.GetRootDirectoryFullPath(), "*.proto");
-            string targetDirectoryPath = Runtime.GamePathUtils.Proto.Save.GetLuaScriptDeclarationsDirectoryFullPath();
+            string[] protoSrcPaths = Directory.GetFiles(HonorPathUtils.Proto.Save.GetRootDirectoryFullPath(), "*.proto");
+            string targetDirectoryPath = Runtime.HonorPathUtils.Proto.Save.GetLuaScriptDeclarationsDirectoryFullPath();
             
             if (!Directory.Exists(targetDirectoryPath))
             {

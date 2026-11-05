@@ -34,7 +34,7 @@ namespace Honor.Runtime
         {
             if (list == null)
             {
-                throw new GameException("Scene list 无效。");
+                throw new HonorException("Scene list 无效。");
             }
 
             // 如果是【卸载队列】：只按场景名称匹配（只存 assetName）
@@ -42,7 +42,7 @@ namespace Honor.Runtime
             {
                 if (string.IsNullOrEmpty(assetName))
                 {
-                    throw new GameException("Scene assetName 无效。");
+                    throw new HonorException("Scene assetName 无效。");
                 }
 
                 for (int index = 0; index < list.Count; index++)
@@ -59,12 +59,12 @@ namespace Honor.Runtime
             {
                 if (string.IsNullOrEmpty(abPath))
                 {
-                    throw new GameException("Scene abPath 无效。");
+                    throw new HonorException("Scene abPath 无效。");
                 }
 
                 if (string.IsNullOrEmpty(assetName))
                 {
-                    throw new GameException("Scene assetName 无效。");
+                    throw new HonorException("Scene assetName 无效。");
                 }
 
                 for (int index = 0; index < list.Count; index++)
@@ -94,12 +94,12 @@ namespace Honor.Runtime
         {
             if (list == null)
             {
-                throw new GameException("Scene list 无效。");
+                throw new HonorException("Scene list 无效。");
             }
 
             if (string.IsNullOrEmpty(assetName))
             {
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
             }
 
             // 卸载队列：存储格式 [assetName]

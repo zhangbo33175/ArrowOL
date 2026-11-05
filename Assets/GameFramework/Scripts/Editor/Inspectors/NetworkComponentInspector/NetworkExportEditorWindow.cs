@@ -68,20 +68,20 @@ namespace Honor.Editor
             {
                 GenerateProtosToLuaDir();
                 GenerateProtoToEmmyLua();
-                string filePath = GamePathUtils.Network.GetExcelFileFullPath();
+                string filePath = HonorPathUtils.Network.GetExcelFileFullPath();
                 string tableFullName = filePath.Substring(filePath.LastIndexOf('/') + 1);
                 string tableName = tableFullName.Substring(0, tableFullName.Length - ".xlsm".Length);
                 ExportExcelToLua(tableName);
             });
 
             BindClick("openExcelBtn", () =>
-                Process.Start(GamePathUtils.Network.GetExcelFileFullPath()));
+                Process.Start(HonorPathUtils.Network.GetExcelFileFullPath()));
 
             BindClick("openDirBtn", () =>
-                Process.Start("Explorer.exe", GamePathUtils.Network.GetExcelRootDirectoryFullPath().Replace('/', '\\')));
+                Process.Start("Explorer.exe", HonorPathUtils.Network.GetExcelRootDirectoryFullPath().Replace('/', '\\')));
 
             BindClick("openProtoDirBtn", () =>
-                Process.Start(GamePathUtils.Proto.Net.GetRootDirectoryFullPath()));
+                Process.Start(HonorPathUtils.Proto.Net.GetRootDirectoryFullPath()));
 
             // 超时配置（纯 C# 组件，经门面访问）
             // TODO: 加固健壮性——Q<> 查不到 FloatField 时原写法直接空引用，加判空
@@ -98,7 +98,7 @@ namespace Honor.Editor
         private void GenerateProtosToLuaDir()
         {
             ClearAllLuaProtos();
-            string[] files = Directory.GetFiles(GamePathUtils.Proto.Net.GetRootDirectoryFullPath(), "*.proto", SearchOption.AllDirectories);
+            string[] files = Directory.GetFiles(HonorPathUtils.Proto.Net.GetRootDirectoryFullPath(), "*.proto", SearchOption.AllDirectories);
             foreach (string path in files)
             {
                 string p = path.Replace('\\', '/');
@@ -127,7 +127,7 @@ namespace Honor.Editor
                   .Append(content)
                   .AppendLine("]]");
 
-                string outputPath = $"{GamePathUtils.Proto.Net.GetLuaScriptRootDirectoryFullPath()}/{Path.GetFileNameWithoutExtension(fileName)}.lua.txt";
+                string outputPath = $"{HonorPathUtils.Proto.Net.GetLuaScriptRootDirectoryFullPath()}/{Path.GetFileNameWithoutExtension(fileName)}.lua.txt";
                 File.WriteAllText(outputPath, sb.ToString(), new UTF8Encoding(false));
             }
             AssetDatabase.Refresh();
@@ -135,7 +135,7 @@ namespace Honor.Editor
 
         private void ClearAllLuaProtos()
         {
-            string dir = GamePathUtils.Proto.Net.GetLuaScriptRootDirectoryFullPath();
+            string dir = HonorPathUtils.Proto.Net.GetLuaScriptRootDirectoryFullPath();
             if (Directory.Exists(dir)) Directory.Delete(dir, true);
             Directory.CreateDirectory(dir);
             AssetDatabase.Refresh();
@@ -143,8 +143,8 @@ namespace Honor.Editor
 
         private void GenerateProtoToEmmyLua()
         {
-            string[] paths = Directory.GetFiles(GamePathUtils.Proto.Net.GetRootDirectoryFullPath(), "*.proto");
-            string emPath = GamePathUtils.Proto.Net.GetLuaScriptDeclarationsDirectoryFullPath();
+            string[] paths = Directory.GetFiles(HonorPathUtils.Proto.Net.GetRootDirectoryFullPath(), "*.proto");
+            string emPath = HonorPathUtils.Proto.Net.GetLuaScriptDeclarationsDirectoryFullPath();
             if (!Directory.Exists(emPath)) Directory.CreateDirectory(emPath);
 
             foreach (string path in paths)
@@ -195,8 +195,8 @@ namespace Honor.Editor
         #region Excel → Lua
         private bool ExportExcelToLua(string excelName)
         {
-            DataSet result = TableExportEditorUtility.GetExcelData(GamePathUtils.Network.GetExcelFileFullPath());
-            string luaPath = GamePathUtils.Network.GetLuaScriptRootDirectoryFullPath() + "/" + excelName + ".lua.txt";
+            DataSet result = TableExportEditorUtility.GetExcelData(HonorPathUtils.Network.GetExcelFileFullPath());
+            string luaPath = HonorPathUtils.Network.GetLuaScriptRootDirectoryFullPath() + "/" + excelName + ".lua.txt";
             int rows = result.Tables[0].Rows.Count;
 
             var dataKeyList = new List<string>();
@@ -276,7 +276,7 @@ namespace Honor.Editor
                 if (line.StartsWith("import"))
                 {
                     string cls = line.Substring(line.IndexOf("import") + 8).Trim();
-                    foreach (string f in Directory.GetFiles(GamePathUtils.Proto.Net.GetRootDirectoryFullPath(), cls))
+                    foreach (string f in Directory.GetFiles(HonorPathUtils.Proto.Net.GetRootDirectoryFullPath(), cls))
                     {
                         string n = cls.Replace(".proto", "");
                         var sub = new List<string>();

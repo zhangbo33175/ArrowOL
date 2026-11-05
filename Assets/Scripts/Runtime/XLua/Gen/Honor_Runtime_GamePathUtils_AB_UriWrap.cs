@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsABUriWrap 
+    public class HonorRuntimeHonorPathUtilsABUriWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.AB.Uri);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.AB.Uri);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -45,7 +45,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.AB.Uri does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.AB.Uri does not have a constructor!");
         }
         
 		
@@ -69,7 +69,7 @@ namespace XLua.CSObjectWrap
                     string _fileName = LuaAPI.lua_tostring(L, 1);
                     string _versionno = LuaAPI.lua_tostring(L, 2);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Uri.GetHotfixFileUri( _fileName, _versionno );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Uri.GetHotfixFileUri( _fileName, _versionno );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -80,7 +80,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _fileName = LuaAPI.lua_tostring(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Uri.GetHotfixFileUri( _fileName );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Uri.GetHotfixFileUri( _fileName );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -92,7 +92,7 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.GamePathUtils.AB.Uri.GetHotfixFileUri!");
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.HonorPathUtils.AB.Uri.GetHotfixFileUri!");
             
         }
         

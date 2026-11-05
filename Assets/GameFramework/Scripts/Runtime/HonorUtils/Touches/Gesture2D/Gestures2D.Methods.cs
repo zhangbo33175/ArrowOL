@@ -145,11 +145,11 @@ namespace Honor.Runtime
         /// <param name="goHits">收集命中对象的输出列表</param>
         private void CollectSelectRaycastHits(Ray ray, List<GameObject> goHits)
         {
-            if (m_ColliderDetectMode == GameDefinitions.DimensionMode.Two)
+            if (m_ColliderDetectMode == HonorDefinitions.DimensionMode.Two)
             {
                 CollectSelectHits2D(ray, goHits);
             }
-            else if (m_ColliderDetectMode == GameDefinitions.DimensionMode.Three)
+            else if (m_ColliderDetectMode == HonorDefinitions.DimensionMode.Three)
             {
                 CollectSelectHits3D(ray, goHits);
             }

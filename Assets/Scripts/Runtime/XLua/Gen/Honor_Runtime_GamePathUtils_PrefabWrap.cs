@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsPrefabWrap 
+    public class HonorRuntimeHonorPathUtilsPrefabWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Prefab);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Prefab);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -48,7 +48,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Prefab does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Prefab does not have a constructor!");
         }
         
 		
@@ -68,7 +68,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Prefab.GetRootDirectoryRelativePath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Prefab.GetRootDirectoryRelativePath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -92,7 +92,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Prefab.GetRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Prefab.GetRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -116,7 +116,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Prefab.GetFrameworkRootDirectoryRelativePath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -140,7 +140,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Prefab.GetFrameworkRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Prefab.GetFrameworkRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

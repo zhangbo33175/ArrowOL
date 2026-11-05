@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -56,12 +56,12 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(abPath))
             {
-                throw new GameException("Scene abPath 无效。");
+                throw new HonorException("Scene abPath 无效。");
             }
 
             if (string.IsNullOrEmpty(assetName))
             {
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
             }
 
             // 加入预加载队列
@@ -83,17 +83,17 @@ namespace Honor.Runtime
         public void LoadSceneAsync(string abPath, string assetName, SceneLoadOverCallback overCallback = null)
         {
             if (string.IsNullOrEmpty(abPath))
-                throw new GameException("Scene abPath 无效。");
+                throw new HonorException("Scene abPath 无效。");
             if (string.IsNullOrEmpty(assetName))
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
 
             // 防呆：正在卸载 / 正在加载 / 已加载 → 直接抛异常
             if (SceneIsUnloading(abPath, assetName))
-                throw new GameException($"场景 {abPath}/{assetName} 正在卸载中，无法加载");
+                throw new HonorException($"场景 {abPath}/{assetName} 正在卸载中，无法加载");
             if (SceneIsLoading(abPath, assetName))
-                throw new GameException($"场景 {abPath}/{assetName} 正在加载中，不可重复加载");
+                throw new HonorException($"场景 {abPath}/{assetName} 正在加载中，不可重复加载");
             if (SceneIsLoaded(abPath, assetName))
-                throw new GameException($"场景 {abPath}/{assetName} 已加载，不可重复加载");
+                throw new HonorException($"场景 {abPath}/{assetName} 已加载，不可重复加载");
 
             // 加入加载队列
             m_LoadingSceneAssetNames.Add(new List<string> { abPath, assetName });
@@ -118,17 +118,17 @@ namespace Honor.Runtime
         public UnityEngine.SceneManagement.Scene LoadSceneSync(string abPath, string assetName)
         {
             if (string.IsNullOrEmpty(abPath))
-                throw new GameException("Scene abPath 无效。");
+                throw new HonorException("Scene abPath 无效。");
             if (string.IsNullOrEmpty(assetName))
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
 
             // 防重复加载判断
             if (SceneIsUnloading(abPath, assetName))
-                throw new GameException($"场景 {abPath}/{assetName} 正在卸载");
+                throw new HonorException($"场景 {abPath}/{assetName} 正在卸载");
             if (SceneIsLoading(abPath, assetName))
-                throw new GameException($"场景 {abPath}/{assetName} 正在加载");
+                throw new HonorException($"场景 {abPath}/{assetName} 正在加载");
             if (SceneIsLoaded(abPath, assetName))
-                throw new GameException($"场景 {abPath}/{assetName} 已加载");
+                throw new HonorException($"场景 {abPath}/{assetName} 已加载");
 
             // 清理预加载队列
             RemoveAssetNamesFromList(m_PreLoadSceneAssetNames, abPath, assetName);
@@ -147,7 +147,7 @@ namespace Honor.Runtime
         public void UnloadScene(string sceneName, SceneUnloadOverCallback overCallback = null)
         {
             if (string.IsNullOrEmpty(sceneName))
-                throw new GameException("Scene sceneName 无效。");
+                throw new HonorException("Scene sceneName 无效。");
 
             // 只有已加载的场景才能卸载
             if (IsAssetNameExistInList(m_LoadedSceneAssetNames, sceneName))

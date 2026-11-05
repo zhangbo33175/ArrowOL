@@ -74,8 +74,8 @@ namespace Honor.Runtime
                     // 震动结束后触发回调
                     DOTween.Sequence().AppendInterval(duration).AppendCallback(() => {
                         overCallback?.Invoke();
-                    }).stringId = GameDOTweenTypes.CustomVibrateSustainTween;
-                }).stringId = GameDOTweenTypes.CustomVibrateDelayTween;
+                    }).stringId = HonorTweenType.CustomVibrateSustainTween;
+                }).stringId = HonorTweenType.CustomVibrateDelayTween;
             }
 #endif
         }
@@ -110,8 +110,8 @@ namespace Honor.Runtime
                     HapticPatterns.PlayEmphasis(amplitude, frequency);
                     DOTween.Sequence().AppendInterval(interval).AppendCallback(() => {
                         overCallback?.Invoke();
-                    }).stringId = GameDOTweenTypes.EmphasisVibrateSustainTween;
-                }).stringId = GameDOTweenTypes.EmphasisVibrateDelayTween;
+                    }).stringId = HonorTweenType.EmphasisVibrateSustainTween;
+                }).stringId = HonorTweenType.EmphasisVibrateDelayTween;
             }
 #endif
         }
@@ -186,10 +186,10 @@ namespace Honor.Runtime
         public void StopAll()
         {
             // 停止所有延迟/计时动画
-            DOTween.Kill(GameDOTweenTypes.CustomVibrateDelayTween);
-            DOTween.Kill(GameDOTweenTypes.CustomVibrateSustainTween);
-            DOTween.Kill(GameDOTweenTypes.EmphasisVibrateDelayTween);
-            DOTween.Kill(GameDOTweenTypes.EmphasisVibrateSustainTween);
+            DOTween.Kill(HonorTweenType.CustomVibrateDelayTween);
+            DOTween.Kill(HonorTweenType.CustomVibrateSustainTween);
+            DOTween.Kill(HonorTweenType.EmphasisVibrateDelayTween);
+            DOTween.Kill(HonorTweenType.EmphasisVibrateSustainTween);
 
 #if NICEVIBRATIONS_ENABLE
             HapticController.Stop();

@@ -24,7 +24,7 @@ namespace Honor.Runtime
         /// 场景相机在场景相机列表中的index
         /// </summary>
         [SerializeField]
-        [GameTitle("场景相机索引值")]
+        [HonorTitle("场景相机索引值")]
         private int m_SceneCameraIndex;
         public int SceneCameraIndex
         {
@@ -49,7 +49,7 @@ namespace Honor.Runtime
         /// 是否为正交场景相机类型
         /// </summary>
         [SerializeField]
-        [GameTitle("正交场景相机类型(IsOrthographic)")]
+        [HonorTitle("正交场景相机类型(IsOrthographic)")]
         private bool m_IsOrthographic;
         public bool IsOrthographic
         {
@@ -68,7 +68,7 @@ namespace Honor.Runtime
         /// 手势距离透视相机Z轴距离
         /// </summary>
         [SerializeField]
-        [GameTitle("手势距离相机Z轴距离(GestureCameraDistance)")]
+        [HonorTitle("手势距离相机Z轴距离(GestureCameraDistance)")]
         private float m_GestureCameraDistance;
         public float GestureCameraDistance
         {
@@ -88,7 +88,7 @@ namespace Honor.Runtime
         /// 总开关
         /// </summary>
         [SerializeField]
-        [GameTitle("总开关 (EnableSwitch)")]
+        [HonorTitle("总开关 (EnableSwitch)")]
         private bool m_EnableSwitch;
         public bool EnableSwitch
         {
@@ -107,7 +107,7 @@ namespace Honor.Runtime
         ///【滑动】滑动开关
         /// </summary>
         [SerializeField]
-        [GameTitle("滑动开关 (SwipeSwitch)")]
+        [HonorTitle("滑动开关 (SwipeSwitch)")]
         private bool m_SwipeSwitch;
         public bool SwipeSwitch
         {
@@ -125,7 +125,7 @@ namespace Honor.Runtime
         ///【缩放】缩放开关
         /// </summary>
         [SerializeField]
-        [GameTitle("缩放开关 (PinchSwitch)")]
+        [HonorTitle("缩放开关 (PinchSwitch)")]
         private bool m_PinchSwitch;
         public bool PinchSwitch
         {
@@ -143,7 +143,7 @@ namespace Honor.Runtime
         ///【缩放】鼠标滚轮缩放开关
         /// </summary>
         [SerializeField]
-        [GameTitle("鼠标滚轮缩放开关 (MouseWheelPinchSwitch)")]
+        [HonorTitle("鼠标滚轮缩放开关 (MouseWheelPinchSwitch)")]
         private bool m_MouseWheelPinchSwitch;
         public bool MouseWheelPinchSwitch
         {
@@ -161,7 +161,7 @@ namespace Honor.Runtime
         ///【选中】选中开关
         /// </summary>
         [SerializeField]
-        [GameTitle("选中开关 (SelectSwitch)")]
+        [HonorTitle("选中开关 (SelectSwitch)")]
         private bool m_SelectSwitch;
         public bool SelectSwitch
         {
@@ -179,7 +179,7 @@ namespace Honor.Runtime
         ///【拖拽】拖拽开关
         /// </summary>
         [SerializeField]
-        [GameTitle("拖拽开关 (DragSwitch)")]
+        [HonorTitle("拖拽开关 (DragSwitch)")]
         private bool m_DragSwitch;
         public bool DragSwitch
         {
@@ -199,7 +199,7 @@ namespace Honor.Runtime
         /// 有效空间内中心位置
         /// </summary>
         [SerializeField]
-        [GameTitle("有效空间内中心位置 (SpaceCenterPosition)")]
+        [HonorTitle("有效空间内中心位置 (SpaceCenterPosition)")]
         private Vector2 m_SpaceCenterPosition = Vector2.zero;
         public Vector2 SpaceCenterPosition
         {
@@ -217,7 +217,7 @@ namespace Honor.Runtime
         /// 有效空间内横向总长度
         /// </summary>
         [SerializeField]
-        [GameTitle("有效空间内横向总长度 (SpaceHorizontalLength)")]
+        [HonorTitle("有效空间内横向总长度 (SpaceHorizontalLength)")]
         private float m_SpaceHorizontalLength = 30f;
         public float SpaceHorizontalLength
         {
@@ -235,7 +235,7 @@ namespace Honor.Runtime
         /// 有效空间内纵向总长度
         /// </summary>
         [SerializeField]
-        [GameTitle("有效空间内纵向总长度 (SpaceVerticalLength)")]
+        [HonorTitle("有效空间内纵向总长度 (SpaceVerticalLength)")]
         private float m_SpaceVerticalLength = 30f;
         public float SpaceVerticalLength
         {
@@ -253,7 +253,7 @@ namespace Honor.Runtime
         /// 有效空间内水平方向单侧边缘弹性区长度
         /// </summary>
         [SerializeField]
-        [GameTitle("有效空间内水平方向单侧边缘弹性区长度 (SpaceHorizontalEdgeMoveElasticLength)")]
+        [HonorTitle("有效空间内水平方向单侧边缘弹性区长度 (SpaceHorizontalEdgeMoveElasticLength)")]
         private float m_SpaceHorizontalEdgeMoveElasticLength = 10f;
         public float SpaceHorizontalEdgeMoveElasticLength
         {
@@ -271,7 +271,7 @@ namespace Honor.Runtime
         /// 有效空间内垂直方向单侧边缘弹性区长度
         /// </summary>
         [SerializeField]
-        [GameTitle("有效空间内垂直方向单侧边缘弹性区长度 (SpaceVerticalEdgeMoveElasticLength)")]
+        [HonorTitle("有效空间内垂直方向单侧边缘弹性区长度 (SpaceVerticalEdgeMoveElasticLength)")]
         private float m_SpaceVerticalEdgeMoveElasticLength = 10f;
         public float SpaceVerticalEdgeMoveElasticLength
         {
@@ -291,7 +291,7 @@ namespace Honor.Runtime
         /// 缩放因子
         /// </summary>
         [SerializeField]
-        [GameTitle("缩放因子 (PinchRatio > 0)")]
+        [HonorTitle("缩放因子 (PinchRatio > 0)")]
         private float m_PinchRatio = 150f;
         public float PinchRatio
         {
@@ -309,7 +309,7 @@ namespace Honor.Runtime
         /// 缩放最小值
         /// </summary>
         [SerializeField]
-        [GameTitle("缩放最小值 (PinchMinScale >= 1)")]
+        [HonorTitle("缩放最小值 (PinchMinScale >= 1)")]
         private float m_PinchMinScale = 1f;
         public float PinchMinScale
         {
@@ -327,7 +327,7 @@ namespace Honor.Runtime
         /// 缩放最大值
         /// </summary>
         [SerializeField]
-        [GameTitle("缩放最大值 (PinchMaxScale >= 1)")]
+        [HonorTitle("缩放最大值 (PinchMaxScale >= 1)")]
         private float m_PinchMaxScale = 13f;
         public float PinchMaxScale
         {
@@ -345,7 +345,7 @@ namespace Honor.Runtime
         /// 鼠标滚轮缩放偏移量
         /// </summary>
         [SerializeField]
-        [GameTitle("鼠标滚轮缩放偏移量 (MouseWheelPinchOffset <= 0)")]
+        [HonorTitle("鼠标滚轮缩放偏移量 (MouseWheelPinchOffset <= 0)")]
         private float m_MouseWheelPinchOffset = -400f;
         public float MouseWheelPinchOffset
         {
@@ -363,7 +363,7 @@ namespace Honor.Runtime
         /// 在缩放最小值与最大值边缘的弹性区大小
         /// </summary>
         [SerializeField]
-        [GameTitle("有效空间内缩放最值边缘的弹性区大小 (SpaceEdgeScaleElasticValue)")]
+        [HonorTitle("有效空间内缩放最值边缘的弹性区大小 (SpaceEdgeScaleElasticValue)")]
         private float m_SpaceEdgeScaleElasticValue = 1f;
         public float SpaceEdgeScaleElasticValue
         {
@@ -383,7 +383,7 @@ namespace Honor.Runtime
         /// 滑动或缩放手势结束后的安全时间间隔
         /// </summary>
         [SerializeField]
-        [GameTitle("滑动或缩放手势结束后的安全时间间隔 (SafeTimeOnGestureOver)")]
+        [HonorTitle("滑动或缩放手势结束后的安全时间间隔 (SafeTimeOnGestureOver)")]
         private float m_SafeTimeOnGestureOver = 0.04f;
         public float SafeTimeOnGestureOver
         {
@@ -403,7 +403,7 @@ namespace Honor.Runtime
         /// 非常选中模式：具体流程：选中->开始拖拽->拖拽中->结束拖拽->结束选中
         /// </summary>
         [SerializeField]
-        [GameTitle("常选中模式（SelectHoldMode）")]
+        [HonorTitle("常选中模式（SelectHoldMode）")]
         private bool m_SelectHoldMode;
         public bool SelectHoldMode
         {
@@ -422,7 +422,7 @@ namespace Honor.Runtime
         /// 常选中模式下：当对象处于被选中状态时，再次点击可以将选中状态反弹回未选中状态
         /// </summary>
         [SerializeField]
-        [GameTitle("常选中模式下选中反弹机制（SelectReboundInSelectHoldMode）")]
+        [HonorTitle("常选中模式下选中反弹机制（SelectReboundInSelectHoldMode）")]
         private bool m_SelectReboundInSelectHoldMode;
         public bool SelectReboundInSelectHoldMode
         {
@@ -441,7 +441,7 @@ namespace Honor.Runtime
         /// 常选中模式下：当对象拖拽结束时，可以将选中状态反弹回未选中状态
         /// </summary>
         [SerializeField]
-        [GameTitle("常选中模式下拖拽结束后反弹机制（SelectReboundAfterDragEndInSelectHoldMode）")]
+        [HonorTitle("常选中模式下拖拽结束后反弹机制（SelectReboundAfterDragEndInSelectHoldMode）")]
         private bool m_SelectReboundAfterDragEndInSelectHoldMode;
         public bool SelectReboundAfterDragEndInSelectHoldMode
         {
@@ -459,7 +459,7 @@ namespace Honor.Runtime
         /// 选中对象时所需按压等待时长
         /// </summary>
         [SerializeField]
-        [GameTitle("选中对象时所需按压等待时长 (PressTimeOfSelectingObj)")]
+        [HonorTitle("选中对象时所需按压等待时长 (PressTimeOfSelectingObj)")]
         private float m_PressTimeOfSelectingObj = 0f;
         public float PressTimeOfSelectingObj
         {
@@ -479,9 +479,9 @@ namespace Honor.Runtime
         /// 2D/3D碰撞器选中检测
         /// </summary>
         [SerializeField]
-        [GameTitle("2D/3D碰撞器选中检测 (ColliderDetectMode)")]
-        private GameDefinitions.DimensionMode m_ColliderDetectMode;
-        public GameDefinitions.DimensionMode ColliderDetectMode
+        [HonorTitle("2D/3D碰撞器选中检测 (ColliderDetectMode)")]
+        private HonorDefinitions.DimensionMode m_ColliderDetectMode;
+        public HonorDefinitions.DimensionMode ColliderDetectMode
         {
             set
             {
@@ -497,7 +497,7 @@ namespace Honor.Runtime
         /// 开启Y坐标选中排序
         /// </summary>
         [SerializeField]
-        [GameTitle("开启Y坐标选中排序 (PosYSortSelectSwitch)")]
+        [HonorTitle("开启Y坐标选中排序 (PosYSortSelectSwitch)")]
         private bool m_PosYSortSelectSwitch = true;
         public bool PosYSortSelectSwitch
         {
@@ -515,7 +515,7 @@ namespace Honor.Runtime
         /// 开启RayDistance选中排序
         /// </summary>
         [SerializeField]
-        [GameTitle("开启RayDistance选中排序 (RayDistanceSortSelectSwitch)")]
+        [HonorTitle("开启RayDistance选中排序 (RayDistanceSortSelectSwitch)")]
         private bool m_RayDistanceSortSelectSwitch = true;
         public bool RayDistanceSortSelectSwitch
         {
@@ -533,7 +533,7 @@ namespace Honor.Runtime
         /// 开启SortingLayerOrder选中排序
         /// </summary>
         [SerializeField]
-        [GameTitle("开启SortingLayerOrder选中排序 (SortingLayerOrderSortSelectSwitch)")]
+        [HonorTitle("开启SortingLayerOrder选中排序 (SortingLayerOrderSortSelectSwitch)")]
         private bool m_SortingLayerOrderSortSelectSwitch = true;
         public bool SortingLayerOrderSortSelectSwitch
         {
@@ -552,7 +552,7 @@ namespace Honor.Runtime
         /// 必须按照响应优先级从高到底的顺序设置
         /// </summary>
         [SerializeField]
-        [GameTitle("选中拖拽行为的Lua类名 (SelectingTypes)")]
+        [HonorTitle("选中拖拽行为的Lua类名 (SelectingTypes)")]
         private List<string> m_SelectingTypes;
         public List<string> SelectingTypes
         {
@@ -570,7 +570,7 @@ namespace Honor.Runtime
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在自身中查询
         /// </summary>
         [SerializeField]
-        [GameTitle("选中拖拽行为的Lua类名-在自身中查询 (FindSelectingTypesOnSelf)")]
+        [HonorTitle("选中拖拽行为的Lua类名-在自身中查询 (FindSelectingTypesOnSelf)")]
         private bool m_FindSelectingTypesOnSelf = false;
         public bool FindSelectingTypesOnSelf
         {
@@ -588,7 +588,7 @@ namespace Honor.Runtime
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在父对象中查询
         /// </summary>
         [SerializeField]
-        [GameTitle("选中拖拽行为的Lua类名-在父对象中查询 (FindSelectingTypesOnParent)")]
+        [HonorTitle("选中拖拽行为的Lua类名-在父对象中查询 (FindSelectingTypesOnParent)")]
         private bool m_FindSelectingTypesOnParent = false;
         public bool FindSelectingTypesOnParent
         {
@@ -606,7 +606,7 @@ namespace Honor.Runtime
         /// 选中拖拽行为的LuaBehaviour中的Lua类名-在子对象中查询
         /// </summary>
         [SerializeField]
-        [GameTitle("选中拖拽行为的Lua类名-在子对象中查询 (FindSelectingTypesOnChildren)")]
+        [HonorTitle("选中拖拽行为的Lua类名-在子对象中查询 (FindSelectingTypesOnChildren)")]
         private bool m_FindSelectingTypesOnChildren = false;
         public bool FindSelectingTypesOnChildren
         {

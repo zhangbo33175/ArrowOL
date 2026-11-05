@@ -104,7 +104,7 @@ namespace Honor.Runtime
         public bool HasSoundGroup(string soundGroupName)
         {
             if (string.IsNullOrEmpty(soundGroupName))
-                throw new GameException("Sound group name 无效。");
+                throw new HonorException("Sound group name 无效。");
 
             return m_SoundGroups.ContainsKey(soundGroupName);
         }
@@ -117,7 +117,7 @@ namespace Honor.Runtime
         public HonorSoundCategory GetSoundGroup(string soundGroupName)
         {
             if (string.IsNullOrEmpty(soundGroupName))
-                throw new GameException("Sound group name 无效。");
+                throw new HonorException("Sound group name 无效。");
 
             m_SoundGroups.TryGetValue(soundGroupName, out HonorSoundCategory HonorSoundCategory);
             return HonorSoundCategory;
@@ -144,7 +144,7 @@ namespace Honor.Runtime
         public void GetAllSoundGroups(List<HonorSoundCategory> results)
         {
             if (results == null)
-                throw new GameException("Results 无效。");
+                throw new HonorException("Results 无效。");
 
             results.Clear();
             foreach (var pair in m_SoundGroups)
@@ -184,9 +184,9 @@ namespace Honor.Runtime
             HonorSoundCategoryHelper HonorSoundCategoryHelper)
         {
             if (string.IsNullOrEmpty(soundGroupName))
-                throw new GameException("Sound group name 无效。");
+                throw new HonorException("Sound group name 无效。");
             if (HonorSoundCategoryHelper == null)
-                throw new GameException("Sound group helper 无效。");
+                throw new HonorException("Sound group helper 无效。");
             if (HasSoundGroup(soundGroupName))
                 return false;
 
@@ -210,7 +210,7 @@ namespace Honor.Runtime
         {
             HonorSoundCategory HonorSoundCategory = GetSoundGroup(soundGroupName);
             if (HonorSoundCategory == null)
-                throw new GameException(HonorTxt.Format("Sound group '{0}' 不存在。", soundGroupName));
+                throw new HonorException(HonorTxt.Format("Sound group '{0}' 不存在。", soundGroupName));
 
             HonorSoundCategory.AddSoundAgent(this, HonorSoundPlayerHelper);
         }
@@ -236,7 +236,7 @@ namespace Honor.Runtime
         public void GetAllLoadingSoundSerialIDs(List<int> results)
         {
             if (results == null)
-                throw new GameException("Results 无效。");
+                throw new HonorException("Results 无效。");
 
             results.Clear();
             results.AddRange(m_SoundsLoading);
@@ -414,7 +414,7 @@ namespace Honor.Runtime
                     return;
             }
 
-            throw new GameException(HonorTxt.Format("无法找到 Sound '{0}'。", serialID));
+            throw new HonorException(HonorTxt.Format("无法找到 Sound '{0}'。", serialID));
         }
 
         /// <summary>

@@ -37,7 +37,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 已注册的描边物体集合
         /// </summary>
-        private readonly GameLinkedSet<HonorOutlineEffect> m_Outlines = new GameLinkedSet<HonorOutlineEffect>();
+        private readonly HonorLinkedSet<HonorOutlineEffect> m_Outlines = new HonorLinkedSet<HonorOutlineEffect>();
         #endregion
 
         #region  Inspector 配置

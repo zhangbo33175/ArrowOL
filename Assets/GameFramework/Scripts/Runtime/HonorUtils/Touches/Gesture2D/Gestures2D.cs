@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -171,10 +171,10 @@ namespace Honor.Runtime
             // 修复特殊机型事件丢失问题
             FixSpecialDevicesEventLoses();
 
-            DOTween.Kill(GameDOTweenTypes.CameraMasterTween);
-            DOTween.Kill(GameDOTweenTypes.CameraMoveTween);
-            DOTween.Kill(GameDOTweenTypes.CameraRotateTween);
-            DOTween.Kill(GameDOTweenTypes.CameraScaleTween);
+            DOTween.Kill(HonorTweenType.CameraMasterTween);
+            DOTween.Kill(HonorTweenType.CameraMoveTween);
+            DOTween.Kill(HonorTweenType.CameraRotateTween);
+            DOTween.Kill(HonorTweenType.CameraScaleTween);
             if (gesture.touchCount == 1)
             {
                 Vector3 worldPosition = ScreenToGestureWorld(gesture.position);

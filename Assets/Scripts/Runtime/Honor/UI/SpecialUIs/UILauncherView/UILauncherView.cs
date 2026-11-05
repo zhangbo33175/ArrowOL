@@ -86,7 +86,7 @@ namespace Honor.Runtime
                     m_MinTimeElapsed = true;
                     TryFinish();
                 })
-                .id = GameDOTweenTypes.SplashShowTween;
+                .id = HonorTweenType.SplashShowTween;
 
             // 等闪屏首帧渲染后，立即触发重活（提前进入 Lua 初始化）
             StartCoroutine(TriggerInitAfterFirstFrame());

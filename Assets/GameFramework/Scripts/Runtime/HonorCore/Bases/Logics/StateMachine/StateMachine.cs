@@ -72,17 +72,17 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="owner">持有者</param>
         /// <param name="states">状态机包含的所有状态</param>
-        /// <exception cref="GameException">参数无效时抛出异常</exception>
+        /// <exception cref="HonorException">参数无效时抛出异常</exception>
         public StateMachine(T owner, params State<T>[] states)
         {
             if (owner == null)
             {
-                throw new GameException("状态机创建失败：Owner 不能为空。");
+                throw new HonorException("状态机创建失败：Owner 不能为空。");
             }
 
             if (states == null || states.Length < 1)
             {
-                throw new GameException("状态机创建失败：必须至少包含一个状态。");
+                throw new HonorException("状态机创建失败：必须至少包含一个状态。");
             }
 
             m_Name = string.Empty;
@@ -98,13 +98,13 @@ namespace Honor.Runtime
             {
                 if (state == null)
                 {
-                    throw new GameException("状态机创建失败：状态列表中包含空状态。");
+                    throw new HonorException("状态机创建失败：状态列表中包含空状态。");
                 }
 
                 Type stateType = state.GetType();
                 if (m_States.ContainsKey(stateType))
                 {
-                    throw new GameException($"状态机创建失败：状态 {stateType} 已重复添加。");
+                    throw new HonorException($"状态机创建失败：状态 {stateType} 已重复添加。");
                 }
 
                 m_States.Add(stateType, state);
@@ -209,28 +209,28 @@ namespace Honor.Runtime
         /// 启动状态机
         /// </summary>
         /// <param name="stateType">初始状态类型</param>
-        /// <exception cref="GameException">状态机已运行或状态无效时抛出异常</exception>
+        /// <exception cref="HonorException">状态机已运行或状态无效时抛出异常</exception>
         public void Start(Type stateType)
         {
             if (IsRunning)
             {
-                throw new GameException("状态机已在运行中，无法重复启动。");
+                throw new HonorException("状态机已在运行中，无法重复启动。");
             }
 
             if (stateType == null)
             {
-                throw new GameException("启动失败：状态类型不能为空。");
+                throw new HonorException("启动失败：状态类型不能为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException($"启动失败：类型 {stateType.FullName} 不是有效状态。");
+                throw new HonorException($"启动失败：类型 {stateType.FullName} 不是有效状态。");
             }
 
             State<T> state = GetState(stateType);
             if (state == null)
             {
-                throw new GameException($"启动失败：状态 {stateType.FullName} 不存在于状态机中。");
+                throw new HonorException($"启动失败：状态 {stateType.FullName} 不存在于状态机中。");
             }
 
             m_CurrentStateTime = 0f;
@@ -257,12 +257,12 @@ namespace Honor.Runtime
         {
             if (stateType == null)
             {
-                throw new GameException("状态类型不能为空。");
+                throw new HonorException("状态类型不能为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException($"类型 {stateType.FullName} 不是有效状态。");
+                throw new HonorException($"类型 {stateType.FullName} 不是有效状态。");
             }
 
             return m_States.ContainsKey(stateType);
@@ -277,12 +277,12 @@ namespace Honor.Runtime
         {
             if (stateType == null)
             {
-                throw new GameException("状态类型不能为空。");
+                throw new HonorException("状态类型不能为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException($"类型 {stateType.FullName} 不是有效状态。");
+                throw new HonorException($"类型 {stateType.FullName} 不是有效状态。");
             }
 
             m_States.TryGetValue(stateType, out State<T> state);
@@ -312,7 +312,7 @@ namespace Honor.Runtime
         {
             if (results == null)
             {
-                throw new GameException("传入的结果列表不能为空。");
+                throw new HonorException("传入的结果列表不能为空。");
             }
 
             results.Clear();
@@ -326,18 +326,18 @@ namespace Honor.Runtime
         /// 切换状态
         /// </summary>
         /// <param name="stateType">目标状态类型</param>
-        /// <exception cref="GameException">状态机未运行或状态无效时抛出异常</exception>
+        /// <exception cref="HonorException">状态机未运行或状态无效时抛出异常</exception>
         public void ChangeState(Type stateType)
         {
             if (m_CurrentState == null)
             {
-                throw new GameException("切换失败：当前状态无效，状态机未运行。");
+                throw new HonorException("切换失败：当前状态无效，状态机未运行。");
             }
 
             State<T> state = GetState(stateType);
             if (state == null)
             {
-                throw new GameException($"切换失败：状态 {stateType.FullName} 不存在。");
+                throw new HonorException($"切换失败：状态 {stateType.FullName} 不存在。");
             }
 
             m_CurrentState.OnLeave(this, false);

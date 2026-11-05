@@ -177,7 +177,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 编辑器启动语言（转发自 LauncherComponent）
         /// </summary>
-        public GameDefinitions.Language EditorLanguage => Launcher != null ? Launcher.EditorLanguage : default(GameDefinitions.Language);
+        public HonorDefinitions.Language EditorLanguage => Launcher != null ? Launcher.EditorLanguage : default(HonorDefinitions.Language);
 
         /// <summary>
         /// 是否 Luac 模式（转发自 LauncherComponent）

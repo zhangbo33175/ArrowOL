@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGameDefinitionsWrap 
+    public class HonorRuntimeHonorDefinitionsWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GameDefinitions);
+			System.Type type = typeof(Honor.Runtime.HonorDefinitions);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -34,8 +34,8 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginClassRegister(type, L, __CreateInstance, 3, 0, 0);
 			
 			
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AssetSuffix", Honor.Runtime.GameDefinitions.AssetSuffix);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LanguageDesc", Honor.Runtime.GameDefinitions.LanguageDesc);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AssetSuffix", Honor.Runtime.HonorDefinitions.AssetSuffix);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LanguageDesc", Honor.Runtime.HonorDefinitions.LanguageDesc);
             
 			
 			
@@ -46,7 +46,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GameDefinitions does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorDefinitions does not have a constructor!");
         }
         
 		

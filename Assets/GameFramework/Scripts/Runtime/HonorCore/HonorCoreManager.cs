@@ -35,7 +35,7 @@ namespace Honor.Runtime
         /// <para>阶段1 先创建全部纯代码组件实例，保证组件 Init 时可经门面互相访问；
         /// 阶段2 逐个调用组件 Init。
         /// UI 相关 Mono 组件（Launcher/UI/Procedure/Scene/Debugger）已迁出，
-        /// 由 HonorUIManager 门面经 GameComponentsGroup 获取持有。</para>
+        /// 由 HonorUIManager 门面经 HonorComponentGroup 获取持有。</para>
         /// </summary>
         public override void Init()
         {

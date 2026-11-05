@@ -39,7 +39,7 @@ namespace Honor.Runtime
         private void HandleEvent(object sender, T e)
         {
             // 获取当前事件对应的回调链表
-            if (m_SubscribedEventHandlers.TryGetValue(e.Cmd, out GameLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range))
+            if (m_SubscribedEventHandlers.TryGetValue(e.Cmd, out HonorLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range))
             {
                 LinkedListNode<Dictionary<object, HonorEventHandler<T>>> current = range.First;
 

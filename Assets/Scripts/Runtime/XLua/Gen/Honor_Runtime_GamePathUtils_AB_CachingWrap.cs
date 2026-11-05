@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsABCachingWrap 
+    public class HonorRuntimeHonorPathUtilsABCachingWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.AB.Caching);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.AB.Caching);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -46,7 +46,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.AB.Caching does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.AB.Caching does not have a constructor!");
         }
         
 		
@@ -66,7 +66,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Caching.GetRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Caching.GetRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -91,7 +91,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _formatPath = LuaAPI.lua_tostring(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Caching.GetFileFullPath( _formatPath );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Caching.GetFileFullPath( _formatPath );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

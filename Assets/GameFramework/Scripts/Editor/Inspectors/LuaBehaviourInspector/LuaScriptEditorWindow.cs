@@ -89,7 +89,7 @@ namespace Honor.Editor
                 return;
             }
 
-            string luaRoot = $"{Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length)}{GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true)}";
+            string luaRoot = $"{Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length)}{HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true)}";
             string[] files = System.IO.Directory.GetFiles(luaRoot, $"{m_ScriptName}.lua.txt", System.IO.SearchOption.AllDirectories);
 
             if (files.Length == 0) CreateNew(luaRoot);

@@ -85,7 +85,7 @@ namespace Honor.Runtime
         {
             if (results == null)
             {
-                throw new GameException("Results 无效。");
+                throw new HonorException("Results 无效。");
             }
 
             results.Clear();
@@ -114,7 +114,7 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(typeFullName))
             {
-                throw new GameException("Type fullName 无效。");
+                throw new HonorException("Type fullName 无效。");
             }
 
             // 1. 优先从缓存获取

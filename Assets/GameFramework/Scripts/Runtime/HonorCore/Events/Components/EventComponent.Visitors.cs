@@ -55,7 +55,7 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="cmd">事件命令ID</param>
         /// <returns>回调数量</returns>
-        public int SubscribedEventCount(GameEventCmd cmd)
+        public int SubscribedEventCount(HonorEventCmd cmd)
         {
             return m_EventManager.SubscribedEventCount(cmd);
         }

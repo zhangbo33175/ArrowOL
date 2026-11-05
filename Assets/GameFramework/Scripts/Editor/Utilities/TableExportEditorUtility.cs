@@ -51,7 +51,7 @@ namespace Honor.Editor
                         Process.Start("open", directoryPath);
                         break;
                     default:
-                        throw new GameException(HonorTxt.Format("Not support open folder on '{0}' platform.",
+                        throw new HonorException(HonorTxt.Format("Not support open folder on '{0}' platform.",
                             Application.platform));
                 }
             }
@@ -98,7 +98,7 @@ namespace Honor.Editor
                         Process.Start("open", excelPath);
                         break;
                     default:
-                        throw new GameException(HonorTxt.Format("Not support open file on '{0}' platform.",
+                        throw new HonorException(HonorTxt.Format("Not support open file on '{0}' platform.",
                             Application.platform));
                 }
             }
@@ -432,7 +432,7 @@ namespace Honor.Editor
         /// <param name="desc">表格描述</param>
         public static void RefreshTableRegisterFile(string fileName, string desc)
         {
-            string luaDir = GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath();
+            string luaDir = HonorPathUtils.Table.GetLuaScriptRootDirectoryFullPath();
             string path = Path.Combine(luaDir, "Tables.lua.txt");
 
             StringBuilder sb = new StringBuilder();

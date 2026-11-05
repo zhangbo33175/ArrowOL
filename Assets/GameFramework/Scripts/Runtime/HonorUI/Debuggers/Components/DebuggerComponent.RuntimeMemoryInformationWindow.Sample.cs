@@ -10,7 +10,7 @@
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent
+    public sealed partial class DebuggerComponent : HonorComponent
     {
         private sealed partial class RuntimeMemoryInformationWindow<T> : ScrollableDebuggerWindowBase where T : UnityEngine.Object
         {

@@ -266,10 +266,10 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.HonorAssetManager), HonorRuntimeHonorAssetManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameComponent), HonorRuntimeGameComponentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorComponent), HonorRuntimeHonorComponentWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameComponentsGroup), HonorRuntimeGameComponentsGroupWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorComponentGroup), HonorRuntimeHonorComponentGroupWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.TimerComponent), HonorRuntimeTimerComponentWrap.__Register);
@@ -278,25 +278,25 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.TimerCounter), HonorRuntimeTimerCounterWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants), HonorRuntimeGameConstantsWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants), HonorRuntimeHonorConstantsWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions), HonorRuntimeGameDefinitionsWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions), HonorRuntimeHonorDefinitionsWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameEventCmd), HonorRuntimeGameEventCmdWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorEventCmd), HonorRuntimeHonorEventCmdWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameBinaryExtension), HonorRuntimeGameBinaryExtensionWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorBinaryExtension), HonorRuntimeHonorBinaryExtensionWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameException), HonorRuntimeGameExceptionWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorException), HonorRuntimeHonorExceptionWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameExtension), HonorRuntimeGameExtensionWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorExtension), HonorRuntimeHonorExtensionWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameExtensionForUnity), HonorRuntimeGameExtensionForUnityWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorUnityExtension), HonorRuntimeHonorUnityExtensionWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.AnimationStateBehaviour), HonorRuntimeAnimationStateBehaviourWrap.__Register);
@@ -749,7 +749,7 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.Encryption), HonorRuntimeEncryptionWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils), HonorRuntimeGamePathUtilsWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils), HonorRuntimeHonorPathUtilsWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.GZip), HonorRuntimeGZipWrap.__Register);
@@ -864,28 +864,28 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.UILauncherView), HonorRuntimeUILauncherViewWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist), HonorRuntimeGameConstantsPersistWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist), HonorRuntimeHonorConstantsPersistWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.DimensionMode), HonorRuntimeGameDefinitionsDimensionModeWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.DimensionMode), HonorRuntimeHonorDefinitionsDimensionModeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.AssetType), HonorRuntimeGameDefinitionsAssetTypeWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.AssetType), HonorRuntimeHonorDefinitionsAssetTypeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.PathType), HonorRuntimeGameDefinitionsPathTypeWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.PathType), HonorRuntimeHonorDefinitionsPathTypeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.DownloadStep), HonorRuntimeGameDefinitionsDownloadStepWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.DownloadStep), HonorRuntimeHonorDefinitionsDownloadStepWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.DebugMode), HonorRuntimeGameDefinitionsDebugModeWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.DebugMode), HonorRuntimeHonorDefinitionsDebugModeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.Language), HonorRuntimeGameDefinitionsLanguageWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.Language), HonorRuntimeHonorDefinitionsLanguageWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameDefinitions.DebugWindowModel), HonorRuntimeGameDefinitionsDebugWindowModelWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel), HonorRuntimeHonorDefinitionsDebugWindowModelWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType), HonorRuntimeHonorTextEffectOutlineHorizontalAligmentTypeWrap.__Register);
@@ -930,89 +930,89 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.LauncherComponent.DevicePerformanceData), HonorRuntimeLauncherComponentDevicePerformanceDataWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AppDownload), HonorRuntimeGamePathUtilsAppDownloadWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AppDownload), HonorRuntimeHonorPathUtilsAppDownloadWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB), HonorRuntimeGamePathUtilsABWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB), HonorRuntimeHonorPathUtilsABWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.FileFragment), HonorRuntimeGamePathUtilsFileFragmentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.FileFragment), HonorRuntimeHonorPathUtilsFileFragmentWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.LuaScript), HonorRuntimeGamePathUtilsLuaScriptWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.LuaScript), HonorRuntimeHonorPathUtilsLuaScriptWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Json), HonorRuntimeGamePathUtilsJsonWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Json), HonorRuntimeHonorPathUtilsJsonWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Font), HonorRuntimeGamePathUtilsFontWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Font), HonorRuntimeHonorPathUtilsFontWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Prefab), HonorRuntimeGamePathUtilsPrefabWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Prefab), HonorRuntimeHonorPathUtilsPrefabWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Texture), HonorRuntimeGamePathUtilsTextureWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Texture), HonorRuntimeHonorPathUtilsTextureWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.PicsForAtlas), HonorRuntimeGamePathUtilsPicsForAtlasWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.PicsForAtlas), HonorRuntimeHonorPathUtilsPicsForAtlasWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Localization), HonorRuntimeGamePathUtilsLocalizationWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Localization), HonorRuntimeHonorPathUtilsLocalizationWrap.__Register);
         
         }
         
         static void wrapInit6(LuaEnv luaenv, ObjectTranslator translator)
         {
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Table), HonorRuntimeGamePathUtilsTableWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Table), HonorRuntimeHonorPathUtilsTableWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Proto), HonorRuntimeGamePathUtilsProtoWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Proto), HonorRuntimeHonorPathUtilsProtoWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Save), HonorRuntimeGamePathUtilsSaveWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Save), HonorRuntimeHonorPathUtilsSaveWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Config), HonorRuntimeGamePathUtilsConfigWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Config), HonorRuntimeHonorPathUtilsConfigWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.UI), HonorRuntimeGamePathUtilsUIWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.UI), HonorRuntimeHonorPathUtilsUIWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Sound), HonorRuntimeGamePathUtilsSoundWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Sound), HonorRuntimeHonorPathUtilsSoundWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Vibrate), HonorRuntimeGamePathUtilsVibrateWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Vibrate), HonorRuntimeHonorPathUtilsVibrateWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.IDEDebugger), HonorRuntimeGamePathUtilsIDEDebuggerWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.IDEDebugger), HonorRuntimeHonorPathUtilsIDEDebuggerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Debugger), HonorRuntimeGamePathUtilsDebuggerWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Debugger), HonorRuntimeHonorPathUtilsDebuggerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Purchase), HonorRuntimeGamePathUtilsPurchaseWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Purchase), HonorRuntimeHonorPathUtilsPurchaseWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Track), HonorRuntimeGamePathUtilsTrackWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Track), HonorRuntimeHonorPathUtilsTrackWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.CachedPackageInfo), HonorRuntimeGamePathUtilsCachedPackageInfoWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.CachedPackageInfo), HonorRuntimeHonorPathUtilsCachedPackageInfoWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Project), HonorRuntimeGamePathUtilsProjectWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Project), HonorRuntimeHonorPathUtilsProjectWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Native), HonorRuntimeGamePathUtilsNativeWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Native), HonorRuntimeHonorPathUtilsNativeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Tool), HonorRuntimeGamePathUtilsToolWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Tool), HonorRuntimeHonorPathUtilsToolWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor), HonorRuntimeGamePathUtilsEditorWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor), HonorRuntimeHonorPathUtilsEditorWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.GetImage), HonorRuntimeGamePathUtilsGetImageWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.GetImage), HonorRuntimeHonorPathUtilsGetImageWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(Honor.Runtime.Log.LogLevel), HonorRuntimeLogLogLevelWrap.__Register);
@@ -1027,101 +1027,101 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(Honor.Runtime.UILauncherLoadingView.LoadingMode), HonorRuntimeUILauncherLoadingViewLoadingModeWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.Common), HonorRuntimeGameConstantsPersistCommonWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.Common), HonorRuntimeHonorConstantsPersistCommonWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.IAP), HonorRuntimeGameConstantsPersistIAPWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.IAP), HonorRuntimeHonorConstantsPersistIAPWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.GDPR), HonorRuntimeGameConstantsPersistGDPRWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.GDPR), HonorRuntimeHonorConstantsPersistGDPRWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.MAX), HonorRuntimeGameConstantsPersistMAXWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.MAX), HonorRuntimeHonorConstantsPersistMAXWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.Permission), HonorRuntimeGameConstantsPersistPermissionWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.Permission), HonorRuntimeHonorConstantsPersistPermissionWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.AF), HonorRuntimeGameConstantsPersistAFWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.AF), HonorRuntimeHonorConstantsPersistAFWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AppDownload.Uri), HonorRuntimeGamePathUtilsAppDownloadUriWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AppDownload.Uri), HonorRuntimeHonorPathUtilsAppDownloadUriWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.ForServer), HonorRuntimeGamePathUtilsABForServerWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB.ForServer), HonorRuntimeHonorPathUtilsABForServerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.Persistent), HonorRuntimeGamePathUtilsABPersistentWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB.Persistent), HonorRuntimeHonorPathUtilsABPersistentWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.PersistentTmp), HonorRuntimeGamePathUtilsABPersistentTmpWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB.PersistentTmp), HonorRuntimeHonorPathUtilsABPersistentTmpWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.Caching), HonorRuntimeGamePathUtilsABCachingWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB.Caching), HonorRuntimeHonorPathUtilsABCachingWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.Streaming), HonorRuntimeGamePathUtilsABStreamingWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB.Streaming), HonorRuntimeHonorPathUtilsABStreamingWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.AB.Uri), HonorRuntimeGamePathUtilsABUriWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.AB.Uri), HonorRuntimeHonorPathUtilsABUriWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.LuaScript.Framework), HonorRuntimeGamePathUtilsLuaScriptFrameworkWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.LuaScript.Framework), HonorRuntimeHonorPathUtilsLuaScriptFrameworkWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.LuaScript.Game), HonorRuntimeGamePathUtilsLuaScriptGameWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.LuaScript.Game), HonorRuntimeHonorPathUtilsLuaScriptGameWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Proto.Net), HonorRuntimeGamePathUtilsProtoNetWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Proto.Net), HonorRuntimeHonorPathUtilsProtoNetWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Proto.Save), HonorRuntimeGamePathUtilsProtoSaveWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Proto.Save), HonorRuntimeHonorPathUtilsProtoSaveWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.ResDef), HonorRuntimeGamePathUtilsEditorResDefWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.ResDef), HonorRuntimeHonorPathUtilsEditorResDefWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.HierarchyExpandSettings), HonorRuntimeGamePathUtilsEditorHierarchyExpandSettingsWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.HierarchyExpandSettings), HonorRuntimeHonorPathUtilsEditorHierarchyExpandSettingsWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.LocalizationFontTMPExportSettings), HonorRuntimeGamePathUtilsEditorLocalizationFontTMPExportSettingsWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.LocalizationFontTMPExportSettings), HonorRuntimeHonorPathUtilsEditorLocalizationFontTMPExportSettingsWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.ABGeneration), HonorRuntimeGamePathUtilsEditorABGenerationWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.ABGeneration), HonorRuntimeHonorPathUtilsEditorABGenerationWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.ChatGPT), HonorRuntimeGamePathUtilsEditorChatGPTWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.ChatGPT), HonorRuntimeHonorPathUtilsEditorChatGPTWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.CDN), HonorRuntimeGamePathUtilsEditorCDNWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.CDN), HonorRuntimeHonorPathUtilsEditorCDNWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.AssetBundleBrowser), HonorRuntimeGamePathUtilsEditorAssetBundleBrowserWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.AssetBundleBrowser), HonorRuntimeHonorPathUtilsEditorAssetBundleBrowserWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GamePathUtils.Editor.LuaCloudScript), HonorRuntimeGamePathUtilsEditorLuaCloudScriptWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript), HonorRuntimeHonorPathUtilsEditorLuaCloudScriptWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.Common.ItemKey), HonorRuntimeGameConstantsPersistCommonItemKeyWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.Common.ItemKey), HonorRuntimeHonorConstantsPersistCommonItemKeyWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.IAP.ItemKey), HonorRuntimeGameConstantsPersistIAPItemKeyWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.IAP.ItemKey), HonorRuntimeHonorConstantsPersistIAPItemKeyWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.GDPR.ItemKey), HonorRuntimeGameConstantsPersistGDPRItemKeyWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey), HonorRuntimeHonorConstantsPersistGDPRItemKeyWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.MAX.ItemKey), HonorRuntimeGameConstantsPersistMAXItemKeyWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.MAX.ItemKey), HonorRuntimeHonorConstantsPersistMAXItemKeyWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.Permission.ItemKey), HonorRuntimeGameConstantsPersistPermissionItemKeyWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.Permission.ItemKey), HonorRuntimeHonorConstantsPersistPermissionItemKeyWrap.__Register);
         
         }
         
         static void wrapInit7(LuaEnv luaenv, ObjectTranslator translator)
         {
         
-            translator.DelayWrapLoader(typeof(Honor.Runtime.GameConstants.Persist.AF.ItemKey), HonorRuntimeGameConstantsPersistAFItemKeyWrap.__Register);
+            translator.DelayWrapLoader(typeof(Honor.Runtime.HonorConstants.Persist.AF.ItemKey), HonorRuntimeHonorConstantsPersistAFItemKeyWrap.__Register);
         
         
             translator.DelayWrapLoader(typeof(UnityEngine.Timeline.ActivationTrack), UnityEngineTimelineActivationTrackWrap.__Register);
@@ -2116,35 +2116,35 @@ namespace XLua
 			    
 				{typeof(System.IO.BinaryReader), new List<MethodInfo>(){
 				
-				  new __GEN_DELEGATE0(Honor.Runtime.GameBinaryExtension.Read7BitEncodedInt32)
+				  new __GEN_DELEGATE0(Honor.Runtime.HonorBinaryExtension.Read7BitEncodedInt32)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE2(Honor.Runtime.GameBinaryExtension.Read7BitEncodedUInt32)
+				  new __GEN_DELEGATE2(Honor.Runtime.HonorBinaryExtension.Read7BitEncodedUInt32)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE4(Honor.Runtime.GameBinaryExtension.Read7BitEncodedInt64)
+				  new __GEN_DELEGATE4(Honor.Runtime.HonorBinaryExtension.Read7BitEncodedInt64)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE6(Honor.Runtime.GameBinaryExtension.Read7BitEncodedUInt64)
+				  new __GEN_DELEGATE6(Honor.Runtime.HonorBinaryExtension.Read7BitEncodedUInt64)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE8(Honor.Runtime.GameBinaryExtension.ReadEncryptedString)
+				  new __GEN_DELEGATE8(Honor.Runtime.HonorBinaryExtension.ReadEncryptedString)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
@@ -2155,35 +2155,35 @@ namespace XLua
 				
 				{typeof(System.IO.BinaryWriter), new List<MethodInfo>(){
 				
-				  new __GEN_DELEGATE1(Honor.Runtime.GameBinaryExtension.Write7BitEncodedInt32)
+				  new __GEN_DELEGATE1(Honor.Runtime.HonorBinaryExtension.Write7BitEncodedInt32)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE3(Honor.Runtime.GameBinaryExtension.Write7BitEncodedUInt32)
+				  new __GEN_DELEGATE3(Honor.Runtime.HonorBinaryExtension.Write7BitEncodedUInt32)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE5(Honor.Runtime.GameBinaryExtension.Write7BitEncodedInt64)
+				  new __GEN_DELEGATE5(Honor.Runtime.HonorBinaryExtension.Write7BitEncodedInt64)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE7(Honor.Runtime.GameBinaryExtension.Write7BitEncodedUInt64)
+				  new __GEN_DELEGATE7(Honor.Runtime.HonorBinaryExtension.Write7BitEncodedUInt64)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE9(Honor.Runtime.GameBinaryExtension.WriteEncryptedString)
+				  new __GEN_DELEGATE9(Honor.Runtime.HonorBinaryExtension.WriteEncryptedString)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
@@ -2194,42 +2194,42 @@ namespace XLua
 				
 				{typeof(string), new List<MethodInfo>(){
 				
-				  new __GEN_DELEGATE10(Honor.Runtime.GameExtension.UppercaseFirst)
+				  new __GEN_DELEGATE10(Honor.Runtime.HonorExtension.UppercaseFirst)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE11(Honor.Runtime.GameExtension.ToTitleCase)
+				  new __GEN_DELEGATE11(Honor.Runtime.HonorExtension.ToTitleCase)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE12(Honor.Runtime.GameExtension.RemoveExtraSpaces)
+				  new __GEN_DELEGATE12(Honor.Runtime.HonorExtension.RemoveExtraSpaces)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE13(Honor.Runtime.GameExtension.RichTextLength)
+				  new __GEN_DELEGATE13(Honor.Runtime.HonorExtension.RichTextLength)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE14(Honor.Runtime.GameExtension.TimeStringToFloat)
+				  new __GEN_DELEGATE14(Honor.Runtime.HonorExtension.TimeStringToFloat)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE16(Honor.Runtime.GameExtension.GetChineseNum)
+				  new __GEN_DELEGATE16(Honor.Runtime.HonorExtension.GetChineseNum)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
@@ -2240,7 +2240,7 @@ namespace XLua
 				
 				{typeof(float), new List<MethodInfo>(){
 				
-				  new __GEN_DELEGATE15(Honor.Runtime.GameExtension.FloatToTimeString)
+				  new __GEN_DELEGATE15(Honor.Runtime.HonorExtension.FloatToTimeString)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
@@ -2251,105 +2251,105 @@ namespace XLua
 				
 				{typeof(UnityEngine.RectTransform), new List<MethodInfo>(){
 				
-				  new __GEN_DELEGATE17(Honor.Runtime.GameExtensionForUnity.SetLeft)
+				  new __GEN_DELEGATE17(Honor.Runtime.HonorUnityExtension.SetLeft)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE18(Honor.Runtime.GameExtensionForUnity.SetRight)
+				  new __GEN_DELEGATE18(Honor.Runtime.HonorUnityExtension.SetRight)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE19(Honor.Runtime.GameExtensionForUnity.SetTop)
+				  new __GEN_DELEGATE19(Honor.Runtime.HonorUnityExtension.SetTop)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE20(Honor.Runtime.GameExtensionForUnity.SetBottom)
+				  new __GEN_DELEGATE20(Honor.Runtime.HonorUnityExtension.SetBottom)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE21(Honor.Runtime.GameExtensionForUnity.SetAnchoredPositionX3D)
+				  new __GEN_DELEGATE21(Honor.Runtime.HonorUnityExtension.SetAnchoredPositionX3D)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE22(Honor.Runtime.GameExtensionForUnity.SetAnchoredPositionY3D)
+				  new __GEN_DELEGATE22(Honor.Runtime.HonorUnityExtension.SetAnchoredPositionY3D)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE23(Honor.Runtime.GameExtensionForUnity.SetAnchoredPositionZ3D)
+				  new __GEN_DELEGATE23(Honor.Runtime.HonorUnityExtension.SetAnchoredPositionZ3D)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE24(Honor.Runtime.GameExtensionForUnity.AddAnchoredPositionX3D)
+				  new __GEN_DELEGATE24(Honor.Runtime.HonorUnityExtension.AddAnchoredPositionX3D)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE25(Honor.Runtime.GameExtensionForUnity.AddAnchoredPositionY3D)
+				  new __GEN_DELEGATE25(Honor.Runtime.HonorUnityExtension.AddAnchoredPositionY3D)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE26(Honor.Runtime.GameExtensionForUnity.AddAnchoredPositionZ3D)
+				  new __GEN_DELEGATE26(Honor.Runtime.HonorUnityExtension.AddAnchoredPositionZ3D)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE27(Honor.Runtime.GameExtensionForUnity.SetAnchoredPositionX)
+				  new __GEN_DELEGATE27(Honor.Runtime.HonorUnityExtension.SetAnchoredPositionX)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE28(Honor.Runtime.GameExtensionForUnity.SetAnchoredPositionY)
+				  new __GEN_DELEGATE28(Honor.Runtime.HonorUnityExtension.SetAnchoredPositionY)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE29(Honor.Runtime.GameExtensionForUnity.AddAnchoredPositionX)
+				  new __GEN_DELEGATE29(Honor.Runtime.HonorUnityExtension.AddAnchoredPositionX)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE30(Honor.Runtime.GameExtensionForUnity.AddAnchoredPositionY)
+				  new __GEN_DELEGATE30(Honor.Runtime.HonorUnityExtension.AddAnchoredPositionY)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else
                                       .Method,
 #endif
 				
-				  new __GEN_DELEGATE31(Honor.Runtime.GameExtensionForUnity.ForceRebuildLayoutImmediate)
+				  new __GEN_DELEGATE31(Honor.Runtime.HonorUnityExtension.ForceRebuildLayoutImmediate)
 #if UNITY_WSA && !UNITY_EDITOR
                                       .GetMethodInfo(),
 #else

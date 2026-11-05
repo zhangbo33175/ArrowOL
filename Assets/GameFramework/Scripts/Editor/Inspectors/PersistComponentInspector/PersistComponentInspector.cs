@@ -200,7 +200,7 @@ namespace Honor.Editor
         /// <summary>打开存档 Proto 文件夹（供 Honor 存档工具窗口调用）</summary>
         public static void OpenProtoFolderStatic()
         {
-            string folderPath = Runtime.GamePathUtils.Proto.Save.GetRootDirectoryFullPath();
+            string folderPath = Runtime.HonorPathUtils.Proto.Save.GetRootDirectoryFullPath();
             Process.Start(folderPath);
         }
 
@@ -223,7 +223,7 @@ namespace Honor.Editor
         /// </summary>
         private void OpenProtoFolder()
         {
-            string folderPath = Runtime.GamePathUtils.Proto.Save.GetRootDirectoryFullPath();
+            string folderPath = Runtime.HonorPathUtils.Proto.Save.GetRootDirectoryFullPath();
             switch (Application.platform)
             {
                 case RuntimePlatform.WindowsEditor:
@@ -580,7 +580,7 @@ namespace Honor.Editor
             }
             else if (persisway == PersistWayType.FileFragment)
             {
-                m_FileFragmentsRootDirectoryFullPath = Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath();
+                m_FileFragmentsRootDirectoryFullPath = Runtime.HonorPathUtils.FileFragment.GetRootDirectoryFullPath();
                 if (System.IO.Directory.Exists(m_FileFragmentsRootDirectoryFullPath))
                 {
                     string[] fileFragmentFullPaths = System.IO.Directory.GetFiles(m_FileFragmentsRootDirectoryFullPath, "*.dat");
@@ -682,7 +682,7 @@ namespace Honor.Editor
                         }
                         if (GUILayout.Button("打开文件片段所在文件夹"))
                         {
-                            OpenPersistentFolderInOS(Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath());
+                            OpenPersistentFolderInOS(Runtime.HonorPathUtils.FileFragment.GetRootDirectoryFullPath());
                             GUIUtility.ExitGUI();
                         }
                         EditorGUILayout.EndHorizontal();
@@ -884,7 +884,7 @@ namespace Honor.Editor
                     {
                         if (GUILayout.Button("打开文件片段所在文件夹"))
                         {
-                            OpenPersistentFolderInOS(Runtime.GamePathUtils.FileFragment.GetRootDirectoryFullPath());
+                            OpenPersistentFolderInOS(Runtime.HonorPathUtils.FileFragment.GetRootDirectoryFullPath());
                             GUIUtility.ExitGUI();
                         }
                         if (t.FileFragmentManager.ItemGroups.Keys.Count > 0)

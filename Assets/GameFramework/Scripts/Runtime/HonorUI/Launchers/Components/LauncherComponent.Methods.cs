@@ -15,7 +15,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 框架启动器 - 性能配置与内存管理部分
     /// </summary>
-    public sealed partial class LauncherComponent : GameComponent
+    public sealed partial class LauncherComponent : HonorComponent
     {
         //=========================================================================
         // 性能与内存管理

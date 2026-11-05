@@ -31,7 +31,7 @@ namespace Honor.Runtime
         /// </summary>
         public FileFragmentManager()
         {
-            m_RootDir = GamePathUtils.FileFragment.GetRootDirectoryFullPath();
+            m_RootDir = HonorPathUtils.FileFragment.GetRootDirectoryFullPath();
             if (!Directory.Exists(m_RootDir))
             {
                 Directory.CreateDirectory(m_RootDir);

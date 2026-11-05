@@ -1,0 +1,284 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  HonorSerializer.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   序列化器基类 - 支持多版本注册、头部校验、回调扩展
+ ***************************************************************/
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace Honor.Runtime
+{
+    //=========================================================================
+    // 
+    //=========================================================================
+    /// <summary>
+    /// 序列化器基类。
+    /// </summary>
+    /// <typeparam name="T">要序列化的数据类型。</typeparam>
+    public abstract class HonorSerializer<T>
+    {
+        private readonly Dictionary<byte, SerializeCallback> m_SerializeCallbacks;
+        private readonly Dictionary<byte, DeserializeCallback> m_DeserializeCallbacks;
+        private readonly Dictionary<byte, TryGetValueCallback> m_TryGetValueCallbacks;
+        private byte m_LatestSerializeCallbackVersion;
+
+        #region 委托定义
+        //=========================================================================
+        // 委托定义
+        //=========================================================================
+        /// <summary>
+        /// 序列化回调函数。
+        /// </summary>
+        /// <param name="binaryWriter">目标流。</param>
+        /// <param name="data">要序列化的数据。</param>
+        /// <returns>序列化数据是否成功。</returns>
+        public delegate bool SerializeCallback(BinaryWriter binaryWriter, T data, string flag = default);
+
+        /// <summary>
+        /// 反序列化回调函数。
+        /// </summary>
+        /// <param name="binaryReader">指定流。</param>
+        /// <returns>反序列化的数据。</returns>
+        public delegate T DeserializeCallback(BinaryReader binaryReader, string flag = default);
+
+        /// <summary>
+        /// 尝试从指定流获取指定键的值回调函数。
+        /// </summary>
+        /// <param name="binaryReader">指定流。</param>
+        /// <param name="key">指定键。</param>
+        /// <param name="value">指定键的值。</param>
+        /// <returns>从指定流获取指定键的值是否成功。</returns>
+        public delegate bool TryGetValueCallback(BinaryReader binaryReader, string key, out object value);
+        #endregion
+
+        #region 构造函数
+        //=========================================================================
+        // 构造函数
+        //=========================================================================
+        /// <summary>
+        /// 初始化序列化器基类的新实例。
+        /// </summary>
+        public HonorSerializer()
+        {
+            m_SerializeCallbacks = new Dictionary<byte, SerializeCallback>();
+            m_DeserializeCallbacks = new Dictionary<byte, DeserializeCallback>();
+            m_TryGetValueCallbacks = new Dictionary<byte, TryGetValueCallback>();
+            m_LatestSerializeCallbackVersion = 0;
+        }
+        #endregion
+
+        #region 回调注册
+        //=========================================================================
+        // 回调注册
+        //=========================================================================
+        /// <summary>
+        /// 注册序列化回调函数。
+        /// </summary>
+        /// <param name="version">序列化回调函数的版本。</param>
+        /// <param name="callback">序列化回调函数。</param>
+        public void RegisterSerializeCallback(byte version, SerializeCallback callback)
+        {
+            if (callback == null)
+            {
+                throw new HonorException("序列化回调函数无效。");
+            }
+
+            m_SerializeCallbacks[version] = callback;
+
+            // 更新最新序列化回调函数的版本
+            if (version > m_LatestSerializeCallbackVersion)
+            {
+                m_LatestSerializeCallbackVersion = version;
+            }
+        }
+
+        /// <summary>
+        /// 注册反序列化回调函数。
+        /// </summary>
+        /// <param name="version">反序列化回调函数的版本。</param>
+        /// <param name="callback">反序列化回调函数。</param>
+        public void RegisterDeserializeCallback(byte version, DeserializeCallback callback)
+        {
+            if (callback == null)
+            {
+                throw new HonorException("反序列化回调函数无效。");
+            }
+
+            m_DeserializeCallbacks[version] = callback;
+        }
+
+        /// <summary>
+        /// 注册尝试从指定流获取指定键的值回调函数。
+        /// </summary>
+        /// <param name="version">尝试从指定流获取指定键的值回调函数的版本。</param>
+        /// <param name="callback">尝试从指定流获取指定键的值回调函数。</param>
+        public void RegisterTryGetValueCallback(byte version, TryGetValueCallback callback)
+        {
+            if (callback == null)
+            {
+                throw new HonorException("尝试从指定流获取指定键的值回调函数无效。");
+            }
+
+            m_TryGetValueCallbacks[version] = callback;
+        }
+        #endregion
+
+        #region 序列化
+        //=========================================================================
+        // 序列化
+        //=========================================================================
+        /// <summary>
+        /// 序列化数据到目标流中。
+        /// </summary>
+        /// <param name="stream">目标流。</param>
+        /// <param name="data">要序列化的数据。</param>
+        /// <returns>序列化数据是否成功。</returns>
+        public bool Serialize(Stream stream, T data, string flag = default)
+        {
+            if (m_SerializeCallbacks.Count <= 0)
+            {
+                throw new HonorException("无注册过的序列化回调函数。");
+            }
+
+            return Serialize(stream, data, m_LatestSerializeCallbackVersion, flag);
+        }
+
+        /// <summary>
+        /// 序列化数据到目标流中。
+        /// </summary>
+        /// <param name="stream">目标流。</param>
+        /// <param name="data">要序列化的数据。</param>
+        /// <param name="version">序列化回调函数的版本。</param>
+        /// <returns>序列化数据是否成功。</returns>
+        public bool Serialize(Stream stream, T data, byte version, string flag = default)
+        {
+            if (stream == null)
+                throw new HonorException("流不能为空。");
+
+            using (BinaryWriter binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true))
+            {
+                byte[] header = GetHeader();
+                if (header == null || header.Length < 3)
+                {
+                    throw new HonorException("数据头标识无效。");
+                }
+
+                binaryWriter.Write(header[0]);
+                binaryWriter.Write(header[1]);
+                binaryWriter.Write(header[2]);
+                binaryWriter.Write(version);
+
+                if (!m_SerializeCallbacks.TryGetValue(version, out SerializeCallback callback))
+                {
+                    throw new HonorException($"序列化回调函数 '{version}' 不存在。");
+                }
+
+                return callback(binaryWriter, data, flag);
+            }
+        }
+        #endregion
+
+        #region 反序列化
+        //=========================================================================
+        // 反序列化
+        //=========================================================================
+        /// <summary>
+        /// 从指定流反序列化数据。
+        /// </summary>
+        /// <param name="stream">指定流。</param>
+        /// <returns>反序列化的数据。</returns>
+        public T Deserialize(Stream stream, string flag = default)
+        {
+            if (stream == null)
+                throw new HonorException("流不能为空。");
+
+            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8, true))
+            {
+                byte[] header = GetHeader();
+                if (header == null || header.Length < 3)
+                {
+                    throw new HonorException("数据头标识无效。");
+                }
+
+                if (binaryReader.ReadByte() != header[0] || 
+                    binaryReader.ReadByte() != header[1] || 
+                    binaryReader.ReadByte() != header[2])
+                {
+                    throw new HonorException("数据头标识不匹配。");
+                }
+
+                byte version = binaryReader.ReadByte();
+
+                if (!m_DeserializeCallbacks.TryGetValue(version, out DeserializeCallback callback))
+                {
+                    throw new HonorException($"反序列化回调函数 '{version}' 不存在。");
+                }
+
+                return callback(binaryReader, flag);
+            }
+        }
+        #endregion
+
+        #region 快速取值
+        //=========================================================================
+        // 快速取值
+        //=========================================================================
+        /// <summary>
+        /// 尝试从指定流获取指定键的值。
+        /// </summary>
+        /// <param name="stream">指定流。</param>
+        /// <param name="key">指定键。</param>
+        /// <param name="value">指定键的值。</param>
+        /// <returns>从指定流获取指定键的值是否成功。</returns>
+        public bool TryGetValue(Stream stream, string key, out object value)
+        {
+            value = null;
+
+            if (stream == null)
+                return false;
+
+            using (BinaryReader binaryReader = new BinaryReader(stream, Encoding.UTF8, true))
+            {
+                byte[] header = GetHeader();
+                if (header == null || header.Length < 3)
+                {
+                    return false;
+                }
+
+                if (binaryReader.ReadByte() != header[0] || 
+                    binaryReader.ReadByte() != header[1] || 
+                    binaryReader.ReadByte() != header[2])
+                {
+                    return false;
+                }
+
+                byte version = binaryReader.ReadByte();
+
+                if (!m_TryGetValueCallbacks.TryGetValue(version, out TryGetValueCallback callback))
+                {
+                    return false;
+                }
+
+                return callback(binaryReader, key, out value);
+            }
+        }
+        #endregion
+
+        #region 抽象方法
+        //=========================================================================
+        // 抽象方法
+        //=========================================================================
+        /// <summary>
+        /// 获取数据头标识。
+        /// </summary>
+        /// <returns>数据头标识。</returns>
+        protected abstract byte[] GetHeader();
+        #endregion
+    }
+}

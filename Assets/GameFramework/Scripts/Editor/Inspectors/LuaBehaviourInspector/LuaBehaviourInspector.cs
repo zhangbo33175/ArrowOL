@@ -1740,7 +1740,7 @@ namespace Honor.Editor
 
             string luaRootPath = HonorTxt.Format("{0}{1}",
                 Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true));
+                HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true));
             string[] fileFullPaths = System.IO.Directory.GetFiles(luaRootPath,
                 HonorTxt.Format("{0}.lua.txt", luaScriptName), System.IO.SearchOption.AllDirectories);
 

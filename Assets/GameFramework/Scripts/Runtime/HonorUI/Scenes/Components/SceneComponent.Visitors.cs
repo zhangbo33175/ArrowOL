@@ -17,7 +17,7 @@ namespace Honor.Runtime
     /// 场景管理组件（属性定义分部类）
     /// 包含：场景相机、场景根节点、场景管理器、触摸组件、各类场景状态列表
     /// </summary>
-    public sealed partial class SceneComponent : GameComponent
+    public sealed partial class SceneComponent : HonorComponent
     {
         //=========================================================================
         #region 序列化字段（编辑器配置）

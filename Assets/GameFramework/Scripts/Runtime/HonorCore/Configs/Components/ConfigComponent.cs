@@ -58,7 +58,7 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadConfigs()
         {
-            m_ConfigManager.LoadConfigs(GamePathUtils.Json.GetRootDirectoryRelativePath(), "Configs");
+            m_ConfigManager.LoadConfigs(HonorPathUtils.Json.GetRootDirectoryRelativePath(), "Configs");
         }
 
         /// <summary>

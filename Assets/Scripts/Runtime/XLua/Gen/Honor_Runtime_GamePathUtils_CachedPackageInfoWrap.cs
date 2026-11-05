@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsCachedPackageInfoWrap 
+    public class HonorRuntimeHonorPathUtilsCachedPackageInfoWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.CachedPackageInfo);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.CachedPackageInfo);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -45,7 +45,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.CachedPackageInfo does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.CachedPackageInfo does not have a constructor!");
         }
         
 		
@@ -65,7 +65,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.CachedPackageInfo.GetCachedPackageInfoProjectSettingsConfigFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.CachedPackageInfo.GetCachedPackageInfoProjectSettingsConfigFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

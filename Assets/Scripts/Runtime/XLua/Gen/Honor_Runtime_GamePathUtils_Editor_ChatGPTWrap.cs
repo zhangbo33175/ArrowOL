@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsEditorChatGPTWrap 
+    public class HonorRuntimeHonorPathUtilsEditorChatGPTWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Editor.ChatGPT);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Editor.ChatGPT);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -50,7 +50,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Editor.ChatGPT does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Editor.ChatGPT does not have a constructor!");
         }
         
 		
@@ -70,7 +70,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ChatGPT.GetLibrarySaveFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ChatGPT.GetLibrarySaveFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -94,7 +94,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ChatGPT.GetLibraryChatHistoryFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ChatGPT.GetLibraryChatHistoryFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -118,7 +118,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ChatGPT.GetLibraryCodeHistoryFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ChatGPT.GetLibraryCodeHistoryFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -142,7 +142,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ChatGPT.GetLibraryImageCreateHistoryFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ChatGPT.GetLibraryImageCreateHistoryFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -166,7 +166,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ChatGPT.GetLibraryImageEditHistoryFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ChatGPT.GetLibraryImageEditHistoryFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -190,7 +190,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ChatGPT.GetLibraryImageVariationHistoryFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ChatGPT.GetLibraryImageVariationHistoryFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

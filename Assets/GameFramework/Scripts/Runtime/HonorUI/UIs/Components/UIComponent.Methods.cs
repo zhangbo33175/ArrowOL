@@ -23,17 +23,17 @@ namespace Honor.Runtime
     /// <param name="obj">加载完成的 UI 对象</param>
     public delegate void UILoadOverCallback(string abPath, string assetName, LuaTable luaClass, GameObject obj);
 
-    public sealed partial class UIComponent : GameComponent
+    public sealed partial class UIComponent : HonorComponent
     {
         #region 初始化核心
         /// <summary>
         /// 初始化入口依赖组件：缺失时输出致命错误
         /// </summary>
-        /// <typeparam name="T">游戏组件类型（必须为 GameComponent 子类，与 GameComponentsGroup.GetComponent 约束一致）</typeparam>
+        /// <typeparam name="T">游戏组件类型（必须为 HonorComponent 子类，与 HonorComponentGroup.GetComponent 约束一致）</typeparam>
         /// <returns>解析到的组件；缺失为 null</returns>
-        private T RequireComponent<T>() where T : GameComponent
+        private T RequireComponent<T>() where T : HonorComponent
         {
-            T component = GameComponentsGroup.GetComponent<T>();
+            T component = HonorComponentGroup.GetComponent<T>();
             if (component == null)
             {
                 Log.Fatal($"{typeof(T).Name} 无效。");

@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -122,7 +122,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     object _userData = translator.GetObject(L, 3, typeof(object));
                     Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams> _handler = translator.GetDelegate<Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams>>(L, 4);
                     
@@ -153,7 +153,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     object _userData = translator.GetObject(L, 3, typeof(object));
                     Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams> _handler = translator.GetDelegate<Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams>>(L, 4);
                     
@@ -183,7 +183,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     object _userData = translator.GetObject(L, 3, typeof(object));
                     Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams> _handler = translator.GetDelegate<Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams>>(L, 4);
                     
@@ -213,10 +213,10 @@ namespace XLua.CSObjectWrap
             
 			    int gen_param_count = LuaAPI.lua_gettop(L);
             
-                if(gen_param_count == 4&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.GameEventCmd>(L, 3)&& translator.Assignable<System.Collections.Generic.Dictionary<string, object>>(L, 4)) 
+                if(gen_param_count == 4&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.HonorEventCmd>(L, 3)&& translator.Assignable<System.Collections.Generic.Dictionary<string, object>>(L, 4)) 
                 {
                     object _sender = translator.GetObject(L, 2, typeof(object));
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 3, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 3, out _cmd);
                     System.Collections.Generic.Dictionary<string, object> _objects = (System.Collections.Generic.Dictionary<string, object>)translator.GetObject(L, 4, typeof(System.Collections.Generic.Dictionary<string, object>));
                     
                     gen_to_be_invoked.Fire( _sender, _cmd, _objects );
@@ -225,10 +225,10 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 3&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.GameEventCmd>(L, 3)) 
+                if(gen_param_count == 3&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.HonorEventCmd>(L, 3)) 
                 {
                     object _sender = translator.GetObject(L, 2, typeof(object));
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 3, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 3, out _cmd);
                     
                     gen_to_be_invoked.Fire( _sender, _cmd );
                     
@@ -258,10 +258,10 @@ namespace XLua.CSObjectWrap
             
 			    int gen_param_count = LuaAPI.lua_gettop(L);
             
-                if(gen_param_count == 4&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.GameEventCmd>(L, 3)&& translator.Assignable<System.Collections.Generic.Dictionary<string, object>>(L, 4)) 
+                if(gen_param_count == 4&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.HonorEventCmd>(L, 3)&& translator.Assignable<System.Collections.Generic.Dictionary<string, object>>(L, 4)) 
                 {
                     object _sender = translator.GetObject(L, 2, typeof(object));
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 3, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 3, out _cmd);
                     System.Collections.Generic.Dictionary<string, object> _objects = (System.Collections.Generic.Dictionary<string, object>)translator.GetObject(L, 4, typeof(System.Collections.Generic.Dictionary<string, object>));
                     
                     gen_to_be_invoked.FireNow( _sender, _cmd, _objects );
@@ -270,10 +270,10 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 3&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.GameEventCmd>(L, 3)) 
+                if(gen_param_count == 3&& translator.Assignable<object>(L, 2)&& translator.Assignable<Honor.Runtime.HonorEventCmd>(L, 3)) 
                 {
                     object _sender = translator.GetObject(L, 2, typeof(object));
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 3, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 3, out _cmd);
                     
                     gen_to_be_invoked.FireNow( _sender, _cmd );
                     
@@ -330,7 +330,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     
                         int gen_ret = gen_to_be_invoked.SubscribedEventCount( _cmd );
                         LuaAPI.xlua_pushinteger(L, gen_ret);

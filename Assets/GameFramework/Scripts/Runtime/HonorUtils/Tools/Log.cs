@@ -527,7 +527,7 @@ namespace Honor.Runtime
             if (slot < 0 || slot >= LevelDecorators.Length)
             {
                 // Fatal 及其它未定义等级：直接抛出游戏异常
-                throw new GameException(DecorateWithFrameTag(rawText));
+                throw new HonorException(DecorateWithFrameTag(rawText));
             }
 
             string colored = LevelDecorators[slot](rawText);

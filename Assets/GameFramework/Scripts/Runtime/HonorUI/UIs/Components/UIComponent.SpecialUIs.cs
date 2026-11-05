@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
-    public sealed partial class UIComponent : GameComponent
+    public sealed partial class UIComponent : HonorComponent
     {
         #region 等待 Loading 接口
         /// <summary>

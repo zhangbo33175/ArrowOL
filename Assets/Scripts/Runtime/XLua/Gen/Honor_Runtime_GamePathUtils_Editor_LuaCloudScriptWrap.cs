@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsEditorLuaCloudScriptWrap 
+    public class HonorRuntimeHonorPathUtilsEditorLuaCloudScriptWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Editor.LuaCloudScript);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -48,7 +48,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Editor.LuaCloudScript does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript does not have a constructor!");
         }
         
 		
@@ -66,7 +66,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
             
-			    LuaAPI.lua_pushstring(L, Honor.Runtime.GamePathUtils.Editor.LuaCloudScript.ProjectSettingFileFullPath);
+			    LuaAPI.lua_pushstring(L, Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript.ProjectSettingFileFullPath);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -78,7 +78,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
             
-			    LuaAPI.lua_pushstring(L, Honor.Runtime.GamePathUtils.Editor.LuaCloudScript.LibraryLocalLuaFileFullPath);
+			    LuaAPI.lua_pushstring(L, Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript.LibraryLocalLuaFileFullPath);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -92,7 +92,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 
-			    Honor.Runtime.GamePathUtils.Editor.LuaCloudScript.ProjectSettingFileFullPath = LuaAPI.lua_tostring(L, 1);
+			    Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript.ProjectSettingFileFullPath = LuaAPI.lua_tostring(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -105,7 +105,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 
-			    Honor.Runtime.GamePathUtils.Editor.LuaCloudScript.LibraryLocalLuaFileFullPath = LuaAPI.lua_tostring(L, 1);
+			    Honor.Runtime.HonorPathUtils.Editor.LuaCloudScript.LibraryLocalLuaFileFullPath = LuaAPI.lua_tostring(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

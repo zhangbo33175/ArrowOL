@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -454,7 +454,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.GridManager gen_to_be_invoked = (Honor.Runtime.GridManager)translator.FastGetCSObj(L, 1);
-                translator.PushHonorRuntimeGameDefinitionsDimensionMode(L, gen_to_be_invoked.DebugDrawMode);
+                translator.PushHonorRuntimeHonorDefinitionsDimensionMode(L, gen_to_be_invoked.DebugDrawMode);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -669,7 +669,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.GridManager gen_to_be_invoked = (Honor.Runtime.GridManager)translator.FastGetCSObj(L, 1);
-                Honor.Runtime.GameDefinitions.DimensionMode gen_value;translator.Get(L, 2, out gen_value);
+                Honor.Runtime.HonorDefinitions.DimensionMode gen_value;translator.Get(L, 2, out gen_value);
 				gen_to_be_invoked.DebugDrawMode = gen_value;
             
             } catch(System.Exception gen_e) {

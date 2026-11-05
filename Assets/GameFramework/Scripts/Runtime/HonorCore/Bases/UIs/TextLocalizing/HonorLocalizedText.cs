@@ -41,7 +41,7 @@ namespace Honor.Runtime
         /// 当前使用的语言类型
         /// </summary>
         [SerializeField]
-        private GameDefinitions.Language m_Language;
+        private HonorDefinitions.Language m_Language;
         #endregion
 
         //=========================================================================
@@ -109,7 +109,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前语言类型，可读写
         /// </summary>
-        public GameDefinitions.Language Language
+        public HonorDefinitions.Language Language
         {
             get => m_Language;
             set => m_Language = value;
@@ -137,7 +137,7 @@ namespace Honor.Runtime
         private void Start()
         {
             // 监听多语言刷新全局事件
-            HonorCoreManager.Instance.Subscribe(GameEventCmd.TextLocalizingRefresh, this, RefreshTextValue);
+            HonorCoreManager.Instance.Subscribe(HonorEventCmd.TextLocalizingRefresh, this, RefreshTextValue);
 
             // 获取自身文本组件
             m_Text = transform.GetComponent<Text>();
@@ -160,7 +160,7 @@ namespace Honor.Runtime
         {
             if (HonorCoreManager.Instance.Event != null)
             {
-                HonorCoreManager.Instance.Unsubscribe(GameEventCmd.TextLocalizingRefresh, this, RefreshTextValue);
+                HonorCoreManager.Instance.Unsubscribe(HonorEventCmd.TextLocalizingRefresh, this, RefreshTextValue);
             }
         }
         #endregion

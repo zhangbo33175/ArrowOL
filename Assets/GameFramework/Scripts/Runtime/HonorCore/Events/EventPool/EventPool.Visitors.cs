@@ -25,7 +25,7 @@ namespace Honor.Runtime
         /// 已注册的事件处理函数字典
         /// 结构：事件ID -> (用户数据 -> 回调函数)
         /// </summary>
-        private readonly GameMultiDictionary<GameEventCmd, Dictionary<object, HonorEventHandler<T>>> m_SubscribedEventHandlers;
+        private readonly HonorMultiDictionary<HonorEventCmd, Dictionary<object, HonorEventHandler<T>>> m_SubscribedEventHandlers;
 
         /// <summary>
         /// 线程安全的事件队列，用于在下一帧派发
@@ -67,9 +67,9 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="cmd">事件命令 ID</param>
         /// <returns>注册的回调个数</returns>
-        public int SubscribedEventCount(GameEventCmd cmd)
+        public int SubscribedEventCount(HonorEventCmd cmd)
         {
-            if (m_SubscribedEventHandlers.TryGetValue(cmd, out GameLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range))
+            if (m_SubscribedEventHandlers.TryGetValue(cmd, out HonorLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range))
             {
                 return range.Count;
             }

@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsProtoNetWrap 
+    public class HonorRuntimeHonorPathUtilsProtoNetWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Proto.Net);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Proto.Net);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -47,7 +47,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Proto.Net does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Proto.Net does not have a constructor!");
         }
         
 		
@@ -67,7 +67,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Proto.Net.GetRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Proto.Net.GetRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -91,7 +91,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Proto.Net.GetLuaScriptRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Proto.Net.GetLuaScriptRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -115,7 +115,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Proto.Net.GetLuaScriptDeclarationsDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Proto.Net.GetLuaScriptDeclarationsDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

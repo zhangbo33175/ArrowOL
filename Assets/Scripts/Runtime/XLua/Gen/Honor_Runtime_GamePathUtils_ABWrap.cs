@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsABWrap 
+    public class HonorRuntimeHonorPathUtilsABWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.AB);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.AB);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -51,7 +51,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.AB does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.AB does not have a constructor!");
         }
         
 		
@@ -71,7 +71,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.GetExcelRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.GetExcelRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -95,7 +95,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.GetExcelFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.GetExcelFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -120,7 +120,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _appVersion = LuaAPI.lua_tostring(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.GetVersionGrayFileName( _appVersion );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.GetVersionGrayFileName( _appVersion );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -142,7 +142,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
             
-			    LuaAPI.lua_pushstring(L, Honor.Runtime.GamePathUtils.AB.DirectoryPrefix);
+			    LuaAPI.lua_pushstring(L, Honor.Runtime.HonorPathUtils.AB.DirectoryPrefix);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -154,7 +154,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
             
-			    LuaAPI.lua_pushstring(L, Honor.Runtime.GamePathUtils.AB.VersionFileName);
+			    LuaAPI.lua_pushstring(L, Honor.Runtime.HonorPathUtils.AB.VersionFileName);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -168,7 +168,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 
-			    Honor.Runtime.GamePathUtils.AB.DirectoryPrefix = LuaAPI.lua_tostring(L, 1);
+			    Honor.Runtime.HonorPathUtils.AB.DirectoryPrefix = LuaAPI.lua_tostring(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
@@ -181,7 +181,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 
-			    Honor.Runtime.GamePathUtils.AB.VersionFileName = LuaAPI.lua_tostring(L, 1);
+			    Honor.Runtime.HonorPathUtils.AB.VersionFileName = LuaAPI.lua_tostring(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

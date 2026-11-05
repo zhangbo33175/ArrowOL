@@ -210,11 +210,11 @@ namespace Honor.Runtime
             ScaleTo(duration, targetSizeOrField, canInterruptByGestures);
 
             // 动画结束回调
-            DOTween.Kill(GameDOTweenTypes.CameraMasterTween);
+            DOTween.Kill(HonorTweenType.CameraMasterTween);
             DOTween.Sequence()
                 .AppendInterval(duration)
                 .OnComplete(() => overCallback?.Invoke())
-                .id = GameDOTweenTypes.CameraMasterTween;
+                .id = HonorTweenType.CameraMasterTween;
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace Honor.Runtime
             Action overCallback = null)
         {
             // 如果正在播放不可中断动画，先恢复触摸
-            if (DOTween.IsTweening(GameDOTweenTypes.CameraMoveTween) && !m_MoveCanInterruptByGestures)
+            if (DOTween.IsTweening(HonorTweenType.CameraMoveTween) && !m_MoveCanInterruptByGestures)
                 ReleaseTouchBlockRef();
 
             m_MoveCanInterruptByGestures = canInterruptByGestures;
@@ -242,7 +242,7 @@ namespace Honor.Runtime
 #endif
 
             // 执行移动动画
-            DOTween.Kill(GameDOTweenTypes.CameraMoveTween);
+            DOTween.Kill(HonorTweenType.CameraMoveTween);
             DOTween.Sequence()
                 .Append(DOTween.To(
                     () => m_Camera.transform.position,
@@ -255,7 +255,7 @@ namespace Honor.Runtime
                         ReleaseTouchBlockRef();
                     overCallback?.Invoke();
                 })
-                .id = GameDOTweenTypes.CameraMoveTween;
+                .id = HonorTweenType.CameraMoveTween;
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Honor.Runtime
         /// </summary>
         public void RotateTo(float duration, Quaternion targetRotation, Action overCallback = null)
         {
-            DOTween.Kill(GameDOTweenTypes.CameraRotateTween);
+            DOTween.Kill(HonorTweenType.CameraRotateTween);
             DOTween.Sequence()
                 .Append(DOTween.To(
                     () => m_Camera.transform.rotation.eulerAngles,
@@ -271,7 +271,7 @@ namespace Honor.Runtime
                     targetRotation.eulerAngles,
                     duration))
                 .OnComplete(() => overCallback?.Invoke())
-                .id = GameDOTweenTypes.CameraRotateTween;
+                .id = HonorTweenType.CameraRotateTween;
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace Honor.Runtime
             bool canInterruptByGestures = false,
             Action overCallback = null)
         {
-            if (DOTween.IsTweening(GameDOTweenTypes.CameraScaleTween) && !m_ScaleCanInterruptByGestures)
+            if (DOTween.IsTweening(HonorTweenType.CameraScaleTween) && !m_ScaleCanInterruptByGestures)
                 ReleaseTouchBlockRef();
 
             m_ScaleCanInterruptByGestures = canInterruptByGestures;
@@ -296,7 +296,7 @@ namespace Honor.Runtime
             m_Gestures3D.ResetPinch();
 #endif
 
-            DOTween.Kill(GameDOTweenTypes.CameraScaleTween);
+            DOTween.Kill(HonorTweenType.CameraScaleTween);
 
             // 2D相机
             if (m_Camera.orthographic)
@@ -313,7 +313,7 @@ namespace Honor.Runtime
                             ReleaseTouchBlockRef();
                         overCallback?.Invoke();
                     })
-                    .id = GameDOTweenTypes.CameraScaleTween;
+                    .id = HonorTweenType.CameraScaleTween;
             }
             // 3D相机
             else
@@ -330,7 +330,7 @@ namespace Honor.Runtime
                             ReleaseTouchBlockRef();
                         overCallback?.Invoke();
                     })
-                    .id = GameDOTweenTypes.CameraScaleTween;
+                    .id = HonorTweenType.CameraScaleTween;
             }
         }
 

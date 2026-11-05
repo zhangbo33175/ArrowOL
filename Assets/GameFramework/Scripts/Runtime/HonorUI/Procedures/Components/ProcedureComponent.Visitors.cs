@@ -17,7 +17,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 流程状态机组件 - 序列化配置、属性与过渡动画参数分部类
     /// </summary>
-    public sealed partial class ProcedureComponent : GameComponent
+    public sealed partial class ProcedureComponent : HonorComponent
     {
         //=========================================================================
         #region 序列化配置（Inspector 可见）
@@ -186,7 +186,7 @@ namespace Honor.Runtime
             get
             {
                 if (m_ProcedureStateMachine == null)
-                    throw new GameException("必须先初始化 procedure 状态机。");
+                    throw new HonorException("必须先初始化 procedure 状态机。");
                 return (ProcedureState)m_ProcedureStateMachine.CurrentState;
             }
         }
@@ -207,7 +207,7 @@ namespace Honor.Runtime
             get
             {
                 if (m_ProcedureStateMachine == null)
-                    throw new GameException("必须先初始化 procedure 状态机。");
+                    throw new HonorException("必须先初始化 procedure 状态机。");
                 return m_ProcedureStateMachine.CurrentStateTime;
             }
         }

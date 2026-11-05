@@ -47,7 +47,7 @@ namespace Honor.Runtime
                 // 直接读取二进制（比 ReadAllText 更稳定、更快）
                 return File.ReadAllBytes(inFile);
             }
-            // TODO: 健壮性修复——原仅捕获 GameException，无法拦截 File.ReadAllBytes 实际抛出的
+            // TODO: 健壮性修复——原仅捕获 HonorException，无法拦截 File.ReadAllBytes 实际抛出的
             // IOException/UnauthorizedAccessException/DirectoryNotFoundException 等真实 IO 异常，
             // 导致文件被占用时仍会崩溃，与本方法"失败返回 null"的契约不符；改为捕获通用 Exception。
             catch (Exception ex)

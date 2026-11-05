@@ -60,7 +60,7 @@ namespace Honor.Runtime
         {
             if (HonorUIManager.Instance.EditorResourceMode)
             {
-                if (HonorUIManager.Instance.EditorLanguage == GameDefinitions.Language.Unspecified)
+                if (HonorUIManager.Instance.EditorLanguage == HonorDefinitions.Language.Unspecified)
                 {
                     Log.Info("编辑器资源模式下没有指定的语言类型，则默认使用当前系统语言 '{0}'。", SystemLanguageName);
                     m_Language = SystemLanguage;
@@ -73,17 +73,17 @@ namespace Honor.Runtime
             }
             else
             {
-                if (HonorCoreManager.Instance.HasItem(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName, GameConstants.Persist.Common.ItemKey.Language))
+                if (HonorCoreManager.Instance.HasItem(HonorConstants.Persist.Common.WayType, HonorConstants.Persist.Common.ClassifyName, HonorConstants.Persist.Common.ItemKey.Language))
                 {
-                    m_Language = (GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), 
-                        HonorCoreManager.Instance.GetString(GameConstants.Persist.Common.WayType, 
-                        GameConstants.Persist.Common.ClassifyName, GameConstants.Persist.Common.ItemKey.Language));
+                    m_Language = (HonorDefinitions.Language)Enum.Parse(typeof(HonorDefinitions.Language), 
+                        HonorCoreManager.Instance.GetString(HonorConstants.Persist.Common.WayType, 
+                        HonorConstants.Persist.Common.ClassifyName, HonorConstants.Persist.Common.ItemKey.Language));
                     
                     Log.Info("非编辑器资源模式下将使用持久化存档数据中的语言类型 '{0}'。", SystemLanguageName);
                 }
                 else
                 {
-                    m_Language = HasDefaultLanguage(SystemLanguage) ? SystemLanguage : GameDefinitions.Language.English;
+                    m_Language = HasDefaultLanguage(SystemLanguage) ? SystemLanguage : HonorDefinitions.Language.English;
                     Log.Info("非编辑器资源模式下持久化存档数据中的语言类型不存在，默认使用 '{0}' 类型。", m_Language);
                 }
             }
@@ -94,21 +94,21 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="language">目标语言</param>
         /// <param name="launchSet">是否为启动默认设置</param>
-        public void SetLanguage(GameDefinitions.Language language, bool launchSet = false)
+        public void SetLanguage(HonorDefinitions.Language language, bool launchSet = false)
         {
-            if (language == GameDefinitions.Language.Unspecified)
+            if (language == HonorDefinitions.Language.Unspecified)
             {
-                throw new GameException("Language 无效。");
+                throw new HonorException("Language 无效。");
             }
 
-            m_RuntimeLastLanguage = launchSet ? GameDefinitions.Language.ChineseSimplified : m_Language;
+            m_RuntimeLastLanguage = launchSet ? HonorDefinitions.Language.ChineseSimplified : m_Language;
             m_Language = language;
             
-            HonorCoreManager.Instance.SetString(GameConstants.Persist.Common.WayType, 
-                GameConstants.Persist.Common.ClassifyName, 
-                GameConstants.Persist.Common.ItemKey.Language, m_Language.ToString());
+            HonorCoreManager.Instance.SetString(HonorConstants.Persist.Common.WayType, 
+                HonorConstants.Persist.Common.ClassifyName, 
+                HonorConstants.Persist.Common.ItemKey.Language, m_Language.ToString());
             
-            HonorCoreManager.Instance.Save(GameConstants.Persist.Common.WayType, GameConstants.Persist.Common.ClassifyName);
+            HonorCoreManager.Instance.Save(HonorConstants.Persist.Common.WayType, HonorConstants.Persist.Common.ClassifyName);
 
             // 通知 Lua 刷新本地化表（cmd: 1032 本地化语言表数据关联）
             LuaProtocolRunTime.NotifyLua((int)LuaProtocolCmd.P_LuaRelateLocalizationTableDataFromCSEventDelegate,
@@ -124,7 +124,7 @@ namespace Honor.Runtime
             }
 
             // 派发全局多语言刷新事件
-            HonorCoreManager.Instance.Fire(this, GameEventCmd.TextLocalizingRefresh);
+            HonorCoreManager.Instance.Fire(this, HonorEventCmd.TextLocalizingRefresh);
 
             Log.Info("保存语言类型 '{0}' 到持久化存档数据。", m_Language);
         }
@@ -145,7 +145,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 检查是否支持指定语言
         /// </summary>
-        public bool HasDefaultLanguage(GameDefinitions.Language language)
+        public bool HasDefaultLanguage(HonorDefinitions.Language language)
         {
             return m_LocalizationManager.HasDefaultLanguage(language);
         }
@@ -169,7 +169,7 @@ namespace Honor.Runtime
         public void LoadDefaultDatas()
         {
             m_LocalizationManager.LoadDefaultDatas(m_Language, 
-                GamePathUtils.Json.GetRootDirectoryRelativePath(), 
+                HonorPathUtils.Json.GetRootDirectoryRelativePath(), 
                 HonorTxt.Format("LocalizationDefault{0}", m_Language));
         }
 
@@ -225,14 +225,14 @@ namespace Honor.Runtime
         {
             if (m_AutoFontAdapt)
             {
-                m_LocalizationManager.LoadFontDatas(GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationFonts");
+                m_LocalizationManager.LoadFontDatas(HonorPathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationFonts");
             }
         }
 
         /// <summary>
         /// 添加语言对应的字体数据
         /// </summary>
-        public void AddFontData(GameDefinitions.Language language, LocalizationFontData fontData)
+        public void AddFontData(HonorDefinitions.Language language, LocalizationFontData fontData)
         {
             if (m_AutoFontAdapt)
             {
@@ -254,7 +254,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取指定语言对应的字体列表
         /// </summary>
-        public void GetFontData(GameDefinitions.Language language, out List<LocalizationFontData> fontDatas)
+        public void GetFontData(HonorDefinitions.Language language, out List<LocalizationFontData> fontDatas)
         {
             if (m_AutoFontAdapt)
             {

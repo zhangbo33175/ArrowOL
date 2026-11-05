@@ -80,22 +80,22 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="ownerMachine">所属状态机</param>
         /// <param name="stateType">要切换的目标状态类型</param>
-        /// <exception cref="GameException">状态机为空/状态类型无效时抛出异常</exception>
+        /// <exception cref="HonorException">状态机为空/状态类型无效时抛出异常</exception>
         public virtual void ChangeState(StateMachine<T> ownerMachine, Type stateType)
         {
             if (ownerMachine == null)
             {
-                throw new GameException("状态机为空，无法切换状态。");
+                throw new HonorException("状态机为空，无法切换状态。");
             }
 
             if (stateType == null)
             {
-                throw new GameException("要切换的状态类型为空。");
+                throw new HonorException("要切换的状态类型为空。");
             }
 
             if (!typeof(State<T>).IsAssignableFrom(stateType))
             {
-                throw new GameException($"状态类型 '{stateType.FullName}' 不是有效的 State<{typeof(T)}> 类型。");
+                throw new HonorException($"状态类型 '{stateType.FullName}' 不是有效的 State<{typeof(T)}> 类型。");
             }
 
             ownerMachine.ChangeState(stateType);

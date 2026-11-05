@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent
+    public sealed partial class DebuggerComponent : HonorComponent
     {
         [Serializable]
         /// <summary>

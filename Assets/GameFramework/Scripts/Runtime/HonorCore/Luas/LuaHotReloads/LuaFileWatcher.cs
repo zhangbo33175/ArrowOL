@@ -65,7 +65,7 @@ namespace Honor.Runtime
 
             // 监听游戏业务 Lua 脚本
             new DirectoryWatcher(
-                GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true),
+                HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true),
                 "*.lua.txt",
                 LuaFileOnChanged
             );

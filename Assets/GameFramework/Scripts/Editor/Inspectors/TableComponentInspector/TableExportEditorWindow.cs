@@ -81,8 +81,8 @@ namespace Honor.Editor
         /// <inheritdoc/>
         protected override void OnInitData()
         {
-            m_LuaDir = GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath();
-            m_ExcelDir = GamePathUtils.Table.GetExcelRootDirectoryFullPath();
+            m_LuaDir = HonorPathUtils.Table.GetLuaScriptRootDirectoryFullPath();
+            m_ExcelDir = HonorPathUtils.Table.GetExcelRootDirectoryFullPath();
             RefreshAll();
         }
 

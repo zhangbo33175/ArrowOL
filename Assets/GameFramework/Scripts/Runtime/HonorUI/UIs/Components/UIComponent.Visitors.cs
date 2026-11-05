@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Honor.Runtime
 {
-    public sealed partial class UIComponent : GameComponent
+    public sealed partial class UIComponent : HonorComponent
     {
         #region 序列化配置 - 屏幕适配
         /// <summary>

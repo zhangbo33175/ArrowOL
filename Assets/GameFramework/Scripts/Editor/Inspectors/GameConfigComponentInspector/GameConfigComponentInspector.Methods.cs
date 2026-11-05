@@ -73,12 +73,12 @@ namespace Honor.Editor
         {
             if (m_LuacMode.boolValue)
             {
-                GameDefinitions.DebugMode debugMode = m_LuaDebugMode;
+                HonorDefinitions.DebugMode debugMode = m_LuaDebugMode;
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.EnumPopup("Lua调试", GameDefinitions.DebugMode.None);
+                EditorGUILayout.EnumPopup("Lua调试", HonorDefinitions.DebugMode.None);
                 EditorGUILayout.HelpBox("注：调试模式在Luac模式下是不可使用的！", MessageType.Info);
                 EditorGUI.EndDisabledGroup();
-                m_LuaDebugMode = GameDefinitions.DebugMode.None;
+                m_LuaDebugMode = HonorDefinitions.DebugMode.None;
                 if (debugMode != m_LuaDebugMode)
                 {
                     WriteDebugModeToLibraryConfigFile();
@@ -86,13 +86,13 @@ namespace Honor.Editor
             }
             else
             {
-                int debugModeIndex = (int)(GameDefinitions.DebugMode)EditorGUILayout.EnumPopup("Lua调试", m_LuaDebugMode);
+                int debugModeIndex = (int)(HonorDefinitions.DebugMode)EditorGUILayout.EnumPopup("Lua调试", m_LuaDebugMode);
                 EditorGUILayout.HelpBox(
                     "调试模式：用于切换日常Lua断点调试联调的开关。\n[None]：非调试模式\n[IDE First]：调试模式-IDE优先启动模式\n[Unity First]：调试模式-Unity优先启动模式",
                     MessageType.Info);
                 if (debugModeIndex != (int)m_LuaDebugMode)
                 {
-                    m_LuaDebugMode = (GameDefinitions.DebugMode)debugModeIndex;
+                    m_LuaDebugMode = (HonorDefinitions.DebugMode)debugModeIndex;
                     WriteDebugModeToLibraryConfigFile();
                 }
             }
@@ -251,12 +251,12 @@ namespace Honor.Editor
         {
             EditorGUILayout.Space(3);
             EditorGUILayout.Separator();
-            string[] list = Enum.GetNames(typeof(GameDefinitions.Language));
-            string codeName = ((GameDefinitions.Language)m_EditorLanguage.enumValueIndex).ToString();
+            string[] list = Enum.GetNames(typeof(HonorDefinitions.Language));
+            string codeName = ((HonorDefinitions.Language)m_EditorLanguage.enumValueIndex).ToString();
             if (Application.isPlaying)
             {
                 EditorGUILayout.LabelField("编辑器启动语言类型",
-                    AorHonorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_EditorLanguage.enumValueIndex]));
+                    AorHonorTxt.Format("{0}({1})", codeName, HonorDefinitions.LanguageDesc[m_EditorLanguage.enumValueIndex]));
             }
             else
             {
@@ -267,7 +267,7 @@ namespace Honor.Editor
 
             EditorGUILayout.Space(3);
             EditorGUILayout.LabelField("当前语言类型",
-                AorHonorTxt.Format("{0}({1})", codeName, GameDefinitions.LanguageDesc[m_Language.enumValueIndex]));
+                AorHonorTxt.Format("{0}({1})", codeName, HonorDefinitions.LanguageDesc[m_Language.enumValueIndex]));
             EditorGUI.EndDisabledGroup();
 
 

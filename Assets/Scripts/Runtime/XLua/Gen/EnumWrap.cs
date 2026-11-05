@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -698,21 +698,21 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimeGameEventCmdWrap
+    public class HonorRuntimeHonorEventCmdWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameEventCmd), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameEventCmd), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorEventCmd), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorEventCmd), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameEventCmd), L, null, 25, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorEventCmd), L, null, 25, 0, 0);
 
-            Utils.RegisterEnumType(L, typeof(Honor.Runtime.GameEventCmd));
+            Utils.RegisterEnumType(L, typeof(Honor.Runtime.HonorEventCmd));
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameEventCmd), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorEventCmd), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -722,7 +722,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameEventCmd(L, (Honor.Runtime.GameEventCmd)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorEventCmd(L, (Honor.Runtime.HonorEventCmd)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -730,18 +730,18 @@ namespace XLua.CSObjectWrap
 
                 try
 				{
-                    translator.TranslateToEnumToTop(L, typeof(Honor.Runtime.GameEventCmd), 1);
+                    translator.TranslateToEnumToTop(L, typeof(Honor.Runtime.HonorEventCmd), 1);
 				}
 				catch (System.Exception e)
 				{
-					return LuaAPI.luaL_error(L, "cast to " + typeof(Honor.Runtime.GameEventCmd) + " exception:" + e);
+					return LuaAPI.luaL_error(L, "cast to " + typeof(Honor.Runtime.HonorEventCmd) + " exception:" + e);
 				}
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameEventCmd! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorEventCmd! Expect number or string, got + " + lua_type);
             }
 
             return 1;
@@ -1916,25 +1916,25 @@ namespace XLua.CSObjectWrap
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsDimensionModeWrap
+    public class HonorRuntimeHonorDefinitionsDimensionModeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.DimensionMode), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.DimensionMode), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DimensionMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DimensionMode), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.DimensionMode), L, null, 3, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.DimensionMode), L, null, 3, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Two", Honor.Runtime.GameDefinitions.DimensionMode.Two);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Two", Honor.Runtime.HonorDefinitions.DimensionMode.Two);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Three", Honor.Runtime.GameDefinitions.DimensionMode.Three);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Three", Honor.Runtime.HonorDefinitions.DimensionMode.Three);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.DimensionMode), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.DimensionMode), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -1944,7 +1944,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsDimensionMode(L, (Honor.Runtime.GameDefinitions.DimensionMode)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsDimensionMode(L, (Honor.Runtime.HonorDefinitions.DimensionMode)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -1952,81 +1952,81 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "Two"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDimensionMode(L, Honor.Runtime.GameDefinitions.DimensionMode.Two);
+                    translator.PushHonorRuntimeHonorDefinitionsDimensionMode(L, Honor.Runtime.HonorDefinitions.DimensionMode.Two);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Three"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDimensionMode(L, Honor.Runtime.GameDefinitions.DimensionMode.Three);
+                    translator.PushHonorRuntimeHonorDefinitionsDimensionMode(L, Honor.Runtime.HonorDefinitions.DimensionMode.Three);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GameDefinitions.DimensionMode!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDefinitions.DimensionMode!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.DimensionMode! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.DimensionMode! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsAssetTypeWrap
+    public class HonorRuntimeHonorDefinitionsAssetTypeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.AssetType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.AssetType), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.AssetType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.AssetType), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.AssetType), L, null, 20, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.AssetType), L, null, 20, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GameObject", Honor.Runtime.GameDefinitions.AssetType.GameObject);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GameObject", Honor.Runtime.HonorDefinitions.AssetType.GameObject);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Texture2D", Honor.Runtime.GameDefinitions.AssetType.Texture2D);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Texture2D", Honor.Runtime.HonorDefinitions.AssetType.Texture2D);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Texture", Honor.Runtime.GameDefinitions.AssetType.Texture);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Texture", Honor.Runtime.HonorDefinitions.AssetType.Texture);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Sprite", Honor.Runtime.GameDefinitions.AssetType.Sprite);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Sprite", Honor.Runtime.HonorDefinitions.AssetType.Sprite);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ScriptableObject", Honor.Runtime.GameDefinitions.AssetType.ScriptableObject);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ScriptableObject", Honor.Runtime.HonorDefinitions.AssetType.ScriptableObject);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TileBase", Honor.Runtime.GameDefinitions.AssetType.TileBase);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TileBase", Honor.Runtime.HonorDefinitions.AssetType.TileBase);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Font", Honor.Runtime.GameDefinitions.AssetType.Font);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Font", Honor.Runtime.HonorDefinitions.AssetType.Font);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FontTMP", Honor.Runtime.GameDefinitions.AssetType.FontTMP);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FontTMP", Honor.Runtime.HonorDefinitions.AssetType.FontTMP);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Shader", Honor.Runtime.GameDefinitions.AssetType.Shader);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Shader", Honor.Runtime.HonorDefinitions.AssetType.Shader);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Material", Honor.Runtime.GameDefinitions.AssetType.Material);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Material", Honor.Runtime.HonorDefinitions.AssetType.Material);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TextAsset", Honor.Runtime.GameDefinitions.AssetType.TextAsset);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "TextAsset", Honor.Runtime.HonorDefinitions.AssetType.TextAsset);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "JsonAsset", Honor.Runtime.GameDefinitions.AssetType.JsonAsset);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "JsonAsset", Honor.Runtime.HonorDefinitions.AssetType.JsonAsset);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "BinaryAsset", Honor.Runtime.GameDefinitions.AssetType.BinaryAsset);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "BinaryAsset", Honor.Runtime.HonorDefinitions.AssetType.BinaryAsset);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LuaAsset", Honor.Runtime.GameDefinitions.AssetType.LuaAsset);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LuaAsset", Honor.Runtime.HonorDefinitions.AssetType.LuaAsset);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LuacAsset", Honor.Runtime.GameDefinitions.AssetType.LuacAsset);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LuacAsset", Honor.Runtime.HonorDefinitions.AssetType.LuacAsset);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Scene", Honor.Runtime.GameDefinitions.AssetType.Scene);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Scene", Honor.Runtime.HonorDefinitions.AssetType.Scene);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Sound", Honor.Runtime.GameDefinitions.AssetType.Sound);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Sound", Honor.Runtime.HonorDefinitions.AssetType.Sound);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Model", Honor.Runtime.GameDefinitions.AssetType.Model);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Model", Honor.Runtime.HonorDefinitions.AssetType.Model);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AnimatorController", Honor.Runtime.GameDefinitions.AssetType.AnimatorController);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AnimatorController", Honor.Runtime.HonorDefinitions.AssetType.AnimatorController);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.AssetType), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.AssetType), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2036,7 +2036,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsAssetType(L, (Honor.Runtime.GameDefinitions.AssetType)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsAssetType(L, (Honor.Runtime.HonorDefinitions.AssetType)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2044,119 +2044,119 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "GameObject"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.GameObject);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.GameObject);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Texture2D"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Texture2D);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Texture2D);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Texture"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Texture);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Texture);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Sprite"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Sprite);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Sprite);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "ScriptableObject"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.ScriptableObject);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.ScriptableObject);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "TileBase"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.TileBase);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.TileBase);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Font"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Font);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Font);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "FontTMP"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.FontTMP);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.FontTMP);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Shader"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Shader);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Shader);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Material"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Material);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Material);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "TextAsset"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.TextAsset);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.TextAsset);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "JsonAsset"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.JsonAsset);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.JsonAsset);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "BinaryAsset"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.BinaryAsset);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.BinaryAsset);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "LuaAsset"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.LuaAsset);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.LuaAsset);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "LuacAsset"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.LuacAsset);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.LuacAsset);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Scene"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Scene);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Scene);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Sound"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Sound);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Sound);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Model"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.Model);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.Model);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "AnimatorController"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsAssetType(L, Honor.Runtime.GameDefinitions.AssetType.AnimatorController);
+                    translator.PushHonorRuntimeHonorDefinitionsAssetType(L, Honor.Runtime.HonorDefinitions.AssetType.AnimatorController);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GameDefinitions.AssetType!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDefinitions.AssetType!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.AssetType! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.AssetType! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsPathTypeWrap
+    public class HonorRuntimeHonorDefinitionsPathTypeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.PathType), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.PathType), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.PathType), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.PathType), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.PathType), L, null, 5, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.PathType), L, null, 5, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Persist", Honor.Runtime.GameDefinitions.PathType.Persist);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Persist", Honor.Runtime.HonorDefinitions.PathType.Persist);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Streaming", Honor.Runtime.GameDefinitions.PathType.Streaming);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Streaming", Honor.Runtime.HonorDefinitions.PathType.Streaming);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Server", Honor.Runtime.GameDefinitions.PathType.Server);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Server", Honor.Runtime.HonorDefinitions.PathType.Server);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ServerGray", Honor.Runtime.GameDefinitions.PathType.ServerGray);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ServerGray", Honor.Runtime.HonorDefinitions.PathType.ServerGray);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.PathType), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.PathType), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2166,7 +2166,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsPathType(L, (Honor.Runtime.GameDefinitions.PathType)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsPathType(L, (Honor.Runtime.HonorDefinitions.PathType)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2174,65 +2174,65 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "Persist"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsPathType(L, Honor.Runtime.GameDefinitions.PathType.Persist);
+                    translator.PushHonorRuntimeHonorDefinitionsPathType(L, Honor.Runtime.HonorDefinitions.PathType.Persist);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Streaming"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsPathType(L, Honor.Runtime.GameDefinitions.PathType.Streaming);
+                    translator.PushHonorRuntimeHonorDefinitionsPathType(L, Honor.Runtime.HonorDefinitions.PathType.Streaming);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Server"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsPathType(L, Honor.Runtime.GameDefinitions.PathType.Server);
+                    translator.PushHonorRuntimeHonorDefinitionsPathType(L, Honor.Runtime.HonorDefinitions.PathType.Server);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "ServerGray"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsPathType(L, Honor.Runtime.GameDefinitions.PathType.ServerGray);
+                    translator.PushHonorRuntimeHonorDefinitionsPathType(L, Honor.Runtime.HonorDefinitions.PathType.ServerGray);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GameDefinitions.PathType!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDefinitions.PathType!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.PathType! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.PathType! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsDownloadStepWrap
+    public class HonorRuntimeHonorDefinitionsDownloadStepWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.DownloadStep), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.DownloadStep), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DownloadStep), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DownloadStep), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.DownloadStep), L, null, 8, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.DownloadStep), L, null, 8, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.GameDefinitions.DownloadStep.None);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.HonorDefinitions.DownloadStep.None);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Idle", Honor.Runtime.GameDefinitions.DownloadStep.Idle);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Idle", Honor.Runtime.HonorDefinitions.DownloadStep.Idle);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Processing", Honor.Runtime.GameDefinitions.DownloadStep.Processing);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Processing", Honor.Runtime.HonorDefinitions.DownloadStep.Processing);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AllOver", Honor.Runtime.GameDefinitions.DownloadStep.AllOver);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AllOver", Honor.Runtime.HonorDefinitions.DownloadStep.AllOver);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Skip", Honor.Runtime.GameDefinitions.DownloadStep.Skip);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Skip", Honor.Runtime.HonorDefinitions.DownloadStep.Skip);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Error", Honor.Runtime.GameDefinitions.DownloadStep.Error);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "Error", Honor.Runtime.HonorDefinitions.DownloadStep.Error);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "CheckError", Honor.Runtime.GameDefinitions.DownloadStep.CheckError);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "CheckError", Honor.Runtime.HonorDefinitions.DownloadStep.CheckError);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.DownloadStep), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.DownloadStep), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2242,7 +2242,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, (Honor.Runtime.GameDefinitions.DownloadStep)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, (Honor.Runtime.HonorDefinitions.DownloadStep)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2250,69 +2250,69 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.None);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.None);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Idle"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.Idle);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.Idle);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Processing"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.Processing);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.Processing);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "AllOver"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.AllOver);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.AllOver);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Skip"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.Skip);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.Skip);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "Error"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.Error);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.Error);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "CheckError"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, Honor.Runtime.GameDefinitions.DownloadStep.CheckError);
+                    translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, Honor.Runtime.HonorDefinitions.DownloadStep.CheckError);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GameDefinitions.DownloadStep!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDefinitions.DownloadStep!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.DownloadStep! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.DownloadStep! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsDebugModeWrap
+    public class HonorRuntimeHonorDefinitionsDebugModeWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.DebugMode), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.DebugMode), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DebugMode), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DebugMode), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.DebugMode), L, null, 4, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.DebugMode), L, null, 4, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.GameDefinitions.DebugMode.None);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "None", Honor.Runtime.HonorDefinitions.DebugMode.None);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IDEFirst", Honor.Runtime.GameDefinitions.DebugMode.IDEFirst);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IDEFirst", Honor.Runtime.HonorDefinitions.DebugMode.IDEFirst);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UnityFirst", Honor.Runtime.GameDefinitions.DebugMode.UnityFirst);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "UnityFirst", Honor.Runtime.HonorDefinitions.DebugMode.UnityFirst);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.DebugMode), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.DebugMode), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2322,7 +2322,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsDebugMode(L, (Honor.Runtime.GameDefinitions.DebugMode)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsDebugMode(L, (Honor.Runtime.HonorDefinitions.DebugMode)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2330,47 +2330,47 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "None"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugMode(L, Honor.Runtime.GameDefinitions.DebugMode.None);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugMode(L, Honor.Runtime.HonorDefinitions.DebugMode.None);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "IDEFirst"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugMode(L, Honor.Runtime.GameDefinitions.DebugMode.IDEFirst);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugMode(L, Honor.Runtime.HonorDefinitions.DebugMode.IDEFirst);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "UnityFirst"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugMode(L, Honor.Runtime.GameDefinitions.DebugMode.UnityFirst);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugMode(L, Honor.Runtime.HonorDefinitions.DebugMode.UnityFirst);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GameDefinitions.DebugMode!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDefinitions.DebugMode!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.DebugMode! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.DebugMode! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsLanguageWrap
+    public class HonorRuntimeHonorDefinitionsLanguageWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.Language), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.Language), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.Language), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.Language), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.Language), L, null, 52, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.Language), L, null, 52, 0, 0);
 
-            Utils.RegisterEnumType(L, typeof(Honor.Runtime.GameDefinitions.Language));
+            Utils.RegisterEnumType(L, typeof(Honor.Runtime.HonorDefinitions.Language));
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.Language), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.Language), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2380,7 +2380,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsLanguage(L, (Honor.Runtime.GameDefinitions.Language)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsLanguage(L, (Honor.Runtime.HonorDefinitions.Language)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2388,47 +2388,47 @@ namespace XLua.CSObjectWrap
 
                 try
 				{
-                    translator.TranslateToEnumToTop(L, typeof(Honor.Runtime.GameDefinitions.Language), 1);
+                    translator.TranslateToEnumToTop(L, typeof(Honor.Runtime.HonorDefinitions.Language), 1);
 				}
 				catch (System.Exception e)
 				{
-					return LuaAPI.luaL_error(L, "cast to " + typeof(Honor.Runtime.GameDefinitions.Language) + " exception:" + e);
+					return LuaAPI.luaL_error(L, "cast to " + typeof(Honor.Runtime.HonorDefinitions.Language) + " exception:" + e);
 				}
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.Language! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.Language! Expect number or string, got + " + lua_type);
             }
 
             return 1;
 		}
 	}
     
-    public class HonorRuntimeGameDefinitionsDebugWindowModelWrap
+    public class HonorRuntimeHonorDefinitionsDebugWindowModelWrap
     {
 		public static void __Register(RealStatePtr L)
         {
 		    ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-		    Utils.BeginObjectRegister(typeof(Honor.Runtime.GameDefinitions.DebugWindowModel), L, translator, 0, 0, 0, 0);
-			Utils.EndObjectRegister(typeof(Honor.Runtime.GameDefinitions.DebugWindowModel), L, translator, null, null, null, null, null);
+		    Utils.BeginObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel), L, translator, 0, 0, 0, 0);
+			Utils.EndObjectRegister(typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel), L, translator, null, null, null, null, null);
 			
-			Utils.BeginClassRegister(typeof(Honor.Runtime.GameDefinitions.DebugWindowModel), L, null, 5, 0, 0);
+			Utils.BeginClassRegister(typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel), L, null, 5, 0, 0);
 
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MiniWindow", Honor.Runtime.GameDefinitions.DebugWindowModel.MiniWindow);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MiniWindow", Honor.Runtime.HonorDefinitions.DebugWindowModel.MiniWindow);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FPSWindow", Honor.Runtime.GameDefinitions.DebugWindowModel.FPSWindow);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FPSWindow", Honor.Runtime.HonorDefinitions.DebugWindowModel.FPSWindow);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FullWindow", Honor.Runtime.GameDefinitions.DebugWindowModel.FullWindow);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FullWindow", Honor.Runtime.HonorDefinitions.DebugWindowModel.FullWindow);
             
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PopWindow", Honor.Runtime.GameDefinitions.DebugWindowModel.PopWindow);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PopWindow", Honor.Runtime.HonorDefinitions.DebugWindowModel.PopWindow);
             
 
 			Utils.RegisterFunc(L, Utils.CLS_IDX, "__CastFrom", __CastFrom);
             
-            Utils.EndClassRegister(typeof(Honor.Runtime.GameDefinitions.DebugWindowModel), L, translator);
+            Utils.EndClassRegister(typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel), L, translator);
         }
 		
 		[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
@@ -2438,7 +2438,7 @@ namespace XLua.CSObjectWrap
 			LuaTypes lua_type = LuaAPI.lua_type(L, 1);
             if (lua_type == LuaTypes.LUA_TNUMBER)
             {
-                translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, (Honor.Runtime.GameDefinitions.DebugWindowModel)LuaAPI.xlua_tointeger(L, 1));
+                translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel(L, (Honor.Runtime.HonorDefinitions.DebugWindowModel)LuaAPI.xlua_tointeger(L, 1));
             }
 			
             else if(lua_type == LuaTypes.LUA_TSTRING)
@@ -2446,30 +2446,30 @@ namespace XLua.CSObjectWrap
 
 			    if (LuaAPI.xlua_is_eq_str(L, 1, "MiniWindow"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, Honor.Runtime.GameDefinitions.DebugWindowModel.MiniWindow);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel(L, Honor.Runtime.HonorDefinitions.DebugWindowModel.MiniWindow);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "FPSWindow"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, Honor.Runtime.GameDefinitions.DebugWindowModel.FPSWindow);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel(L, Honor.Runtime.HonorDefinitions.DebugWindowModel.FPSWindow);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "FullWindow"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, Honor.Runtime.GameDefinitions.DebugWindowModel.FullWindow);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel(L, Honor.Runtime.HonorDefinitions.DebugWindowModel.FullWindow);
                 }
 				else if (LuaAPI.xlua_is_eq_str(L, 1, "PopWindow"))
                 {
-                    translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, Honor.Runtime.GameDefinitions.DebugWindowModel.PopWindow);
+                    translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel(L, Honor.Runtime.HonorDefinitions.DebugWindowModel.PopWindow);
                 }
 				else
                 {
-                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.GameDefinitions.DebugWindowModel!");
+                    return LuaAPI.luaL_error(L, "invalid string for Honor.Runtime.HonorDefinitions.DebugWindowModel!");
                 }
 
             }
 			
             else
             {
-                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.GameDefinitions.DebugWindowModel! Expect number or string, got + " + lua_type);
+                return LuaAPI.luaL_error(L, "invalid lua type for Honor.Runtime.HonorDefinitions.DebugWindowModel! Expect number or string, got + " + lua_type);
             }
 
             return 1;

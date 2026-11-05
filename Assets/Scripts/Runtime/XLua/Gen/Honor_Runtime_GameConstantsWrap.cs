@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGameConstantsWrap 
+    public class HonorRuntimeHonorConstantsWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GameConstants);
+			System.Type type = typeof(Honor.Runtime.HonorConstants);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -34,21 +34,21 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginClassRegister(type, L, __CreateInstance, 16, 0, 0);
 			
 			
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MinGameVersion", Honor.Runtime.GameConstants.MinGameVersion);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HonorVersion", Honor.Runtime.GameConstants.HonorVersion);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LaunchUIZOrder", Honor.Runtime.GameConstants.LaunchUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SplashUIZOrder", Honor.Runtime.GameConstants.SplashUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HotfixUIZOrder", Honor.Runtime.GameConstants.HotfixUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HotfixErrorUIZOrder", Honor.Runtime.GameConstants.HotfixErrorUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WebGLUIZOrder", Honor.Runtime.GameConstants.WebGLUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PreloadUIZOrder", Honor.Runtime.GameConstants.PreloadUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AppDownloadUIZOrder", Honor.Runtime.GameConstants.AppDownloadUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WaitingUIZOrder", Honor.Runtime.GameConstants.WaitingUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ProcedureTransitionUIZOrder", Honor.Runtime.GameConstants.ProcedureTransitionUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GDPRUIZOrder", Honor.Runtime.GameConstants.GDPRUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AppReviewUIZOrder", Honor.Runtime.GameConstants.AppReviewUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AppFeedbackUIZOrder", Honor.Runtime.GameConstants.AppFeedbackUIZOrder);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FloatWordsUIZOrder", Honor.Runtime.GameConstants.FloatWordsUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "MinGameVersion", Honor.Runtime.HonorConstants.MinGameVersion);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HonorVersion", Honor.Runtime.HonorConstants.HonorVersion);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "LaunchUIZOrder", Honor.Runtime.HonorConstants.LaunchUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "SplashUIZOrder", Honor.Runtime.HonorConstants.SplashUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HotfixUIZOrder", Honor.Runtime.HonorConstants.HotfixUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HotfixErrorUIZOrder", Honor.Runtime.HonorConstants.HotfixErrorUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WebGLUIZOrder", Honor.Runtime.HonorConstants.WebGLUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "PreloadUIZOrder", Honor.Runtime.HonorConstants.PreloadUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AppDownloadUIZOrder", Honor.Runtime.HonorConstants.AppDownloadUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "WaitingUIZOrder", Honor.Runtime.HonorConstants.WaitingUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "ProcedureTransitionUIZOrder", Honor.Runtime.HonorConstants.ProcedureTransitionUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GDPRUIZOrder", Honor.Runtime.HonorConstants.GDPRUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AppReviewUIZOrder", Honor.Runtime.HonorConstants.AppReviewUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "AppFeedbackUIZOrder", Honor.Runtime.HonorConstants.AppFeedbackUIZOrder);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "FloatWordsUIZOrder", Honor.Runtime.HonorConstants.FloatWordsUIZOrder);
             
 			
 			
@@ -59,7 +59,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GameConstants does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorConstants does not have a constructor!");
         }
         
 		

@@ -26,7 +26,7 @@ namespace Honor.Editor.BuildTool
         /// <summary>构建目标平台（BuildTarget）</summary>
         public BuildTarget Target;
 
-        /// <summary>平台名（与运行时 GamePathUtils.PlatformName 对齐，如 Android/iOS）</summary>
+        /// <summary>平台名（与运行时 HonorPathUtils.PlatformName 对齐，如 Android/iOS）</summary>
         public string PlatformName;
 
         /// <summary>AB 输出根目录（绝对路径）</summary>

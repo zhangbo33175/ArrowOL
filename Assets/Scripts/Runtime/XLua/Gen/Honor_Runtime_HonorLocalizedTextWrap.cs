@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -131,7 +131,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.HonorLocalizedText gen_to_be_invoked = (Honor.Runtime.HonorLocalizedText)translator.FastGetCSObj(L, 1);
-                translator.PushHonorRuntimeGameDefinitionsLanguage(L, gen_to_be_invoked.Language);
+                translator.PushHonorRuntimeHonorDefinitionsLanguage(L, gen_to_be_invoked.Language);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -176,7 +176,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.HonorLocalizedText gen_to_be_invoked = (Honor.Runtime.HonorLocalizedText)translator.FastGetCSObj(L, 1);
-                Honor.Runtime.GameDefinitions.Language gen_value;translator.Get(L, 2, out gen_value);
+                Honor.Runtime.HonorDefinitions.Language gen_value;translator.Get(L, 2, out gen_value);
 				gen_to_be_invoked.Language = gen_value;
             
             } catch(System.Exception gen_e) {

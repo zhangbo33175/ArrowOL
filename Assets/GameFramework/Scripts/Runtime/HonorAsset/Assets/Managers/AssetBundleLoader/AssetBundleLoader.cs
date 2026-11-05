@@ -68,7 +68,7 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadManifest()
         {
-            string manifestFormatPath = HonorTxt.Format("{0}.bundle", GamePathUtils.PlatformName);
+            string manifestFormatPath = HonorTxt.Format("{0}.bundle", HonorPathUtils.PlatformName);
             GetABLoadPathOnDisk(manifestFormatPath, out string diskPath, out OriginType origin);
 
             if (string.IsNullOrEmpty(diskPath))
@@ -81,14 +81,14 @@ namespace Honor.Runtime
             AssetBundle manifestBundle = AssetBundle.LoadFromFile(diskPath);
             if (manifestBundle == null)
             {
-                Log.Error("加载AB包{0}错误！", GamePathUtils.PlatformName);
+                Log.Error("加载AB包{0}错误！", HonorPathUtils.PlatformName);
                 return;
             }
 
             AssetBundleManifest manifest = manifestBundle.LoadAsset("AssetBundleManifest") as AssetBundleManifest;
             if (manifest == null)
             {
-                Log.Error("加载{0}.Manifest信息错误！", GamePathUtils.PlatformName);
+                Log.Error("加载{0}.Manifest信息错误！", HonorPathUtils.PlatformName);
                 return;
             }
 
@@ -175,7 +175,7 @@ namespace Honor.Runtime
         public bool IsABExistInPersistentDataPath(string abPath)
         {
             string formatPath = GetABFormatPath(abPath);
-            string filePath = GamePathUtils.AB.Persistent.GetFileFullPath(formatPath);
+            string filePath = HonorPathUtils.AB.Persistent.GetFileFullPath(formatPath);
             return File.Exists(filePath);
         }
 

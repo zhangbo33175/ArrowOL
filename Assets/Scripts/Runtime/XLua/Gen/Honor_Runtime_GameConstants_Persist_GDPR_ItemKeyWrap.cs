@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGameConstantsPersistGDPRItemKeyWrap 
+    public class HonorRuntimeHonorConstantsPersistGDPRItemKeyWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GameConstants.Persist.GDPR.ItemKey);
+			System.Type type = typeof(Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -34,11 +34,11 @@ namespace XLua.CSObjectWrap
 		    Utils.BeginClassRegister(type, L, __CreateInstance, 6, 0, 0);
 			
 			
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GDPROver", Honor.Runtime.GameConstants.Persist.GDPR.ItemKey.GDPROver);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GDPRNeedFlagFromNet", Honor.Runtime.GameConstants.Persist.GDPR.ItemKey.GDPRNeedFlagFromNet);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HasUserConsent", Honor.Runtime.GameConstants.Persist.GDPR.ItemKey.HasUserConsent);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IsSell", Honor.Runtime.GameConstants.Persist.GDPR.ItemKey.IsSell);
-            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IsAgeReachStandard", Honor.Runtime.GameConstants.Persist.GDPR.ItemKey.IsAgeReachStandard);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GDPROver", Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey.GDPROver);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "GDPRNeedFlagFromNet", Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey.GDPRNeedFlagFromNet);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "HasUserConsent", Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey.HasUserConsent);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IsSell", Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey.IsSell);
+            Utils.RegisterObject(L, translator, Utils.CLS_IDX, "IsAgeReachStandard", Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey.IsAgeReachStandard);
             
 			
 			
@@ -49,7 +49,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GameConstants.Persist.GDPR.ItemKey does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorConstants.Persist.GDPR.ItemKey does not have a constructor!");
         }
         
 		

@@ -27,7 +27,7 @@ namespace Honor.Editor
         private static readonly string[] GameSpeedTexts = new string[]
             { "0x", "0.01x", "0.1x", "0.25x", "0.5x", "1x", "1.5x", "2x", "4x", "8x" };
 
-        private string m_UIABPathDefault = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
+        private string m_UIABPathDefault = HonorPathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
         private string m_UISplashAssetNameDefault = "UISplashDefault";
         private string m_UITransitionAssetNameDefault = "UITransitionDefault";
         private string m_UIPreloadAssetNameDefault = "UIPreloadDefault";
@@ -180,7 +180,7 @@ namespace Honor.Editor
         /// </summary>
         private int m_EntryProcedureIndex = -1;
 
-        private GameDefinitions.DebugMode m_LuaDebugMode = GameDefinitions.DebugMode.None;
+        private HonorDefinitions.DebugMode m_LuaDebugMode = HonorDefinitions.DebugMode.None;
 
         private void OnEnable()
         {
@@ -230,7 +230,7 @@ namespace Honor.Editor
             // 运行速率
             // 游戏运行时的最快速率
             m_GameSpeed = serializedObject.FindProperty("m_GameSpeed");
-            m_LuaDebugMode = GameDefinitions.DebugMode.None;
+            m_LuaDebugMode = HonorDefinitions.DebugMode.None;
             //-----------------------------------------------------------------
             // 切换过渡界面AB路径
             m_UITransitionABPath = serializedObject.FindProperty("m_UITransitionABPath");
@@ -319,7 +319,7 @@ namespace Honor.Editor
         /// </summary>
         private void WriteDebugModeToLibraryConfigFile()
         {
-            string dataPath = GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath();
+            string dataPath = HonorPathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath();
             File.WriteAllText(dataPath, ((int)m_LuaDebugMode).ToString());
         }
     }

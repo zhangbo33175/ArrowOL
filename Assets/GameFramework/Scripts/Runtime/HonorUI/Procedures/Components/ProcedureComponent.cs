@@ -22,7 +22,7 @@ namespace Honor.Runtime
     /// 游戏启动、登录、主界面、战斗等所有场景流程均由此管理
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class ProcedureComponent : GameComponent
+    public sealed partial class ProcedureComponent : HonorComponent
     {
         //=========================================================================
         #region 生命周期
@@ -148,7 +148,7 @@ namespace Honor.Runtime
         {
             if (m_ProcedureStateMachine == null)
             {
-                throw new GameException("必须先初始化 ProcedureStateMachine。");
+                throw new HonorException("必须先初始化 ProcedureStateMachine。");
             }
         }
 

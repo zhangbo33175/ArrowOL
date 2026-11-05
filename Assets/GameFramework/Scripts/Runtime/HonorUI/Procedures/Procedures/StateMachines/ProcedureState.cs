@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -313,7 +313,7 @@ namespace Honor.Runtime
         public void PrepareToNextProcedure(Type stateType, LuaTable argsFromChanging = null)
         {
             if (stateType == null)
-                throw new GameException("State type 无效。");
+                throw new HonorException("State type 无效。");
 
             m_NextProcedureType = stateType;
             m_ArgsFromChanging = argsFromChanging;

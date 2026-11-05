@@ -16,10 +16,10 @@ namespace Honor.Runtime
     /// <summary>
     /// UI 核心管理组件
     /// 负责 UI 的同步/异步加载、关闭、管理、相机管理、多语言字体适配、刘海屏适配
-    /// 基于 GameComponent 生命周期运行，是全局唯一的 UI 入口
+    /// 基于 HonorComponent 生命周期运行，是全局唯一的 UI 入口
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class UIComponent : GameComponent
+    public sealed partial class UIComponent : HonorComponent
     {
         #region Unity 生命周期
         /// <summary>

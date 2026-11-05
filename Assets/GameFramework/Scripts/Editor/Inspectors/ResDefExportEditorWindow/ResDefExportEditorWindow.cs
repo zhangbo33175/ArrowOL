@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace Honor.Editor
             m_SearchResDefItemInfo = new List<ResDefItem>();
             m_ErrorResDefItemInfo = new List<ResDefItem>();
 
-            Array.ForEach(Enum.GetNames(typeof(GameDefinitions.AssetType)),
+            Array.ForEach(Enum.GetNames(typeof(HonorDefinitions.AssetType)),
                 assetType => m_AllShowFoldout[assetType] = new TopItemInfo());
             m_AllShowFoldout.Add(m_SearchTag, new TopItemInfo { OnePageCount = 16, IsShowFoldout = true });
             m_AllShowFoldout.Add(m_ErrorTag, new TopItemInfo { OnePageCount = 16, IsShowFoldout = true });
@@ -95,7 +95,7 @@ namespace Honor.Editor
         /// <summary>绑定"资源导入"区：类型下拉 + 目标对象</summary>
         private void SetupImportSection()
         {
-            var enumNames = Enum.GetNames(typeof(GameDefinitions.AssetType));
+            var enumNames = Enum.GetNames(typeof(HonorDefinitions.AssetType));
             var typeDropdown = rootVisualElement.Q<DropdownField>("assetTypeDropdown");
             typeDropdown.choices = new List<string>(enumNames);
             typeDropdown.value = enumNames[m_SelectResType];
@@ -128,7 +128,7 @@ namespace Honor.Editor
 
             rootVisualElement.Q<Button>("defaultLuaBtn").clicked += () =>
             {
-                ResDefInfos.LuaExportFolderPath = Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath;
+                ResDefInfos.LuaExportFolderPath = Runtime.HonorPathUtils.Editor.ResDef.LuaFolderPath;
                 luaPathField.value = ResDefInfos.LuaExportFolderPath;
                 ResDefInfos.WriteJson();
             };
@@ -196,13 +196,13 @@ namespace Honor.Editor
 
             rootVisualElement.Q<Button>("openExcelBtn").clicked += () =>
             {
-                string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
+                string filePath = Runtime.HonorPathUtils.AB.GetExcelFileFullPath();
                 TableExportEditorUtility.OpenExcel(filePath);
             };
 
             rootVisualElement.Q<Button>("exportJsonBtn").clicked += () =>
             {
-                string filePath = Runtime.GamePathUtils.AB.GetExcelFileFullPath();
+                string filePath = Runtime.HonorPathUtils.AB.GetExcelFileFullPath();
                 ExportExcelToJsonFromABConfig(Path.GetFileNameWithoutExtension(filePath));
                 AssetBundleNamePostprocessor.RefreshAllAssetBundleNames();
                 LoadABConfigs();
@@ -214,7 +214,7 @@ namespace Honor.Editor
             rootVisualElement.Q<Button>("exportLuaBtn").clicked += () =>
             {
                 WriteOutputGDefsFile(GetResultDetailInfo().Values.ToList());
-                ShowNotification($"导出 {Runtime.GamePathUtils.Editor.ResDef.GetResDefLuaFullPath()} 完成。");
+                ShowNotification($"导出 {Runtime.HonorPathUtils.Editor.ResDef.GetResDefLuaFullPath()} 完成。");
             };
         }
 
@@ -332,7 +332,7 @@ namespace Honor.Editor
             foreach (var fullPath in m_FindFileFullPathList.Keys.ToList())
             {
                 var fileName = Path.GetFileNameWithoutExtension(fullPath);
-                var aliasName = $"{((GameDefinitions.AssetType)m_SelectResType)}_{fileName}";
+                var aliasName = $"{((HonorDefinitions.AssetType)m_SelectResType)}_{fileName}";
 
                 bool existInDb = ResDefInfos.ConvertData.Any(x => x.AliasName == aliasName);
                 if (existInDb)
@@ -347,7 +347,7 @@ namespace Honor.Editor
                 {
                     var resDefItem = ResDefItem.Create(
                         CurMaxResID,
-                        ((GameDefinitions.AssetType)m_SelectResType).ToString(),
+                        ((HonorDefinitions.AssetType)m_SelectResType).ToString(),
                         aliasName, fileABPath, fileName,
                         AssetDatabase.AssetPathToGUID(fullPath));
                     m_TempResDefItems.Add(resDefItem);

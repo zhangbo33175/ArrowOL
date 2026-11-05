@@ -59,7 +59,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// 确保组件引用就绪：组件未取齐时经 GameComponentsGroup 逐个补取
+        /// 确保组件引用就绪：组件未取齐时经 HonorComponentGroup 逐个补取
         /// <para>解决惰性单例时序问题：若门面在场景组件（Launcher/UI/Procedure/Scene/Debugger）
         /// Awake 完成前被首次访问（例：LauncherComponent.Awake 动态实例化 Debugger 并调用
         /// SetActiveWindow），会把尚未注册的组件引用缓存为 null。
@@ -75,11 +75,11 @@ namespace Honor.Runtime
             }
 
             // 逐个补取：已注册的立即缓存，未注册的保持 null，下次访问再补取
-            if (m_Launcher == null) { m_Launcher = GameComponentsGroup.GetComponent<LauncherComponent>(); }
-            if (m_UI == null) { m_UI = GameComponentsGroup.GetComponent<UIComponent>(); }
-            if (m_Procedure == null) { m_Procedure = GameComponentsGroup.GetComponent<ProcedureComponent>(); }
-            if (m_Scene == null) { m_Scene = GameComponentsGroup.GetComponent<SceneComponent>(); }
-            if (m_Debugger == null) { m_Debugger = GameComponentsGroup.GetComponent<DebuggerComponent>(); }
+            if (m_Launcher == null) { m_Launcher = HonorComponentGroup.GetComponent<LauncherComponent>(); }
+            if (m_UI == null) { m_UI = HonorComponentGroup.GetComponent<UIComponent>(); }
+            if (m_Procedure == null) { m_Procedure = HonorComponentGroup.GetComponent<ProcedureComponent>(); }
+            if (m_Scene == null) { m_Scene = HonorComponentGroup.GetComponent<SceneComponent>(); }
+            if (m_Debugger == null) { m_Debugger = HonorComponentGroup.GetComponent<DebuggerComponent>(); }
 
             // 核心组件（Launcher/UI/Procedure/Scene）已全部取到即视为就绪；Debugger 可配置关闭，允许为空
             if (m_Launcher != null && m_UI != null && m_Procedure != null && m_Scene != null)

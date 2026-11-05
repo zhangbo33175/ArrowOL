@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -1388,7 +1388,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.HonorUIManager gen_to_be_invoked = (Honor.Runtime.HonorUIManager)translator.FastGetCSObj(L, 1);
-                translator.PushHonorRuntimeGameDefinitionsLanguage(L, gen_to_be_invoked.EditorLanguage);
+                translator.PushHonorRuntimeHonorDefinitionsLanguage(L, gen_to_be_invoked.EditorLanguage);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }

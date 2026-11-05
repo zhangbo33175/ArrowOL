@@ -67,7 +67,7 @@ namespace Honor.Editor
         protected override void OnBindUI()
         {
             BindClick("openExcelBtn", () =>
-                TableExportEditorUtility.OpenExcel(GamePathUtils.Config.GetExcelFileFullPath()));
+                TableExportEditorUtility.OpenExcel(HonorPathUtils.Config.GetExcelFileFullPath()));
 
             BindClick("exportBtn", () =>
             {
@@ -77,7 +77,7 @@ namespace Honor.Editor
             });
 
             BindClick("openDirBtn", () =>
-                TableExportEditorUtility.OpenDirectory(GamePathUtils.Config.GetExcelRootDirectoryFullPath()));
+                TableExportEditorUtility.OpenDirectory(HonorPathUtils.Config.GetExcelRootDirectoryFullPath()));
 
             BindImgui("previewContainer", DrawPreviewIMGUIContent);
             RequestRepaint();
@@ -129,7 +129,7 @@ namespace Honor.Editor
             m_ConfigEntryMap.Clear();
             string configBytesPath = HonorTxt.Format("{0}/{1}/{2}",
                 Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length),
-                GamePathUtils.Json.GetRootDirectoryRelativePath(),
+                HonorPathUtils.Json.GetRootDirectoryRelativePath(),
                 "Configs.bytes");
 
             if (!File.Exists(configBytesPath)) return false;
@@ -151,12 +151,12 @@ namespace Honor.Editor
 
         private void ExportCurrentExcel()
         {
-            string excelPath = GamePathUtils.Config.GetExcelFileFullPath();
+            string excelPath = HonorPathUtils.Config.GetExcelFileFullPath();
             string excelName = Path.GetFileNameWithoutExtension(excelPath);
-            string fullExcelPath = $"{GamePathUtils.Config.GetExcelRootDirectoryFullPath()}/{excelName}.xlsm";
+            string fullExcelPath = $"{HonorPathUtils.Config.GetExcelRootDirectoryFullPath()}/{excelName}.xlsm";
             DataSet ds = TableExportEditorUtility.GetExcelData(fullExcelPath);
 
-            string outputDir = GamePathUtils.Json.GetRootDirectoryFullPath();
+            string outputDir = HonorPathUtils.Json.GetRootDirectoryFullPath();
             string outputPath = $"{outputDir}/{excelName}.bytes";
             if (!Directory.Exists(outputDir)) Directory.CreateDirectory(outputDir);
 

@@ -14,7 +14,7 @@ using UnityEngine.EventSystems;
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent, ICanvasRaycastFilter, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
+    public sealed partial class DebuggerComponent : HonorComponent, ICanvasRaycastFilter, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
         IInitializePotentialDragHandler, IPointerDownHandler, IPointerUpHandler
 
     {
@@ -141,8 +141,8 @@ namespace Honor.Runtime
         /// <summary>
         /// 悬浮Icon状态
         /// </summary>
-        private GameDefinitions.DebugWindowModel m_WinModel = GameDefinitions.DebugWindowModel.MiniWindow;
-        public GameDefinitions.DebugWindowModel WinModel
+        private HonorDefinitions.DebugWindowModel m_WinModel = HonorDefinitions.DebugWindowModel.MiniWindow;
+        public HonorDefinitions.DebugWindowModel WinModel
         {
             set { m_WinModel = value; }
             get { return m_WinModel; }

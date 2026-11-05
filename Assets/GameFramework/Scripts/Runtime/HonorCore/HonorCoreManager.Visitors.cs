@@ -96,7 +96,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 当前语言类型（转发自 LocalizationComponent）
         /// </summary>
-        public GameDefinitions.Language Language => Localization != null ? Localization.Language : default(GameDefinitions.Language);
+        public HonorDefinitions.Language Language => Localization != null ? Localization.Language : default(HonorDefinitions.Language);
 
         /// <summary>
         /// 当前语言名称字符串（转发自 LocalizationComponent）

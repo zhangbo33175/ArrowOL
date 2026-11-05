@@ -172,14 +172,14 @@ namespace Honor.Runtime
                 canvas.sortingOrder = uiInfo.ZOrder;
             }
 
-            GraphicRaycaster graphicRaycaster = go.AddComponent<GraphicRaycaster>();
+            GraphicRaycaster graphicRaycaster = go.GetOrAddComponent<GraphicRaycaster>();
             if (graphicRaycaster != null)
             {
                 graphicRaycaster.blockingMask = uiInfo.BlockingMaskValue;
                 graphicRaycaster.blockingObjects = uiInfo.BlockingObjects;
             }
 
-            go.AddComponent<CanvasGroup>();
+            go.GetOrAddComponent<CanvasGroup>();
         }
 
         /// <summary>
@@ -686,11 +686,11 @@ namespace Honor.Runtime
             if (fontData == null || index >= Fonts.Count) return;
 
             UnityEngine.Object font = Fonts[index];
-            if (!Enum.TryParse(fontData.FontType, out GameDefinitions.AssetType fontType)) return;
+            if (!Enum.TryParse(fontData.FontType, out HonorDefinitions.AssetType fontType)) return;
 
             float scale = 1;
             Vector2 offset = Vector2.zero;
-            if (local.Language != GameDefinitions.Language.Unspecified && local.Language != HonorCoreManager.Instance.Language)
+            if (local.Language != HonorDefinitions.Language.Unspecified && local.Language != HonorCoreManager.Instance.Language)
             {
                 HonorCoreManager.Instance.GetFontData(local.Language, out List<LocalizationFontData> lastFonts);
                 if (lastFonts != null && index < lastFonts.Count)
@@ -700,16 +700,16 @@ namespace Honor.Runtime
                         scale = fontData.FontSizeScaleRatio / lastData.FontSizeScaleRatio;
                 }
             }
-            else if (local.Language == GameDefinitions.Language.Unspecified)
+            else if (local.Language == HonorDefinitions.Language.Unspecified)
             {
                 scale = fontData.FontSizeScaleRatio;
             }
 
-            if (fontType == GameDefinitions.AssetType.Font)
+            if (fontType == HonorDefinitions.AssetType.Font)
             {
                 ApplyLegacyFontToLocalizing(local, uiInfo, text, tmp, font, scale, offset);
             }
-            else if (fontType == GameDefinitions.AssetType.FontTMP)
+            else if (fontType == HonorDefinitions.AssetType.FontTMP)
             {
                 ApplyTMPFontToLocalizing(local, uiInfo, text, tmp, font, fontData, scale, offset);
             }

@@ -20,17 +20,17 @@
 ---=========================================================================
 function __DEBUGGER__()
     if IsEditor == true then
-        local debugType = Honor.GameDefinitions.DebugMode.None
+        local debugType = Honor.HonorDefinitions.DebugMode.None
         -- 读取调试模式配置文件
-        if io.exists(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath()) == true then
-            local content = io.readfile(Honor.GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath())
-            debugType = Honor.GameDefinitions.DebugMode.__CastFrom(tonumber(content))
+        if io.exists(Honor.HonorPathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath()) == true then
+            local content = io.readfile(Honor.HonorPathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath())
+            debugType = Honor.HonorDefinitions.DebugMode.__CastFrom(tonumber(content))
             -- 加载 EmmyLua 调试插件
             --TODO: [优化] 以下 cpath 为本机 Rider/EmmyLua 插件绝对路径（仅编辑器断点调试用，按本机环境配置；路径本身勿改、勿跨机共享）
             package.cpath = package.cpath .. ';C:/Users/Administrator/AppData/Roaming/JetBrains/Rider2026.1/plugins/IntelliJ-EmmyLua/debugger/emmy/windows/x64/?.dll'
 
             -- 模式1：IDE主动连接 Unity（连接失败仅警告，不中断加载）
-            if debugType == Honor.GameDefinitions.DebugMode.IDEFirst then
+            if debugType == Honor.HonorDefinitions.DebugMode.IDEFirst then
                 local ok, err = pcall(function()
                     local dbg = require('emmy_core')
                     dbg.tcpConnect('localhost', 9966)
@@ -40,7 +40,7 @@ function __DEBUGGER__()
                     print(string.format("<color=yellow>[EmmyLua] 调试器连接失败，已跳过：%s</color>", tostring(err)))
                 end
 
-            elseif debugType == Honor.GameDefinitions.DebugMode.UnityFirst then
+            elseif debugType == Honor.HonorDefinitions.DebugMode.UnityFirst then
                 -- 模式2：Unity 等待 IDE 连接（监听失败仅警告，不中断加载）
                 pcall(function()
                     local dbg = require('emmy_core')

@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsLocalizationWrap 
+    public class HonorRuntimeHonorPathUtilsLocalizationWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Localization);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Localization);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -49,7 +49,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Localization does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Localization does not have a constructor!");
         }
         
 		
@@ -69,7 +69,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Localization.GetLuaScriptRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Localization.GetLuaScriptRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -93,7 +93,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Localization.GetExcelFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Localization.GetExcelFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -117,7 +117,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Localization.GetExcelDefaultFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Localization.GetExcelDefaultFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -141,7 +141,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Localization.GetExcelFontFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Localization.GetExcelFontFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -165,7 +165,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Localization.GetExcelRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Localization.GetExcelRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -185,7 +185,7 @@ namespace Honor.Runtime
         /// <returns>组件是否均有效</returns>
         private bool TryGetRequiredComponents()
         {
-            // 统一经门面管理器获取 UI（与下方 Lua 组件一致），外部不直接访问 GameComponentsGroup
+            // 统一经门面管理器获取 UI（与下方 Lua 组件一致），外部不直接访问 HonorComponentGroup
             if (HonorUIManager.Instance.UI == null)
             {
                 Log.Fatal("UI Component 无效。");

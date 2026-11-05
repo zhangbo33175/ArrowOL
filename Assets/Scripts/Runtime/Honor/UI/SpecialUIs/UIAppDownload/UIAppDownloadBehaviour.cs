@@ -197,7 +197,7 @@ namespace Honor.Runtime
             HonorUIManager.Instance.UI.CloseUIByGO(gameObject, true);
 
             // 放行流程（非强制更新时）
-            HonorCoreManager.Instance.Fire(this, GameEventCmd.FlowPermit);
+            HonorCoreManager.Instance.Fire(this, HonorEventCmd.FlowPermit);
         }
         #endregion
 

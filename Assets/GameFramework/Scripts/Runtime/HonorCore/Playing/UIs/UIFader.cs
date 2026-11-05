@@ -22,7 +22,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class UIFadeInEvent
     {
-        private static readonly GameEventCmd cmd = GameEventCmd.UIFadeIn;
+        private static readonly HonorEventCmd cmd = HonorEventCmd.UIFadeIn;
 
         /// <summary>
         /// 订阅事件
@@ -62,7 +62,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class UIFadeOutEvent
     {
-        private static readonly GameEventCmd cmd = GameEventCmd.UIFadeOut;
+        private static readonly HonorEventCmd cmd = HonorEventCmd.UIFadeOut;
 
         public static void Subscribe(object userData, HonorEventHandler<EventParams> handler)
         {
@@ -90,7 +90,7 @@ namespace Honor.Runtime
     /// </summary>
     public static class UIFadeStopEvent
     {
-        private static readonly GameEventCmd cmd = GameEventCmd.UIFadeStop;
+        private static readonly HonorEventCmd cmd = HonorEventCmd.UIFadeStop;
 
         public static void Subscribe(object userData, HonorEventHandler<EventParams> handler)
         {
@@ -144,49 +144,49 @@ namespace Honor.Runtime
         #region 序列化字段（Inspector 配置）
         //=========================================================================
 
-        [GameHeader("标识")]
-        [GameTitle("ID")]
+        [HonorHeader("标识")]
+        [HonorTitle("ID")]
         [Tooltip("唯一标识，用于事件匹配")]
         public int ID = 0;
 
-        [GameHeader("色值")]
-        [GameTitle("遮罩层颜色")]
+        [HonorHeader("色值")]
+        [HonorTitle("遮罩层颜色")]
         [Tooltip("遮罩层颜色值")]
         public Color ImageColor = Color.black;
 
-        [GameTitle("未活跃透明度")]
+        [HonorTitle("未活跃透明度")]
         [Tooltip("隐藏状态下的透明度")]
         public float InactiveAlpha = 0f;
 
-        [GameTitle("活跃透明度")]
+        [HonorTitle("活跃透明度")]
         [Tooltip("显示状态下的透明度")]
         public float ActiveAlpha = 1f;
 
-        [GameTitle("初始状态")]
+        [HonorTitle("初始状态")]
         [Tooltip("组件启动时的默认状态")]
         public InitState InitialState = InitState.Inactive;
 
-        [GameHeader("时间")]
-        [GameTitle("渐变时长")]
+        [HonorHeader("时间")]
+        [HonorTitle("渐变时长")]
         [Tooltip("淡入淡出动画持续时间")]
         public float Duration = 0.2f;
 
-        [GameTitle("加速度类型")]
+        [HonorTitle("加速度类型")]
         [Tooltip("动画曲线类型")]
         public Ease TweenEase = Ease.Linear;
 
-        [GameHeader("交互")]
-        [GameTitle("阻塞射线")]
+        [HonorHeader("交互")]
+        [HonorTitle("阻塞射线")]
         [Tooltip("显示时是否拦截点击事件")]
         public bool ShouldBlockRaycasts = false;
 
-        [GameInspectorButton("TestFadeIn")]
+        [HonorInspectorButton("TestFadeIn")]
         public bool TestFadeInButton;
-        [GameInspectorButton("TestFadeOut")]
+        [HonorInspectorButton("TestFadeOut")]
         public bool TestFadeOutButton;
-        [GameInspectorButton("TestFadeStop")]
+        [HonorInspectorButton("TestFadeStop")]
         public bool TestFaderStopButton;
-        [GameInspectorButton("TestFadeReset")]
+        [HonorInspectorButton("TestFadeReset")]
         public bool TestFaderResetButton;
 
         #endregion
@@ -300,13 +300,13 @@ namespace Honor.Runtime
             
             switch (e.Cmd)
             {
-                case GameEventCmd.UIFadeStop:
+                case HonorEventCmd.UIFadeStop:
                     StopFading();
                     break;
-                case GameEventCmd.UIFadeIn:
+                case HonorEventCmd.UIFadeIn:
                     FadeIn();
                     break;
-                case GameEventCmd.UIFadeOut:
+                case HonorEventCmd.UIFadeOut:
                     FadeOut();
                     break;
             }
@@ -339,7 +339,7 @@ namespace Honor.Runtime
         /// </summary>
         protected virtual void StopFading()
         {
-            DOTween.Kill(GameDOTweenTypes.UiFadeTween + GetInstanceID());
+            DOTween.Kill(HonorTweenType.UiFadeTween + GetInstanceID());
             m_CanvasGroup.alpha = m_CurrentTargetAlpha;
             m_IsFading = false;
             
@@ -366,12 +366,12 @@ namespace Honor.Runtime
             m_CurrentDuration = duration;
 
             m_CanvasGroup.alpha = m_InitialAlpha;
-            DOTween.Kill(GameDOTweenTypes.UiFadeTween + GetInstanceID());
+            DOTween.Kill(HonorTweenType.UiFadeTween + GetInstanceID());
             
             DOTween.To(() => m_CanvasGroup.alpha, alpha => m_CanvasGroup.alpha = alpha, m_CurrentTargetAlpha, m_CurrentDuration)
                 .SetEase(m_CurrentTweenEase)
                 .OnComplete(StopFading)
-                .id = GameDOTweenTypes.UiFadeTween + GetInstanceID();
+                .id = HonorTweenType.UiFadeTween + GetInstanceID();
         }
 
         #endregion
@@ -437,7 +437,7 @@ namespace Honor.Runtime
         protected virtual void TestFadeReset()
         {
             if (!Application.isPlaying) return;
-            DOTween.Kill(GameDOTweenTypes.UiFadeTween + GetInstanceID());
+            DOTween.Kill(HonorTweenType.UiFadeTween + GetInstanceID());
             m_CanvasGroup.alpha = InactiveAlpha;
         }
 

@@ -346,10 +346,10 @@ namespace Honor.Runtime
             // 重置进度显示：界面出现时进度条从 0 开始
             SetProgress(0f);
 
-            HonorCoreManager.Instance.Subscribe(GameEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
-            HonorCoreManager.Instance.Subscribe(GameEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
-            HonorCoreManager.Instance.Subscribe(GameEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
-            HonorCoreManager.Instance.Subscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
+            HonorCoreManager.Instance.Subscribe(HonorEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
+            HonorCoreManager.Instance.Subscribe(HonorEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
+            HonorCoreManager.Instance.Subscribe(HonorEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
+            HonorCoreManager.Instance.Subscribe(HonorEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
 
             // 显示界面时播放进入淡入动画（首次打开与重新显示均生效）
             PlayEnterTransition();
@@ -360,10 +360,10 @@ namespace Honor.Runtime
         /// </summary>
         private void OnDisable()
         {
-            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
-            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
-            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
-            HonorCoreManager.Instance.Unsubscribe(GameEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(HonorEventCmd.LoadProgress, this, OnLoadProgressEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(HonorEventCmd.HotfixProgress, this, OnHotfixProgressEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(HonorEventCmd.HotfixAllOver, this, OnHotfixAllOverEventCallback);
+            HonorCoreManager.Instance.Unsubscribe(HonorEventCmd.HotfixError, this, OnHotfixErrorEventCallback);
         }
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace Honor.Runtime
                         m_DescText?.gameObject, m_DescTextTMP?.gameObject,
                         m_BytesNumText?.gameObject, m_BytesNumTextTMP?.gameObject,
                         m_FileNumText?.gameObject, m_FileNumTextTMP?.gameObject);
-                    RefreshViews(string.Empty, 0f, GameDefinitions.DownloadStep.Idle, 0, 0, 0, 0);
+                    RefreshViews(string.Empty, 0f, HonorDefinitions.DownloadStep.Idle, 0, 0, 0, 0);
                     break;
             }
         }
@@ -452,7 +452,7 @@ namespace Honor.Runtime
         /// <param name="curBytes">已下载字节数</param>
         /// <param name="totalBytes">待下载总字节数</param>
         public void RefreshViews(string descContent, float progress,
-            GameDefinitions.DownloadStep downloadStep = GameDefinitions.DownloadStep.None, int curFileNum = 0,
+            HonorDefinitions.DownloadStep downloadStep = HonorDefinitions.DownloadStep.None, int curFileNum = 0,
             int totalFileNum = 0, float curBytes = 0f, float totalBytes = 0f)
         {
             if (m_LoadingMode == LoadingMode.HotfixLauncher || m_LoadingMode == LoadingMode.HotfixIncreaser)
@@ -504,12 +504,12 @@ namespace Honor.Runtime
                 return;
             }
 
-            DOTween.Kill(GameDOTweenTypes.LauncherLoadingViewTween);
+            DOTween.Kill(HonorTweenType.LauncherLoadingViewTween);
 
             cg.DOFade(0f, Mathf.Max(0.01f, fadeDuration))
                 .SetEase(Ease.InOutQuad)
                 .SetUpdate(true)
-                .SetId(GameDOTweenTypes.LauncherLoadingViewTween)
+                .SetId(HonorTweenType.LauncherLoadingViewTween)
                 .OnComplete(() =>
                 {
                     UnityEngine.Debug.Log($"[LauncherLoading] FadeOutNow COMPLETE, SetActive(false), time={UnityEngine.Time.realtimeSinceStartup:F3}");
@@ -527,7 +527,7 @@ namespace Honor.Runtime
             CanvasGroup cg = GetCanvasGroup();
             if (cg == null || !gameObject.activeSelf) return;
 
-            DOTween.Kill(GameDOTweenTypes.LauncherLoadingViewTween);
+            DOTween.Kill(HonorTweenType.LauncherLoadingViewTween);
             cg.alpha = 1f;
 
             UnityEngine.Debug.Log($"[LauncherLoading] HoldThenFadeOut START: hold={holdDuration}s, fade={fadeDuration}s, time={UnityEngine.Time.realtimeSinceStartup:F3}");
@@ -536,7 +536,7 @@ namespace Honor.Runtime
                 .SetDelay(holdDuration)
                 .SetEase(Ease.InOutQuad)
                 .SetUpdate(true)
-                .SetId(GameDOTweenTypes.LauncherLoadingViewTween)
+                .SetId(HonorTweenType.LauncherLoadingViewTween)
                 .OnComplete(() =>
                 {
                     UnityEngine.Debug.Log($"[LauncherLoading] HoldThenFadeOut COMPLETE, time={UnityEngine.Time.realtimeSinceStartup:F3}");
@@ -591,7 +591,7 @@ namespace Honor.Runtime
         /// <param name="curBytes">已下载字节数</param>
         /// <param name="totalBytes">待下载总字节数</param>
         private void RefreshHotfixModeViews(string descContent, float progress,
-            GameDefinitions.DownloadStep downloadStep, int curFileNum, int totalFileNum, float curBytes,
+            HonorDefinitions.DownloadStep downloadStep, int curFileNum, int totalFileNum, float curBytes,
             float totalBytes)
         {
             string textReadyDownload = IsWebGL()
@@ -614,12 +614,12 @@ namespace Honor.Runtime
 
             switch (downloadStep)
             {
-                case GameDefinitions.DownloadStep.Idle:
+                case HonorDefinitions.DownloadStep.Idle:
                     SetProgressDescContent(textReadyDownload);
                     SetButtonsVisible(true, false, true);
                     break;
 
-                case GameDefinitions.DownloadStep.Processing:
+                case HonorDefinitions.DownloadStep.Processing:
                     if (string.IsNullOrEmpty(descContent))
                         SetProgressDescContent(descContent);
                     else
@@ -628,17 +628,17 @@ namespace Honor.Runtime
                     SetButtonsVisible(false, false, false);
                     break;
 
-                case GameDefinitions.DownloadStep.AllOver:
+                case HonorDefinitions.DownloadStep.AllOver:
                     SetProgressDescContent(textDownloadAllOver);
                     SetButtonsVisible(false, false, false);
                     break;
 
-                case GameDefinitions.DownloadStep.Skip:
+                case HonorDefinitions.DownloadStep.Skip:
                     SetProgressDescContent(textDownloadFailedToSkip);
                     SetButtonsVisible(false, false, false);
                     break;
 
-                case GameDefinitions.DownloadStep.Error:
+                case HonorDefinitions.DownloadStep.Error:
                     SetProgressDescContent(textDownloadError);
                     SetButtonsVisible(false, true, false);
                     break;
@@ -828,7 +828,7 @@ namespace Honor.Runtime
         /// </summary>
         private void PlayEnterTransition()
         {
-            DOTween.Kill(GameDOTweenTypes.LauncherLoadingViewTween);
+            DOTween.Kill(HonorTweenType.LauncherLoadingViewTween);
 
             CanvasGroup cg = GetCanvasGroup();
             if (!m_EnterTransitionEnabled || cg == null || !gameObject.activeSelf)
@@ -841,7 +841,7 @@ namespace Honor.Runtime
             cg.DOFade(1f, Mathf.Max(0.01f, m_EnterTransitionDuration))
                 .SetEase(Ease.InOutQuad)
                 .SetUpdate(true) // 不受游戏暂停影响
-                .SetId(GameDOTweenTypes.LauncherLoadingViewTween);
+                .SetId(HonorTweenType.LauncherLoadingViewTween);
         }
 
         /// <summary>
@@ -857,12 +857,12 @@ namespace Honor.Runtime
                 return;
             }
 
-            DOTween.Kill(GameDOTweenTypes.LauncherLoadingViewTween);
+            DOTween.Kill(HonorTweenType.LauncherLoadingViewTween);
 
             cg.DOFade(0f, Mathf.Max(0.01f, m_ExitTransitionDuration))
                 .SetEase(Ease.InOutQuad)
                 .SetUpdate(true) // 不受游戏暂停影响
-                .SetId(GameDOTweenTypes.LauncherLoadingViewTween)
+                .SetId(HonorTweenType.LauncherLoadingViewTween)
                 .OnComplete(() => gameObject.SetActive(false));
         }
 
@@ -909,7 +909,7 @@ namespace Honor.Runtime
             int totalFileNum = e.GetInt("totalFileNum");
             string descContent = e.GetString("descContent");
 
-            RefreshViews(descContent, progress, GameDefinitions.DownloadStep.Processing, curFileNum, totalFileNum,
+            RefreshViews(descContent, progress, HonorDefinitions.DownloadStep.Processing, curFileNum, totalFileNum,
                 curBytes, totalBytes);
             Log.Info("当前下载进度：{0:N2}%，当前已下载：{1:N2}MB，待下载：{2:N2}MB。", progress * 100, curBytes / 1024f / 1024f,
                 totalBytes / 1024f / 1024f);
@@ -921,9 +921,9 @@ namespace Honor.Runtime
         private void OnHotfixAllOverEventCallback(object sender, object userData, EventParams e)
         {
             if (!object.ReferenceEquals(userData, this)) return;
-            RefreshViews(string.Empty, 1.0f, GameDefinitions.DownloadStep.AllOver, m_CurFileNum, m_TotalFileNum,
+            RefreshViews(string.Empty, 1.0f, HonorDefinitions.DownloadStep.AllOver, m_CurFileNum, m_TotalFileNum,
                 m_CurBytes, m_TotalBytes);
-            HonorCoreManager.Instance.Fire(this, GameEventCmd.FlowPermit);
+            HonorCoreManager.Instance.Fire(this, HonorEventCmd.FlowPermit);
             Log.Info("下载完毕！准备进入游戏。");
         }
 

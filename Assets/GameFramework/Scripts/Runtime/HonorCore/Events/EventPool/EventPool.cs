@@ -34,7 +34,7 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_SubscribedEventHandlers = new GameMultiDictionary<GameEventCmd, Dictionary<object, HonorEventHandler<T>>>();
+            m_SubscribedEventHandlers = new HonorMultiDictionary<HonorEventCmd, Dictionary<object, HonorEventHandler<T>>>();
             m_EventsForFire = new Queue<Event>();
             m_CachedNodes = new Dictionary<T, LinkedListNode<Dictionary<object, HonorEventHandler<T>>>>();
             m_TempNodes = new Dictionary<T, LinkedListNode<Dictionary<object, HonorEventHandler<T>>>>();
@@ -100,16 +100,16 @@ namespace Honor.Runtime
         /// <param name="userData">用户数据</param>
         /// <param name="handler">事件回调</param>
         /// <returns>是否已注册</returns>
-        public bool Check(GameEventCmd cmd, object userData, HonorEventHandler<T> handler)
+        public bool Check(HonorEventCmd cmd, object userData, HonorEventHandler<T> handler)
         {
             if (handler == null)
             {
-                throw new GameException("事件处理函数无效。");
+                throw new HonorException("事件处理函数无效。");
             }
 
             if (m_SubscribedEventHandlers.Contains(cmd))
             {
-                GameLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range = null;
+                HonorLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range = null;
                 if (m_SubscribedEventHandlers.TryGetValue(cmd, out range))
                 {
                     LinkedListNode<Dictionary<object, HonorEventHandler<T>>> current = range.First;
@@ -132,16 +132,16 @@ namespace Honor.Runtime
         /// <param name="cmd">事件命令</param>
         /// <param name="userData">用户数据</param>
         /// <param name="handler">事件回调</param>
-        public void Subscribe(GameEventCmd cmd, object userData, HonorEventHandler<T> handler)
+        public void Subscribe(HonorEventCmd cmd, object userData, HonorEventHandler<T> handler)
         {
             if (handler == null)
             {
-                throw new GameException("事件处理函数无效。");
+                throw new HonorException("事件处理函数无效。");
             }
 
             if (Check(cmd, userData, handler))
             {
-                throw new GameException(HonorTxt.Format("不允许事件 '{0}' 有重复处理函数。", cmd.ToString()));
+                throw new HonorException(HonorTxt.Format("不允许事件 '{0}' 有重复处理函数。", cmd.ToString()));
             }
             else
             {
@@ -157,11 +157,11 @@ namespace Honor.Runtime
         /// <param name="cmd">事件命令</param>
         /// <param name="userData">用户数据</param>
         /// <param name="handler">事件回调</param>
-        public void Unsubscribe(GameEventCmd cmd, object userData, HonorEventHandler<T> handler)
+        public void Unsubscribe(HonorEventCmd cmd, object userData, HonorEventHandler<T> handler)
         {
             if (handler == null)
             {
-                throw new GameException("事件处理函数无效。");
+                throw new HonorException("事件处理函数无效。");
             }
 
             if (m_CachedNodes.Count > 0)
@@ -192,7 +192,7 @@ namespace Honor.Runtime
 
             if (m_SubscribedEventHandlers.Contains(cmd))
             {
-                GameLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range = null;
+                HonorLinkedListRange<Dictionary<object, HonorEventHandler<T>>> range = null;
                 if (m_SubscribedEventHandlers.TryGetValue(cmd, out range))
                 {
                     LinkedListNode<Dictionary<object, HonorEventHandler<T>>> current = range.First;
@@ -230,7 +230,7 @@ namespace Honor.Runtime
         {
             if (e == null)
             {
-                throw new GameException("事件参数无效。");
+                throw new HonorException("事件参数无效。");
             }
 
             Event eventNode = Event.Create(sender, e);
@@ -249,7 +249,7 @@ namespace Honor.Runtime
         {
             if (e == null)
             {
-                throw new GameException("事件参数无效。");
+                throw new HonorException("事件参数无效。");
             }
 
             HandleEvent(sender, e);

@@ -16,7 +16,7 @@ using UnityEngine.Experimental.Rendering;
 namespace Honor.Runtime
 {
     [DisallowMultipleComponent]
-    public sealed partial class DebuggerComponent : GameComponent, ICanvasRaycastFilter, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
+    public sealed partial class DebuggerComponent : HonorComponent, ICanvasRaycastFilter, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
         IInitializePotentialDragHandler, IPointerDownHandler, IPointerUpHandler
 
     {
@@ -159,7 +159,7 @@ namespace Honor.Runtime
         private void LateUpdate()
         {
             float deltaTime = Time.unscaledDeltaTime;
-            if (m_WinModel == GameDefinitions.DebugWindowModel.FullWindow)
+            if (m_WinModel == HonorDefinitions.DebugWindowModel.FullWindow)
             {
                 if (m_Inertia)
                 {
@@ -192,12 +192,12 @@ namespace Honor.Runtime
 
             GUI.matrix = Matrix4x4.Scale(new Vector3(m_WindowScale, m_WindowScale, 1f));
 
-            if (m_WinModel == GameDefinitions.DebugWindowModel.FullWindow || m_WinModel == GameDefinitions.DebugWindowModel.PopWindow)
+            if (m_WinModel == HonorDefinitions.DebugWindowModel.FullWindow || m_WinModel == HonorDefinitions.DebugWindowModel.PopWindow)
             {
                 GUI.skin = m_Skin;
                 m_WindowRect = GUILayout.Window(0, m_WindowRect, DrawWindow, $"<b>HONOR DEBUGGER - </b>{GetDevicePerformanceLevelInfo()}");
                 // 显示选中节点内容
-                if (m_WinModel == GameDefinitions.DebugWindowModel.PopWindow)
+                if (m_WinModel == HonorDefinitions.DebugWindowModel.PopWindow)
                 {
                     GUI.skin = m_PopWindowSkin;
                     m_LogPopWindow = GUILayout.Window(100, m_LogPopWindow, DrawWindowConsoleLog, $"<b>HONOR DEBUGGER SELECT LOG - </b>{GetDevicePerformanceLevelInfo()}");
@@ -280,13 +280,13 @@ namespace Honor.Runtime
             {
                 switch (m_WinModel)
                 {
-                    case GameDefinitions.DebugWindowModel.MiniWindow:
-                    case GameDefinitions.DebugWindowModel.FPSWindow:
-                    case GameDefinitions.DebugWindowModel.FullWindow:
+                    case HonorDefinitions.DebugWindowModel.MiniWindow:
+                    case HonorDefinitions.DebugWindowModel.FPSWindow:
+                    case HonorDefinitions.DebugWindowModel.FullWindow:
                         m_BlockRectTransform.position = new Vector2(newRect.x * m_WindowScale, Screen.height - newRect.y * m_WindowScale);
                         m_BlockRectTransform.sizeDelta = new Vector2(newRect.width * m_WindowScale, newRect.height * m_WindowScale);
                         break;
-                    case GameDefinitions.DebugWindowModel.PopWindow:
+                    case HonorDefinitions.DebugWindowModel.PopWindow:
                         m_BlockRectTransform.position = new Vector2(0, Screen.height * m_WindowScale);
                         m_BlockRectTransform.sizeDelta = new Vector2(Screen.width * m_WindowScale, Screen.height * m_WindowScale);
                         break;
@@ -437,10 +437,10 @@ namespace Honor.Runtime
             int toolbarIndex = GUILayout.Toolbar(debuggerWindowGroup.SelectedIndex, names.ToArray(), GUILayout.MaxWidth(m_FullWinMaxWidth));
             if (toolbarIndex >= debuggerWindowGroup.DebuggerWindowCount)
             {
-                if(m_WinModel == GameDefinitions.DebugWindowModel.FullWindow)
+                if(m_WinModel == HonorDefinitions.DebugWindowModel.FullWindow)
                 {
                     OnTimingReset();
-                    m_WinModel = GameDefinitions.DebugWindowModel.MiniWindow;
+                    m_WinModel = HonorDefinitions.DebugWindowModel.MiniWindow;
                     return;
                 }
             }
@@ -495,7 +495,7 @@ namespace Honor.Runtime
             {
                 if (GUILayout.Button("CLOSE"))
                 {
-                    m_WinModel = GameDefinitions.DebugWindowModel.FullWindow;
+                    m_WinModel = HonorDefinitions.DebugWindowModel.FullWindow;
                     m_SelLogMsg = "";
                     m_SelLogStackTrack = "";
                 }
@@ -577,7 +577,7 @@ namespace Honor.Runtime
         /// </summary>
         private void DrawIconState0()
         {
-            if (m_WinModel == GameDefinitions.DebugWindowModel.MiniWindow)
+            if (m_WinModel == HonorDefinitions.DebugWindowModel.MiniWindow)
             {
                 Color32 color = GetCurTextColor();
 
@@ -595,7 +595,7 @@ namespace Honor.Runtime
         /// </summary>
         private void DrawIconState1()
         {
-            if (m_WinModel == GameDefinitions.DebugWindowModel.FPSWindow)
+            if (m_WinModel == HonorDefinitions.DebugWindowModel.FPSWindow)
             {
                 Color32 color = GetCurTextColor();
 
@@ -670,12 +670,12 @@ namespace Honor.Runtime
 
             switch (m_WinModel)
             {
-                case GameDefinitions.DebugWindowModel.MiniWindow:
-                case GameDefinitions.DebugWindowModel.FPSWindow:
+                case HonorDefinitions.DebugWindowModel.MiniWindow:
+                case HonorDefinitions.DebugWindowModel.FPSWindow:
                     //Runtime.Log.Info("DebugWindow MiniWindow/FPSWindow OnBeginDrag");
                     m_WindowInDrag = true;
                     break;
-                case GameDefinitions.DebugWindowModel.FullWindow:
+                case HonorDefinitions.DebugWindowModel.FullWindow:
                     //Runtime.Log.Info("DebugWindow FullWindow OnBeginDrag");
                     Vector2 downPos = new Vector2(eventData.pressPosition.x / m_WindowScale, (Screen.height - eventData.pressPosition.y) / m_WindowScale);
                     Vector2 winStartPos = new Vector2(m_WindowRect.x + m_LogScrollRect.x, m_WindowRect.y + m_LogScrollRect.y);
@@ -686,7 +686,7 @@ namespace Honor.Runtime
                         m_FullWindowDownPos = downPos;
                     }
                     break;
-                case GameDefinitions.DebugWindowModel.PopWindow:
+                case HonorDefinitions.DebugWindowModel.PopWindow:
                     m_FullWindowInDrag = true;
                     m_FullWindowDownPos = new Vector2(eventData.pressPosition.x / m_WindowScale, (Screen.height - eventData.pressPosition.y) / m_WindowScale);
                     break;
@@ -710,16 +710,16 @@ namespace Honor.Runtime
             ControlInput();
             switch (m_WinModel)
             {
-                case GameDefinitions.DebugWindowModel.MiniWindow:
-                case GameDefinitions.DebugWindowModel.FPSWindow:
+                case HonorDefinitions.DebugWindowModel.MiniWindow:
+                case HonorDefinitions.DebugWindowModel.FPSWindow:
                     //Runtime.Log.Info("DebugWindow MiniWindow/FPSWindow OnDrag");
                     // if (m_WindowInDrag)
                     // {
                     //     m_IconRect = new Rect(m_IconRect.x + eventData.delta.x, m_IconRect.y - eventData.delta.y, m_IconRect.width, m_IconRect.height);
                     // }
                     break;
-                case GameDefinitions.DebugWindowModel.FullWindow:
-                case GameDefinitions.DebugWindowModel.PopWindow:
+                case HonorDefinitions.DebugWindowModel.FullWindow:
+                case HonorDefinitions.DebugWindowModel.PopWindow:
                     //Runtime.Log.Info("DebugWindow FullWindow/PopWindow OnDrag");
                     if (m_FullWindowInDrag)
                     {
@@ -763,15 +763,15 @@ namespace Honor.Runtime
             //Runtime.Log.Info("DebugWindow MiniWindow/FPSWindow OnEndDrag");
             switch (m_WinModel)
             {
-                case GameDefinitions.DebugWindowModel.MiniWindow:
-                case GameDefinitions.DebugWindowModel.FPSWindow:
+                case HonorDefinitions.DebugWindowModel.MiniWindow:
+                case HonorDefinitions.DebugWindowModel.FPSWindow:
                     //Runtime.Log.Info("DebugWindow MiniWindow/FPSWindow OnEndDrag");
                     m_WindowInDrag = false;
                     m_WindowInTouchDown = false;
                     m_FullWindowInTouchDown = false;
                     break;
-                case GameDefinitions.DebugWindowModel.FullWindow:
-                case GameDefinitions.DebugWindowModel.PopWindow:
+                case HonorDefinitions.DebugWindowModel.FullWindow:
+                case HonorDefinitions.DebugWindowModel.PopWindow:
                     //Runtime.Log.Info("DebugWindow FullWindow/PopWindow OnDrop");
                     m_FullWindowInDrag = false;
                     m_SubWindowDragY = 0;
@@ -821,18 +821,18 @@ namespace Honor.Runtime
 
             switch (m_WinModel)
             {
-                case GameDefinitions.DebugWindowModel.MiniWindow:
-                case GameDefinitions.DebugWindowModel.FPSWindow:
+                case HonorDefinitions.DebugWindowModel.MiniWindow:
+                case HonorDefinitions.DebugWindowModel.FPSWindow:
                     //Runtime.Log.Info("DebugWindow MiniWindow/FPSWindow OnPointerDown");
                     if (!m_IdleState)
                     {
                         m_WindowInTouchDown = true;
                     }
                     break;
-                case GameDefinitions.DebugWindowModel.FullWindow:
+                case HonorDefinitions.DebugWindowModel.FullWindow:
                     m_FullWindowInTouchDown = true;
                     break;
-                case GameDefinitions.DebugWindowModel.PopWindow:
+                case HonorDefinitions.DebugWindowModel.PopWindow:
                     break;
             }
             // 重置时间
@@ -853,27 +853,27 @@ namespace Honor.Runtime
             m_TargetPos = m_DefaultTargetPos;
             switch (m_WinModel)
             {
-                case GameDefinitions.DebugWindowModel.MiniWindow:
+                case HonorDefinitions.DebugWindowModel.MiniWindow:
                     {
                         //Runtime.Log.Info("DebugWindow MiniWindow OnPointerUp");
                         if (m_WindowInTouchDown && !m_WindowInDrag)
                         {
-                            m_WinModel = GameDefinitions.DebugWindowModel.FPSWindow;
+                            m_WinModel = HonorDefinitions.DebugWindowModel.FPSWindow;
                         }
                     }
                     break;
-                case GameDefinitions.DebugWindowModel.FPSWindow:
+                case HonorDefinitions.DebugWindowModel.FPSWindow:
                     { 
                         //Runtime.Log.Info("DebugWindow FPSWindow OnPointerUp");
                         if (m_WindowInTouchDown && !m_WindowInDrag)
                         {
-                            m_WinModel = GameDefinitions.DebugWindowModel.FullWindow;
+                            m_WinModel = HonorDefinitions.DebugWindowModel.FullWindow;
                             m_IconRect.width = 0;
                             m_IconRect.height = 0;
                         }
                     }
                     break;
-                case GameDefinitions.DebugWindowModel.FullWindow:
+                case HonorDefinitions.DebugWindowModel.FullWindow:
                     if (m_FullWindowInTouchDown && !m_FullWindowInDrag && m_ConsoleWindow != null)
                     {
                         Vector2 downPos = new Vector2(eventData.pressPosition.x / m_WindowScale, (Screen.height - eventData.pressPosition.y) / m_WindowScale);
@@ -885,7 +885,7 @@ namespace Honor.Runtime
                         }
                     }
                     break;
-                case GameDefinitions.DebugWindowModel.PopWindow:
+                case HonorDefinitions.DebugWindowModel.PopWindow:
                     break;
             }
             m_WindowInTouchDown = false;
@@ -958,8 +958,8 @@ namespace Honor.Runtime
             bool oldState = m_IdleState;
             switch (m_WinModel)
             {
-                case GameDefinitions.DebugWindowModel.MiniWindow:
-                case GameDefinitions.DebugWindowModel.FPSWindow:
+                case HonorDefinitions.DebugWindowModel.MiniWindow:
+                case HonorDefinitions.DebugWindowModel.FPSWindow:
                     if (m_WindowInDrag || m_WindowInTouchDown)
                     {
                         m_IdleState = false;
@@ -969,8 +969,8 @@ namespace Honor.Runtime
                         m_IdleState = ((m_EnterIdleTime > 0) && ((System.DateTime.Now.Ticks - m_IdleStartSecond) > (m_EnterIdleTime * 10000000))) ? true : false;
                     }
                     break;
-                case GameDefinitions.DebugWindowModel.FullWindow:
-                case GameDefinitions.DebugWindowModel.PopWindow:
+                case HonorDefinitions.DebugWindowModel.FullWindow:
+                case HonorDefinitions.DebugWindowModel.PopWindow:
                     m_IdleState = false;
                     break;
             }

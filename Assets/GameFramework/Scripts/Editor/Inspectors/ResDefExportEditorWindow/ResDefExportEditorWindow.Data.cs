@@ -31,7 +31,7 @@ namespace Honor.Editor
             /// <summary>
             /// Lua 导出目录
             /// </summary>
-            public static string LuaExportFolderPath = GamePathUtils.Editor.ResDef.LuaFolderPath;
+            public static string LuaExportFolderPath = HonorPathUtils.Editor.ResDef.LuaFolderPath;
 
             /// <summary>
             /// 所有资源配置数据列表
@@ -43,7 +43,7 @@ namespace Honor.Editor
             /// </summary>
             public static void WriteJson()
             {
-                string path = GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
+                string path = HonorPathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
                 
                 using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
                 {
@@ -65,7 +65,7 @@ namespace Honor.Editor
             /// </summary>
             public static void ConvertJson()
             {
-                string path = GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
+                string path = HonorPathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath();
                 if (!File.Exists(path))
                 {
                     WriteJson();

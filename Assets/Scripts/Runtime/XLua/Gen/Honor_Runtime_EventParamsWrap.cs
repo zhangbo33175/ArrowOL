@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -57,9 +57,9 @@ namespace XLua.CSObjectWrap
             
 			try {
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-				if(LuaAPI.lua_gettop(L) == 3 && translator.Assignable<Honor.Runtime.GameEventCmd>(L, 2) && translator.Assignable<System.Collections.Generic.Dictionary<string, object>>(L, 3))
+				if(LuaAPI.lua_gettop(L) == 3 && translator.Assignable<Honor.Runtime.HonorEventCmd>(L, 2) && translator.Assignable<System.Collections.Generic.Dictionary<string, object>>(L, 3))
 				{
-					Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+					Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
 					System.Collections.Generic.Dictionary<string, object> _objects = (System.Collections.Generic.Dictionary<string, object>)translator.GetObject(L, 3, typeof(System.Collections.Generic.Dictionary<string, object>));
 					
 					Honor.Runtime.EventParams gen_ret = new Honor.Runtime.EventParams(_cmd, _objects);
@@ -67,9 +67,9 @@ namespace XLua.CSObjectWrap
                     
 					return 1;
 				}
-				if(LuaAPI.lua_gettop(L) == 2 && translator.Assignable<Honor.Runtime.GameEventCmd>(L, 2))
+				if(LuaAPI.lua_gettop(L) == 2 && translator.Assignable<Honor.Runtime.HonorEventCmd>(L, 2))
 				{
-					Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+					Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
 					
 					Honor.Runtime.EventParams gen_ret = new Honor.Runtime.EventParams(_cmd);
 					translator.Push(L, gen_ret);
@@ -274,7 +274,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.EventParams gen_to_be_invoked = (Honor.Runtime.EventParams)translator.FastGetCSObj(L, 1);
-                translator.PushHonorRuntimeGameEventCmd(L, gen_to_be_invoked.Cmd);
+                translator.PushHonorRuntimeHonorEventCmd(L, gen_to_be_invoked.Cmd);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -304,7 +304,7 @@ namespace XLua.CSObjectWrap
                 ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			
                 Honor.Runtime.EventParams gen_to_be_invoked = (Honor.Runtime.EventParams)translator.FastGetCSObj(L, 1);
-                Honor.Runtime.GameEventCmd gen_value;translator.Get(L, 2, out gen_value);
+                Honor.Runtime.HonorEventCmd gen_value;translator.Get(L, 2, out gen_value);
 				gen_to_be_invoked.Cmd = gen_value;
             
             } catch(System.Exception gen_e) {

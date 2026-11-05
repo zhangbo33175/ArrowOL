@@ -89,7 +89,7 @@ namespace Honor.Editor.BuildPackage
 
         #region 平台名（编辑宏识别）
         /// <summary>
-        /// 获取当前平台名称（与运行时 GamePathUtils.PlatformName 逻辑一致）
+        /// 获取当前平台名称（与运行时 HonorPathUtils.PlatformName 逻辑一致）
         /// </summary>
         public static string GetPlatformName()
         {
@@ -112,7 +112,7 @@ namespace Honor.Editor.BuildPackage
         //=====================================================================
 
         /// <summary>
-        /// 根据 BuildTarget 解析运行时平台目录名（与 GamePathUtils.PlatformName 对应）
+        /// 根据 BuildTarget 解析运行时平台目录名（与 HonorPathUtils.PlatformName 对应）
         /// 说明：
         /// <list type="bullet">
         /// <item>Android → "Android"</item>
@@ -121,7 +121,7 @@ namespace Honor.Editor.BuildPackage
         /// <item>StandaloneWindows / StandaloneWindows64 → "Android"（见下方说明）</item>
         /// <item>其他平台 → 告警后兜底返回 "Android"</item>
         /// </list>
-        /// 特别注意 PC(StandaloneWindows64)：运行时 GamePathUtils.PlatformName 没有
+        /// 特别注意 PC(StandaloneWindows64)：运行时 HonorPathUtils.PlatformName 没有
         /// Standalone 分支，编译 PC 包时落到 #else 默认宏即 "Android"。
         /// 为保证 PC 运行时能在 StreamingAssets/AssetBundles/Android 下找到 AB 与清单，
         /// PC 包的 AB 输出目录与 {平台名}.bundle 清单一律沿用 Android 命名。
@@ -141,7 +141,7 @@ namespace Honor.Editor.BuildPackage
                 case BuildTarget.StandaloneWindows:
                 case BuildTarget.StandaloneWindows64:
                     // PC 包沿用 Android 目录：运行时宏无 Standalone 分支，
-                    // GamePathUtils.PlatformName 在 PC 下恒为 "Android"，
+                    // HonorPathUtils.PlatformName 在 PC 下恒为 "Android"，
                     // 故 PC 的 AB 输出目录/清单名必须与 Android 一致。
                     return "Android";
                 default:

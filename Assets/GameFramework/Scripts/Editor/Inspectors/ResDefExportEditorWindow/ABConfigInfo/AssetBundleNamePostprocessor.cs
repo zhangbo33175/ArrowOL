@@ -50,7 +50,7 @@ namespace Honor.Editor
         /// </summary>
         public static void RefreshABConfigs()
         {
-            string filePath = GamePathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
+            string filePath = HonorPathUtils.Json.GetRootDirectoryFullPath() + "/ABConfigs.json";
             string content = File.ReadAllText(filePath);
 
             if (string.IsNullOrEmpty(content))

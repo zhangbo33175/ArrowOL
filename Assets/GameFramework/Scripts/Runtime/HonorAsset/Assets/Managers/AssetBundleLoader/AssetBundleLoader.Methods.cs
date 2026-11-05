@@ -373,7 +373,7 @@ namespace Honor.Runtime
         private Task<UnityWebRequest> InternalGetWebRequestFromWebGL(string abFormatPath)
         {
             TaskCompletionSource<UnityWebRequest> pendingRequest = new TaskCompletionSource<UnityWebRequest>();
-            string url = GamePathUtils.AB.Streaming.GetFileFullPath(abFormatPath);
+            string url = HonorPathUtils.AB.Streaming.GetFileFullPath(abFormatPath);
 
             return pendingRequest.Task;
         }
@@ -486,7 +486,7 @@ namespace Honor.Runtime
         private void GetABLoadPathOnDisk(string formatPath, out string diskPath, out OriginType origin)
         {
             // 优先检查读写区域的资源是否存在，如果存在则加载读写区域的资源，否则加载只读区域
-            string filePersistentPath = GamePathUtils.AB.Persistent.GetFileFullPath(formatPath);
+            string filePersistentPath = HonorPathUtils.AB.Persistent.GetFileFullPath(formatPath);
             if (File.Exists(filePersistentPath))
             {
                 diskPath = filePersistentPath;
@@ -494,7 +494,7 @@ namespace Honor.Runtime
             }
             else
             {
-                diskPath = GamePathUtils.AB.Streaming.GetFileFullPath(formatPath);
+                diskPath = HonorPathUtils.AB.Streaming.GetFileFullPath(formatPath);
                 origin = OriginType.StreamingAssets;
             }
         }

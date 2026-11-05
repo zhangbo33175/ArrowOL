@@ -44,7 +44,7 @@ namespace Honor.Runtime
                 m_SplashImage.color = new Color(1, 1, 1, 0);
 
             // 先杀死可能存在的旧动画，防止冲突
-            DOTween.Kill(GameDOTweenTypes.ProcedureTransitionInTween);
+            DOTween.Kill(HonorTweenType.ProcedureTransitionInTween);
 
             Sequence seq = DOTween.Sequence().SetUpdate(true); // 不受游戏暂停影响
 
@@ -92,7 +92,7 @@ namespace Honor.Runtime
                     // 动画结束 → 通知进入完成
                     EnterOver();
                 })
-                .id = GameDOTweenTypes.ProcedureTransitionInTween; // 设置动画ID，方便管理
+                .id = HonorTweenType.ProcedureTransitionInTween; // 设置动画ID，方便管理
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Honor.Runtime
             base.Exit();
 
             // 杀死可能存在的旧动画
-            DOTween.Kill(GameDOTweenTypes.ProcedureTransitionOutTween);
+            DOTween.Kill(HonorTweenType.ProcedureTransitionOutTween);
 
             // 播放淡出动画：透明 → 黑色
             DOTween.Sequence()
@@ -126,7 +126,7 @@ namespace Honor.Runtime
                     // 动画结束 → 通知退出完成
                     ExitOver();
                 })
-                .id = GameDOTweenTypes.ProcedureTransitionOutTween;
+                .id = HonorTweenType.ProcedureTransitionOutTween;
         }
 
         /// <summary>

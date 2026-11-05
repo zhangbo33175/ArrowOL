@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -148,7 +148,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     object _userData = translator.GetObject(L, 3, typeof(object));
                     Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams> _handler = translator.GetDelegate<Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams>>(L, 4);
                     
@@ -179,7 +179,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     object _userData = translator.GetObject(L, 3, typeof(object));
                     Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams> _handler = translator.GetDelegate<Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams>>(L, 4);
                     
@@ -209,7 +209,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     object _userData = translator.GetObject(L, 3, typeof(object));
                     Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams> _handler = translator.GetDelegate<Honor.Runtime.HonorEventHandler<Honor.Runtime.EventParams>>(L, 4);
                     
@@ -297,7 +297,7 @@ namespace XLua.CSObjectWrap
             
                 
                 {
-                    Honor.Runtime.GameEventCmd _cmd;translator.Get(L, 2, out _cmd);
+                    Honor.Runtime.HonorEventCmd _cmd;translator.Get(L, 2, out _cmd);
                     
                         int gen_ret = gen_to_be_invoked.SubscribedEventCount( _cmd );
                         LuaAPI.xlua_pushinteger(L, gen_ret);

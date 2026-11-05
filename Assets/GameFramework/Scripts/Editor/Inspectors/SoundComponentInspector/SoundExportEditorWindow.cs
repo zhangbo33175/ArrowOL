@@ -71,19 +71,19 @@ namespace Honor.Editor
         protected override void OnBindUI()
         {
             BindClick("openExcelBtn", () =>
-                TableExportEditorUtility.OpenExcel(GamePathUtils.Sound.GetExcelFileFullPath()));
+                TableExportEditorUtility.OpenExcel(HonorPathUtils.Sound.GetExcelFileFullPath()));
 
             BindClick("exportBtn", () =>
             {
-                string f = GamePathUtils.Sound.GetExcelFileFullPath();
+                string f = HonorPathUtils.Sound.GetExcelFileFullPath();
                 string name = Path.GetFileNameWithoutExtension(f);
-                string excelPath = $"{GamePathUtils.Sound.GetExcelRootDirectoryFullPath()}/{name}.xlsm";
-                string luaPath = Path.Combine(GamePathUtils.Table.GetLuaScriptRootDirectoryFullPath(), "AlTables", $"Table{name}.lua.txt");
+                string excelPath = $"{HonorPathUtils.Sound.GetExcelRootDirectoryFullPath()}/{name}.xlsm";
+                string luaPath = Path.Combine(HonorPathUtils.Table.GetLuaScriptRootDirectoryFullPath(), "AlTables", $"Table{name}.lua.txt");
                 TableExportEditorUtility.ExportExcelToLua(excelPath, luaPath);
             });
 
             BindClick("openDirBtn", () =>
-                TableExportEditorUtility.OpenDirectory(GamePathUtils.Sound.GetExcelRootDirectoryFullPath()));
+                TableExportEditorUtility.OpenDirectory(HonorPathUtils.Sound.GetExcelRootDirectoryFullPath()));
 
             // 音频配置：绑定 HonorSoundConfig 资产的 AudioMixer 字段
             //（UXML 已通过 object-type 声明为 AudioMixer，此处仅做取值与回写）

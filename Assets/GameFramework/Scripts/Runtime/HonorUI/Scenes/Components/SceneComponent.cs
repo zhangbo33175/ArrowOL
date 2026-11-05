@@ -22,7 +22,7 @@ namespace Honor.Runtime
     /// 属于游戏核心系统，通过 HonorUIManager.Instance.Scene 访问
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class SceneComponent : GameComponent
+    public sealed partial class SceneComponent : HonorComponent
     {
         #region 生命周期
         //=========================================================================
@@ -121,12 +121,12 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(abPath))
             {
-                throw new GameException("Scene abPath 无效。");
+                throw new HonorException("Scene abPath 无效。");
             }
 
             if (string.IsNullOrEmpty(assetName))
             {
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
             }
 
             m_SceneManager.PreLoadSceneAsync(abPath, assetName);
@@ -139,12 +139,12 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(abPath))
             {
-                throw new GameException("Scene abPath 无效。");
+                throw new HonorException("Scene abPath 无效。");
             }
 
             if (string.IsNullOrEmpty(assetName))
             {
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
             }
 
             m_SceneManager.LoadSceneAsync(abPath, assetName, overCallback);
@@ -157,12 +157,12 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(abPath))
             {
-                throw new GameException("Scene abPath 无效。");
+                throw new HonorException("Scene abPath 无效。");
             }
 
             if (string.IsNullOrEmpty(assetName))
             {
-                throw new GameException("Scene assetName 无效。");
+                throw new HonorException("Scene assetName 无效。");
             }
 
             return m_SceneManager.LoadSceneSync(abPath, assetName);
@@ -189,7 +189,7 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(sceneName))
             {
-                throw new GameException("Scene sceneName 无效。");
+                throw new HonorException("Scene sceneName 无效。");
             }
 
             m_SceneManager.UnloadScene(sceneName, overCallback);

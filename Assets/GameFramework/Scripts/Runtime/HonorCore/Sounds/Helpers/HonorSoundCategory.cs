@@ -112,9 +112,9 @@ namespace Honor.Runtime
         public HonorSoundCategory(string name, HonorSoundCategoryHelper HonorSoundCategoryHelper)
         {
             if (string.IsNullOrEmpty(name))
-                throw new GameException("Sound group name 无效。");
+                throw new HonorException("Sound group name 无效。");
             if (HonorSoundCategoryHelper == null)
-                throw new GameException("Sound group helper 无效。");
+                throw new HonorException("Sound group helper 无效。");
 
             m_Name = name;
             m_HonorSoundCategoryHelper = HonorSoundCategoryHelper;

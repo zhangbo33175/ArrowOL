@@ -39,7 +39,7 @@ namespace Honor.Runtime
                         ABPath = m_WaitingUIABPath,
                         AssetName = m_WaitingUIAssetName,
                         IsModal = false,
-                        ZOrder = GameConstants.WaitingUIZOrder,
+                        ZOrder = HonorConstants.WaitingUIZOrder,
                         Priority = -1,
                         CloseOnEscapeKeyUp = false,
                         BlockingMask = "Everything",
@@ -183,7 +183,7 @@ namespace Honor.Runtime
         /// </summary>
         public void ShowProcedureTransitionEnter(bool forceOver, float duration, bool blockRaycast)
         {
-            HonorCoreManager.Instance.FireNow(this, GameEventCmd.ProcedureTransitionEnterOver);
+            HonorCoreManager.Instance.FireNow(this, HonorEventCmd.ProcedureTransitionEnterOver);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Honor.Runtime
         /// </summary>
         public void ShowProcedureTransitionExit(bool forceOver, float duration, bool blockRaycast)
         {
-            HonorCoreManager.Instance.FireNow(this, GameEventCmd.ProcedureTransitionExitOver);
+            HonorCoreManager.Instance.FireNow(this, HonorEventCmd.ProcedureTransitionExitOver);
         }
         #endregion
 
@@ -207,7 +207,7 @@ namespace Honor.Runtime
                 ABPath = m_FloatWordsUIABPath,
                 AssetName = m_FloatWordsUIAssetName,
                 IsModal = false,
-                ZOrder = GameConstants.FloatWordsUIZOrder,
+                ZOrder = HonorConstants.FloatWordsUIZOrder,
                 Priority = -1,
                 CloseOnEscapeKeyUp = false,
                 BlockingMask = "Everything",
@@ -247,7 +247,7 @@ namespace Honor.Runtime
                 ABPath = HonorUIManager.Instance.Procedure.UISplashABPath,
                 AssetName = HonorUIManager.Instance.Procedure.UISplashAssetName,
                 IsModal = false,
-                ZOrder = GameConstants.SplashUIZOrder,
+                ZOrder = HonorConstants.SplashUIZOrder,
                 Priority = 0,
                 CloseOnEscapeKeyUp = false,
                 BlockingMask = "Everything",
@@ -274,7 +274,7 @@ namespace Honor.Runtime
                 ABPath = "aa",
                 AssetName = "aa",
                 IsModal = false,
-                ZOrder = GameConstants.AppDownloadUIZOrder,
+                ZOrder = HonorConstants.AppDownloadUIZOrder,
                 Priority = 0,
                 CloseOnEscapeKeyUp = false,
                 BlockingMask = "Everything",
@@ -298,7 +298,7 @@ namespace Honor.Runtime
             {
                 UIType = UIType.Screen,
                 IsModal = false,
-                ZOrder = GameConstants.GDPRUIZOrder,
+                ZOrder = HonorConstants.GDPRUIZOrder,
                 Priority = 0,
                 CloseOnEscapeKeyUp = false,
                 BlockingMask = "Everything",
@@ -327,7 +327,7 @@ namespace Honor.Runtime
                 ABPath = HonorUIManager.Instance.Procedure.UISplashABPath,
                 AssetName = HonorUIManager.Instance.Procedure.UISplashAssetName,
                 IsModal = false,
-                ZOrder = GameConstants.ProcedureTransitionUIZOrder,
+                ZOrder = HonorConstants.ProcedureTransitionUIZOrder,
             };
             GameObject go = HonorUIManager.Instance.UI.OpenUISyncByInfo(uiInfo);
             if (go != null)
@@ -353,7 +353,7 @@ namespace Honor.Runtime
                 case UILauncherLoadingView.LoadingMode.Preload:
                     abPath = HonorUIManager.Instance.Procedure.UIPreloadABPath;
                     assetName = HonorUIManager.Instance.Procedure.UIPreloadAssetName;
-                    ZOrder = GameConstants.PreloadUIZOrder;
+                    ZOrder = HonorConstants.PreloadUIZOrder;
                     break;
                 default:
                     Log.Error("UIManager.ShowLoading 参数错误。");
@@ -426,7 +426,7 @@ namespace Honor.Runtime
             {
                 UIType = UIType.Screen,
                 IsModal = false,
-                ZOrder = GameConstants.AppReviewUIZOrder,
+                ZOrder = HonorConstants.AppReviewUIZOrder,
                 Priority = 0,
                 CloseOnEscapeKeyUp = false,
                 BlockingMask = "Everything",
@@ -448,7 +448,7 @@ namespace Honor.Runtime
             {
                 UIType = UIType.Screen,
                 IsModal = false,
-                ZOrder = GameConstants.AppFeedbackUIZOrder,
+                ZOrder = HonorConstants.AppFeedbackUIZOrder,
                 Priority = 0,
                 CloseOnEscapeKeyUp = false,
                 BlockingMask = "Everything",

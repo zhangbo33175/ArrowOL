@@ -14,7 +14,7 @@ using UnityEngine.Profiling;
 
 namespace Honor.Runtime
 {
-    public sealed partial class DebuggerComponent : GameComponent
+    public sealed partial class DebuggerComponent : HonorComponent
     {
         private sealed class ScreenInformationWindow : ScrollableDebuggerWindowBase
         {

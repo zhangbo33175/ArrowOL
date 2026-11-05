@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace Honor.Editor
     [CustomEditor(typeof(ProcedureComponent))]
     internal sealed class ProcedureComponentInspector : HonorComponentInspector
     {
-        private static readonly string UI_AB_PATH_DEFAULT = GamePathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
+        private static readonly string UI_AB_PATH_DEFAULT = HonorPathUtils.Prefab.GetFrameworkRootDirectoryRelativePath();
 
         private const string UI_SPLASH_DEFAULT           = "UILauncherView";
         private const string UI_TRANSITION_DEFAULT       = "UILauncherLogoView";
@@ -309,7 +309,7 @@ namespace Honor.Editor
         {
             if (GUILayout.Button("生成/刷新Lua脚本"))
             {
-                string luaRoot = $"{Application.dataPath.Substring(0, Application.dataPath.Length - 6)}{GamePathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true)}";
+                string luaRoot = $"{Application.dataPath.Substring(0, Application.dataPath.Length - 6)}{HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath(true)}";
                 
                 if (!System.IO.Directory.Exists(luaRoot))
                 {

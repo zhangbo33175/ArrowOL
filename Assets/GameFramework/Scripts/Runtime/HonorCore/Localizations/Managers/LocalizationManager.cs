@@ -28,11 +28,11 @@ namespace Honor.Runtime
         /// <summary>
         /// 校验语言入参合法（非 Unspecified）
         /// </summary>
-        private static void ValidateLanguage(GameDefinitions.Language language)
+        private static void ValidateLanguage(HonorDefinitions.Language language)
         {
-            if (language == GameDefinitions.Language.Unspecified)
+            if (language == HonorDefinitions.Language.Unspecified)
             {
-                throw new GameException("language 无效。");
+                throw new HonorException("language 无效。");
             }
         }
 
@@ -43,7 +43,7 @@ namespace Honor.Runtime
         {
             if (string.IsNullOrEmpty(keyName))
             {
-                throw new GameException("keyName 无效。");
+                throw new HonorException("keyName 无效。");
             }
         }
 
@@ -75,9 +75,9 @@ namespace Honor.Runtime
                 return;
             }
 
-            m_DefaultLanguages = new List<GameDefinitions.Language>();
-            m_DefaultDatas = new Dictionary<GameDefinitions.Language, Dictionary<string, string>>();
-            m_FontDatas = new Dictionary<GameDefinitions.Language, List<LocalizationFontData>>();
+            m_DefaultLanguages = new List<HonorDefinitions.Language>();
+            m_DefaultDatas = new Dictionary<HonorDefinitions.Language, Dictionary<string, string>>();
+            m_FontDatas = new Dictionary<HonorDefinitions.Language, List<LocalizationFontData>>();
         }
         #endregion
 
@@ -104,11 +104,11 @@ namespace Honor.Runtime
         /// </summary>
         public void LoadDefaultLanguages()
         {
-            JArray languageArray = JArray.Parse(ReadJsonText(GamePathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationDefaultLanguages"));
+            JArray languageArray = JArray.Parse(ReadJsonText(HonorPathUtils.Json.GetRootDirectoryRelativePath(), "LocalizationDefaultLanguages"));
 
             foreach (var entry in languageArray)
             {
-                m_DefaultLanguages.Add((GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), entry.ToString()));
+                m_DefaultLanguages.Add((HonorDefinitions.Language)Enum.Parse(typeof(HonorDefinitions.Language), entry.ToString()));
             }
         }
 
@@ -116,7 +116,7 @@ namespace Honor.Runtime
         /// 检查是否支持指定语言
         /// </summary>
         /// <param name="language">目标语言</param>
-        public bool HasDefaultLanguage(GameDefinitions.Language language)
+        public bool HasDefaultLanguage(HonorDefinitions.Language language)
         {
             return m_DefaultLanguages.Contains(language);
         }
@@ -140,7 +140,7 @@ namespace Honor.Runtime
         /// <param name="language">语言</param>
         /// <param name="abPath">AB 路径</param>
         /// <param name="assetName">资源名</param>
-        public void LoadDefaultDatas(GameDefinitions.Language language, string abPath, string assetName)
+        public void LoadDefaultDatas(HonorDefinitions.Language language, string abPath, string assetName)
         {
             JObject dataRoot = JObject.Parse(ReadJsonText(abPath, assetName));
 
@@ -153,7 +153,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 检查是否存在指定本地化 Key
         /// </summary>
-        public bool HasDefaultData(GameDefinitions.Language language, string keyName)
+        public bool HasDefaultData(HonorDefinitions.Language language, string keyName)
         {
             return GetDefaultData(language, keyName) != null;
         }
@@ -161,7 +161,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 添加一条本地化文本
         /// </summary>
-        public void AddDefaultData(GameDefinitions.Language language, string keyName, string content)
+        public void AddDefaultData(HonorDefinitions.Language language, string keyName, string content)
         {
             ValidateLanguage(language);
             ValidateKeyName(keyName);
@@ -177,7 +177,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 移除一条本地化文本
         /// </summary>
-        public bool RemoveDefaultData(GameDefinitions.Language language, string keyName)
+        public bool RemoveDefaultData(HonorDefinitions.Language language, string keyName)
         {
             if (!HasDefaultData(language, keyName))
             {
@@ -198,7 +198,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 清空指定语言的本地化数据
         /// </summary>
-        public void RemoveAllDefaultDatas(GameDefinitions.Language language)
+        public void RemoveAllDefaultDatas(HonorDefinitions.Language language)
         {
             if (m_DefaultDatas.ContainsKey(language))
             {
@@ -212,7 +212,7 @@ namespace Honor.Runtime
         /// <param name="language">语言</param>
         /// <param name="keyName">文本 Key</param>
         /// <returns>本地化文本内容</returns>
-        public string GetDefaultData(GameDefinitions.Language language, string keyName)
+        public string GetDefaultData(HonorDefinitions.Language language, string keyName)
         {
             ValidateLanguage(language);
             ValidateKeyName(keyName);
@@ -238,7 +238,7 @@ namespace Honor.Runtime
 
             foreach (var entry in fontRoot)
             {
-                GameDefinitions.Language language = (GameDefinitions.Language)Enum.Parse(typeof(GameDefinitions.Language), entry.Key);
+                HonorDefinitions.Language language = (HonorDefinitions.Language)Enum.Parse(typeof(HonorDefinitions.Language), entry.Key);
                 string fontType = entry.Value["FontType"].ToString();
                 JToken marks = entry.Value;
                 int markIndex = 0;
@@ -261,7 +261,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 添加语言对应的字体数据（自动去重）
         /// </summary>
-        public void AddFontData(GameDefinitions.Language language, LocalizationFontData fontData)
+        public void AddFontData(HonorDefinitions.Language language, LocalizationFontData fontData)
         {
             GetFontDatas(language, out List<LocalizationFontData> existingList);
 
@@ -290,7 +290,7 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="language">语言</param>
         /// <param name="fontDatas">输出字体列表</param>
-        public void GetFontDatas(GameDefinitions.Language language, out List<LocalizationFontData> fontDatas)
+        public void GetFontDatas(HonorDefinitions.Language language, out List<LocalizationFontData> fontDatas)
         {
             ValidateLanguage(language);
 

@@ -72,9 +72,9 @@ namespace Honor.Runtime
         // public static class Log —— 静态调用 Log.xxx
 
         /// <summary>
-        /// [Tools] 路径工具：GamePathUtils —— 游戏各资源/存档/日志路径常量
+        /// [Tools] 路径工具：HonorPathUtils —— 游戏各资源/存档/日志路径常量
         /// </summary>
-        // public static class GamePathUtils —— 静态调用 GamePathUtils.xxx
+        // public static class HonorPathUtils —— 静态调用 HonorPathUtils.xxx
 
         /// <summary>
         /// [Tools] 加解密工具：AESEncrypt / Encryption / MD5Handler / GZip —— 数据加解密、校验、压缩

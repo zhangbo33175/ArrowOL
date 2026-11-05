@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -44,7 +44,7 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.OriginType>(translator.PushHonorRuntimeOriginType, translator.Get, translator.UpdateHonorRuntimeOriginType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PrefabDetailType>(translator.PushHonorRuntimePrefabDetailType, translator.Get, translator.UpdateHonorRuntimePrefabDetailType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.PrefabType>(translator.PushHonorRuntimePrefabType, translator.Get, translator.UpdateHonorRuntimePrefabType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameEventCmd>(translator.PushHonorRuntimeGameEventCmd, translator.Get, translator.UpdateHonorRuntimeGameEventCmd);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorEventCmd>(translator.PushHonorRuntimeHonorEventCmd, translator.Get, translator.UpdateHonorRuntimeHonorEventCmd);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.SnapStatus>(translator.PushHonorRuntimeSnapStatus, translator.Get, translator.UpdateHonorRuntimeSnapStatus);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.ItemCornerEnum>(translator.PushHonorRuntimeItemCornerEnum, translator.Get, translator.UpdateHonorRuntimeItemCornerEnum);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.ListItemArrangeType>(translator.PushHonorRuntimeListItemArrangeType, translator.Get, translator.UpdateHonorRuntimeListItemArrangeType);
@@ -61,13 +61,13 @@ namespace XLua
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.UIType>(translator.PushHonorRuntimeUIType, translator.Get, translator.UpdateHonorRuntimeUIType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.DevicePerformanceLevel>(translator.PushHonorRuntimeDevicePerformanceLevel, translator.Get, translator.UpdateHonorRuntimeDevicePerformanceLevel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.QualityLevel>(translator.PushHonorRuntimeQualityLevel, translator.Get, translator.UpdateHonorRuntimeQualityLevel);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DimensionMode>(translator.PushHonorRuntimeGameDefinitionsDimensionMode, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDimensionMode);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.AssetType>(translator.PushHonorRuntimeGameDefinitionsAssetType, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsAssetType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.PathType>(translator.PushHonorRuntimeGameDefinitionsPathType, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsPathType);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DownloadStep>(translator.PushHonorRuntimeGameDefinitionsDownloadStep, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDownloadStep);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DebugMode>(translator.PushHonorRuntimeGameDefinitionsDebugMode, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDebugMode);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.Language>(translator.PushHonorRuntimeGameDefinitionsLanguage, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsLanguage);
-				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.GameDefinitions.DebugWindowModel>(translator.PushHonorRuntimeGameDefinitionsDebugWindowModel, translator.Get, translator.UpdateHonorRuntimeGameDefinitionsDebugWindowModel);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.DimensionMode>(translator.PushHonorRuntimeHonorDefinitionsDimensionMode, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsDimensionMode);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.AssetType>(translator.PushHonorRuntimeHonorDefinitionsAssetType, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsAssetType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.PathType>(translator.PushHonorRuntimeHonorDefinitionsPathType, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsPathType);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.DownloadStep>(translator.PushHonorRuntimeHonorDefinitionsDownloadStep, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsDownloadStep);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.DebugMode>(translator.PushHonorRuntimeHonorDefinitionsDebugMode, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsDebugMode);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.Language>(translator.PushHonorRuntimeHonorDefinitionsLanguage, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsLanguage);
+				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorDefinitions.DebugWindowModel>(translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel, translator.Get, translator.UpdateHonorRuntimeHonorDefinitionsDebugWindowModel);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType>(translator.PushHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeHonorTextEffectOutlineHorizontalAligmentType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.HonorTextEffectSpacing.HorizontalAligmentType>(translator.PushHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType, translator.Get, translator.UpdateHonorRuntimeHonorTextEffectSpacingHorizontalAligmentType);
 				translator.RegisterPushAndGetAndUpdate<Honor.Runtime.LuaBindValue.BindValueType>(translator.PushHonorRuntimeLuaBindValueBindValueType, translator.Get, translator.UpdateHonorRuntimeLuaBindValueBindValueType);
@@ -1500,81 +1500,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameEventCmd_TypeID = -1;
-		int HonorRuntimeGameEventCmd_EnumRef = -1;
+        int HonorRuntimeHonorEventCmd_TypeID = -1;
+		int HonorRuntimeHonorEventCmd_EnumRef = -1;
         
-        public void PushHonorRuntimeGameEventCmd(RealStatePtr L, Honor.Runtime.GameEventCmd val)
+        public void PushHonorRuntimeHonorEventCmd(RealStatePtr L, Honor.Runtime.HonorEventCmd val)
         {
-            if (HonorRuntimeGameEventCmd_TypeID == -1)
+            if (HonorRuntimeHonorEventCmd_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameEventCmd_TypeID = getTypeId(L, typeof(Honor.Runtime.GameEventCmd), out is_first);
+                HonorRuntimeHonorEventCmd_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorEventCmd), out is_first);
 				
-				if (HonorRuntimeGameEventCmd_EnumRef == -1)
+				if (HonorRuntimeHonorEventCmd_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameEventCmd));
-				    HonorRuntimeGameEventCmd_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorEventCmd));
+				    HonorRuntimeHonorEventCmd_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameEventCmd_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorEventCmd_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameEventCmd_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorEventCmd_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameEventCmd ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorEventCmd ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameEventCmd_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorEventCmd_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameEventCmd val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorEventCmd val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameEventCmd_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorEventCmd_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameEventCmd");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorEventCmd");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameEventCmd");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorEventCmd");
                 }
-				val = (Honor.Runtime.GameEventCmd)e;
+				val = (Honor.Runtime.HonorEventCmd)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameEventCmd)objectCasters.GetCaster(typeof(Honor.Runtime.GameEventCmd))(L, index, null);
+                val = (Honor.Runtime.HonorEventCmd)objectCasters.GetCaster(typeof(Honor.Runtime.HonorEventCmd))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameEventCmd(RealStatePtr L, int index, Honor.Runtime.GameEventCmd val)
+        public void UpdateHonorRuntimeHonorEventCmd(RealStatePtr L, int index, Honor.Runtime.HonorEventCmd val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameEventCmd_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorEventCmd_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameEventCmd");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorEventCmd");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameEventCmd ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorEventCmd ,value="+val);
                 }
             }
 			
@@ -2928,81 +2928,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsDimensionMode_TypeID = -1;
-		int HonorRuntimeGameDefinitionsDimensionMode_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsDimensionMode_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsDimensionMode_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsDimensionMode(RealStatePtr L, Honor.Runtime.GameDefinitions.DimensionMode val)
+        public void PushHonorRuntimeHonorDefinitionsDimensionMode(RealStatePtr L, Honor.Runtime.HonorDefinitions.DimensionMode val)
         {
-            if (HonorRuntimeGameDefinitionsDimensionMode_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsDimensionMode_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsDimensionMode_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.DimensionMode), out is_first);
+                HonorRuntimeHonorDefinitionsDimensionMode_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.DimensionMode), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsDimensionMode_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsDimensionMode_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.DimensionMode));
-				    HonorRuntimeGameDefinitionsDimensionMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.DimensionMode));
+				    HonorRuntimeHonorDefinitionsDimensionMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsDimensionMode_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsDimensionMode_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsDimensionMode_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsDimensionMode_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.DimensionMode ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.DimensionMode ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsDimensionMode_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsDimensionMode_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.DimensionMode val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.DimensionMode val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDimensionMode_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDimensionMode_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DimensionMode");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DimensionMode");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.DimensionMode");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.DimensionMode");
                 }
-				val = (Honor.Runtime.GameDefinitions.DimensionMode)e;
+				val = (Honor.Runtime.HonorDefinitions.DimensionMode)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.DimensionMode)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.DimensionMode))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.DimensionMode)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.DimensionMode))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsDimensionMode(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.DimensionMode val)
+        public void UpdateHonorRuntimeHonorDefinitionsDimensionMode(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.DimensionMode val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDimensionMode_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDimensionMode_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DimensionMode");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DimensionMode");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.DimensionMode ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.DimensionMode ,value="+val);
                 }
             }
 			
@@ -3012,81 +3012,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsAssetType_TypeID = -1;
-		int HonorRuntimeGameDefinitionsAssetType_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsAssetType_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsAssetType_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsAssetType(RealStatePtr L, Honor.Runtime.GameDefinitions.AssetType val)
+        public void PushHonorRuntimeHonorDefinitionsAssetType(RealStatePtr L, Honor.Runtime.HonorDefinitions.AssetType val)
         {
-            if (HonorRuntimeGameDefinitionsAssetType_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsAssetType_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsAssetType_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.AssetType), out is_first);
+                HonorRuntimeHonorDefinitionsAssetType_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.AssetType), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsAssetType_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsAssetType_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.AssetType));
-				    HonorRuntimeGameDefinitionsAssetType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.AssetType));
+				    HonorRuntimeHonorDefinitionsAssetType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsAssetType_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsAssetType_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsAssetType_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsAssetType_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.AssetType ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.AssetType ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsAssetType_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsAssetType_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.AssetType val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.AssetType val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsAssetType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsAssetType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.AssetType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.AssetType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.AssetType");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.AssetType");
                 }
-				val = (Honor.Runtime.GameDefinitions.AssetType)e;
+				val = (Honor.Runtime.HonorDefinitions.AssetType)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.AssetType)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.AssetType))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.AssetType)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.AssetType))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsAssetType(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.AssetType val)
+        public void UpdateHonorRuntimeHonorDefinitionsAssetType(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.AssetType val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsAssetType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsAssetType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.AssetType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.AssetType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.AssetType ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.AssetType ,value="+val);
                 }
             }
 			
@@ -3096,81 +3096,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsPathType_TypeID = -1;
-		int HonorRuntimeGameDefinitionsPathType_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsPathType_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsPathType_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsPathType(RealStatePtr L, Honor.Runtime.GameDefinitions.PathType val)
+        public void PushHonorRuntimeHonorDefinitionsPathType(RealStatePtr L, Honor.Runtime.HonorDefinitions.PathType val)
         {
-            if (HonorRuntimeGameDefinitionsPathType_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsPathType_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsPathType_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.PathType), out is_first);
+                HonorRuntimeHonorDefinitionsPathType_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.PathType), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsPathType_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsPathType_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.PathType));
-				    HonorRuntimeGameDefinitionsPathType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.PathType));
+				    HonorRuntimeHonorDefinitionsPathType_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsPathType_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsPathType_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsPathType_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsPathType_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.PathType ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.PathType ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsPathType_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsPathType_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.PathType val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.PathType val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsPathType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsPathType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.PathType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.PathType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.PathType");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.PathType");
                 }
-				val = (Honor.Runtime.GameDefinitions.PathType)e;
+				val = (Honor.Runtime.HonorDefinitions.PathType)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.PathType)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.PathType))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.PathType)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.PathType))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsPathType(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.PathType val)
+        public void UpdateHonorRuntimeHonorDefinitionsPathType(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.PathType val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsPathType_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsPathType_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.PathType");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.PathType");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.PathType ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.PathType ,value="+val);
                 }
             }
 			
@@ -3180,81 +3180,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsDownloadStep_TypeID = -1;
-		int HonorRuntimeGameDefinitionsDownloadStep_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsDownloadStep_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsDownloadStep_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsDownloadStep(RealStatePtr L, Honor.Runtime.GameDefinitions.DownloadStep val)
+        public void PushHonorRuntimeHonorDefinitionsDownloadStep(RealStatePtr L, Honor.Runtime.HonorDefinitions.DownloadStep val)
         {
-            if (HonorRuntimeGameDefinitionsDownloadStep_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsDownloadStep_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsDownloadStep_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.DownloadStep), out is_first);
+                HonorRuntimeHonorDefinitionsDownloadStep_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.DownloadStep), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsDownloadStep_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsDownloadStep_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.DownloadStep));
-				    HonorRuntimeGameDefinitionsDownloadStep_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.DownloadStep));
+				    HonorRuntimeHonorDefinitionsDownloadStep_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsDownloadStep_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsDownloadStep_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsDownloadStep_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsDownloadStep_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.DownloadStep ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.DownloadStep ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsDownloadStep_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsDownloadStep_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.DownloadStep val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.DownloadStep val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDownloadStep_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDownloadStep_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DownloadStep");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DownloadStep");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.DownloadStep");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.DownloadStep");
                 }
-				val = (Honor.Runtime.GameDefinitions.DownloadStep)e;
+				val = (Honor.Runtime.HonorDefinitions.DownloadStep)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.DownloadStep)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.DownloadStep))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.DownloadStep)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.DownloadStep))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsDownloadStep(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.DownloadStep val)
+        public void UpdateHonorRuntimeHonorDefinitionsDownloadStep(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.DownloadStep val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDownloadStep_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDownloadStep_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DownloadStep");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DownloadStep");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.DownloadStep ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.DownloadStep ,value="+val);
                 }
             }
 			
@@ -3264,81 +3264,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsDebugMode_TypeID = -1;
-		int HonorRuntimeGameDefinitionsDebugMode_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsDebugMode_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsDebugMode_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsDebugMode(RealStatePtr L, Honor.Runtime.GameDefinitions.DebugMode val)
+        public void PushHonorRuntimeHonorDefinitionsDebugMode(RealStatePtr L, Honor.Runtime.HonorDefinitions.DebugMode val)
         {
-            if (HonorRuntimeGameDefinitionsDebugMode_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsDebugMode_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsDebugMode_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.DebugMode), out is_first);
+                HonorRuntimeHonorDefinitionsDebugMode_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.DebugMode), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsDebugMode_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsDebugMode_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.DebugMode));
-				    HonorRuntimeGameDefinitionsDebugMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.DebugMode));
+				    HonorRuntimeHonorDefinitionsDebugMode_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsDebugMode_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsDebugMode_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsDebugMode_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsDebugMode_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.DebugMode ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.DebugMode ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsDebugMode_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsDebugMode_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.DebugMode val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.DebugMode val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDebugMode_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDebugMode_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DebugMode");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DebugMode");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.DebugMode");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.DebugMode");
                 }
-				val = (Honor.Runtime.GameDefinitions.DebugMode)e;
+				val = (Honor.Runtime.HonorDefinitions.DebugMode)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.DebugMode)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.DebugMode))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.DebugMode)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.DebugMode))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsDebugMode(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.DebugMode val)
+        public void UpdateHonorRuntimeHonorDefinitionsDebugMode(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.DebugMode val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDebugMode_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDebugMode_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DebugMode");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DebugMode");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.DebugMode ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.DebugMode ,value="+val);
                 }
             }
 			
@@ -3348,81 +3348,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsLanguage_TypeID = -1;
-		int HonorRuntimeGameDefinitionsLanguage_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsLanguage_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsLanguage_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsLanguage(RealStatePtr L, Honor.Runtime.GameDefinitions.Language val)
+        public void PushHonorRuntimeHonorDefinitionsLanguage(RealStatePtr L, Honor.Runtime.HonorDefinitions.Language val)
         {
-            if (HonorRuntimeGameDefinitionsLanguage_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsLanguage_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsLanguage_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.Language), out is_first);
+                HonorRuntimeHonorDefinitionsLanguage_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.Language), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsLanguage_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsLanguage_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.Language));
-				    HonorRuntimeGameDefinitionsLanguage_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.Language));
+				    HonorRuntimeHonorDefinitionsLanguage_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsLanguage_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsLanguage_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsLanguage_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsLanguage_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.Language ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.Language ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsLanguage_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsLanguage_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.Language val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.Language val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsLanguage_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsLanguage_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.Language");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.Language");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.Language");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.Language");
                 }
-				val = (Honor.Runtime.GameDefinitions.Language)e;
+				val = (Honor.Runtime.HonorDefinitions.Language)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.Language)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.Language))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.Language)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.Language))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsLanguage(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.Language val)
+        public void UpdateHonorRuntimeHonorDefinitionsLanguage(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.Language val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsLanguage_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsLanguage_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.Language");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.Language");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.Language ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.Language ,value="+val);
                 }
             }
 			
@@ -3432,81 +3432,81 @@ namespace XLua
             }
         }
         
-        int HonorRuntimeGameDefinitionsDebugWindowModel_TypeID = -1;
-		int HonorRuntimeGameDefinitionsDebugWindowModel_EnumRef = -1;
+        int HonorRuntimeHonorDefinitionsDebugWindowModel_TypeID = -1;
+		int HonorRuntimeHonorDefinitionsDebugWindowModel_EnumRef = -1;
         
-        public void PushHonorRuntimeGameDefinitionsDebugWindowModel(RealStatePtr L, Honor.Runtime.GameDefinitions.DebugWindowModel val)
+        public void PushHonorRuntimeHonorDefinitionsDebugWindowModel(RealStatePtr L, Honor.Runtime.HonorDefinitions.DebugWindowModel val)
         {
-            if (HonorRuntimeGameDefinitionsDebugWindowModel_TypeID == -1)
+            if (HonorRuntimeHonorDefinitionsDebugWindowModel_TypeID == -1)
             {
 			    bool is_first;
-                HonorRuntimeGameDefinitionsDebugWindowModel_TypeID = getTypeId(L, typeof(Honor.Runtime.GameDefinitions.DebugWindowModel), out is_first);
+                HonorRuntimeHonorDefinitionsDebugWindowModel_TypeID = getTypeId(L, typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel), out is_first);
 				
-				if (HonorRuntimeGameDefinitionsDebugWindowModel_EnumRef == -1)
+				if (HonorRuntimeHonorDefinitionsDebugWindowModel_EnumRef == -1)
 				{
-				    Utils.LoadCSTable(L, typeof(Honor.Runtime.GameDefinitions.DebugWindowModel));
-				    HonorRuntimeGameDefinitionsDebugWindowModel_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
+				    Utils.LoadCSTable(L, typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel));
+				    HonorRuntimeHonorDefinitionsDebugWindowModel_EnumRef = LuaAPI.luaL_ref(L, LuaIndexes.LUA_REGISTRYINDEX);
 				}
 				
             }
 			
-			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeGameDefinitionsDebugWindowModel_EnumRef) == 1)
+			if (LuaAPI.xlua_tryget_cachedud(L, (int)val, HonorRuntimeHonorDefinitionsDebugWindowModel_EnumRef) == 1)
             {
 			    return;
 			}
 			
-            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeGameDefinitionsDebugWindowModel_TypeID);
+            IntPtr buff = LuaAPI.xlua_pushstruct(L, 4, HonorRuntimeHonorDefinitionsDebugWindowModel_TypeID);
             if (!CopyByValue.Pack(buff, 0, (int)val))
             {
-                throw new Exception("pack fail fail for Honor.Runtime.GameDefinitions.DebugWindowModel ,value="+val);
+                throw new Exception("pack fail fail for Honor.Runtime.HonorDefinitions.DebugWindowModel ,value="+val);
             }
 			
-			LuaAPI.lua_getref(L, HonorRuntimeGameDefinitionsDebugWindowModel_EnumRef);
+			LuaAPI.lua_getref(L, HonorRuntimeHonorDefinitionsDebugWindowModel_EnumRef);
 			LuaAPI.lua_pushvalue(L, -2);
 			LuaAPI.xlua_rawseti(L, -2, (int)val);
 			LuaAPI.lua_pop(L, 1);
 			
         }
 		
-        public void Get(RealStatePtr L, int index, out Honor.Runtime.GameDefinitions.DebugWindowModel val)
+        public void Get(RealStatePtr L, int index, out Honor.Runtime.HonorDefinitions.DebugWindowModel val)
         {
 		    LuaTypes type = LuaAPI.lua_type(L, index);
             if (type == LuaTypes.LUA_TUSERDATA )
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDebugWindowModel_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDebugWindowModel_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DebugWindowModel");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DebugWindowModel");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
 				int e;
                 if (!CopyByValue.UnPack(buff, 0, out e))
                 {
-                    throw new Exception("unpack fail for Honor.Runtime.GameDefinitions.DebugWindowModel");
+                    throw new Exception("unpack fail for Honor.Runtime.HonorDefinitions.DebugWindowModel");
                 }
-				val = (Honor.Runtime.GameDefinitions.DebugWindowModel)e;
+				val = (Honor.Runtime.HonorDefinitions.DebugWindowModel)e;
                 
             }
             else
             {
-                val = (Honor.Runtime.GameDefinitions.DebugWindowModel)objectCasters.GetCaster(typeof(Honor.Runtime.GameDefinitions.DebugWindowModel))(L, index, null);
+                val = (Honor.Runtime.HonorDefinitions.DebugWindowModel)objectCasters.GetCaster(typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel))(L, index, null);
             }
         }
 		
-        public void UpdateHonorRuntimeGameDefinitionsDebugWindowModel(RealStatePtr L, int index, Honor.Runtime.GameDefinitions.DebugWindowModel val)
+        public void UpdateHonorRuntimeHonorDefinitionsDebugWindowModel(RealStatePtr L, int index, Honor.Runtime.HonorDefinitions.DebugWindowModel val)
         {
 		    
             if (LuaAPI.lua_type(L, index) == LuaTypes.LUA_TUSERDATA)
             {
-			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeGameDefinitionsDebugWindowModel_TypeID)
+			    if (LuaAPI.xlua_gettypeid(L, index) != HonorRuntimeHonorDefinitionsDebugWindowModel_TypeID)
 				{
-				    throw new Exception("invalid userdata for Honor.Runtime.GameDefinitions.DebugWindowModel");
+				    throw new Exception("invalid userdata for Honor.Runtime.HonorDefinitions.DebugWindowModel");
 				}
 				
                 IntPtr buff = LuaAPI.lua_touserdata(L, index);
                 if (!CopyByValue.Pack(buff, 0,  (int)val))
                 {
-                    throw new Exception("pack fail for Honor.Runtime.GameDefinitions.DebugWindowModel ,value="+val);
+                    throw new Exception("pack fail for Honor.Runtime.HonorDefinitions.DebugWindowModel ,value="+val);
                 }
             }
 			
@@ -8339,10 +8339,10 @@ namespace XLua
 				translator.PushHonorRuntimePrefabType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameEventCmd[]))
+			else if (type == typeof(Honor.Runtime.HonorEventCmd[]))
 			{
-			    Honor.Runtime.GameEventCmd[] array = obj as Honor.Runtime.GameEventCmd[];
-				translator.PushHonorRuntimeGameEventCmd(L, array[index]);
+			    Honor.Runtime.HonorEventCmd[] array = obj as Honor.Runtime.HonorEventCmd[];
+				translator.PushHonorRuntimeHonorEventCmd(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.SnapStatus[]))
@@ -8441,46 +8441,46 @@ namespace XLua
 				translator.PushHonorRuntimeQualityLevel(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DimensionMode[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DimensionMode[]))
 			{
-			    Honor.Runtime.GameDefinitions.DimensionMode[] array = obj as Honor.Runtime.GameDefinitions.DimensionMode[];
-				translator.PushHonorRuntimeGameDefinitionsDimensionMode(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.DimensionMode[] array = obj as Honor.Runtime.HonorDefinitions.DimensionMode[];
+				translator.PushHonorRuntimeHonorDefinitionsDimensionMode(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.AssetType[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.AssetType[]))
 			{
-			    Honor.Runtime.GameDefinitions.AssetType[] array = obj as Honor.Runtime.GameDefinitions.AssetType[];
-				translator.PushHonorRuntimeGameDefinitionsAssetType(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.AssetType[] array = obj as Honor.Runtime.HonorDefinitions.AssetType[];
+				translator.PushHonorRuntimeHonorDefinitionsAssetType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.PathType[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.PathType[]))
 			{
-			    Honor.Runtime.GameDefinitions.PathType[] array = obj as Honor.Runtime.GameDefinitions.PathType[];
-				translator.PushHonorRuntimeGameDefinitionsPathType(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.PathType[] array = obj as Honor.Runtime.HonorDefinitions.PathType[];
+				translator.PushHonorRuntimeHonorDefinitionsPathType(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DownloadStep[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DownloadStep[]))
 			{
-			    Honor.Runtime.GameDefinitions.DownloadStep[] array = obj as Honor.Runtime.GameDefinitions.DownloadStep[];
-				translator.PushHonorRuntimeGameDefinitionsDownloadStep(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.DownloadStep[] array = obj as Honor.Runtime.HonorDefinitions.DownloadStep[];
+				translator.PushHonorRuntimeHonorDefinitionsDownloadStep(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DebugMode[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DebugMode[]))
 			{
-			    Honor.Runtime.GameDefinitions.DebugMode[] array = obj as Honor.Runtime.GameDefinitions.DebugMode[];
-				translator.PushHonorRuntimeGameDefinitionsDebugMode(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.DebugMode[] array = obj as Honor.Runtime.HonorDefinitions.DebugMode[];
+				translator.PushHonorRuntimeHonorDefinitionsDebugMode(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.Language[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.Language[]))
 			{
-			    Honor.Runtime.GameDefinitions.Language[] array = obj as Honor.Runtime.GameDefinitions.Language[];
-				translator.PushHonorRuntimeGameDefinitionsLanguage(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.Language[] array = obj as Honor.Runtime.HonorDefinitions.Language[];
+				translator.PushHonorRuntimeHonorDefinitionsLanguage(L, array[index]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DebugWindowModel[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel[]))
 			{
-			    Honor.Runtime.GameDefinitions.DebugWindowModel[] array = obj as Honor.Runtime.GameDefinitions.DebugWindowModel[];
-				translator.PushHonorRuntimeGameDefinitionsDebugWindowModel(L, array[index]);
+			    Honor.Runtime.HonorDefinitions.DebugWindowModel[] array = obj as Honor.Runtime.HonorDefinitions.DebugWindowModel[];
+				translator.PushHonorRuntimeHonorDefinitionsDebugWindowModel(L, array[index]);
 				return true;
 			}
 			else if (type == typeof(Honor.Runtime.HonorTextEffectOutline.HorizontalAligmentType[]))
@@ -8933,9 +8933,9 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameEventCmd[]))
+			else if (type == typeof(Honor.Runtime.HonorEventCmd[]))
 			{
-			    Honor.Runtime.GameEventCmd[] array = obj as Honor.Runtime.GameEventCmd[];
+			    Honor.Runtime.HonorEventCmd[] array = obj as Honor.Runtime.HonorEventCmd[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
@@ -9035,45 +9035,45 @@ namespace XLua
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DimensionMode[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DimensionMode[]))
 			{
-			    Honor.Runtime.GameDefinitions.DimensionMode[] array = obj as Honor.Runtime.GameDefinitions.DimensionMode[];
+			    Honor.Runtime.HonorDefinitions.DimensionMode[] array = obj as Honor.Runtime.HonorDefinitions.DimensionMode[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.AssetType[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.AssetType[]))
 			{
-			    Honor.Runtime.GameDefinitions.AssetType[] array = obj as Honor.Runtime.GameDefinitions.AssetType[];
+			    Honor.Runtime.HonorDefinitions.AssetType[] array = obj as Honor.Runtime.HonorDefinitions.AssetType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.PathType[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.PathType[]))
 			{
-			    Honor.Runtime.GameDefinitions.PathType[] array = obj as Honor.Runtime.GameDefinitions.PathType[];
+			    Honor.Runtime.HonorDefinitions.PathType[] array = obj as Honor.Runtime.HonorDefinitions.PathType[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DownloadStep[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DownloadStep[]))
 			{
-			    Honor.Runtime.GameDefinitions.DownloadStep[] array = obj as Honor.Runtime.GameDefinitions.DownloadStep[];
+			    Honor.Runtime.HonorDefinitions.DownloadStep[] array = obj as Honor.Runtime.HonorDefinitions.DownloadStep[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DebugMode[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DebugMode[]))
 			{
-			    Honor.Runtime.GameDefinitions.DebugMode[] array = obj as Honor.Runtime.GameDefinitions.DebugMode[];
+			    Honor.Runtime.HonorDefinitions.DebugMode[] array = obj as Honor.Runtime.HonorDefinitions.DebugMode[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.Language[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.Language[]))
 			{
-			    Honor.Runtime.GameDefinitions.Language[] array = obj as Honor.Runtime.GameDefinitions.Language[];
+			    Honor.Runtime.HonorDefinitions.Language[] array = obj as Honor.Runtime.HonorDefinitions.Language[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}
-			else if (type == typeof(Honor.Runtime.GameDefinitions.DebugWindowModel[]))
+			else if (type == typeof(Honor.Runtime.HonorDefinitions.DebugWindowModel[]))
 			{
-			    Honor.Runtime.GameDefinitions.DebugWindowModel[] array = obj as Honor.Runtime.GameDefinitions.DebugWindowModel[];
+			    Honor.Runtime.HonorDefinitions.DebugWindowModel[] array = obj as Honor.Runtime.HonorDefinitions.DebugWindowModel[];
 				translator.Get(L, obj_idx, out array[array_idx]);
 				return true;
 			}

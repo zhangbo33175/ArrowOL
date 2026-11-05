@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -129,11 +129,11 @@ namespace XLua.CSObjectWrap
             
 			    int gen_param_count = LuaAPI.lua_gettop(L);
             
-                if(gen_param_count == 8&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.GameDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 6)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 7)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 8)) 
+                if(gen_param_count == 8&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.HonorDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 6)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 7)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 8)) 
                 {
                     string _descContent = LuaAPI.lua_tostring(L, 2);
                     float _progress = (float)LuaAPI.lua_tonumber(L, 3);
-                    Honor.Runtime.GameDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
+                    Honor.Runtime.HonorDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
                     int _curFileNum = LuaAPI.xlua_tointeger(L, 5);
                     int _totalFileNum = LuaAPI.xlua_tointeger(L, 6);
                     float _curBytes = (float)LuaAPI.lua_tonumber(L, 7);
@@ -145,11 +145,11 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 7&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.GameDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 6)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 7)) 
+                if(gen_param_count == 7&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.HonorDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 6)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 7)) 
                 {
                     string _descContent = LuaAPI.lua_tostring(L, 2);
                     float _progress = (float)LuaAPI.lua_tonumber(L, 3);
-                    Honor.Runtime.GameDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
+                    Honor.Runtime.HonorDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
                     int _curFileNum = LuaAPI.xlua_tointeger(L, 5);
                     int _totalFileNum = LuaAPI.xlua_tointeger(L, 6);
                     float _curBytes = (float)LuaAPI.lua_tonumber(L, 7);
@@ -160,11 +160,11 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 6&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.GameDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 6)) 
+                if(gen_param_count == 6&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.HonorDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 6)) 
                 {
                     string _descContent = LuaAPI.lua_tostring(L, 2);
                     float _progress = (float)LuaAPI.lua_tonumber(L, 3);
-                    Honor.Runtime.GameDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
+                    Honor.Runtime.HonorDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
                     int _curFileNum = LuaAPI.xlua_tointeger(L, 5);
                     int _totalFileNum = LuaAPI.xlua_tointeger(L, 6);
                     
@@ -174,11 +174,11 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.GameDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)) 
+                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.HonorDefinitions.DownloadStep>(L, 4)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 5)) 
                 {
                     string _descContent = LuaAPI.lua_tostring(L, 2);
                     float _progress = (float)LuaAPI.lua_tonumber(L, 3);
-                    Honor.Runtime.GameDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
+                    Honor.Runtime.HonorDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
                     int _curFileNum = LuaAPI.xlua_tointeger(L, 5);
                     
                     gen_to_be_invoked.RefreshViews( _descContent, _progress, _downloadStep, _curFileNum );
@@ -187,11 +187,11 @@ namespace XLua.CSObjectWrap
                     
                     return 0;
                 }
-                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.GameDefinitions.DownloadStep>(L, 4)) 
+                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& LuaTypes.LUA_TNUMBER == LuaAPI.lua_type(L, 3)&& translator.Assignable<Honor.Runtime.HonorDefinitions.DownloadStep>(L, 4)) 
                 {
                     string _descContent = LuaAPI.lua_tostring(L, 2);
                     float _progress = (float)LuaAPI.lua_tonumber(L, 3);
-                    Honor.Runtime.GameDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
+                    Honor.Runtime.HonorDefinitions.DownloadStep _downloadStep;translator.Get(L, 4, out _downloadStep);
                     
                     gen_to_be_invoked.RefreshViews( _descContent, _progress, _downloadStep );
                     

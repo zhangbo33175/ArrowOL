@@ -15,7 +15,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 框架启动器 - 字段与属性部分
     /// </summary>
-    public sealed partial class LauncherComponent : GameComponent
+    public sealed partial class LauncherComponent : HonorComponent
     {
         //=========================================================================
         // 序列化字段（Inspector 配置）
@@ -33,7 +33,7 @@ namespace Honor.Runtime
         /// 编辑器运行模式下的语言类型
         /// </summary>
         [SerializeField]
-        private GameDefinitions.Language m_EditorLanguage = GameDefinitions.Language.Unspecified;
+        private HonorDefinitions.Language m_EditorLanguage = HonorDefinitions.Language.Unspecified;
 
         /// <summary>
         /// 开发模式
@@ -170,7 +170,7 @@ namespace Honor.Runtime
         /// <summary>
         /// 获取或设置编辑器启动语言（仅编辑器内有效）
         /// </summary>
-        public GameDefinitions.Language EditorLanguage
+        public HonorDefinitions.Language EditorLanguage
         {
             get => m_EditorLanguage;
             set => m_EditorLanguage = value;

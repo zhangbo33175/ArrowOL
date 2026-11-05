@@ -17,7 +17,7 @@ namespace Honor.Runtime
     /// 负责框架初始化、资源模式、脚本模式、游戏速度控制、应用生命周期管理
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed partial class LauncherComponent : GameComponent
+    public sealed partial class LauncherComponent : HonorComponent
     {
         //=========================================================================
         // 生命周期
@@ -48,7 +48,7 @@ namespace Honor.Runtime
                     go.name = "[DebuggerComponent]";
                     UnityEngine.Object.DontDestroyOnLoad(go);
                     var dbg = go.GetComponent<DebuggerComponent>();
-                    // 说明：DebuggerComponent 由自身 Awake 注册进 GameComponentsGroup，
+                    // 说明：DebuggerComponent 由自身 Awake 注册进 HonorComponentGroup，
                     //       HonorUIManager.Init 阶段经组件组获取持有（GameMainRoot 不再暴露组件转发属性）
                     dbg?.SetActiveWindow();
                 }
@@ -87,7 +87,7 @@ namespace Honor.Runtime
 
             // 输出版本信息
             Log.Info("UNITY版本号: {0}", Application.unityVersion);
-            Log.Info("Honor版本号: {0}", GameConstants.HonorVersion);
+            Log.Info("Honor版本号: {0}", HonorConstants.HonorVersion);
             Log.Info("APP版本号: {0}", Application.version);
         }
 
@@ -195,7 +195,7 @@ namespace Honor.Runtime
             Destroy(gameObject);
 
             // 清空所有框架组件
-            GameComponentsGroup.Clear();
+            HonorComponentGroup.Clear();
 
             // 退出游戏
             Application.Quit();

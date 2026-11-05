@@ -90,7 +90,7 @@ namespace Honor.Runtime
                 {
                     invocation(assetObj, assetObj.Asset);
                 }
-                catch (GameException exception)
+                catch (HonorException exception)
                 {
                     Log.Error(exception);
                 }

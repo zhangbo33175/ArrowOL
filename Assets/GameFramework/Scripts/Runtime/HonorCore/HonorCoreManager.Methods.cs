@@ -30,7 +30,7 @@ namespace Honor.Runtime
         /// <param name="sender">事件发送者</param>
         /// <param name="cmd">事件命令</param>
         /// <param name="objects">事件参数（键值对），可选</param>
-        public void Fire(object sender, GameEventCmd cmd, Dictionary<string, object> objects = null)
+        public void Fire(object sender, HonorEventCmd cmd, Dictionary<string, object> objects = null)
         {
             Event.Fire(sender, cmd, objects);
         }
@@ -41,7 +41,7 @@ namespace Honor.Runtime
         /// <param name="cmd">事件命令</param>
         /// <param name="userData">订阅者标识</param>
         /// <param name="handler">事件回调</param>
-        public void Subscribe(GameEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
+        public void Subscribe(HonorEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
         {
             Event.Subscribe(cmd, userData, handler);
         }
@@ -52,7 +52,7 @@ namespace Honor.Runtime
         /// <param name="cmd">事件命令</param>
         /// <param name="userData">订阅者标识</param>
         /// <param name="handler">事件回调</param>
-        public void Unsubscribe(GameEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
+        public void Unsubscribe(HonorEventCmd cmd, object userData, HonorEventHandler<EventParams> handler)
         {
             Event.Unsubscribe(cmd, userData, handler);
         }
@@ -211,7 +211,7 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="language">目标语言</param>
         /// <param name="launchSet">是否启动时设置，默认false</param>
-        public void SetLanguage(GameDefinitions.Language language, bool launchSet = false)
+        public void SetLanguage(HonorDefinitions.Language language, bool launchSet = false)
         {
             Localization.SetLanguage(language, launchSet);
         }
@@ -281,7 +281,7 @@ namespace Honor.Runtime
         /// <param name="sender">事件发送者</param>
         /// <param name="cmd">事件命令</param>
         /// <param name="objects">事件参数（键值对），可选</param>
-        public void FireNow(object sender, GameEventCmd cmd, Dictionary<string, object> objects = null)
+        public void FireNow(object sender, HonorEventCmd cmd, Dictionary<string, object> objects = null)
         {
             Event.FireNow(sender, cmd, objects);
         }
@@ -353,7 +353,7 @@ namespace Honor.Runtime
         /// </summary>
         /// <param name="language">目标语言</param>
         /// <param name="fontDatas">字体列表输出</param>
-        public void GetFontData(GameDefinitions.Language language, out List<LocalizationFontData> fontDatas)
+        public void GetFontData(HonorDefinitions.Language language, out List<LocalizationFontData> fontDatas)
         {
             Localization.GetFontData(language, out fontDatas);
         }

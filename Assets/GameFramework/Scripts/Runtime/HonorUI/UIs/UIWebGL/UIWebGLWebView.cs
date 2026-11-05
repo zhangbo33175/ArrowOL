@@ -81,7 +81,7 @@ namespace Honor.Runtime
         /// 初始加载 URL
         /// </summary>
         [Tooltip("初始加载的网页地址")]
-        [GameTitle("Initial Url")]
+        [HonorTitle("Initial Url")]
         public string InitialUrl;
 
         /// <summary>

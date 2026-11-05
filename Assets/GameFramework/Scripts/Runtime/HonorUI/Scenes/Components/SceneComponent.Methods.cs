@@ -34,7 +34,7 @@ namespace Honor.Runtime
     /// 场景管理组件（分部类 - 定义部分）
     /// 负责场景加载、卸载、管理、相机控制、场景对象清理
     /// </summary>
-    public sealed partial class SceneComponent : GameComponent
+    public sealed partial class SceneComponent : HonorComponent
     {
         // 该文件仅用于委托声明与分部类定义
         // 实现逻辑位于主文件 SceneComponent.cs

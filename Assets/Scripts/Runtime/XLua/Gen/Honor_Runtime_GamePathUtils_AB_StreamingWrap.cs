@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsABStreamingWrap 
+    public class HonorRuntimeHonorPathUtilsABStreamingWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.AB.Streaming);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.AB.Streaming);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -47,7 +47,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.AB.Streaming does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.AB.Streaming does not have a constructor!");
         }
         
 		
@@ -70,7 +70,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _platformName = LuaAPI.lua_tostring(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Streaming.GetRootDirectoryFullPath( _platformName );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Streaming.GetRootDirectoryFullPath( _platformName );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -80,7 +80,7 @@ namespace XLua.CSObjectWrap
                 if(gen_param_count == 0) 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Streaming.GetRootDirectoryFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Streaming.GetRootDirectoryFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -92,7 +92,7 @@ namespace XLua.CSObjectWrap
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.GamePathUtils.AB.Streaming.GetRootDirectoryFullPath!");
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.HonorPathUtils.AB.Streaming.GetRootDirectoryFullPath!");
             
         }
         
@@ -106,7 +106,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Streaming.GetVersionFileFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Streaming.GetVersionFileFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -131,7 +131,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _formatPath = LuaAPI.lua_tostring(L, 1);
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.AB.Streaming.GetFileFullPath( _formatPath );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.AB.Streaming.GetFileFullPath( _formatPath );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

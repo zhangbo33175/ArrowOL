@@ -297,7 +297,7 @@ namespace Honor.Runtime
                         ["progress"] = progress,
                         ["descContent"] = stepDesc
                     };
-                    HonorCoreManager.Instance.FireNow(this, GameEventCmd.LoadProgress, progressData);
+                    HonorCoreManager.Instance.FireNow(this, HonorEventCmd.LoadProgress, progressData);
                 }
             }
 

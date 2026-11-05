@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Editor
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -71,7 +71,7 @@ namespace Honor.Editor
         private SerializedProperty m_NeverSleep;
 
         /// <summary>当前 Lua 调试模式（运行时内存值，非序列化）</summary>
-        private GameDefinitions.DebugMode m_LuaDebugMode;
+        private HonorDefinitions.DebugMode m_LuaDebugMode;
 
         /// <summary>是否自定义硬件性能分级</summary>
         private SerializedProperty m_CustomDevicePerformance;
@@ -116,7 +116,7 @@ namespace Honor.Editor
             m_RunInBackground                  = BindProperty("m_RunInBackground");
             m_NeverSleep                       = BindProperty("m_NeverSleep");
 
-            m_LuaDebugMode = GameDefinitions.DebugMode.None;
+            m_LuaDebugMode = HonorDefinitions.DebugMode.None;
             ReadLuaDebugModeFromLibraryConfigFile();
 
             m_CustomDevicePerformance = BindProperty("m_CustomDevicePerformance");
@@ -176,11 +176,11 @@ namespace Honor.Editor
                 EditorGUILayout.HelpBox("仅编辑器资源模式下生效，不实际下载热更文件", MessageType.Info);
 
                 // 语言设置
-                string[] langList = Enum.GetNames(typeof(GameDefinitions.Language));
+                string[] langList = Enum.GetNames(typeof(HonorDefinitions.Language));
                 if (Application.isPlaying)
                 {
-                    string langName = ((GameDefinitions.Language)m_EditorLanguage.enumValueIndex).ToString();
-                    EditorGUILayout.LabelField("编辑器启动语言", $"{langName}({GameDefinitions.LanguageDesc[m_EditorLanguage.enumValueIndex]})");
+                    string langName = ((HonorDefinitions.Language)m_EditorLanguage.enumValueIndex).ToString();
+                    EditorGUILayout.LabelField("编辑器启动语言", $"{langName}({HonorDefinitions.LanguageDesc[m_EditorLanguage.enumValueIndex]})");
                 }
                 else
                 {
@@ -270,14 +270,14 @@ namespace Honor.Editor
             if (m_LuacMode.boolValue)
             {
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUILayout.EnumPopup("Lua调试", GameDefinitions.DebugMode.None);
+                EditorGUILayout.EnumPopup("Lua调试", HonorDefinitions.DebugMode.None);
                 EditorGUILayout.HelpBox("Luac模式下不可使用调试！", MessageType.Info);
                 EditorGUI.EndDisabledGroup();
-                m_LuaDebugMode = GameDefinitions.DebugMode.None;
+                m_LuaDebugMode = HonorDefinitions.DebugMode.None;
                 return;
             }
 
-            GameDefinitions.DebugMode newDebugMode = (GameDefinitions.DebugMode)EditorGUILayout.EnumPopup("Lua调试", m_LuaDebugMode);
+            HonorDefinitions.DebugMode newDebugMode = (HonorDefinitions.DebugMode)EditorGUILayout.EnumPopup("Lua调试", m_LuaDebugMode);
             EditorGUILayout.HelpBox("None=关闭 | IDE First=调试器优先 | Unity First=Unity优先", MessageType.Info);
 
             if (newDebugMode == m_LuaDebugMode)
@@ -514,11 +514,11 @@ namespace Honor.Editor
         /// <summary>从文件读取Lua调试模式</summary>
         private void ReadLuaDebugModeFromLibraryConfigFile()
         {
-            string configPath = GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath();
+            string configPath = HonorPathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath();
             if (File.Exists(configPath))
             {
                 string fileContent = File.ReadAllText(configPath);
-                m_LuaDebugMode = (GameDefinitions.DebugMode)int.Parse(fileContent);
+                m_LuaDebugMode = (HonorDefinitions.DebugMode)int.Parse(fileContent);
             }
             else
             {
@@ -529,7 +529,7 @@ namespace Honor.Editor
         /// <summary>写入Lua调试模式</summary>
         private void WriteDebugModeToLibraryConfigFile()
         {
-            string configPath = GamePathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath();
+            string configPath = HonorPathUtils.IDEDebugger.GetLuaDebugModeLibraryConfigFileFullPath();
             File.WriteAllText(configPath, ((int)m_LuaDebugMode).ToString());
         }
         #endregion

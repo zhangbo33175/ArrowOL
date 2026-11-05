@@ -15,7 +15,7 @@ namespace Honor.Runtime
     /// <summary>
     /// 框架启动器 - 设备性能配置部分
     /// </summary>
-    public sealed partial class LauncherComponent : GameComponent
+    public sealed partial class LauncherComponent : HonorComponent
     {
         /// <summary>
         /// 设备性能配置数据（用于自动检测设备性能等级）

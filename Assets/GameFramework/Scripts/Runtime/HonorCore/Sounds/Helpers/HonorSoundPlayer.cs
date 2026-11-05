@@ -207,11 +207,11 @@ namespace Honor.Runtime
         public HonorSoundPlayer(HonorSoundCategory HonorSoundCategory, HonorSoundManager HonorSoundManager, HonorSoundPlayerHelper HonorSoundPlayerHelper)
         {
             if (HonorSoundCategory == null)
-                throw new GameException("Sound group 无效。");
+                throw new HonorException("Sound group 无效。");
             if (HonorSoundManager == null)
-                throw new GameException("Sound manager 无效。");
+                throw new HonorException("Sound manager 无效。");
             if (HonorSoundPlayerHelper == null)
-                throw new GameException("Sound agent helper 无效。");
+                throw new HonorException("Sound agent helper 无效。");
 
             m_HonorSoundManager = HonorSoundManager;
             m_HonorSoundCategory = HonorSoundCategory;

@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGameExceptionWrap 
+    public class HonorRuntimeHonorExceptionWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GameException);
+			System.Type type = typeof(Honor.Runtime.HonorException);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -51,7 +51,7 @@ namespace XLua.CSObjectWrap
 				if(LuaAPI.lua_gettop(L) == 1)
 				{
 					
-					Honor.Runtime.GameException gen_ret = new Honor.Runtime.GameException();
+					Honor.Runtime.HonorException gen_ret = new Honor.Runtime.HonorException();
 					translator.Push(L, gen_ret);
                     
 					return 1;
@@ -60,7 +60,7 @@ namespace XLua.CSObjectWrap
 				{
 					string _message = LuaAPI.lua_tostring(L, 2);
 					
-					Honor.Runtime.GameException gen_ret = new Honor.Runtime.GameException(_message);
+					Honor.Runtime.HonorException gen_ret = new Honor.Runtime.HonorException(_message);
 					translator.Push(L, gen_ret);
                     
 					return 1;
@@ -70,7 +70,7 @@ namespace XLua.CSObjectWrap
 					string _message = LuaAPI.lua_tostring(L, 2);
 					System.Exception _innerException = (System.Exception)translator.GetObject(L, 3, typeof(System.Exception));
 					
-					Honor.Runtime.GameException gen_ret = new Honor.Runtime.GameException(_message, _innerException);
+					Honor.Runtime.HonorException gen_ret = new Honor.Runtime.HonorException(_message, _innerException);
 					translator.Push(L, gen_ret);
                     
 					return 1;
@@ -80,7 +80,7 @@ namespace XLua.CSObjectWrap
 			catch(System.Exception gen_e) {
 				return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
 			}
-            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.GameException constructor!");
+            return LuaAPI.luaL_error(L, "invalid arguments to Honor.Runtime.HonorException constructor!");
             
         }
         
@@ -102,7 +102,7 @@ namespace XLua.CSObjectWrap
                 {
                     string _message = LuaAPI.lua_tostring(L, 1);
                     
-                    Honor.Runtime.GameException.ThrowLuaException( _message );
+                    Honor.Runtime.HonorException.ThrowLuaException( _message );
                     
                     
                     

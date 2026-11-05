@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsEditorResDefWrap 
+    public class HonorRuntimeHonorPathUtilsEditorResDefWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Editor.ResDef);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Editor.ResDef);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -48,7 +48,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Editor.ResDef does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Editor.ResDef does not have a constructor!");
         }
         
 		
@@ -68,7 +68,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ResDef.GetResDefLuaFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ResDef.GetResDefLuaFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -92,7 +92,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.ResDef.GetResDefExportWindowsSettingsFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     
@@ -114,7 +114,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
             
-			    LuaAPI.lua_pushstring(L, Honor.Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath);
+			    LuaAPI.lua_pushstring(L, Honor.Runtime.HonorPathUtils.Editor.ResDef.LuaFolderPath);
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
@@ -128,7 +128,7 @@ namespace XLua.CSObjectWrap
         {
 		    try {
                 
-			    Honor.Runtime.GamePathUtils.Editor.ResDef.LuaFolderPath = LuaAPI.lua_tostring(L, 1);
+			    Honor.Runtime.HonorPathUtils.Editor.ResDef.LuaFolderPath = LuaAPI.lua_tostring(L, 1);
             
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);

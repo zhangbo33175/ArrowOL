@@ -1,4 +1,4 @@
-﻿/***************************************************************
+/***************************************************************
  * (c) copyright 2026 - 2030, Honor.Runtime
  * All Rights Reserved.
  * -------------------------------------------------------------
@@ -28,37 +28,37 @@ namespace Honor.Runtime
         #region 序列化字段（Inspector 配置）
         //=========================================================================
 
-        [GameHeader("网格配置")]
-        [GameTitle("网格原点 (GridOrigin)")]
+        [HonorHeader("网格配置")]
+        [HonorTitle("网格原点 (GridOrigin)")]
         [Tooltip("网格在世界空间下的原始点。")]
         public Transform GridOrigin;
 
-        [GameTitle("格子尺寸 (GridUnitSize)")]
+        [HonorTitle("格子尺寸 (GridUnitSize)")]
         [Tooltip("网格区域中每个格子的尺寸大小（与地图编辑器 GridSize=32px 对齐）。")]
         public float GridUnitSize = 32f;
 
-        [GameHeader("调试配置")]
-        [GameTitle("绘制调试网格 (DrawDebugGrid)")]
+        [HonorHeader("调试配置")]
+        [HonorTitle("绘制调试网格 (DrawDebugGrid)")]
         [Tooltip("作为是否绘制调试网格的总开关。")]
         public bool DrawDebugGrid = true;
 
-        [GameTitle("2D/3D模式 (DebugDrawMode)")]
-        [GameCondition("DrawDebugGrid", true)]
+        [HonorTitle("2D/3D模式 (DebugDrawMode)")]
+        [HonorCondition("DrawDebugGrid", true)]
         [Tooltip("以2D/3D的哪一种空间维度来绘制网格信息。")]
-        public GameDefinitions.DimensionMode DebugDrawMode = GameDefinitions.DimensionMode.Two;
+        public HonorDefinitions.DimensionMode DebugDrawMode = HonorDefinitions.DimensionMode.Two;
 
-        [GameTitle("网格数量 (DebugGridSize)")]
-        [GameCondition("DrawDebugGrid", true)]
+        [HonorTitle("网格数量 (DebugGridSize)")]
+        [HonorCondition("DrawDebugGrid", true)]
         [Tooltip("宽 = 网格数量 X 2，高 = 网格数量 X 2。")]
         public int DebugGridSize = 30;
 
-        [GameTitle("网格线颜色 (CellBorderColor)")]
-        [GameCondition("DrawDebugGrid", true)]
+        [HonorTitle("网格线颜色 (CellBorderColor)")]
+        [HonorCondition("DrawDebugGrid", true)]
         [Tooltip("网格绘制用到的网格线颜色。")]
         public Color CellBorderColor = new Color(60f, 221f, 255f, 1f);
 
-        [GameTitle("网格填充颜色 (InnerColor)")]
-        [GameCondition("DrawDebugGrid", true)]
+        [HonorTitle("网格填充颜色 (InnerColor)")]
+        [HonorCondition("DrawDebugGrid", true)]
         [Tooltip("网格绘制用到的网格填充色。")]
         public Color InnerColor = new Color(60f, 221f, 255f, 0.3f);
 
@@ -334,7 +334,7 @@ namespace Honor.Runtime
         {
             Gizmos.color = CellBorderColor;
 
-            if (DebugDrawMode == GameDefinitions.DimensionMode.Three)
+            if (DebugDrawMode == HonorDefinitions.DimensionMode.Three)
             {
                 Draw3DDebugGrid();
             }

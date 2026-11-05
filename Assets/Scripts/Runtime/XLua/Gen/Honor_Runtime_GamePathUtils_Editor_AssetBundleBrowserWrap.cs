@@ -1,4 +1,4 @@
-﻿#if USE_UNI_LUA
+#if USE_UNI_LUA
 using LuaAPI = UniLua.Lua;
 using RealStatePtr = UniLua.ILuaState;
 using LuaCSFunction = UniLua.CSharpFunctionDelegate;
@@ -15,12 +15,12 @@ using System.Collections.Generic;
 namespace XLua.CSObjectWrap
 {
     using Utils = XLua.Utils;
-    public class HonorRuntimeGamePathUtilsEditorAssetBundleBrowserWrap 
+    public class HonorRuntimeHonorPathUtilsEditorAssetBundleBrowserWrap 
     {
         public static void __Register(RealStatePtr L)
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
-			System.Type type = typeof(Honor.Runtime.GamePathUtils.Editor.AssetBundleBrowser);
+			System.Type type = typeof(Honor.Runtime.HonorPathUtils.Editor.AssetBundleBrowser);
 			Utils.BeginObjectRegister(type, L, translator, 0, 0, 0, 0);
 			
 			
@@ -45,7 +45,7 @@ namespace XLua.CSObjectWrap
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int __CreateInstance(RealStatePtr L)
         {
-            return LuaAPI.luaL_error(L, "Honor.Runtime.GamePathUtils.Editor.AssetBundleBrowser does not have a constructor!");
+            return LuaAPI.luaL_error(L, "Honor.Runtime.HonorPathUtils.Editor.AssetBundleBrowser does not have a constructor!");
         }
         
 		
@@ -65,7 +65,7 @@ namespace XLua.CSObjectWrap
                 
                 {
                     
-                        string gen_ret = Honor.Runtime.GamePathUtils.Editor.AssetBundleBrowser.GetAssetBundleBrowserEditorWindowsSettingsFullPath(  );
+                        string gen_ret = Honor.Runtime.HonorPathUtils.Editor.AssetBundleBrowser.GetAssetBundleBrowserEditorWindowsSettingsFullPath(  );
                         LuaAPI.lua_pushstring(L, gen_ret);
                     
                     

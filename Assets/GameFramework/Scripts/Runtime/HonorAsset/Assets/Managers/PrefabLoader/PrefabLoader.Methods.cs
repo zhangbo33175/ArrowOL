@@ -175,7 +175,7 @@ namespace Honor.Runtime
                     {
                         callbackList[i](prefabObj, go);
                     }
-                    catch (GameException e)
+                    catch (HonorException e)
                     {
                         Log.Error(e);
                     }
