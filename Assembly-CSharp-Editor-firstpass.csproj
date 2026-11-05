@@ -13,7 +13,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{5e87d9f5-096c-92b6-5e6e-186c46a7506a}</ProjectGuid>
+    <ProjectGuid>{878f8efa-e291-7fd9-a083-4285f7a71d23}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -350,61 +350,61 @@
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.YamlDotNet">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll</HintPath>
     </Reference>
     <Reference Include="ReportGeneratorMerged">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.testtools.codecoverage@1.2.4\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Plastic.Antlr3.Runtime">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Plastic.Newtonsoft.Json">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTween.dll</HintPath>
     </Reference>
     <Reference Include="log4netPlastic">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.IonicZip">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll</HintPath>
     </Reference>
     <Reference Include="DOTween46">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween46.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTween46.dll</HintPath>
     </Reference>
     <Reference Include="DOTweenPro">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTweenPro.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTweenPro.dll</HintPath>
     </Reference>
     <Reference Include="DOTween43">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween43.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTween43.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.TextureAssets">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.visualscripting@1.9.0\Editor\VisualScripting.Core\EditorAssetResources\Unity.VisualScripting.TextureAssets.dll</HintPath>
     </Reference>
     <Reference Include="unityplastic">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.collab-proxy@2.0.7\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\ExcelIO\EPPlus.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\ThirdLibs\ExcelIO\EPPlus.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Android.Types">
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
@@ -793,127 +793,127 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{492c17fc-11a4-ffe4-be9f-62ff0c0a4672}</Project>
+      <Project>{4a181835-d414-6495-b099-90935ccedf76}</Project>
       <Name>Assembly-CSharp-firstpass</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.TestRunner.csproj">
-      <Project>{0c95e8d0-31e9-ab36-7adb-788cad72513a}</Project>
+      <Project>{4a1c3c44-e3f6-99be-f5ed-679eee351ed0}</Project>
       <Name>UnityEngine.TestRunner</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.TestRunner.csproj">
-      <Project>{5c0b52b2-493a-bd1b-e380-0dd6fe4b6e12}</Project>
+      <Project>{fdd676be-bf83-b68e-cf46-a0012d25a054}</Project>
       <Name>UnityEditor.TestRunner</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Timeline.csproj">
-      <Project>{4dc975e5-d2f0-fc03-2a43-f80f251427eb}</Project>
+      <Project>{bca455f4-92cd-989c-8f91-c635d9f8775e}</Project>
       <Name>Unity.Timeline</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.csproj">
-      <Project>{180dd098-aa9e-811e-2979-44999aff5477}</Project>
+      <Project>{95991170-89aa-ad62-db99-643bdf7c7ef8}</Project>
       <Name>Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.csproj">
-      <Project>{9fdbeff2-7e1e-b609-e080-230d52450256}</Project>
+      <Project>{6464127f-7aa0-c5a1-a987-8366e318da5d}</Project>
       <Name>UnityEngine.UI</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.EditorCoroutines.Editor.csproj">
-      <Project>{4fa79e93-d6e3-8a7b-f685-6bfd2141366d}</Project>
+      <Project>{d9d5028c-25fb-9729-66f9-7bf315a71b64}</Project>
       <Name>Unity.EditorCoroutines.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.SettingsProvider.Editor.csproj">
-      <Project>{e8349f6e-ffdd-a0da-641f-9c2e34de4412}</Project>
+      <Project>{f2bf947e-2cad-a65e-16d0-499e54112427}</Project>
       <Name>Unity.VisualScripting.SettingsProvider.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Performance.Profile-Analyzer.Editor.csproj">
-      <Project>{928dad3e-776b-deb2-b85c-ca83d58bf1b4}</Project>
+      <Project>{a5bcd4ef-9888-a66e-3f65-2f845a8325aa}</Project>
       <Name>Unity.Performance.Profile-Analyzer.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TestTools.CodeCoverage.Editor.csproj">
-      <Project>{2c63f865-c36e-e186-ab6c-19af906e863c}</Project>
+      <Project>{32013489-3948-7d4a-2929-2ca8ec821e6e}</Project>
       <Name>Unity.TestTools.CodeCoverage.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TestTools.CodeCoverage.Editor.OpenCover.Model.csproj">
-      <Project>{6855a6de-449d-07a9-63f0-9bf92c0c9ea4}</Project>
+      <Project>{0ac97061-b1d3-a6f5-2056-b35ac316b8b0}</Project>
       <Name>Unity.TestTools.CodeCoverage.Editor.OpenCover.Model</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.PlasticSCM.Editor.csproj">
-      <Project>{488303e2-8bf8-4603-d8ed-4f2973f41e30}</Project>
+      <Project>{5ba04714-7485-68e4-ef0a-f9c6f21bbf2e}</Project>
       <Name>Unity.PlasticSCM.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="BestHTTP.csproj">
-      <Project>{79d2d7fc-f452-5e1c-134b-477393744e66}</Project>
+      <Project>{16077c1a-a7b6-6d9c-b7fb-e8d33d7d6e51}</Project>
       <Name>BestHTTP</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity-editor.csproj">
-      <Project>{e2bb75f8-67d6-51a2-5a08-8b273d4dead4}</Project>
+      <Project>{fc984507-4533-c736-c14b-44d75a476e04}</Project>
       <Name>spine-unity-editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.State.Editor.csproj">
-      <Project>{774c6cba-9444-c49a-2f9d-8aeb2b040ef7}</Project>
+      <Project>{3a803ad3-50ad-c397-be80-17a8e254491f}</Project>
       <Name>Unity.VisualScripting.State.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Timeline.Editor.csproj">
-      <Project>{86b10bdf-af23-642f-ebf9-c1317450047f}</Project>
+      <Project>{97dac845-69ac-d6bc-3bd9-612295b63d5d}</Project>
       <Name>Unity.Timeline.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Shared.Editor.csproj">
-      <Project>{f41b8db3-9520-6c99-5fc0-62ad9fe931ce}</Project>
+      <Project>{8adaf9aa-a598-2af1-1f8c-6713cbeeb372}</Project>
       <Name>Unity.VisualScripting.Shared.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualStudio.Editor.csproj">
-      <Project>{fbc03c8a-e8d9-ceb0-8d67-c74d9c5217a9}</Project>
+      <Project>{e78e74e3-efe2-156f-76c7-5770b2dd704f}</Project>
       <Name>Unity.VisualStudio.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TextMeshPro.csproj">
-      <Project>{55d76c80-cfe1-4ecb-c670-485e674b5782}</Project>
+      <Project>{54597750-7675-7d0b-f4df-45543dda122c}</Project>
       <Name>Unity.TextMeshPro</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Core.csproj">
-      <Project>{72ac87da-94b6-83c6-0ef5-0d20c84be277}</Project>
+      <Project>{6661ff09-af3f-5eea-fbe8-27179a190ed2}</Project>
       <Name>Unity.VisualScripting.Core</Name>
     </ProjectReference>
     <ProjectReference Include="spine-csharp.csproj">
-      <Project>{199d7732-d760-7a3e-e4d1-196ef778cc60}</Project>
+      <Project>{801cf696-37e2-14a5-9062-e465cc4c60a5}</Project>
       <Name>spine-csharp</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.UI.csproj">
-      <Project>{b30160a7-59e1-f22b-bc94-bb2a8bd9b69d}</Project>
+      <Project>{be348bd6-e4d9-22dc-460b-53c62c52c338}</Project>
       <Name>UnityEditor.UI</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Core.Editor.csproj">
-      <Project>{d8763632-1d7b-8d8d-5d87-f8156703236e}</Project>
+      <Project>{f01536b3-8ac8-78d6-61a2-e0498c17a709}</Project>
       <Name>Unity.VisualScripting.Core.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Rider.Editor.csproj">
-      <Project>{2633cf5e-0be4-c4a9-d0c2-295648a7f816}</Project>
+      <Project>{2ad3b7e4-9688-afba-5902-77f96b0d4f4a}</Project>
       <Name>Unity.Rider.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
-      <Project>{20de6ffc-a896-b2e0-d669-e7f2e88d2686}</Project>
+      <Project>{e30d4654-f984-9671-89c0-71b28ac80843}</Project>
       <Name>Unity.TextMeshPro.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.State.csproj">
-      <Project>{ce3ecad4-5f1e-2fd4-83cb-624cd51d3859}</Project>
+      <Project>{3abd1ef3-2afd-2587-638a-cfd60597d0af}</Project>
       <Name>Unity.VisualScripting.State</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VSCode.Editor.csproj">
-      <Project>{5023e214-6625-2d31-2774-75032c72385a}</Project>
+      <Project>{8f472baf-5add-b2cb-ca9c-7874783a1501}</Project>
       <Name>Unity.VSCode.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.2D.Sprite.Editor.csproj">
-      <Project>{c891aaea-4642-770b-9630-bcc0fc5a6ebb}</Project>
+      <Project>{f8226599-50b9-9a98-b596-f5e910bad5d6}</Project>
       <Name>Unity.2D.Sprite.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity.csproj">
-      <Project>{89d32300-404e-70d8-ac00-382363c875ba}</Project>
+      <Project>{6a7daa43-bb5a-52b0-1d59-28086c4dd3a6}</Project>
       <Name>spine-unity</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Flow.csproj">
-      <Project>{c8da4017-7e24-3720-c772-f6b278e6acbc}</Project>
+      <Project>{b266f9b7-967f-06b8-1477-2a916866dd8f}</Project>
       <Name>Unity.VisualScripting.Flow</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Flow.Editor.csproj">
-      <Project>{905fabce-bd05-6d2f-5bd7-52fe6f22c77d}</Project>
+      <Project>{3d57d897-cc50-1375-6087-643f5032b407}</Project>
       <Name>Unity.VisualScripting.Flow.Editor</Name>
     </ProjectReference>
   </ItemGroup>

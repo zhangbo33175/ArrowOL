@@ -13,7 +13,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{b2da3f0e-e63b-f44b-1aa2-15f316c9315c}</ProjectGuid>
+    <ProjectGuid>{f3f1837e-337b-0082-e87a-edcfd29ffda2}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -578,31 +578,31 @@
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\Variations\mono\Managed\UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTween.dll</HintPath>
     </Reference>
     <Reference Include="DOTween46">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween46.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTween46.dll</HintPath>
     </Reference>
     <Reference Include="DOTweenPro">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTweenPro.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTweenPro.dll</HintPath>
     </Reference>
     <Reference Include="DOTween43">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\DOTween43.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\DOTween43.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Library\PackageCache\com.unity.visualscripting@1.9.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\ThirdLibs\SharpZipLib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream">
-      <HintPath>E:\Game\CatGame\GameCatDevelopment\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
+      <HintPath>E:\Game\CatGame\GameCatMaster\Assets\Plugins\ThirdLibs\ExcelIO\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>E:\Unity\Unity 2022.3.8f1\Editor\Data\NetStandard\ref\2.1.0\netstandard.dll</HintPath>
@@ -973,39 +973,39 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Unity.Timeline.Player.csproj">
-      <Project>{9c78d477-3117-9aea-2c4b-2e5b0439c2ee}</Project>
+      <Project>{a8d26968-34a9-1452-92f2-aaf2fc6965a5}</Project>
       <Name>Unity.Timeline.Player</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.Player.csproj">
-      <Project>{d646b5c2-9a0c-4ae9-cc33-2f46e0996d0e}</Project>
+      <Project>{6f55517a-4aa2-284a-9989-c9b9f5de8095}</Project>
       <Name>UnityEngine.UI.Player</Name>
     </ProjectReference>
     <ProjectReference Include="BestHTTP.Player.csproj">
-      <Project>{a9c8b0a7-2f7b-1b41-1c90-958b9cb5f58e}</Project>
+      <Project>{b4226f0f-a32c-af51-c657-0cb56ef245c9}</Project>
       <Name>BestHTTP.Player</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TextMeshPro.Player.csproj">
-      <Project>{52f00975-5d0a-15e0-51f9-f6bcdd54da8f}</Project>
+      <Project>{d5f09fb4-a1f0-5455-9654-5369721c6d90}</Project>
       <Name>Unity.TextMeshPro.Player</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Core.Player.csproj">
-      <Project>{3e6a5ed2-2d1c-55b7-d02d-0b9b404f8088}</Project>
+      <Project>{7dae50d4-c66a-6732-615b-cbe074fb6b2b}</Project>
       <Name>Unity.VisualScripting.Core.Player</Name>
     </ProjectReference>
     <ProjectReference Include="spine-csharp.Player.csproj">
-      <Project>{f04a0b9a-69a6-cc22-6d12-2b92f4955df7}</Project>
+      <Project>{173807ff-0705-638d-4e13-38004e508f34}</Project>
       <Name>spine-csharp.Player</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.State.Player.csproj">
-      <Project>{f92e93ca-5b56-31dc-91cc-25f9900e1b47}</Project>
+      <Project>{730c5a6a-7f9b-a6eb-7882-40a0e29c0b5d}</Project>
       <Name>Unity.VisualScripting.State.Player</Name>
     </ProjectReference>
     <ProjectReference Include="spine-unity.Player.csproj">
-      <Project>{e77a1a4b-fcc4-0879-631a-d888822f8c04}</Project>
+      <Project>{52f1e53c-6036-8f82-ab89-0d81578ceed0}</Project>
       <Name>spine-unity.Player</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.VisualScripting.Flow.Player.csproj">
-      <Project>{17d829f6-ee05-8791-2fec-9c161d6eba92}</Project>
+      <Project>{2196cbc4-10e3-c1ac-f2c5-3230f7480f0b}</Project>
       <Name>Unity.VisualScripting.Flow.Player</Name>
     </ProjectReference>
   </ItemGroup>
