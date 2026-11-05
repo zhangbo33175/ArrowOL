@@ -13,7 +13,7 @@
 ---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/作用/定位/核心/适用 注释块（纯注释，逻辑无影响）
 
 --region 全局对象池管理助手（顶层管理器）
----@class HonorPoolHelper 全局对象池管理助手（顶层管理器）
+---@class HonorPoolHelper @全局对象池管理助手（顶层管理器）
 ---@field pools table<string, HonorPool> 所有对象池字典：key=唯一池名称，value=HonorPool 实例
 local HonorPoolHelper = class("HonorPoolHelper")
 

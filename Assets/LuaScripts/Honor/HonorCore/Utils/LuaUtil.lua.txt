@@ -11,7 +11,7 @@
 -- @dependency xlua CS 全局类型, rapidjson, Honor.AESEncrypt
 --=====================================================================================================
 
----@class LuaUtil @ Lua 通用工具表（纯函数，无实例状态）
+---@class LuaUtil @Lua 通用工具表（纯函数，无实例状态）
 local LuaUtil = {}
 
 --region Lua <-> C# 转换

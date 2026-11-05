@@ -11,7 +11,7 @@
 -- @dependency Spine, DG.Tweening, 同域 CoUtil（SafeInvoke）, 同域 UnityUtil（空判断）
 --=====================================================================================================
 
----@class SpineUtil @ Spine 动画工具表（纯函数，无实例状态）
+---@class SpineUtil @Spine 动画工具表（纯函数，无实例状态）
 local SpineUtil = {}
 
 --region 依赖引入

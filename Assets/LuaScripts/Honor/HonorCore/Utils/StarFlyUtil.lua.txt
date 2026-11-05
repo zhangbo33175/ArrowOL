@@ -11,7 +11,7 @@
 -- @dependency RGame.StarFly, DG.Tweening, ECustomTweenID, AllOpenUI/UIs/OpenUISync, UnityUtil（同域）；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
----@class StarFlyUtil @ 飞星/贝塞尔动画工具表：飞星界面打开与贝塞尔飞行动画
+---@class StarFlyUtil @飞星/贝塞尔动画工具表：飞星界面打开与贝塞尔飞行动画
 local StarFlyUtil = {}
 
 --region 依赖引入

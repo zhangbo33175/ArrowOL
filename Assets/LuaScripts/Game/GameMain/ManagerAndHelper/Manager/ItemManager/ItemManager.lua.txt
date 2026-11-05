@@ -17,11 +17,11 @@
 ---@field oldNum number
 ---@field newNum number
 
----@class BoosterUnlockLevelConfig : table @ 道具解锁关卡
+---@class BoosterUnlockLevelConfig : table @道具解锁关卡
 ---@field ChapterID  number 章节ID
 ---@field LevelID number 关卡ID
 
----@class BoosterModifyParam : table @ 道具数量变化事件参数
+---@class BoosterModifyParam : table @道具数量变化事件参数
 ---@field ID string 道具ID
 ---@field oldNum number 变化前
 ---@field newNum number 变化后

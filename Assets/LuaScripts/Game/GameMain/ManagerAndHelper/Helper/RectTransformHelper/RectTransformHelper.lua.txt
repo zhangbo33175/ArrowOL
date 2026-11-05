@@ -12,7 +12,7 @@
 -- @dependency Singleton, GlobalUtility
 --=====================================================================================================
 
----@class RectTransformHelper RectTransform 工具类：封装 UGUI 常用操作（纯工具方法，由 GameRequires 实例化为全局）
+---@class RectTransformHelper @RectTransform 工具类：封装 UGUI 常用操作（纯工具方法，由 GameRequires 实例化为全局）
 local RectTransformHelper = class("RectTransformHelper")
 
 --region 构造 & 实例化

@@ -14,7 +14,7 @@
 -- @dependency DataCenter, GameEntry
 --=====================================================================================================
 
----@class LoginData 登录数据模块
+---@class LoginData @登录数据模块
 local LoginData = class("LoginData")
 
 --region 【构造 & 实例化】

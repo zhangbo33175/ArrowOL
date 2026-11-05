@@ -15,7 +15,7 @@
 --region 通用栈容器（LIFO 后进先出）
 local TableUtil = require("TableUtil")
 
----@class HonorStack 通用栈容器（LIFO 后进先出）
+---@class HonorStack @通用栈容器（LIFO 后进先出）
 ---@field items table 内部存储元素的数组
 local HonorStack = class("HonorStack")
 

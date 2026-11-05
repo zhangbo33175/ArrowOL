@@ -12,7 +12,7 @@
 -- @note  单例实例由业务层 GameRequires 创建（全局 SingletonManager），本类不重复持有实例，避免类/实例引用陷阱。
 --=====================================================================================================
 
----@class HonorCoreManager 核心管理器（全局唯一，核心能力统一入口）
+---@class HonorCoreManager @核心管理器（全局唯一，核心能力统一入口）
 ---@desc 业务层通过全局 HonorCoreManager.Tools.XXX 集中访问框架核心工具
 HonorCoreManager = {}
 

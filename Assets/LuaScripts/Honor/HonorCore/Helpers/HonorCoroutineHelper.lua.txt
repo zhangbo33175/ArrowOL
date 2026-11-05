@@ -14,12 +14,12 @@
 --=====================================================================================================
 
 --region 协程管理助手
----@class CoroutineWaitHelper @ 等待对象缓存池（减少GC）
+---@class CoroutineWaitHelper @等待对象缓存池（减少GC）
 ---@field waitForSeconds table @ 普通等待缓存（按毫秒索引的 WaitForSeconds 复用队列）
 ---@field WaitForSecondsRealtime table @ 真实时间等待缓存（按毫秒索引的 WaitForSecondsRealtime 复用队列）
 local CoroutineWaitHelper = class("CoroutineWaitHelper")
 
----@class HonorCoroutineHelper @ 协程管理助手
+---@class HonorCoroutineHelper @协程管理助手
 ---@field _util table @ xlua SystemUtil 协程工具
 ---@field _coroutines table[] @ 协程列表：{target, coroutine}
 ---@field waitForEndOfFrame userdata @ 等待帧末句柄

@@ -16,7 +16,7 @@
 --region 全局统一时间轴管理助手
 local TimeUtils = require("TimeUtil")
 
----@class HonorTimerHelper @ 全局统一时间轴管理助手
+---@class HonorTimerHelper @全局统一时间轴管理助手
 ---@field _mainUTC0TimeStamp number @ 当前 UTC0 时间戳
 ---@field _mainLocalTimeStamp number @ 当前本地时间戳
 ---@field _deltaTimerNodes table[] @ 周期性定时任务列表

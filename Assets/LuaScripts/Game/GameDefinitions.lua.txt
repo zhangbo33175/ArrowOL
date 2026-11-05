@@ -152,7 +152,7 @@ EUITaskOpenSource = {
 
 --region 主界面推送枚举
 
----@class EGameMainUIPUshRunningType @ 工作类型，值既是Type也是优先级数值
+---@class EGameMainUIPUshRunningType @工作类型，值既是Type也是优先级数值
 ---@field OnUIMainHudOpen string @ 主界面打开
 ---@field OnEnterMainState string @ 游戏状态机切换到MainState
 ---@field OnInsertUITask string @ 自动弹出一个UI

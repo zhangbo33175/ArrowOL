@@ -14,7 +14,7 @@
 -- @dependency GameStateBase, SoundManager, OpenUISync/CloseUI
 --=====================================================================================================
 
----@class GameLoginState : GameStateBase 游戏登录状态
+---@class GameLoginState : GameStateBase @游戏登录状态
 local GameLoginState = class('GameLoginState', import('GameStateBase'))
 
 --region 【构造 & 实例化】

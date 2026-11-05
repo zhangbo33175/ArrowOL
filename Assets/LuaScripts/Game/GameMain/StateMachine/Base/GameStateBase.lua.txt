@@ -14,7 +14,7 @@
 -- @dependency GameStateCmd, SafeCallFinish
 --=====================================================================================================
 
----@class GameStateBase 游戏业务状态基类（所有状态的父类）
+---@class GameStateBase @游戏业务状态基类（所有状态的父类）
 ---@field _stateType GameStateCmd @当前状态类型枚举
 local GameStateBase = class('GameStateBase')
 

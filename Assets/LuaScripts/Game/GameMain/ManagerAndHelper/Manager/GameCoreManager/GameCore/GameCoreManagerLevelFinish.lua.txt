@@ -12,12 +12,12 @@
 -- @dependency Singleton, LevelCoreManager, ItemManager, EventManager, CoroutineHelper, UIManager, UIStackManager
 --=====================================================================================================
 
----@class GameVictorySettlementStep @ 胜利结算扩展步骤
+---@class GameVictorySettlementStep @胜利结算扩展步骤
 ---@field completeSign boolean 步骤完成标记
 ---@field ComleteSignGetter function 获取步骤完成状态的委托
 ---@field Execute function 步骤执行逻辑
 
----@class GameCoreManagerLevelFinish @ 关卡结束核心管理器
+---@class GameCoreManagerLevelFinish @关卡结束核心管理器
 local GameCoreManagerLevelFinish = class("GameCoreManagerLevelFinish")
 
 --region 构造 & 初始化

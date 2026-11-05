@@ -14,7 +14,7 @@
 -- @dependency GameEntry, LogSystem, LoginData
 --=====================================================================================================
 
----@class DataCenter 全局数据中心
+---@class DataCenter @全局数据中心
 ---@field loginData LoginData @登录数据模块实例（ctor 中创建）
 local DataCenter = class("DataCenter")
 

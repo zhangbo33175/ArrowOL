@@ -14,7 +14,7 @@
 -- @dependency Singleton, EventManager, GlobalUtility, TableComponent
 --=====================================================================================================
 
----@class EventDataManager : Singleton 活动数据管理器
+---@class EventDataManager : Singleton @活动数据管理器
 local EventDataManager = class("EventDataManager", import("Singleton"))
 
 --region 构造 & 实例化

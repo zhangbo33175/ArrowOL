@@ -14,7 +14,7 @@
 --=====================================================================================================
 
 --region 内购（IAP）管理助手 | 游戏支付统一入口，自动分发官方/第三方支付
----@class HonorIAPHelper @ 内购（IAP）管理助手，游戏支付统一入口，自动分发官方/第三方支付
+---@class HonorIAPHelper @内购（IAP）管理助手，游戏支付统一入口，自动分发官方/第三方支付
 ---@field _buyID number @ 当前正在购买的商品配置表ID
 ---@field _customGoodsListUI table @ 第三方支付商品列表UI实例
 ---@field _customPayUI table @ 第三方支付网页弹窗UI实例

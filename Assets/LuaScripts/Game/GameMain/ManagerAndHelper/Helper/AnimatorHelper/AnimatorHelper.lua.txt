@@ -13,7 +13,7 @@
 -- @dependency Singleton, GlobalUtility, CoroutineHelper
 --=====================================================================================================
 
----@class AnimatorHelper 动画控制器通用工具类（纯工具方法，无状态，由 GameRequires 实例化为全局）
+---@class AnimatorHelper @动画控制器通用工具类（纯工具方法，无状态，由 GameRequires 实例化为全局）
 local AnimatorHelper = class("AnimatorHelper")
 
 --region 构造 & 实例化

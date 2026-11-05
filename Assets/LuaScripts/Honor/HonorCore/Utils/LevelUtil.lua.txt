@@ -11,7 +11,7 @@
 -- @dependency GamerDataMgr（玩家进度）；经 GameFunctions.IsLevelUnlocked 全局包装对外暴露
 --=====================================================================================================
 
----@class LevelUtil @ 关卡解锁工具表：章节/关卡解锁条件判断
+---@class LevelUtil @关卡解锁工具表：章节/关卡解锁条件判断
 local LevelUtil = {}
 
 --region 关卡 / 解锁工具

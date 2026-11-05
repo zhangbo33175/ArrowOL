@@ -13,7 +13,7 @@
 -- @dependency UnityEngine, Unity
 --=====================================================================================================
 
----@class UIUtil @ UI 通用工具表（冒号方法，self=表自身；FindChild/GetComponent 被 FindAndGetComponent 内部复用，GetComponentOf 为公共预留 API）
+---@class UIUtil @UI 通用工具表（冒号方法，self=表自身；FindChild/GetComponent 被 FindAndGetComponent 内部复用，GetComponentOf 为公共预留 API）
 local UIUtil = {}
 
 --region 节点与组件查找

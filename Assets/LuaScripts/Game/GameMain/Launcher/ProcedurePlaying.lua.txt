@@ -14,7 +14,7 @@
 -- @dependency ProcedureBase, GameEntry, EventManager, UIManager, GlobalStateMachine
 --=====================================================================================================
 
----@class ProcedurePlaying : ProcedureSuper 游戏主运行流程
+---@class ProcedurePlaying : ProcedureSuper @游戏主运行流程
 local ProcedurePlaying = class('ProcedurePlaying', import('ProcedureSuper'))
 
 ---@brief 构造本流程事件监听列表

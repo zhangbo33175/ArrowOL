@@ -12,7 +12,7 @@
 -- @dependency Singleton, PoolManager, GlobalUtility, GlobalDefine, UIBubble
 --=====================================================================================================
 
----@class BubbleGenerateConfig : table @ 气泡生成配置
+---@class BubbleGenerateConfig : table @气泡生成配置
 ---@field id number @ 气泡唯一ID
 ---@field key string @ 气泡唯一Key
 ---@field bubbleHost UnityEngine.Transform @ 跟随目标

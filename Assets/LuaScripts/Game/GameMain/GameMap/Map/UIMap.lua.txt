@@ -12,7 +12,7 @@
 -- @dependency UIMapBase, UIBase
 --=====================================================================================================
 
----@class UIMap : UIMapBase 地图界面实例类
+---@class UIMap : UIMapBase @地图界面实例类
 ---@field cs Honor.Runtime.LuaBehaviour LuaBehaviour组件
 local UIMap = class('UIMap', import('UIMapBase'))
 

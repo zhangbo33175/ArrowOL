@@ -13,7 +13,7 @@
 -- @dependency Singleton, EventManager, ItemManager, ProcedureManager, CoroutineHelper, GlobalDefine
 --=====================================================================================================
 
----@class GameCoreManager : Singleton @ 关卡核心管理器：游戏状态、胜负、体力、道具、目标、结束流程总控
+---@class GameCoreManager : Singleton @关卡核心管理器：游戏状态、胜负、体力、道具、目标、结束流程总控
 ---@field _GameCoreManagerWaiter            GameCoreManagerWaiter|nil       指令调度器
 ---@field _GameCoreManagerData              GameCoreManagerData             核心数据模块
 ---@field _GameCoreManagerLevelFinish       GameCoreManagerLevelFinish      关卡结束流程

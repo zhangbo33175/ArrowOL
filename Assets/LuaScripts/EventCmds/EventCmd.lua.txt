@@ -20,7 +20,7 @@
 
 local UniqueEventCode = UniqueEventCode
 
----@class EventCmd 全局事件枚举（全局唯一）
+---@class EventCmd @全局事件枚举（全局唯一）
 EventCmd = {
 
     -- 账号 / 登录相关

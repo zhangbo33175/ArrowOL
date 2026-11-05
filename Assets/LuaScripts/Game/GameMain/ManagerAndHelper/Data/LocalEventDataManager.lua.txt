@@ -14,7 +14,7 @@
 -- @dependency Singleton, GlobalUtility, EventManager
 --=====================================================================================================
 
----@class LocalEventDataManager : Singleton 本地活动数据管理器
+---@class LocalEventDataManager : Singleton @本地活动数据管理器
 local LocalEventDataManager = class("LocalEventDataManager", import("Singleton"))
 
 --region 【构造与生命周期】

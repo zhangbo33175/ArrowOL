@@ -14,7 +14,7 @@
 -- @dependency UIBase, GameEntry, EventManager, TimerComponent, MainUIIconDataSourceManager, GameMapMotionManager, DOTween
 --=====================================================================================================
 
----@class UIMapBase : GameMapBase UI地图基础类
+---@class UIMapBase : GameMapBase @UI地图基础类
 ---@field name string 动画名称
 ---@field delay number 延时
 ---@field _delayCallIds table 延迟调用ID列表（切换地图时需要清理）

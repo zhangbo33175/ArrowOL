@@ -14,7 +14,7 @@
 -- @dependency GameStateBase, GameStateCmd, SafeCallFinish, Try, PrintInfo/Warning/Error
 --=====================================================================================================
 
----@class GameStateMachine 游戏业务状态机（全局唯一）
+---@class GameStateMachine @游戏业务状态机（全局唯一）
 ---@field _stateMap table<GameStateCmd, GameStateBase> @已注册的状态表
 ---@field _currentState GameStateBase|nil @当前正在运行的状态
 ---@field _preState GameStateBase|nil @上一个运行的状态

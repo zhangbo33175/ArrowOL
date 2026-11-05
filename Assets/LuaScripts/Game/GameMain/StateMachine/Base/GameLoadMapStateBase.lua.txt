@@ -14,7 +14,7 @@
 -- @dependency GameStateBase, MapManager, HonorCoroutineHelper, OpenUISync/CloseUI, ChapterListManager, GameCoreManager, GameStateMachine
 --=====================================================================================================
 
----@class GameLoadMapStateBase : GameStateBase 加载地图状态基类
+---@class GameLoadMapStateBase : GameStateBase @加载地图状态基类
 ---@field _WaitFrame GameLib.WaitForFrames @公共帧等待对象
 ---@field _LoadMapView table|nil @加载界面实例（用于进度更新）
 local GameLoadMapStateBase = class('GameLoadMapStateBase', import('GameStateBase'))

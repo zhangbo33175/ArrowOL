@@ -13,7 +13,7 @@
 -- @dependency Singleton, CoroutineHelper, Utility, GlobalUtility
 --=====================================================================================================
 
----@class UITextHelper UI 文本通用工具类（数字滚动动画，纯工具方法）
+---@class UITextHelper @UI 文本通用工具类（数字滚动动画，纯工具方法）
 local UITextHelper = class("UITextHelper")
 
 -- 内部方法前向声明（仅本文件内部调用，见「内部方法·工具」region）

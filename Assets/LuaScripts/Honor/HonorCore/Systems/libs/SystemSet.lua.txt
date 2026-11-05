@@ -14,7 +14,7 @@
 ---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/功能/架构 注释块（纯注释，逻辑无影响）
 
 --region 无序集合（元素唯一、O(1) 增删查）
----@class SystemSet 无序集合（元素唯一、O(1) 增删查）
+---@class SystemSet @无序集合（元素唯一、O(1) 增删查）
 local SystemSet = {}
 SystemSet.__index = SystemSet
 

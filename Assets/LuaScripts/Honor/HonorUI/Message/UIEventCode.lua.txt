@@ -18,7 +18,7 @@
 
 local UniqueEventCode = UniqueEventCode
 
----@class UIEventCode UI 界面事件码（UI 模块内消息，仅保留被引用事件）
+---@class UIEventCode @UI 界面事件码（UI 模块内消息，仅保留被引用事件）
 UIEventCode = {
 
     -- UI 通用事件（关卡主界面开关）

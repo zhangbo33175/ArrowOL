@@ -11,7 +11,7 @@
 -- @dependency SystemApis（table.nums/table.keys 扩展）
 --=====================================================================================================
 
----@class TableUtil @ 表工具表（纯函数，无实例状态）
+---@class TableUtil @表工具表（纯函数，无实例状态）
 local TableUtil = {}
 
 --region 拷贝

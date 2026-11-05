@@ -16,7 +16,7 @@
 --region 多播委托（C# 风格 Delegate）
 local SystemSet = require("SystemSet")
 
----@class SystemDelegate 多播委托（C# 风格 Delegate）
+---@class SystemDelegate @多播委托（C# 风格 Delegate）
 local SystemDelegate = {}
 SystemDelegate.__index = SystemDelegate
 

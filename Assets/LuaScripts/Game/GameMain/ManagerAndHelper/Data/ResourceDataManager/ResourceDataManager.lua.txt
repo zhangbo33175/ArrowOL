@@ -17,7 +17,7 @@
 ---@class ResourceID
 ---@field ID string 道具ID
 
----@class ResourceDataManager : Singleton 资源物品表格数据管理中心
+---@class ResourceDataManager : Singleton @资源物品表格数据管理中心
 ---@field _boosterIDs table<EItemSubType, ResourceID[]> 按子类型缓存的道具ID列表
 ---@field _resources table<EResourceType, ResourceID[]> 按资源类型缓存的道具ID列表
 local ResourceDataManager = class("ResourceDataManager", import("Singleton"))

@@ -11,7 +11,7 @@
 -- @dependency HonorCoroutineHelper, PrintError/PrintDebug 日志全局函数
 --=====================================================================================================
 
----@class CoUtil @ 安全调用与延迟工具表（纯函数，无实例状态）
+---@class CoUtil @安全调用与延迟工具表（纯函数，无实例状态）
 local CoUtil = {}
 
 --region 安全调用 / 延迟工具

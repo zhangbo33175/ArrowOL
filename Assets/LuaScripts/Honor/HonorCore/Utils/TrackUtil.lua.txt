@@ -11,7 +11,7 @@
 -- @dependency ResourceDataManager, AchievementSys, ThinkingAnalyticsHelper, CurrencyMgr, EResourceIDs；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
----@class TrackUtil @ 数据埋点工具表：奖励获取统计上报
+---@class TrackUtil @数据埋点工具表：奖励获取统计上报
 local TrackUtil = {}
 
 --region 埋点 / 统计

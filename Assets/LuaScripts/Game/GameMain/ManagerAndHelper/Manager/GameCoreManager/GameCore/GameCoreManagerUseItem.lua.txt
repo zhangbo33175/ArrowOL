@@ -12,18 +12,18 @@
 -- @dependency Singleton, ItemManager, EffectManager, AudioManager, EventManager, CoroutineHelper
 --=====================================================================================================
 
----@class PropUsedEffectParam          @ 道具使用动效参数
+---@class PropUsedEffectParam @道具使用动效参数
 ---@field duration number               动效持续时间
 
----@class PropUsedFreezeParam          @ 时间冻结道具参数
+---@class PropUsedFreezeParam @时间冻结道具参数
 ---@field duration number               动效持续时间
 ---@field freezeTime number             冻结时间
 
----@class CacheProp                    @ 关卡未就绪时缓存的道具
+---@class CacheProp @关卡未就绪时缓存的道具
 ---@field boosterID string              道具ID
 ---@field num number                   使用数量
 
----@class GameCoreManagerUseItem       @ 道具使用管理器
+---@class GameCoreManagerUseItem @道具使用管理器
 ---@field _isGameWorking boolean        游戏是否正常运行中
 ---@field _cacheWhenLevelNotWorking CacheProp[]  未就绪时缓存的道具列表
 ---@field _cacheEventFunc function[]    事件监听缓存（自动清理）

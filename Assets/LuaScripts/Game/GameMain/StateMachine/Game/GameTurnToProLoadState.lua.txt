@@ -14,7 +14,7 @@
 -- @dependency GameStateBase, GameManager, MapManager, SafeCallFinish
 --=====================================================================================================
 
----@class GameTurnToProLoadState : GameStateBase 切换至预加载流程状态
+---@class GameTurnToProLoadState : GameStateBase @切换至预加载流程状态
 local GameTurnToProLoadState = class('GameTurnToProLoadState', import('GameStateBase'))
 
 --region 【构造 & 实例化】

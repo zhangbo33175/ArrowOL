@@ -11,7 +11,7 @@
 -- @dependency Singleton, PoolManager, CoroutineHelper, GlobalUtility, UIManager
 --=====================================================================================================
 
----@class GameEffectManager : Singleton @ 特效管理器（单例）
+---@class GameEffectManager : Singleton @特效管理器（单例）
 ---@field _efList HonorList @特效对象列表（统一管理&回收）
 ---@field _UIPlayingAnimated UIPlayingAnimated|nil @UI动画控制器缓存（惰性获取）
 local GameEffectManager = class("GameEffectManager", import("Singleton"))

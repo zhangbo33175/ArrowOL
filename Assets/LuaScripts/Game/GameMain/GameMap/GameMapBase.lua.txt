@@ -13,7 +13,7 @@
 -- @dependency LuaBehaviourSuper, GameMapCameraManager, GameMapMotionManager, UIBase, MapManager, GameCoreManager, EasyTouch, GameEffectManager, SoundManager
 --=====================================================================================================
 
----@class GameMapBase : LuaBehaviourSuper 地图基类，所有场景地图父类
+---@class GameMapBase : LuaBehaviourSuper @地图基类，所有场景地图父类
 ---@field Swipe fun(gesture:table)|nil @EasyTouch On_Swipe 滑动手势回调（懒绑定）
 ---@field SwipeEnd fun(gesture:table)|nil @EasyTouch On_UIElementTouchUp 滑动结束回调
 ---@field SimpleTap fun(gesture:table)|nil @EasyTouch On_OverUIElement 点击回调

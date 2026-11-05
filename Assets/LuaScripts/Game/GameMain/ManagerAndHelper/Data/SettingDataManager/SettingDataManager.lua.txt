@@ -14,7 +14,7 @@
 -- @dependency Singleton, GlobalUtility, EventManager, AudioManager, PlayerPrefs
 --=====================================================================================================
 
----@class SettingDataManager : Singleton 设置数值管理器
+---@class SettingDataManager : Singleton @设置数值管理器
 local SettingDataManager = class("SettingDataManager", import("Singleton"))
 
 --region 构造 & 实例化

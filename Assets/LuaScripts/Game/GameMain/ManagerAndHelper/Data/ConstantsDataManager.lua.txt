@@ -14,7 +14,7 @@
 -- @dependency Singleton, GlobalUtility
 --=====================================================================================================
 
----@class ConstantsDataManager : Singleton 全局常量管理器
+---@class ConstantsDataManager : Singleton @全局常量管理器
 local ConstantsDataManager = class("ConstantsDataManager", import("Singleton"))
 
 --region 构造 & 实例化

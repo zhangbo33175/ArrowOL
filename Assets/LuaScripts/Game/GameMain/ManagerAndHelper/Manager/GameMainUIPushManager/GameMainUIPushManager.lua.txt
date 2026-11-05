@@ -11,7 +11,7 @@
 -- @dependency Singleton, EventManager, CoroutineHelper, ProcedureManager, GlobalUtility
 --=====================================================================================================
 
----@class GameMainUIPushConfig @ 弹出任务配置
+---@class GameMainUIPushConfig @弹出任务配置
 ---@field Type number 任务类型
 ---@field SortOrder number 优先级
 ---@field NeedMainHudOpen boolean 需要主界面打开

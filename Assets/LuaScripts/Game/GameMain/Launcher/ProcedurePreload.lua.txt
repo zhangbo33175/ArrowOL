@@ -14,7 +14,7 @@
 -- @dependency ProcedureBase, GameEntry, EventManager, GlobalUtility
 --=====================================================================================================
 
----@class ProcedurePreload : ProcedureSuper 游戏预加载流程（游戏入口状态）
+---@class ProcedurePreload : ProcedureSuper @游戏预加载流程（游戏入口状态）
 local ProcedurePreload = class('ProcedurePreload', import('ProcedureSuper'))
 
 --region 【构造 & 实例化】

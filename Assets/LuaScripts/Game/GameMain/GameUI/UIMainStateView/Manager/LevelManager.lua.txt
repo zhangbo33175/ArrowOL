@@ -14,7 +14,7 @@
 -- @dependency GameEntry, DataCenter, EventManager, UIManager, MapManager, ChapterListManager
 --=====================================================================================================
 
----@class LevelManager : Singleton 关卡管理器（全局单例）
+---@class LevelManager : Singleton @关卡管理器（全局单例）
 local LevelManager = class("LevelManager", import("Singleton"))
 
 --region 【构造与单例】

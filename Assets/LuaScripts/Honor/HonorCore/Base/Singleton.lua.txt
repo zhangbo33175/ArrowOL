@@ -14,7 +14,7 @@
 
 --region 单例基类
 
----@class Singleton 单例基类（所有单例必须继承）
+---@class Singleton @单例基类（所有单例必须继承）
 ---@field __cname string 类名（class 库自动生成）
 local Singleton = class("Singleton")
 

@@ -14,7 +14,7 @@
 -- @dependency Unity, Honor, HonorEventHelper, GameMainRoot
 --=====================================================================================================
 
----@class UIManager UI 事件监听 + UI 生命周期管理器
+---@class UIManager @UI 事件监听 + UI 生命周期管理器
 -- 通用 UI 工具（固定节点查找用）
 local UIUtil = require('UIUtil')
 local UIManager = {}

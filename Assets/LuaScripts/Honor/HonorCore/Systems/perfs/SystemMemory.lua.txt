@@ -30,7 +30,7 @@ local function total()
 end
 
 -- 导出接口（仅兼容旧代码，实际调用都会报错）
----@class LuaMemoryMonitor Lua 内存监控工具（已废弃，仅做兼容保留）
+---@class LuaMemoryMonitor @Lua 内存监控工具（已废弃，仅做兼容保留）
 ---@field snapshot fun() 内存快照（废弃）
 ---@field total fun():number 获取总内存（废弃）
 return {

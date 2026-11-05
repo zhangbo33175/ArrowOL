@@ -182,7 +182,7 @@ local function report(sort_by)
 end
 
 -- 导出接口
----@class XLuaProfiler xLua 性能分析工具（函数耗时统计）
+---@class LuaProfiler @xLua 性能分析工具（函数耗时统计）
 ---@field start fun() 开始统计
 ---@field report fun(sort_by:string|function):string 生成报告
 ---@field stop fun() 停止统计

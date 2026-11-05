@@ -13,7 +13,7 @@
 -- @dependency Singleton, EffectManager, PoolManager, CoroutineHelper, GlobalUtility
 --=====================================================================================================
 
----@class GameCoreManagerEffect @ 关卡内特效管理核心类
+---@class GameCoreManagerEffect @关卡内特效管理核心类
 ---@field _EffectList table 本模块创建的特效对象缓存列表
 local GameCoreManagerEffect = class("GameCoreManagerEffect")
 

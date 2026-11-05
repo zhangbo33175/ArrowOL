@@ -14,7 +14,7 @@
 --=====================================================================================================
 
 --region 全局事件管理助手（发布-订阅模式）
----@class HonorEventHelper @ 全局事件管理助手（发布-订阅模式）
+---@class HonorEventHelper @全局事件管理助手（发布-订阅模式）
 ---@field _targetHandlers table @ 事件回调字典：key=事件名，value=回调函数列表
 ---@field _eventsCallNextFrame table @ 下一帧执行的异步事件队列
 ---@field _csCoroutine userdata @ 异步事件协程句柄

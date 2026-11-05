@@ -14,7 +14,7 @@
 --=====================================================================================================
 
 --region 推送通知管理助手（本地+远程推送统一入口）
----@class HonorNotificationHelper @ 推送通知管理助手（本地+远程推送统一入口）
+---@class HonorNotificationHelper @推送通知管理助手（本地+远程推送统一入口）
 ---@field _nativeNotificationMessageMaxCount number @ 发送通知达上限条数后强制刷新系统推送
 ---@field _nativeNotificationMessageTimeDelta number @ 通知轮询检测间隔（秒）
 ---@field _nativeNotificationMessageCurCount number @ 当前已发送通知计数

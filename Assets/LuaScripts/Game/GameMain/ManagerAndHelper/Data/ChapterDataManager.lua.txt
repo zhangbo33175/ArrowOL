@@ -14,7 +14,7 @@
 -- @dependency Singleton, TableComponent, PlayerDataManager, EventManager, GlobalUtility
 --=====================================================================================================
 
----@class ChapterDataManager : Singleton 章节管理器
+---@class ChapterDataManager : Singleton @章节管理器
 ---@field Levels table|nil 主线关卡配置表（ctor 缓存，兼容旧引用）
 local ChapterDataManager = class("ChapterDataManager", import("Singleton"))
 

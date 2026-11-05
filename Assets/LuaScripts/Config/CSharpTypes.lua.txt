@@ -4,13 +4,26 @@
 @file CSharpTypes.lua.txt
 @brief C# 类型统一索引（消 EmmyLua/Sumneko 红线）
 @TODO 新增类型时按命名空间分组追加
+@note  仅存放 C# / UnityEngine / DG.Tweening / Spine / TMPro / Tables / SaveMsgDef 等外部类型；
+       本地 Lua 类在各自文件中声明，不在此重复
 ]]
+
+--region Honor.Runtime C# 类型
 
 ---@class Honor.Runtime.LuaBehaviour @C# LuaBehaviour 组件基类
 ---@field gameObject UnityEngine.GameObject
 ---@field transform UnityEngine.Transform
 
 ---@class Honor.Runtime.UIType @UI 类型枚举
+
+---@class Honor.Runtime.GameMainRoot @游戏主根节点
+---@field transform UnityEngine.Transform
+
+---@class Honor.Runtime.ProcedureState @流程状态枚举
+
+--endregion
+
+--region GameLib C# 工具类
 
 ---@class GameLib.MapGridOverlayComponent @网格 overlay C# 组件
 ---@field BuildOverlay fun(gridSize:number,gridCols:number,gridRows:number,scale:number,occupiedCells:table,regionCols:number,regionRows:number,showGrid:boolean,showOccupied:boolean):void
@@ -51,17 +64,9 @@
 ---@class GameLib.Util @通用工具
 ---@field SetMultiTouchEnabled fun(enabled:boolean):void
 
----@class DG.Tweening.Ease @缓动枚举
+--endregion
 
----@class DG.Tweening.Sequence @DOTween 动画序列
----@field Append fun(tween:table):DG.Tweening.Sequence
----@field Join fun(tween:table):DG.Tweening.Sequence
----@field OnComplete fun(cb:fun()):DG.Tweening.Sequence
----@field SetEase fun(ease:DG.Tweening.Ease):DG.Tweening.Sequence
----@field Play fun():void
----@field Kill fun():void
-
----@class DG.Tweening.TweenCallback @Tween 回调
+--region UnityEngine 类型
 
 ---@class UnityEngine.Transform
 ---@field position UnityEngine.Vector3
@@ -84,6 +89,10 @@
 ---@field y number
 ---@field z number
 
+---@class UnityEngine.Vector2
+---@field x number
+---@field y number
+
 ---@class UnityEngine.Object
 ---@field name string
 
@@ -93,58 +102,50 @@
 ---@field width number
 ---@field height number
 
----@class UnityEngine.Vector2
----@field x number
----@field y number
+---@class UnityEngine.Color
+---@field r number
+---@field g number
+---@field b number
+---@field a number
 
----@class HedgehogTeam.EasyTouch.Gesture @EasyTouch 触摸手势对象
----@field position UnityEngine.Vector2
----@field startPosition UnityEngine.Vector2
----@field swipeLength number
----@field deltaSwipe UnityEngine.Vector2
----@field touchCount number
----@field isOverGui boolean
+---@class UnityEngine.Sprite
+---@field name string
+---@field rect UnityEngine.Rect
 
----@class DG.Tweening.Tweener @DOTween 单值补间
----@field OnComplete fun(cb:fun()):DG.Tweening.Tweener
----@field OnUpdate fun(cb:fun()):DG.Tweening.Tweener
----@field OnKill fun(cb:fun()):DG.Tweening.Tweener
----@field SetEase fun(ease:DG.Tweening.Ease):DG.Tweening.Tweener
----@field SetLoops fun(count:number,loopType:number):DG.Tweening.Tweener
----@field SetDelay fun(delay:number):DG.Tweening.Tweener
----@field Kill fun():void
-
----@class DG.Tweening.DOTween @DOTween 全局入口
----@field Sequence fun():DG.Tweening.Sequence
----@field Tween fun():DG.Tweening.Tweener
----@field To fun(getter:fun():number,setter:fun(number),to:number,duration:number):DG.Tweening.Tweener
----@field KillAll fun(complete:boolean):void
-
----@class DG.Tweening.LoopType @DOTween 循环类型枚举
-
----@class XLua.LuaTable @xlua Lua 表对象
----@field Get fun(key:string):any
----@field Set fun(key:string,value:any):void
----@field Length fun():number
-
----@class UnityEngine.Bounds @包围盒
+---@class UnityEngine.Bounds
 ---@field center UnityEngine.Vector3
 ---@field size UnityEngine.Vector3
 ---@field extents UnityEngine.Vector3
 ---@field min UnityEngine.Vector3
 ---@field max UnityEngine.Vector3
 
+---@class UnityEngine.Mesh
+---@field bounds UnityEngine.Bounds
+
+---@class UnityEngine.MeshFilter
+---@field mesh UnityEngine.Mesh
+
 ---@class UnityEngine.Component
 ---@field gameObject UnityEngine.GameObject
 ---@field transform UnityEngine.Transform
 ---@field GetComponent fun(type:string|table):any
 
----@class UnityEngine.Coroutine @协程句柄
+---@class UnityEngine.Coroutine
 
----@class UnityEngine.Canvas @UI 画布
+---@class UnityEngine.Canvas
 ---@field sortingOrder number
 
----@class UnityEngine.RectTransform @矩形变换
+---@class UnityEngine.Animator
+---@field runtimeAnimatorController UnityEngine.RuntimeAnimatorController
+---@field SetTrigger fun(trigger:string):void
+---@field SetBool fun(name:string,value:boolean):void
+---@field SetFloat fun(name:string,value:number):void
+---@field SetInteger fun(name:string,value:number):void
+---@field GetBool fun(name:string):boolean
+---@field GetFloat fun(name:string):number
+---@field GetInteger fun(name:string):number
+
+---@class UnityEngine.RectTransform
 ---@field rect UnityEngine.Rect
 ---@field sizeDelta UnityEngine.Vector2
 ---@field anchorMin UnityEngine.Vector2
@@ -153,440 +154,230 @@
 ---@field anchoredPosition UnityEngine.Vector2
 ---@field SetParent fun(parent:UnityEngine.Transform,worldPositionStays:boolean):void
 
----@class UnityEngine.MeshFilter @网格过滤器
----@field mesh UnityEngine.Mesh
-
----@class UnityEngine.BoxCollider2D @2D 盒碰撞器
+---@class UnityEngine.BoxCollider2D
 ---@field size UnityEngine.Vector2
 ---@field offset UnityEngine.Vector2
 
----@class UnityEngine.Touch @触摸点
+---@class UnityEngine.Touch
 ---@field position UnityEngine.Vector2
 ---@field deltaPosition UnityEngine.Vector2
 ---@field phase number
 
----@class UnityEngine.UI.Image @UI 图片
+---@class UnityEngine.TextAnchor
+
+---@class UnityEngine.TouchPhase @触摸阶段枚举
+
+---@class UnityEngine.KeyCode @按键码枚举
+
+---@class UnityEngine.Input @输入系统
+---@field mousePosition UnityEngine.Vector2
+---@field touchCount number
+
+---@class UnityEngine.Time @时间系统
+---@field deltaTime number
+---@field unscaledDeltaTime number
+---@field realtimeSinceStartup number
+
+---@class UnityEngine.Screen @屏幕信息
+---@field width number
+---@field height number
+---@field safeArea UnityEngine.Rect
+
+---@class UnityEngine.Font @字体
+
+---@class UnityEngine.Resources @资源加载
+---@field GetBuiltinResource fun(type:Type,path:string):Object
+
+--endregion
+
+--region UnityEngine.UI 类型
+
+---@class UnityEngine.UI.Image
 ---@field sprite UnityEngine.Sprite
 ---@field color UnityEngine.Color
 ---@field fillAmount number
 ---@field raycastTarget boolean
 
----@class UnityEngine.UI.Button @UI 按钮
+---@class UnityEngine.UI.Button
 ---@field onClick any
 ---@field interactable boolean
 
----@class UnityEngine.UI.MaskableGraphic @UI 可遮罩图形
+---@class UnityEngine.UI.MaskableGraphic
 ---@field color UnityEngine.Color
 ---@field raycastTarget boolean
 
----@class UnityEngine.UI.Scrollbar @UI 滚动条
+---@class UnityEngine.UI.Scrollbar
 ---@field size number
 ---@field value number
 
----@class Spine.TrackEntry @Spine 动画轨道
----@field animation Spine.Animation
----@field time number
----@field loop boolean
-
----@class Spine.SkeletonAnimation @Spine 骨骼动画
----@field AnimationName string
----@field timeScale number
----@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
----@field AddAnimation fun(trackIndex:number,animationName:string,loop:boolean,delay:number):Spine.TrackEntry
-
----@class Spine.SkeletonGraphic @Spine 骨骼图形（UI）
----@field AnimationName string
----@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
----@field AddAnimation fun(trackIndex:number,animationName:string,loop:boolean,delay:number):Spine.TrackEntry
-
----@class Spine.UnityEngine.SkeletonAnimation @Spine 骨骼动画（Unity 层）
----@field AnimationName string
----@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
-
----@class Spine.UnityEngine.SkeletonGraphic @Spine 骨骼图形（Unity 层）
----@field AnimationName string
----@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
-
----@class TMPro.TextMeshProUGUI @TextMeshPro 文本（UGUI）
----@field text string
----@field fontSize number
----@field color UnityEngine.Color
----@field fontStyle number
-
----@class HedgehogTeam.EasyTouch.EasyTouch @EasyTouch 全局
----@field touchCount number
-
----@class Honor.Runtime.GameMainRoot @游戏主根节点
----@field transform UnityEngine.Transform
-
----@class Honor.Runtime.ProcedureState @流程状态枚举
-
----@class System.Byte @byte 类型
----@class System.Type @Type 类型
-
----@class UnityEngine.Color @颜色
----@field r number
----@field g number
----@field b number
----@field a number
-
----@class UnityEngine.Sprite @精灵
----@field name string
----@field rect UnityEngine.Rect
-
----@class UnityEngine.Mesh @网格
----@field bounds UnityEngine.Bounds
-
----@class Spine.Animation @Spine 动画
----@field name string
----@field duration number
-
----@class Tables.LevelData_Item @关卡分区数据（xlua 动态生成表）
----@field ChapterId string 章节ID
----@field ChapterName string 章节名称
----@field SectionId number 分区ID
----@field SectionCount number 总分区数
----@field LevelId number 关卡ID
----@field BgName string 背景图名称
----@field MapName string 地图名称
----@field SavePath string 配置保存路径
----@field Time string 保存时间
----@field Width number 地图宽度
----@field Height number 地图高度
----@field RegionRows number 分区行数
----@field RegionCols number 分区列数
----@field RegionCol number 当前分区列
----@field RegionRow number 当前分区行
----@field Unlocked boolean 是否已解锁
----@field FogEnabled boolean 迷雾开关
----@field GridSize number 单格像素尺寸
----@field GridCols number 网格列数
----@field GridRows number 网格行数
----@field OccupiedCells table[] 占用格列表
----@class GameStateCmd @游戏状态枚举定义
----@class SingletonManager @全局单例管理器
----@class LoginManager @登录管理器
----@class LevelManager @关卡管理器
----@class GameStateMachine @游戏状态机（全局调度）
----@class GameCoreManager @游戏核心逻辑管理器
----@class GameManager @游戏总控管理器
----@class SaveRootData @存档根结构
----@class DataCenter @全局数据中心
----@class GamerDataManager @玩家数据管理器
----@class PlayerInfoDataManager @玩家信息管理器
----@class SettingDataManager @设置数据管理器
----@class SaveDataSyncHelper @存档同步工具
----@class ConstantsDataManager @常量数据管理器
----@class ResourceDataManager @资源表格管理器
----@class LanguageSettingDataManager @多语言配置管理器
----@class EventDataManager @事件配置管理器
----@class ChapterDataManager @章节数据管理器
----@class ChapterListManager @章节列表管理器
----@class MapManager @地图管理器
----@class GoalDataManager @目标数据管理器
----@class HomeIconsDataManager @主界面图标管理器
----@class MainPlayingManager @主玩法管理器
----@class UIMainPlayingManager @游戏主界面业务管理器
----@class LocalEventDataManager @本地活动数据管理器
----@class LocalActivityManager @本地活动管理器
----@class SystemGameUnlock @系统解锁判断
----@class BubbleManager @气泡提示管理器
----@class ItemManager @道具管理器
----@class GameMainUIPushManager @主界面UI推送管理器
----@class UIStackManager @UI栈管理器
----@class PoolManager @对象池管理器
----@class PauseableCoroutineHelper @可暂停协程工具
----@class GamePlayHelper @游戏玩法工具
----@class GameTimeHelper @游戏时间工具
----@class UITextHelper @UI文本工具
----@class RectTransformHelper @矩形变换工具
----@class AnimatorHelper @动画控制器工具
----@class GameMapCameraManager @地图镜头统一管理器
----@class GameMapMotionManager @地图输入手势管理器
----@class GameEffectManager @特效管理器
----@class HomeUILayerDataManager @主界面UI层级
----@class HomeUIBubbleLayerDataManager @主界面气泡层级
----@class ChallengeLevelHelper @挑战关卡工具
----@class SoundManager @音效管理器
----@class CharacterGenerationDataManager @角色生成数据管理器
----@class CharacterGenerationManager @角色生成管理器
----@class MapLoadManager @地图加载管理器（分区骨架+网格+相机）
----@class PlayGameplayCycle @玩法周期
----@class LevelCollectManager @关卡收集管理器（门面：登记/查询/进度广播）
----@class RankDataManager @排行榜数据管理器
----@class CharacterBase @角色实体基类
----@class MapObjectBase @地图物件实体基类
----@class ELoginState @登录状态枚举
----@class GameStateBase @游戏状态基类
----@class HonorList @Honor 列表容器
----@class LOAD_RES_DEF_ITEM @资源加载定义项
----@class LocalActivityPopupData @本地活动弹窗数据
----@class UIPlayingAnimated @播放动画视图
----@class ViewModelSuper @MVVM 视图模型基类
-
----@class UnityEngine.UI.Text @UI 文本（UGUI）
+---@class UnityEngine.UI.Text
 ---@field text string
 ---@field fontSize number
 ---@field color UnityEngine.Color
 ---@field alignment UnityEngine.TextAnchor
 ---@field raycastTarget boolean
 
----@class Tables.Bubble_Item @气泡配置表项
----@class Tables.Chapters_Item @章节配置表项
----@class Tables.LimitCheck_Item @限制校验配置表项
+---@class UnityEngine.UI.Mask @遮罩
+---@field showMaskGraphic boolean
 
----@class SaveMsgDef.SaveGameData.ChapterInfo @存档-章节信息
----@class SaveMsgDef.SaveGameData.MachineInfo @存档-机器信息
----@class SavePBMsgDef.GameDataPB.GameData @PB-游戏数据
----@class SavePBMsgDef.GameDataPB.ResourceInfo @PB-资源信息
----@class SavePBMsgDef.GameDataPB.SettingInfo @PB-设置信息
----@class SavePBMsgDef.NotificationDataPB.NotificationData @PB-通知数据
----@class SavePBMsgDef.SaveGameData.ChallengeLevelData @PB-挑战关卡数据
----@class SavePBMsgDef.SystemConfigDataPB.SystemConfigData @PB-系统配置数据
----@class SavePBMsgDef.UserDataPB.StageTime @PB-阶段时间
----@class SavePBMsgDef.UserDataPB.Time @PB-时间
----@class SavePBMsgDef.UserDataPB.UserData @PB-用户数据
+---@class UnityEngine.UI.ScrollRect @滚动矩形
+---@field content UnityEngine.RectTransform
+---@field vertical boolean
+---@field horizontal boolean
+---@field movementType number
 
---=====================================================================================================
--- 以下为业务层 Lua 类型索引（按命名空间/模块分组），消除跨文件引用红线
---=====================================================================================================
+---@class UnityEngine.UI.GridLayoutGroup @网格布局组
+---@field cellSize UnityEngine.Vector2
+---@field spacing UnityEngine.Vector2
+---@field constraint number
 
---region Honor 框架基类 & 容器
+---@class UnityEngine.UI.HorizontalLayoutGroup @水平布局组
+---@field spacing number
+---@field childAlignment UnityEngine.TextAnchor
 
----@class Singleton @单例基类
----@class SingletonManager @全局单例管理器（已在上方）
----@class LuaBehaviourSuper @LuaBehaviour 基类
----@class ViewSuper @MVVM 视图基类
----@class ViewModelSuper @MVVM 视图模型基类（已在上方）
----@class BehaviorTreeTaskSuper @行为树任务基类
----@class ProcedureSuper @流程基类
----@class HonorList @Honor 列表容器（已在上方）
----@class HonorPool @Honor 对象池容器
----@class HonorQueue @Honor 队列容器
----@class HonorStack @Honor 栈容器
+---@class UnityEngine.UI.ContentSizeFitter @内容大小适配
+---@field horizontalFit number
+---@field verticalFit number
 
 --endregion
 
---region Honor 协议 & 系统
+--region DG.Tweening 类型
 
----@class ProtocolCallback @协议回调
----@class ProtocolCmd @协议命令
----@class ProtocolReceiver @协议接收
----@class ProtocolSender @协议发送
----@class ProtocolUtil @协议工具
----@class SystemArray @系统数组扩展
----@class SystemSet @系统集合扩展
----@class SystemDelegate @系统委托
----@class LuaMemoryMonitor @Lua 内存监控
----@class XLuaProfiler @XLua 性能分析器
----@class SystemBase64 @Base64 工具
----@class Catch @异常捕获工具
+---@class DG.Tweening.Ease
+---@class DG.Tweening.LoopType
 
---endregion
+---@class DG.Tweening.Sequence
+---@field Append fun(tween:table):DG.Tweening.Sequence
+---@field Join fun(tween:table):DG.Tweening.Sequence
+---@field OnComplete fun(cb:fun()):DG.Tweening.Sequence
+---@field SetEase fun(ease:DG.Tweening.Ease):DG.Tweening.Sequence
+---@field Play fun():void
+---@field Kill fun():void
 
---region Honor 工具类（Utils）
+---@class DG.Tweening.Tweener
+---@field OnComplete fun(cb:fun()):DG.Tweening.Tweener
+---@field OnUpdate fun(cb:fun()):DG.Tweening.Tweener
+---@field OnKill fun(cb:fun()):DG.Tweening.Tweener
+---@field SetEase fun(ease:DG.Tweening.Ease):DG.Tweening.Tweener
+---@field SetLoops fun(count:number,loopType:number):DG.Tweening.Tweener
+---@field SetDelay fun(delay:number):DG.Tweening.Tweener
+---@field Kill fun():void
 
----@class ActivityUtil @活动工具
----@class AssetUtil @资源工具
----@class BoundsUtil @包围盒工具
----@class CoUtil @协程工具
----@class DataParseUtil @数据解析工具
----@class LevelUtil @关卡工具
----@class LuaUtil @Lua 工具
----@class QuestUtil @任务工具
----@class RewardUtil @奖励工具
----@class ScreenUtil @屏幕工具
----@class SpineUtil @Spine 工具
----@class StarFlyUtil @星光飞行动画工具
----@class StringUtil @字符串工具
----@class TableUtil @表格工具
----@class TimeUtil @时间工具
----@class TrackUtil @轨迹工具
----@class TweenUtil @补间动画工具
----@class UIAdaptUtil @UI 适配工具
----@class UnityUtil @Unity 工具
----@class UTF8Util @UTF8 工具
----@class SaveDataHelper @存档工具
----@class UIUtil @UI 工具
----@class CoroutineWaitHelper @协程等待工具
+---@class DG.Tweening.TweenCallback
+
+---@class DG.Tweening.DOTween
+---@field Sequence fun():DG.Tweening.Sequence
+---@field Tween fun():DG.Tweening.Tweener
+---@field To fun(getter:fun():number,setter:fun(number),to:number,duration:number):DG.Tweening.Tweener
+---@field KillAll fun(complete:boolean):void
 
 --endregion
 
---region Honor 全局 Helper（单例）
+--region Spine 类型
 
----@class HonorAccountHelper @账号助手
----@class HonorConfigHelper @配置助手
----@class HonorCoreManager @Honor 核心管理器
----@class HonorCoroutineHelper @协程助手
----@class HonorEventHelper @事件助手
----@class HonorIAPHelper @内购助手
----@class HonorNotificationHelper @通知助手
----@class HonorTimerHelper @计时器助手
----@class HonorAssetManager @资源管理器
----@class HonorPoolHelper @对象池助手
----@class UIManager @UI 管理器
----@class UIEventCode @UI 事件码
----@class Binder @数据绑定器
----@class BindValue @绑定值
----@class BindValueOperate @绑定值操作枚举
----@class FwEventCmd @框架事件命令
----@class HonorTweenType @补间类型枚举
+---@class Spine.Animation
+---@field name string
+---@field duration number
 
---endregion
+---@class Spine.TrackEntry
+---@field animation Spine.Animation
+---@field time number
+---@field loop boolean
 
---region Game 业务管理器 & Helper
+---@class Spine.SkeletonAnimation
+---@field AnimationName string
+---@field timeScale number
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
+---@field AddAnimation fun(trackIndex:number,animationName:string,loop:boolean,delay:number):Spine.TrackEntry
 
----@class BuffManager @Buff 管理器
----@class UIBubbleManager @气泡管理器
----@class GameMainUIPushMgr @主界面 UI 推送管理器
----@class GameMainUIPushConfig @主界面 UI 推送配置
----@class GuideNewContext @引导上下文
----@class OpenCanvas @画布打开配置
+---@class Spine.SkeletonGraphic
+---@field AnimationName string
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
+---@field AddAnimation fun(trackIndex:number,animationName:string,loop:boolean,delay:number):Spine.TrackEntry
 
---endregion
+---@class Spine.UnityEngine.SkeletonAnimation
+---@field AnimationName string
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
 
---region Game 状态机
-
----@class GameStateBase @游戏状态基类（已在上方）
----@class GameLoadMapStateBase @加载地图状态基类
----@class GameLoadMapState @加载地图状态
----@class GameLoginState @登录状态
----@class GameMainState @主界面状态
----@class GamePlayingState @游玩状态
----@class GameTurnToProLoadState @转预热加载状态
+---@class Spine.UnityEngine.SkeletonGraphic
+---@field AnimationName string
+---@field SetAnimation fun(trackIndex:number,animationName:string,loop:boolean):Spine.TrackEntry
 
 --endregion
 
---region Game Launcher 流程
+--region 其他第三方类型
 
----@class ProcedurePlaying @游玩流程
----@class ProcedurePreload @预加载流程
+---@class HedgehogTeam.EasyTouch.Gesture
+---@field position UnityEngine.Vector2
+---@field startPosition UnityEngine.Vector2
+---@field swipeLength number
+---@field deltaSwipe UnityEngine.Vector2
+---@field touchCount number
+---@field isOverGui boolean
 
---endregion
+---@class HedgehogTeam.EasyTouch.EasyTouch
+---@field touchCount number
 
---region Game 地图 & 实体
+---@class TMPro.TextMeshProUGUI
+---@field text string
+---@field fontSize number
+---@field color UnityEngine.Color
+---@field fontStyle number
 
----@class GameMapBase @地图基类
----@class UIMapBase @UI 地图基类
----@class UIMap @地图界面
----@class BuildingItem @建筑物实体
----@class CharacterPlayer @玩家角色实体
----@class CharacterCtrl @角色控制器
----@class MapObjectCtrl @地图物件绑定入口
----@class ObjectItem @物品实体
----@class ZoneItem @分区容器节点
----@class FishItem @生命鱼图标
----@class SectionItem @分区项
----@class CollectItemView @收集项视图
----@class RankItem @排行项
+---@class XLua.LuaTable
+---@field Get fun(key:string):any
+---@field Set fun(key:string,value:any):void
+---@field Length fun():number
 
---endregion
-
---region Game UI 视图
-
----@class UILoginView @登录界面
----@class UILoadMapView @加载地图界面
----@class UIMainPlaying @主玩法界面
----@class UIMainStateViewView @关卡主界面视图
----@class UIMainStateViewViewModel @关卡主界面视图模型
----@class UIMainStateViewView.BVKey @关卡主界面绑定键
----@class UIMainStateViewViewModel.BVKey @关卡主界面视图模型绑定键
----@class UIRankView @排行榜界面
----@class UISettingView @设置界面
----@class UILevelFailedView @关卡失败界面
----@class UILevelVictoryView @关卡胜利界面
+---@class System.Byte
+---@class System.Type
 
 --endregion
 
---region Game 核心管理器拆分模块
+--region Tables 配置表类型
 
----@class GameCoreManagerData @游戏核心数据模块
----@class GameCoreManagerEffect @游戏核心特效模块
----@class GameCoreManagerLevelFinish @游戏核心结算模块
----@class GameCoreManagerUseItem @游戏核心道具模块
+---@class Tables.LevelData_Item @关卡分区数据（xlua 动态生成表）
+---@field ChapterId string
+---@field ChapterName string
+---@field SectionId number
+---@field SectionCount number
+---@field LevelId number
+---@field BgName string
+---@field MapName string
+---@field SavePath string
+---@field Time string
+---@field Width number
+---@field Height number
+---@field RegionRows number
+---@field RegionCols number
+---@field RegionCol number
+---@field RegionRow number
+---@field Unlocked boolean
+---@field FogEnabled boolean
+---@field GridSize number
+---@field GridCols number
+---@field GridRows number
+---@field OccupiedCells table[]
 
---endregion
-
---region Game 数据 POD 类型
-
----@class BoosterModifyParam @道具修改参数
----@class BoosterUnlockLevelConfig @道具解锁关卡配置
----@class BubbleGenerateConfig @气泡生成配置
----@class BuffModifyConfig @Buff 修改配置
----@class CacheProp @缓存道具
----@class LifeChange @生命变化
----@class PropUsedEffectParam @道具生效效果参数
----@class PropUsedFreezeParam @道具冻结参数
----@class ResourceID @资源 ID
----@class TimestampRecorder @时间戳记录器
----@class GameVictorySettlementStep @胜利结算步骤枚举
----@class LoginData @登录数据
-
---endregion
-
---region Game 枚举（E* 前缀）
-
----@class EActivityDoublePointsSource @活动双倍积分来源
----@class EActivityEnterFormPosType @活动进入表单位置类型
----@class EActivityEntryPos @活动入口位置
----@class EActivityIconPage @活动图标页
----@class EAvatarFrameObtainType @头像框获取类型
----@class EAvatarFrameType @头像框类型
----@class ECharacterLifecycle @角色生命周期
----@class ECharacterType @角色类型
----@class ECollectionRarity @收集稀有度
----@class ECustomTweenID @自定义补间 ID
----@class EDailyQuestStatus @日常任务状态
----@class EDailyQuestSubType @日常任务子类型
----@class EGameMainUIPUshRunningType @主界面推送运行类型
----@class EGameOverType @游戏结束类型
----@class EHotfixStep @热更步骤
----@class EIAPType @内购类型
----@class EInterAdID @插屏广告 ID
----@class EItemSubType @道具子类型
----@class ELayerName @层级名称
----@class ELevelDifficulty @关卡难度
----@class ELevelMode @关卡模式
----@class ELevelState @关卡状态
----@class ELevelType @关卡类型
----@class ELifeID @生命 ID
----@class ELocalActivityId @本地活动 ID
----@class EMainUIBubbleType @主界面气泡类型
----@class EMainUIPushPriority @主界面推送优先级
----@class EMainUIPushTrigger @主界面推送触发
----@class EMainUIPushType @主界面推送类型
----@class EMapLayoutConfig @地图布局配置
----@class EMapType @地图类型
----@class EOpenLevelPrepareSource @打开关卡准备来源
----@class EPersistentForEditor @编辑器持久化标记
----@class EPersistentForGame @游戏持久化标记
----@class EPlayHudCycleAction @游玩 HUD 周期动作
----@class EPlayOnceCutsceneType @一次性过场动画类型
----@class EPopBubbleOrientation @弹出气泡方向
----@class EPosType @位置类型
----@class EResourceID @资源 ID 枚举
----@class EResourceType @资源类型
----@class ESelectType @选择类型
----@class ESettingType @设置类型
----@class ESingletonInitPriority @单例初始化优先级
----@class ESingletonPriority @单例优先级
----@class ESpineUpdateTiming @Spine 更新时机
----@class ETaskType @任务类型
----@class ETimestampID @时间戳 ID
----@class EUIChapterListAnim @章节列表动画
----@class EUIControllerAnim @UI 控制器动画
----@class EUIStackName @UI 栈名称
----@class EUITaskOpenSource @UI 任务打开来源
----@class KeyCode @按键码
+---@class Tables.Bubble_Item
+---@class Tables.Chapters_Item
+---@class Tables.LimitCheck_Item
 
 --endregion
 
---region 其他全局类型
+--region SaveMsgDef / SavePBMsgDef 存档类型
 
----@class EventCmd @事件命令（已在上方）
----@class EventCodes @事件码
----@class Ease @缓动枚举（本地定义，对齐 DG.Tweening.Ease）
----@class Tables.UIs_Item @UI 配置项（已在上方）
----@class UIs @UI 配置汇总
+---@class SaveMsgDef.SaveGameData.ChapterInfo
+---@class SaveMsgDef.SaveGameData.MachineInfo
+
+---@class SavePBMsgDef.GameDataPB.GameData
+---@class SavePBMsgDef.GameDataPB.ResourceInfo
+---@class SavePBMsgDef.GameDataPB.SettingInfo
+---@class SavePBMsgDef.NotificationDataPB.NotificationData
+---@class SavePBMsgDef.SaveGameData.ChallengeLevelData
+---@class SavePBMsgDef.SystemConfigDataPB.SystemConfigData
+---@class SavePBMsgDef.UserDataPB.StageTime
+---@class SavePBMsgDef.UserDataPB.Time
+---@class SavePBMsgDef.UserDataPB.UserData
 
 --endregion

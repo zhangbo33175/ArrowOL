@@ -11,7 +11,7 @@
 -- @dependency HonorEventHelper, EventCmd（业务事件码）；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
----@class QuestUtil @ 任务事件派发工具表：任务进度更新与清空事件广播
+---@class QuestUtil @任务事件派发工具表：任务进度更新与清空事件广播
 local QuestUtil = {}
 
 --region 任务 / 事件派发

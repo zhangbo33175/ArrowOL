@@ -13,7 +13,7 @@
 -- @dependency Singleton, PlayerDataManager, ItemManager, UIManager, EventManager, GameTimeUtil
 --=====================================================================================================
 
----@class ChallengeLevelHelper : Singleton 挑战关卡管理单例
+---@class ChallengeLevelHelper : Singleton @挑战关卡管理单例
 ---@field _minChallengeLevelId number @挑战关卡 ID 段起点（>= 此值进入挑战段，再查挑战表确认）
 ---@field _challengeIdOffset number @挑战关卡 ID 相对挑战表序号的偏移（挑战关卡 ID = 表序号 + 偏移）
 ---@field _challengeUnlockLevel table @挑战关卡解锁所需主线进度 {Chapter=章节, Level=关卡}

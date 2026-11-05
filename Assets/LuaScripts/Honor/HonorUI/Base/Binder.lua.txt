@@ -14,7 +14,7 @@
 ---TODO 噪音清理：删除头部与 @desc/@core 重复的旧版 descrip/作用/服务/核心 注释块（纯注释，逻辑无影响）
 
 --region MVVM 绑定管理器 - Binder
----@class Binder MVVM 视图绑定器（管理 View 与 ViewModel 的绑定关系）
+---@class Binder @MVVM 视图绑定器（管理 View 与 ViewModel 的绑定关系）
 local Binder = class("Binder")
 
 ---@brief 构造函数

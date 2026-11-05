@@ -14,7 +14,7 @@
 
 --region 单例管理器
 
----@class SingletonManager 单例管理器（全局唯一）
+---@class SingletonManager @单例管理器（全局唯一）
 ---@field _singletonList HonorList 单例列表 List<Singleton>
 local SingletonManager = class("SingletonManager")
 

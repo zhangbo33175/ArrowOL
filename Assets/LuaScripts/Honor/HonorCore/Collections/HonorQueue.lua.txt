@@ -13,7 +13,7 @@
 --=====================================================================================================
 
 --region 通用队列容器（FIFO 先进先出）
----@class HonorQueue 通用队列容器（FIFO 先进先出）
+---@class HonorQueue @通用队列容器（FIFO 先进先出）
 ---@field items table 内部存储元素的数组
 local HonorQueue = class("HonorQueue")
 

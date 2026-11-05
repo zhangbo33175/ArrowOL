@@ -15,7 +15,7 @@
 --region 通用动态列表容器（仿 C# List）
 local TableUtil = require("TableUtil")
 
----@class HonorList 通用动态列表容器（仿 C# List）
+---@class HonorList @通用动态列表容器（仿 C# List）
 ---@field items table 内部存储元素的原生数组
 local HonorList = class("HonorList")
 

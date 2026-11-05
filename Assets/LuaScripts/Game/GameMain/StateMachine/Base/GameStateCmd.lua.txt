@@ -14,7 +14,7 @@
 -- @dependency nil
 --=====================================================================================================
 
----@class GameStateCmd 游戏业务状态机枚举定义
+---@class GameStateCmd @游戏业务状态机枚举定义
 ---@field LoginState string 登录状态
 ---@field LoadMapState string 加载地图状态
 ---@field MainState string 主界面状态

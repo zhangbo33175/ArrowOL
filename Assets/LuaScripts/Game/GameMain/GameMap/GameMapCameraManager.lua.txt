@@ -49,7 +49,7 @@ ECameraState = {
 
 --endregion
 
----@class GameMapCameraManager 地图镜头统一管理器 | 纯镜头能力层
+---@class GameMapCameraManager @地图镜头统一管理器 | 纯镜头能力层
 ---@field ScreenCamera UnityEngine.Camera|nil @地图场景相机（全局缓存）
 ---@field IsInitialized boolean @是否已完成初始化
 ---@field CurrentState ECameraState @当前镜头状态

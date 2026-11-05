@@ -12,7 +12,7 @@
 -- @note      GetSafeAreaInsets/GetCanvasActualSize/IsUltraWideScreen 为公共预留适配 API（当前无内部调用，保留供 UI 避让/超长屏自适应接入）
 --=====================================================================================================
 
----@class UIAdaptUtil @ UI 文本与适配工具表（纯函数，无实例状态）
+---@class UIAdaptUtil @UI 文本与适配工具表（纯函数，无实例状态）
 local UIAdaptUtil = {}
 
 --region 依赖引入

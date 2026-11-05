@@ -14,7 +14,7 @@
 --=====================================================================================================
 
 --region 全局系统配置管理助手
----@class HonorConfigHelper @ 全局系统配置管理助手（GM后台 + 服务器配置统一入口）
+---@class HonorConfigHelper @全局系统配置管理助手（GM后台 + 服务器配置统一入口）
 ---@field _systemConfigData table<string, any> @ 全局系统配置数据表（Key-Value 结构，从服务器/GM后台拉取）
 local HonorConfigHelper = class("HonorConfigHelper")
 

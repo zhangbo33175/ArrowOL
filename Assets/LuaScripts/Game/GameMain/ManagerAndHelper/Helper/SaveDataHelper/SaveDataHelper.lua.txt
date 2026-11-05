@@ -13,7 +13,7 @@
 -- @dependency Singleton, PlayerDataManager, EventManager, CoroutineHelper, NetworkManager
 --=====================================================================================================
 
----@class SaveDataHelper 存档&登录&云端同步核心单例
+---@class SaveDataHelper @存档&登录&云端同步核心单例
 ---@field _loginToken string @ 登录鉴权 Token（登录成功后缓存，待后续网络请求使用）
 local SaveDataHelper = class("SaveDataHelper")
 

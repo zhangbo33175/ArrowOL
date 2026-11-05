@@ -11,7 +11,7 @@
 -- @dependency ResourceDataManager, CurrencyMgr, ItemManager, BuffManager, CollectionMgr, GameTimeHelper；经 GameFunctions 全局包装对外暴露
 --=====================================================================================================
 
----@class RewardUtil @ 道具奖励发放工具表：发放、显示格式化、批量处理
+---@class RewardUtil @道具奖励发放工具表：发放、显示格式化、批量处理
 local RewardUtil = {}
 
 --region 道具 / 奖励发放

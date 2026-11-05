@@ -13,7 +13,7 @@
 --=====================================================================================================
 
 --region GameObject 对象池（性能优化核心）
----@class HonorPool 单个GameObject对象池（管理一种Prefab的复用）
+---@class HonorPool @单个GameObject对象池（管理一种Prefab的复用）
 ---@field name string 池名称（唯一标识）
 ---@field unusedQueue HonorQueue 空闲对象队列（等待复用，隐藏状态）
 ---@field usedList HonorList 正在使用的对象列表（活跃状态）

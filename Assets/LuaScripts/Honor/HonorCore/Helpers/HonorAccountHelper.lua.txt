@@ -14,7 +14,7 @@
 --=====================================================================================================
 
 --region 全局账户管理助手
----@class HonorAccountHelper @ 全局账户管理助手（账号体系 + 云存档 + 广告归因）
+---@class HonorAccountHelper @全局账户管理助手（账号体系 + 云存档 + 广告归因）
 local HonorAccountHelper = class("HonorAccountHelper")
 
 ---@brief 构造函数

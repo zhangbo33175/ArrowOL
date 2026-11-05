@@ -11,7 +11,7 @@
 -- @dependency DG.Tweening, 同域 CoUtil（SafeInvoke）, 同域 UnityUtil（空判断）
 --=====================================================================================================
 
----@class TweenUtil @ DOTween 缓动工具表（纯函数，无实例状态）
+---@class TweenUtil @DOTween 缓动工具表（纯函数，无实例状态）
 local TweenUtil = {}
 
 --region 依赖引入

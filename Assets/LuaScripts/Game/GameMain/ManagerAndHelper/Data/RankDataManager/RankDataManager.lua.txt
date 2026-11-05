@@ -14,7 +14,7 @@
 -- @dependency Singleton, GameMainRoot, PlayerInfoDataManager
 --=====================================================================================================
 
----@class RankDataManager : Singleton 排行榜数据管理器
+---@class RankDataManager : Singleton @排行榜数据管理器
 ---@field m_RankList table[] @本地模拟榜单条目数组
 ---@field m_PlayerScore number @玩家自身分数（本地持久化）
 ---@field m_PlayerName string|nil @玩家自身昵称（未设置时兜底默认名）

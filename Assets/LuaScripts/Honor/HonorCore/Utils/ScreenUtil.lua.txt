@@ -11,7 +11,7 @@
 -- @dependency UnityEngine, GameMainRoot.HonorUIManager, 同域 UnityUtil（空判断）
 --=====================================================================================================
 
----@class ScreenUtil @ 屏幕边界工具表（纯函数，无实例状态）
+---@class ScreenUtil @屏幕边界工具表（纯函数，无实例状态）
 local ScreenUtil = {}
 
 --region 依赖引入

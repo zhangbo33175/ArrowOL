@@ -21,7 +21,7 @@ local DEFAULT_DRAG_THRESHOLD    = 12     -- 默认拖动阈值（像素）
 
 --endregion
 
----@class GameMapMotionManager 地图输入手势管理器 | 纯输入检测层
+---@class GameMapMotionManager @地图输入手势管理器 | 纯输入检测层
 ---@field IsMapWork boolean @地图输入是否激活
 ---@field PointStartFromUI boolean @是否从UI开始按压
 ---@field IsMouseDown boolean @鼠标是否按下

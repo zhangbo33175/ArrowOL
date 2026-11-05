@@ -12,12 +12,12 @@
 -- @dependency Singleton, EventManager, CoroutineHelper, PlayerDataManager, Utility
 --=====================================================================================================
 
----@class BuffModifyConfig @ Buff 修改配置
+---@class BuffModifyConfig @Buff 修改配置
 ---@field ID string Buff ID
 ---@field oldNum number 旧时间戳
 ---@field newNum number 新时间戳
 
----@class BuffManager : Singleton @ 限时道具管理（单例）
+---@class BuffManager : Singleton @限时道具管理（单例）
 local BuffManager = class("BuffManager", import("Singleton"))
 
 --region 构造 & 实例化

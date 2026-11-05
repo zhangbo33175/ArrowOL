@@ -15,7 +15,7 @@
 
 --region LuaBehaviour 顶级基类
 
----@class LuaBehaviourSuper LuaBehaviour 通用顶级父类（所有Lua脚本的基类）
+---@class LuaBehaviourSuper @LuaBehaviour 通用顶级父类（所有Lua脚本的基类）
 ---@field cs Honor.Runtime.LuaBehaviour 绑定的C# LuaBehaviour组件
 ---@field _args table 传入参数（构造参数）
 ---@field _params table C#配置的自定义参数
