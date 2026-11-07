@@ -305,7 +305,7 @@ namespace Honor.Editor.BuildPackage
         private void DrawBottomBar()
         {
             EditorGUILayout.HelpBox(
-                "bundle 命名：相对路径 '/'→'@' + 全小写 + '.bundle'，与运行时 AssetBundleLoader 约定一致。\n" +
+                "bundle 命名：相对路径 '/'→'@' + 全小写 + '.bundle'，与运行时 HonorAssetBundleLoader 约定一致。\n" +
                 "粒度说明：每个文件单独 / 当前目录 / 一级目录 / 二级目录 / 三级目录。",
                 MessageType.Info);
         }

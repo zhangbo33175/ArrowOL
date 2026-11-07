@@ -22,7 +22,7 @@ namespace Honor.Editor.BuildTool
     /// <summary>
     /// 打全部 AB（res+lua）订单
     /// 说明：一次 BuildAssetBundles 同时打包 res 与 lua，
-    ///       保证产出单一 manifest（运行时 LuaComponent 才能在同一份 manifest 中扫到 lua bundle）
+    ///       保证产出单一 manifest（运行时 HonorLuaComponent 才能在同一份 manifest 中扫到 lua bundle）
     /// </summary>
     public class BuildOrderPackageAll : BuildOrder
     {

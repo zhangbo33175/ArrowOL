@@ -170,9 +170,16 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 加载2D场景根节点预制体
+        /// <para>
+        /// 加载流程分平台：
+        /// 1. 编辑器资源模式（UNITY_EDITOR）：直接 AssetDatabase 加载，开发期不依赖 AB 构建；
+        /// 2. 打包后（非编辑器）：由 Lua 侧 AssetUtil.CreatePrefabGOSync 统一驱动（走 AB），
+        ///    C# 不再硬编码路径，避免 Player 构建时 UnityEditor 命名空间报错。
+        /// </para>
         /// </summary>
         public GameObject Load2DSceneRoot()
         {
+#if UNITY_EDITOR
             var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab");
             if (prefab == null)
             {
@@ -180,6 +187,12 @@ namespace Honor.Runtime
                 return null;
             }
             return UnityEngine.Object.Instantiate(prefab);
+#else
+            // 打包后：2D 场景根节点由 Lua 侧 AssetUtil.CreatePrefabGOSync 统一加载（走 AB）
+            // 对应资源配置：ABPath=Assets/Res/Prefabs/SceneRoot, AssetName=2DSceneRoot.prefab
+            Log.Error("Load2DSceneRoot 仅编辑器资源模式可用。打包后请由 Lua 侧 AssetUtil.CreatePrefabGOSync 加载 2DSceneRoot。");
+            return null;
+#endif
         }
 
         /// <summary>

@@ -110,33 +110,31 @@ function CharacterGenerationManager:SpawnCharacterByData(characterData, newParen
 end
 
 ---=========================================================================
+---@brief 实体回收回池（角色/物件通用）
+---@desc 遍历实体列表逐个放回对象池并复位；组件已销毁时跳过，避免 MissingReferenceException
+---@type fun(list:HonorList):void
+---@param list HonorList @实体列表（_characterBaseTable / _mapObjectTable）
+---=========================================================================
+function CharacterGenerationManager:_DespawnEntityList(list)
+    if not list then return end
+    for i = 1, list:Count() do
+        local entity = list.items[i]
+        if entity ~= nil and entity.cs ~= nil and not IsNull(entity.cs) then
+            PoolManager:Put(entity.cs.gameObject)
+            entity:Clear()
+        end
+    end
+    list:Clear()
+end
+
+---=========================================================================
 ---@brief 销毁所有角色（放回对象池）
----@desc 关卡退出/地图卸载时调用，遍历全局角色列表逐个放回对象池并复位，最后清空列表
+---@desc 关卡退出/地图卸载时调用，角色与建筑/物件同批回池，最后清空列表
 ---@type fun():void
 ---=========================================================================
 function CharacterGenerationManager:DespawnAllCharacters()
-    for i = 1, self._characterBaseTable:Count() do
-        ---@type CharacterBase
-        local characterBase = self._characterBaseTable.items[i]
-        -- 角色组件已销毁时跳过放回对象池，避免访问已销毁 LuaBehaviour 抛 MissingReferenceException
-        -- （Unity 对象销毁后 Lua 引用仍非 nil，须用 IsNull 判空）
-        if characterBase ~= nil and characterBase.cs ~= nil and not IsNull(characterBase.cs) then
-            PoolManager:Put(characterBase.cs.gameObject)
-            characterBase:Clear()
-        end
-    end
-    self._characterBaseTable:Clear()
-
-    ---TODO [物件生成] 地图物件/建筑实体随角色同批回池，避免重载残留（同 IsNull 守卫）
-    for i = 1, self._mapObjectTable:Count() do
-        ---@type MapObjectBase
-        local mapObj = self._mapObjectTable.items[i]
-        if mapObj ~= nil and mapObj.cs ~= nil and not IsNull(mapObj.cs) then
-            PoolManager:Put(mapObj.cs.gameObject)
-            mapObj:Clear()
-        end
-    end
-    self._mapObjectTable:Clear()
+    self:_DespawnEntityList(self._characterBaseTable)
+    self:_DespawnEntityList(self._mapObjectTable)
 end
 
 --endregion
@@ -185,6 +183,21 @@ function CharacterGenerationManager:_ResolveSpriteName(sprite, fallbackIcon)
 end
 
 ---=========================================================================
+---@brief 构造实例唯一收集键（角色/物件通用）
+---@desc 同分区同 Id 多实例时靠 seq 保证键唯一；prefix 区分类型（物件带 "Obj_" 前缀）
+---@type fun(prefix:string?,sectionId:number,id:any,seq:number):string
+---@param prefix string? @类型前缀（物件传 "Obj_"，角色传 nil）
+---@param sectionId number @分区ID
+---@param id any @条目ID
+---@param seq number @实例序号（同 Id 多实例区分）
+---@return string @收集键字符串
+---=========================================================================
+function CharacterGenerationManager:_MakeCollectKey(prefix, sectionId, id, seq)
+    local p = prefix and (prefix .. "_") or ""
+    return p .. tostring(sectionId or 1) .. "_" .. tostring(id) .. "_" .. tostring(seq or 1)
+end
+
+---=========================================================================
 ---@brief 读取格子像素尺寸（编辑器/运行时统一为 32）
 ---@desc 角色与物件坐标换算共用：pixel = Grid × gridSize；统一读取点，避免散落解析与魔数
 ---@type fun():number
@@ -192,6 +205,24 @@ end
 ---=========================================================================
 function CharacterGenerationManager:_GetGridSize()
     return tonumber(EMapLayoutConfig.gridSize) or 32
+end
+
+---=========================================================================
+---@brief 编辑器格子坐标 → 实体 localPosition（公共换算）
+---@desc CoordAdapter 坐标系：左下角原点、Y 向上为正；编辑器 GridY 从上往下数，需 Y 轴翻转
+---@type fun(gridX:number,gridY:number):UnityEngine.Vector3
+---@param gridX number @编辑器格子 X（从左向右）
+---@param gridY number @编辑器格子 Y（从上向下）
+---@return UnityEngine.Vector3 @localPosition（x=gridX*gridSize, y=mapH-gridY*gridSize）
+---=========================================================================
+function CharacterGenerationManager:_GridToLocalPos(gridX, gridY)
+    local gs = self:_GetGridSize()
+    -- 【修复】不用 EMapLayoutConfig.height（值是错的2048），直接用 gridRows * gridSize 算真实高度
+    local mapH = (EMapLayoutConfig.gridRows or 128) * gs
+    -- GridY 从上往下 → 运行时 Y 从下往上（翻转）
+    local x = (gridX or 0) * gs
+    local y = mapH - (gridY or 0) * gs
+    return UnityEngine.Vector3(x, y, 0)
 end
 
 ---=========================================================================
@@ -247,39 +278,49 @@ end
 ---      【取消分区】章节地图为单分区整图，一次全量生成、一次全量收集，无分区解锁补生成。
 ---=========================================================================
 function CharacterGenerationManager:LoadCharacterByMapData(gameMapRoot)
+    PrintInfo("[CGM] LoadCharacterByMapData 入口, gameMapRoot=" .. tostring(gameMapRoot))
+
     -- 地图根节点空安全保护
     if gameMapRoot == nil then
+        PrintWarning("[CGM] gameMapRoot 为 nil，跳过")
         return
     end
 
     -- 获取关卡根配置数据并挂载当前关卡（单分区：整图数据）
     local mapData = GameManager:GetMapRootData()
-    if not mapData or not mapData.MapData then
+    if not mapData then
+        PrintWarning("[CGM] GetMapRootData 返回 nil，跳过（章节ID/关卡配置表未就绪？）")
         return
     end
+    PrintInfo("[CGM] 关卡就绪: " .. tostring(mapData.ChapterName)
+        .. " | 角色=" .. tostring(mapData.Characters and #mapData.Characters or 0)
+        .. " 建筑=" .. tostring(mapData.Buildings and #mapData.Buildings or 0)
+        .. " 物件=" .. tostring(mapData.Objects and #mapData.Objects or 0))
     GameCoreManager:SetCurLevelData(mapData)
 
     -- 清空旧角色列表，防止重载/重玩时残留脏数据
     local characterList = self:_ClearCharacterList()
 
-    ---TODO [阶段2] MapLoadManager 未就绪硬守卫（骨架已由 MapLoadManager:LoadMap 建立）
-    if MapLoadManager.ZoneRoot == nil or MapLoadManager.SectionDatas == nil then
+    -- MapLoadManager 未就绪硬守卫（骨架已由 MapLoadManager:LoadMap 建立，分区数据存于 LevelData）
+    if MapLoadManager.ZoneRoot == nil or MapLoadManager.LevelData == nil then
+        PrintWarning("[CGM] 骨架未就绪（ZoneRoot/LevelData 为 nil），跳过实体生成")
         return
     end
 
-    -- 单分区：整图实体统一挂 ZoneItem_1/Root 下（取消分区后不再按解锁分区枚举生成）
+    -- 实体挂载点：ZoneRoot → ZoneItem → Root → CoordAdapter（编辑器坐标系层，pivot=左下角）
     local zoneRootRef = MapLoadManager.ZoneRoot
-    local zoneT = zoneRootRef:Find("ZoneItem_1")
-    if not zoneT then zoneT = zoneRootRef:Find("RawImage/ZoneItem_1") end
-    local rootT = zoneT and zoneT:Find("Root") or zoneT
-    if rootT then
-        local _okE, _errE = pcall(function()
-            -- 统一入口：角色 + 可交互建筑 + 物件生成
-            self:_GenerateEntitiesForSection(mapData, rootT, characterList)
-        end)
-        if not _okE then
-            PrintError("实体生成失败: {0}（骨架保留）", tostring(_errE))
-        end
+    local rootT = zoneRootRef:Find("ZoneItem/Root/CoordAdapter")
+    if not rootT then rootT = zoneRootRef:Find("ZoneItem/Root") end  -- 兜底：兼容旧预制体
+    if not rootT then
+        PrintError("[CGM] 找不到实体挂载点 ZoneItem/Root/CoordAdapter")
+        return
+    end
+
+    local _okE, _errE = pcall(function()
+        self:_GenerateEntitiesForSection(mapData, rootT, characterList)
+    end)
+    if not _okE then
+        PrintError("[CGM] 实体生成失败: " .. tostring(_errE))
     end
 end
 
@@ -300,12 +341,70 @@ function CharacterGenerationManager:_CollectOccupiedCells(unlockedDatas)
 end
 
 ---=========================================================================
+---@brief 按需加载子表（带缓存，避免重复 require）
+---@desc 子表数据挂在 Tables.xxx 全局表上，require 只负责触发文件加载
+---@type fun(mapData:table, subKey:string):table|nil
+function CharacterGenerationManager:_LoadSubTable(mapData, subKey)
+    if type(mapData) ~= "table" then
+        return nil
+    end
+    -- 缓存键：关卡ID + 子表名
+    local levelId = "unknown"
+    local mainTableName = "LevelData"
+    if type(mapData.Meta) == "table" then
+        levelId = tostring(mapData.Meta.LevelId or "unknown")
+    end
+    -- 推导主表名（Tables.LevelData_X_Y）
+    if type(mapData.Meta) == "table" and mapData.Meta.ChapterId and mapData.Meta.LevelId then
+        mainTableName = "LevelData_" .. tostring(mapData.Meta.ChapterId) .. "_" .. tostring(mapData.Meta.LevelId)
+    end
+    local cacheKey = levelId .. "_" .. subKey
+    if self._SubTableCache and self._SubTableCache[cacheKey] then
+        return self._SubTableCache[cacheKey]
+    end
+    -- 读子表 require 路径（空值保护）
+    local subPath = nil
+    if type(mapData.SubTables) == "table" then
+        subPath = mapData.SubTables[subKey]
+    end
+    PrintInfo("[CGM] 加载子表: subKey=" .. tostring(subKey) .. " subPath=" .. tostring(subPath))
+    if not subPath then
+        PrintWarning("[CGM] 子表路径为空: " .. tostring(subKey))
+        return nil
+    end
+    -- require 触发文件加载（文件里定义 Tables.xxx = {...}）
+    local ok, err = pcall(require, subPath)
+    PrintInfo("[CGM] require 结果: ok=" .. tostring(ok) .. " err=" .. tostring(err))
+    if not ok then
+        PrintWarning("[CGM] 子表加载失败: " .. tostring(subPath) .. " 错误: " .. tostring(err))
+        return nil
+    end
+    -- 从 Tables 全局表里取对应子表
+    -- 表名规律：主表名 + "_" + subKey（例：LevelData_1_1 + "_" + Characters = LevelData_1_1_Characters）
+    local tableName = mainTableName .. "_" .. subKey
+    local data = Tables[tableName]
+    PrintInfo("[CGM] 取表: Tables." .. tableName .. " type=" .. type(data))
+    if type(data) ~= "table" then
+        PrintWarning("[CGM] 子表加载后数据为空: Tables." .. tableName)
+        -- 兜底：直接用 subPath 对应的表名试试（带 Table 前缀）
+        local altTableName = subPath  -- TableLevelData_1_1_Characters
+        if altTableName:startswith("Table") then
+            altTableName = altTableName:sub(6)  -- LevelData_1_1_Characters
+        end
+        PrintInfo("[CGM] 兜底尝试: Tables." .. altTableName .. " type=" .. type(Tables[altTableName]))
+        return nil
+    end
+    self._SubTableCache = self._SubTableCache or {}
+    self._SubTableCache[cacheKey] = data
+    return data
+end
+
+---=========================================================================
 ---@brief 生成单个分区数据内的全部角色（多分区复用）
----@desc 从分区表 Characters（新格式）或 MapData（旧格式兜底）遍历：Id→SpawnCharacter、
----      Position→localPosition、图标刷新（新格式角色表 Icon 优先/旧格式地图 Sprite 优先）、
----      新格式 PathPoints 挂到角色实例。已解锁分区逐分区调用本方法实现多分区同屏。
+---@desc 优化格式：从主表 SubTables.Characters 子表读角色列表，合并 Defaults 默认配置，
+---      从 Paths 子表按 PathId 拿路径点
 ---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,characterList:table):void
----@param mapSectionData table 分区数据（Tables.LevelData_Item）
+---@param mapSectionData table 分区数据（主表 Tables.LevelData_Item）
 ---@param gameMapRoot UnityEngine.Transform 地图根节点
 ---@param characterList table 全局角色列表（登记用）
 ---=========================================================================
@@ -313,86 +412,116 @@ function CharacterGenerationManager:_SpawnCharactersForSection(mapSectionData, g
     if not mapSectionData then
         return
     end
-    ---TODO 新地图数据格式（规范§9）：优先 Characters 新数组；老文件回退 MapData，调用顺序与原实现一致
-    local charList = mapSectionData.Characters or mapSectionData.MapData
+
+    -- 加载角色子表（优化格式）
+    local charList = self:_LoadSubTable(mapSectionData, "Characters")
+    if not charList then
+        -- 兜底：兼容旧格式（主表直接带 Characters）
+        charList = mapSectionData.Characters or mapSectionData.MapData
+    end
     if not charList then
         return
     end
-    local isNewFormat = mapSectionData.Characters ~= nil
-    --- 当前分区ID（登记收集归属用）
-    local sectionId = tonumber(mapSectionData.SectionId) or 1
+    local isNewFormat = mapSectionData.SubTables ~= nil
+    local sectionId = tonumber(mapSectionData.Meta and mapSectionData.Meta.LevelId) or 1
 
     for i, v in ipairs(charList) do
-        self:_ProcessSingleCharacter(v, i, gameMapRoot, characterList, sectionId, isNewFormat)
+        self:_ProcessSingleCharacter(v, i, gameMapRoot, characterList, sectionId, isNewFormat, mapSectionData)
     end
 end
 
 ---=========================================================================
 ---@brief 处理单个分区角色条目（生成/定位/图标/路径/登记）
----@desc 由 _SpawnCharactersForSection 循环逐条调用；条目无效或生成失败时直接返回（等价原 goto continue），
----      职责：按ID生成实体→格子坐标换算→刷新图标→启动巡逻路径→写入全局列表与关卡收集表
----@type fun(v:table,index:number,gameMapRoot:UnityEngine.Transform,characterList:table,sectionId:number,isNewFormat:boolean):void
----@param v table @分区角色条目（Characters 新格式或 MapData 旧格式）
+---@desc 优化格式：字段用 TemplateId/GridX/GridY/Image/Anim/PathId，公共字段走 Defaults 合并
+---@type fun(v:table,index:number,gameMapRoot:UnityEngine.Transform,characterList:table,sectionId:number,isNewFormat:boolean,mapSectionData:table):void
+---@param v table @分区角色条目
 ---@param index number @循环序号（同分区同ID多实例收集键唯一用）
 ---@param gameMapRoot UnityEngine.Transform @地图根节点（实体挂载点）
 ---@param characterList table @全局角色列表（登记用）
 ---@param sectionId number @当前分区ID
----@param isNewFormat boolean @是否新地图数据格式（图标优先级/PathPoints 处理分支）
+---@param isNewFormat boolean @是否新地图数据格式
+---@param mapSectionData table @主表数据（用于读 Defaults / Paths 子表）
 ---=========================================================================
-function CharacterGenerationManager:_ProcessSingleCharacter(v, index, gameMapRoot, characterList, sectionId, isNewFormat)
-    -- 无效条目直接跳过（等价原 goto continue）
-    if not v or not v.Id then
+function CharacterGenerationManager:_ProcessSingleCharacter(v, index, gameMapRoot, characterList, sectionId, isNewFormat, mapSectionData)
+    -- 无效条目直接跳过
+    if not v then
         print("[CharacterGenerationManager] 无效角色配置数据，跳过")
         return
     end
 
+    -- 字段兼容：新格式 TemplateId，旧格式 Id
+    local templateId = v.TemplateId or v.Id
+    if not templateId then
+        print("[CharacterGenerationManager] 角色缺少 TemplateId/Id，跳过")
+        return
+    end
+    -- 字符串转数字：模板表 Tables.Characters 的 key 是数字 [1001]，不是字符串 "1001"
+    templateId = tonumber(templateId) or templateId
+
+    -- 合并默认配置（新格式：Defaults + 条目自身字段）
+    local defaults = (isNewFormat and mapSectionData and mapSectionData.Defaults) or {}
+    local charConfig = setmetatable({}, { __index = function(_, k)
+        if v[k] ~= nil then return v[k] end
+        return defaults[k]
+    end })
+
     -- 根据ID生成角色实体挂载到地图根节点
-    local characterBase = self:SpawnCharacter(v.Id, gameMapRoot)
+    local characterBase = self:SpawnCharacter(templateId, gameMapRoot)
     if not characterBase then
-        print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(v.Id))
+        print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(templateId))
         return
     end
 
-    -- 实例唯一收集键：分区ID_角色ID_序号（同分区允许多个相同 ID 实例，各自独立收集）
-    local collectKey = tostring(sectionId) .. "_" .. tostring(v.Id) .. "_" .. tostring(index)
-    -- 角色展示 ID 保留配置 ID（日志/排查用），收集/去重统一走实例唯一键 _CollectKey
-    characterBase.ID = v.Id
+    -- 实例唯一收集键：分区ID_角色ID_序号
+    local collectKey = self:_MakeCollectKey(nil, sectionId, templateId, index)
+    characterBase.ID = templateId
     characterBase._CollectKey = collectKey
 
-    -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
-    -- 【取消分区】整图单分区：编辑器数据即整图坐标（GridX 0..GridCols-1），挂载点 ZoneItem_1/Root
-    -- 即整图坐标空间，无需再减分区水平偏移（原多分区 regionCol×zoneWidth 偏移已失效）。
-    -- Y 轴：编辑器左下原点向上 → Root top-left 向下，取反后与背景一致。
-    local gridSize = self:_GetGridSize()
-    local charWx = (v.GridX or 0) * gridSize
-    local charWy = (v.GridY or 0) * gridSize
-    characterBase._GameObject.transform.localPosition = UnityEngine.Vector3(charWx, -charWy, 0)
+    -- 【坐标系】实体挂到 CoordAdapter（pivot=左下角）下，Y 轴翻转
+    local startPos = self:_GridToLocalPos(v.GridX, v.GridY)
+    characterBase._GameObject.transform.localPosition = startPos
+    PrintInfo("[坐标调试] 角色ID=" .. tostring(templateId)
+        .. " GridX=" .. tostring(v.GridX) .. " GridY=" .. tostring(v.GridY)
+        .. " → PosX=" .. string.format("%.1f", startPos.x)
+        .. " PosY=" .. string.format("%.1f", startPos.y))
+    -- 【调试】打印设置后实际的 localPosition，验证是否和预期一致
+    local actualPos = characterBase._GameObject.transform.localPosition
+    PrintInfo("[坐标调试] 角色ID=" .. tostring(templateId)
+        .. " 设置后实际 localPosition = (" .. string.format("%.1f", actualPos.x)
+        .. ", " .. string.format("%.1f", actualPos.y) .. ")")
 
     -- 刷新角色图标
-    local catData = CharacterGenerationDataManager:GetDataById(v.Id)
+    local catData = CharacterGenerationDataManager:GetDataById(templateId)
     if isNewFormat then
-        ---TODO 新格式：按规范§9，角色静态表 Icon 优先，地图条目 Image/Sprite 仅作兜底
-        self:_RefreshCharacterIcon(characterBase, catData and catData.Icon, v.Image or v.Sprite)
+        ---TODO 新格式：角色静态表 Icon 优先，地图条目 Image 仅作兜底
+        self:_RefreshCharacterIcon(characterBase, catData and catData.Icon, v.Image)
     else
-        -- 老格式：保持原调用顺序（地图配置 Sprite 优先，回退角色表 Icon），行为不变
         self:_RefreshCharacterIcon(characterBase, v.Sprite, catData and catData.Icon)
     end
 
-    ---TODO [路径移动] PathPoints 非空时实际启动巡逻移动（DOTween 匀速序列，随角色回收/销毁自动停止）；
-    ---     _PathPoints 赋值保留兼容旧读取方
-    if isNewFormat and v.PathPoints and #v.PathPoints > 0 then
-        ---TODO [坐标变换] PathPoints 同样为编辑器坐标系，统一变换到世界系再启动移动
-        local worldPathPoints = TransformEditorPathPoints(v.PathPoints, sectionId)
-        characterBase._PathPoints = worldPathPoints
-        local loop = v.PatrolLoop == true
-        characterBase:StartPathMove(worldPathPoints, v.Speed, loop)
+    -- 路径移动（新格式：从 Paths 子表按 PathId 拿路径点）
+    local pathPoints = nil
+    if isNewFormat and v.PathId then
+        local pathsTable = self:_LoadSubTable(mapSectionData, "Paths")
+        if pathsTable then
+            pathPoints = pathsTable[v.PathId]
+        end
+    elseif isNewFormat and v.PathPoints then
+        -- 兼容：旧格式直接嵌在条目里
+        pathPoints = v.PathPoints
     end
 
-    -- 存入全局角色管理列表（以实例唯一键登记，同 ID 多实例不互相覆盖）
+    if pathPoints and #pathPoints > 0 then
+        local worldPathPoints = TransformEditorPathPoints(pathPoints, sectionId)
+        characterBase._PathPoints = worldPathPoints
+        local loop = v.PatrolLoop == "loop" or charConfig.PatrolLoop == "loop"
+        characterBase:StartPathMove(worldPathPoints, charConfig.Speed, loop)
+    end
+
+    -- 存入全局角色管理列表
     self:_RegisterCharacterToList(characterList, collectKey, characterBase)
 
-    -- 登记角色归属关卡与关卡物品总数（收集判定依据，收敛到 LevelCollectManager）
-    -- 携带展示信息 meta（图标名/是否角色），供收集面板列表展示
+    -- 登记角色归属关卡与关卡物品总数
     local charData = characterBase._CharData
     local charMeta = charData and { icon = charData.Icon, isRole = true } or { isRole = true }
     LevelCollectManager:RegisterLevelItem(sectionId, collectKey, charMeta)
@@ -400,71 +529,111 @@ end
 
 ---=========================================================================
 ---@brief 分区实体生成统一入口（角色 + 可交互建筑 + 物件）
----@desc 收敛角色生成/物件生成/可交互建筑生成三类子方法为单一入口：
----      角色走 _SpawnCharactersForSection，建筑走 _SpawnBuildingsForSection（BuildingItem 类），
----      物件走 _SpawnMapObjectsForSection（MapObjectCtrl 类）；objSeq 跨建筑+物件共用递增，
----      保证同分区同 Id 多实例收集键唯一。Buildings/Objects 数组为空时静默跳过。
----@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,characterList:table):void
----@param mapSectionData table @分区数据（Characters/Buildings/Objects 挂在分区表，非根配置）
----@param gameMapRoot UnityEngine.Transform @地图根节点（实体挂载点）
----@param characterList table @全局角色列表（角色登记用）
+---@desc 优化格式：角色/建筑/物件分别从子表加载，默认值走主表 Defaults
+---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,characterList:table?,buildingList:table?,objectList:table?):void
+---@param mapSectionData table @分区数据（主表 Tables.LevelData_Item）
+---@param gameMapRoot UnityEngine.Transform @地图根节点（CoordAdapter）
+---@param characterList table? @角色列表（外部传入则复用）
+---@param buildingList table? @建筑列表（外部传入则复用）
+---@param objectList table? @物件列表（外部传入则复用）
 ---=========================================================================
-function CharacterGenerationManager:_GenerateEntitiesForSection(mapSectionData, gameMapRoot, characterList)
+function CharacterGenerationManager:_GenerateEntitiesForSection(mapSectionData, gameMapRoot, characterList, buildingList, objectList)
     if not mapSectionData or gameMapRoot == nil then
         return
     end
-    -- 角色生成（收集键=分区ID_角色ID_序号，登记 _CharacterList 与分区收集表）
-    self:_SpawnCharactersForSection(mapSectionData, gameMapRoot, characterList)
-    -- 物件全局序号（建筑+物件共用递增，保证同分区同 Id 多实例键唯一）
+    -- 分层挂载：角色→Characters，建筑→Buildings，物件→Objects
+    local charRoot = gameMapRoot:Find("Characters") or gameMapRoot
+    local buildRoot = gameMapRoot:Find("Buildings") or gameMapRoot
+    local objRoot = gameMapRoot:Find("Objects") or gameMapRoot
+    PrintInfo("[CGM] 分层挂载: char=" .. charRoot.name .. " build=" .. buildRoot.name .. " obj=" .. objRoot.name)
+
+    -- 列表初始化
+    characterList = characterList or {}
+    buildingList = buildingList or {}
+    objectList = objectList or {}
+    self._CharacterList = characterList
+    self._BuildingList = buildingList
+    self._ObjectList = objectList
+
+    -- 角色生成
+    self:_SpawnCharactersForSection(mapSectionData, charRoot, characterList)
+
+    -- 建筑生成（从子表加载）
     local objSeq = 0
-    -- 可交互建筑生成（BuildingItem 类）
-    objSeq = self:_SpawnBuildingsForSection(mapSectionData, gameMapRoot, objSeq)
-    -- 物件生成（MapObjectCtrl 类）
-    objSeq = self:_SpawnMapObjectsForSection(mapSectionData, gameMapRoot, objSeq)
+    objSeq = self:_SpawnBuildingsForSection(mapSectionData, buildRoot, objSeq, buildingList)
+
+    -- 物件生成（从子表加载）
+    objSeq = self:_SpawnMapObjectsForSection(mapSectionData, objRoot, objSeq, objectList)
 end
 
 ---=========================================================================
----@brief 可交互建筑生成（BuildingTemplate → BuildingItem 类）
----@desc 遍历分区 Buildings 数组实例化建筑实体：模板 LuaBehaviour 绑定 BuildingItem（继承
----      MapObjectBase），与物件共用 objSeq 递增保证收集键唯一；收集键=Obj_分区_建筑ID_序号。
----@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number):number
----@param mapSectionData table @分区数据（Buildings 数组）
----@param gameMapRoot UnityEngine.Transform @地图根节点
----@param objSeq number @物件全局序号（进入时已含建筑前累计值）
+---@brief 可交互建筑生成（从子表加载）
+---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number,buildingList:table):number
+---@param mapSectionData table @主表数据
+---@param gameMapRoot UnityEngine.Transform @建筑挂载节点（Buildings 层）
+---@param objSeq number @物件全局序号
+---@param buildingList table @建筑列表
 ---@return number @更新后的全局序号
 ---=========================================================================
-function CharacterGenerationManager:_SpawnBuildingsForSection(mapSectionData, gameMapRoot, objSeq)
-    if not mapSectionData or not mapSectionData.Buildings then
+function CharacterGenerationManager:_SpawnBuildingsForSection(mapSectionData, gameMapRoot, objSeq, buildingList)
+    if not mapSectionData then
         return objSeq or 0
     end
-    local sectionId = tonumber(mapSectionData.SectionId) or 1
-    for _, entry in ipairs(mapSectionData.Buildings) do
-        ---TODO [物件生成] 建筑走 BuildingTemplate 运行时实体模板（LoadResDefs_1 手工注册）
+    buildingList = buildingList or {}
+
+    -- 从子表加载建筑列表（优化格式）
+    local buildingListData = self:_LoadSubTable(mapSectionData, "Buildings")
+    if not buildingListData then
+        -- 兜底：兼容旧格式
+        buildingListData = mapSectionData.Buildings
+    end
+    if not buildingListData then
+        return objSeq or 0
+    end
+
+    local sectionId = tonumber(mapSectionData.Meta and mapSectionData.Meta.LevelId) or tonumber(mapSectionData.SectionId) or 1
+    for _, entry in ipairs(buildingListData) do
         objSeq = (objSeq or 0) + 1
-        self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_BuildingTemplate", sectionId, objSeq)
+        local building = self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_BuildingTemplate", sectionId, objSeq)
+        if building then
+            buildingList[#buildingList + 1] = building
+        end
     end
     return objSeq
 end
 
 ---=========================================================================
----@brief 物件生成（ObjectTemplate → MapObjectCtrl 类）
----@desc 遍历分区 Objects 数组实例化物件实体：模板 LuaBehaviour 绑定 MapObjectCtrl（继承
----      MapObjectBase），与建筑共用 objSeq 递增保证收集键唯一；收集键=Obj_分区_物件ID_序号。
----@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number):number
----@param mapSectionData table @分区数据（Objects 数组）
----@param gameMapRoot UnityEngine.Transform @地图根节点
----@param objSeq number @物件全局序号（进入时已含建筑累计值）
+---@brief 物件生成（从子表加载）
+---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number,objectList:table):number
+---@param mapSectionData table @主表数据
+---@param gameMapRoot UnityEngine.Transform @物件挂载节点（Objects 层）
+---@param objSeq number @物件全局序号
+---@param objectList table @物件列表
 ---@return number @更新后的全局序号
 ---=========================================================================
-function CharacterGenerationManager:_SpawnMapObjectsForSection(mapSectionData, gameMapRoot, objSeq)
-    if not mapSectionData or not mapSectionData.Objects then
+function CharacterGenerationManager:_SpawnMapObjectsForSection(mapSectionData, gameMapRoot, objSeq, objectList)
+    if not mapSectionData then
         return objSeq or 0
     end
-    local sectionId = tonumber(mapSectionData.SectionId) or 1
-    for _, entry in ipairs(mapSectionData.Objects) do
-        ---TODO [物件生成] 物件走 ObjectTemplate 运行时实体模板
+    objectList = objectList or {}
+
+    -- 从子表加载物件列表（优化格式）
+    local objectListData = self:_LoadSubTable(mapSectionData, "Objects")
+    if not objectListData then
+        -- 兜底：兼容旧格式
+        objectListData = mapSectionData.Objects
+    end
+    if not objectListData then
+        return objSeq or 0
+    end
+
+    local sectionId = tonumber(mapSectionData.Meta and mapSectionData.Meta.LevelId) or tonumber(mapSectionData.SectionId) or 1
+    for _, entry in ipairs(objectListData) do
         objSeq = (objSeq or 0) + 1
-        self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_ObjectTemplate", sectionId, objSeq)
+        local obj = self:_SpawnSingleMapObject(entry, gameMapRoot, "GameObject_ObjectTemplate", sectionId, objSeq)
+        if obj then
+            objectList[#objectList + 1] = obj
+        end
     end
     return objSeq
 end
@@ -483,8 +652,8 @@ end
 ---@return MapObjectBase|nil @物件实例，数据缺失返回nil
 ---=========================================================================
 function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, resName, sectionId, objSeq)
-    -- 数据空安全：无条目/无坐标无法生成
-    if not entry or not entry.Position then
+    -- 数据空安全：无条目/无坐标无法生成（编辑器导出字段为 GridX/GridY，非 Position）
+    if not entry or (entry.GridX == nil and entry.GridY == nil) then
         return nil
     end
 
@@ -513,19 +682,15 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     mapObj._GameObject = go
     mapObj:RefreshBubbleTimer()
 
-    -- 物件唯一收集键（关卡ID_物件ID_全局序号，避免同关卡同 Id 多实例键冲突），供点击收集时登记进度
-    local collectKey = "Obj_" .. tostring(sectionId or 1) .. "_" .. tostring(entry.Id) .. "_" .. tostring(objSeq or 1)
+    -- 物件唯一收集键（关卡ID_物件ID_全局序号，避免同关卡同 Id 多实例键冲突）
+    local collectKey = self:_MakeCollectKey("Obj", sectionId, entry.Id, objSeq)
     mapObj._CollectKey = collectKey
     -- 登记物件归属关卡（收敛到 LevelCollectManager 门面）
     -- 携带展示信息 meta（图标名=entry.Image/是否角色=false），供收集面板列表展示
     LevelCollectManager:RegisterLevelItem(sectionId or 1, collectKey, { icon = entry.Image, isRole = false })
 
-    -- 用格子坐标反算像素位置：pixel = Grid × gridSize（从 MapLayoutConfig 读取）
-    -- 【取消分区】整图单分区：编辑器数据即整图坐标，无需分区水平偏移；Y 取反适配 top-left 系
-    local gridSize = self:_GetGridSize()
-    local objWx = (entry.GridX or 0) * gridSize
-    local objWy = (entry.GridY or 0) * gridSize
-    go.transform.localPosition = UnityEngine.Vector3(objWx, -objWy, 0)
+    -- 【坐标系】同角色：挂到 CoordAdapter（左下角原点）下，直接用 Grid×gridSize
+    go.transform.localPosition = self:_GridToLocalPos(entry.GridX, entry.GridY)
 
     -- 图标刷新（子节点 BG Image）与显示尺寸（格子数×32 像素）
     self:_SetupMapObjectIconAndSize(mapObj, go, entry)
@@ -562,9 +727,8 @@ function CharacterGenerationManager:_SetupMapObjectIconAndSize(mapObj, go, entry
             GamePlayHelper:RefreshImageSprite(mapObj, uiImage, spriteName)
         end
     end
-    ---TODO [物件生成] 编辑器矩形像素尺寸=Width*GridSize × Height*GridSize（GridSize=32，
-    ---     SceneEditModule.Render.cs:136），运行时直接把 BG 的 sizeDelta 设为该像素尺寸
-    local gridPixel = 32
+    ---TODO [物件生成] 编辑器矩形像素尺寸=Width*GridSize × Height*GridSize，运行时直接把 BG 的 sizeDelta 设为该像素尺寸
+    local gridPixel = self:_GetGridSize()
     local width = tonumber(entry.Width)
     local height = tonumber(entry.Height)
     if width and height then

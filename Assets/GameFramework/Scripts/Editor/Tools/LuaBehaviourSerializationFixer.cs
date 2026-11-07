@@ -40,7 +40,7 @@ namespace Honor.Runtime.Editor
 
                 if (prefab == null) continue;
 
-                // 获取所有 LuaBehaviour 组件
+                // 获取所有 HonorLuaBehaviour 组件
                 LuaBehaviour[] behaviours = prefab.GetComponentsInChildren<LuaBehaviour>(true);
                 if (behaviours.Length == 0) continue;
 

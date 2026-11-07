@@ -782,18 +782,25 @@ end
 ---      【取消分区】整图单分区：编辑器坐标即整图坐标，无分区水平偏移；
 ---      sectionId 参数保留兼容旧调用方（恒为 1 → 偏移 0）。
 ---@type fun(pathPoints:table,sectionId?:number):table
----@param pathPoints table @{X=number,Y=number}[]（编辑器坐标系）
+---@param pathPoints table 路径点列表，兼容两种格式：
+---        旧格式 {GridX=number, GridY=number}[]
+---        新格式 {gridX, gridY}[]（纯数组，压缩格式）
 ---@param sectionId number|nil @分区ID（保留兼容，取消分区后恒为 1，偏移恒 0）
 ---@return table @{X=number,Y=number}[]（世界坐标系，新表不污染源数据）
 ---=========================================================================
 function TransformEditorPathPoints(pathPoints, sectionId)
     local result = {}
-    ---TODO [坐标] Root pivot=top-left，Y 向下为正需取反（与角色 localPosition 一致）
+    -- 【坐标系】CoordAdapter 左下角原点、Y 向上；编辑器 GridY 从上往下数，需 Y 轴翻转
     local gridSize = tonumber(EMapLayoutConfig.gridSize) or 32
+    -- 【修复】不用 EMapLayoutConfig.height（值是错的2048），直接用 gridRows * gridSize 算真实高度
+    local mapH = (EMapLayoutConfig.gridRows or 128) * gridSize
     for i, p in ipairs(pathPoints) do
-        local wx = (p.GridX or 0) * gridSize
-        local wy = (p.GridY or 0) * gridSize
-        result[i] = { X = wx, Y = -wy }
+        -- 兼容两种格式：旧格式用字段名，新格式用数组下标
+        local gridX = p.GridX or p[1] or 0
+        local gridY = p.GridY or p[2] or 0
+        local wx = gridX * gridSize
+        local wy = mapH - gridY * gridSize
+        result[i] = { X = wx, Y = wy }
     end
     return result
 end

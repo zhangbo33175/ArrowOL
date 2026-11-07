@@ -175,7 +175,9 @@ function MapManager:LoadMapImageSprite()
 
     local bgImage = rawImageTrans:GetComponent(typeof(UnityEngine.UI.Image))
     if not IsNull(bgImage) then
-        GamePlayHelper:RefreshImageSprite(self.CurGameMapBase, bgImage, mapData.BgName)
+        -- 兼容新旧格式：新格式在 Meta.BgName，旧格式在根级别 BgName
+        local bgName = (mapData.Meta and mapData.Meta.BgName) or mapData.BgName
+        GamePlayHelper:RefreshImageSprite(self.CurGameMapBase, bgImage, bgName)
     end
 end
 

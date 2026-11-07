@@ -234,7 +234,6 @@ function CharacterBase:Clear()
     self._GameObject   = nil
     self._BubbleCfg    = nil
     self._CollectKey   = nil
-    self:_UnregisterBlocked()
 end
 
 --endregion

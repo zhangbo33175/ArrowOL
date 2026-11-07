@@ -8,7 +8,7 @@
  * descrip:   AssetBundle 打包工具 - Lua 脚本资源收集与（可选）加密
  *            收集 Assets/LuaScripts 下脚本/配置，按"每文件一个 bundle"
  *            生成 bundle 名 -> 资产路径 映射，供 BuildLuaOnly / BuildAllWithExtraBundles 使用。
- *            bundle 命名与运行时 LuaComponent.InitAssetBundleLuaPaths 完全对称：
+ *            bundle 命名与运行时 HonorLuaComponent.InitAssetBundleLuaPaths 完全对称：
  *            运行时用 GetABFormatPath("Assets/LuaScripts") 前缀匹配 manifest bundle 名，
  *            再用 GetABRestoredPath 还原加载地址，故 lua bundle 名必须基于
  *            "Assets/LuaScripts 全路径（仅去掉 .txt）"。
@@ -42,7 +42,7 @@ namespace Honor.Editor.BuildPackage
         /// <summary>
         /// 配置类资源根目录（相对 Assets）
         /// 说明：运行时 Config/Localization 均以"目录级 abPath"加载配置
-        /// （如 ConfigComponent.LoadConfigs 用 Assets/LuaScripts/Config/LuaJson + "Configs"），
+        /// （如 HonorConfigComponent.LoadConfigs 用 Assets/LuaScripts/Config/LuaJson + "Configs"），
         /// 故该目录下的 .json/.bytes 需打包为"目录粒度" bundle（bundle 名=目录路径格式化），
         /// 而非每文件粒度，才能命中运行时的 IsABExist(目录)。
         /// </summary>
@@ -62,7 +62,7 @@ namespace Honor.Editor.BuildPackage
         ///       如 Assets/LuaScripts/Game/GameMain.lua.txt → Assets/LuaScripts/Game/GameMain.lua；
         ///       否则去掉最后一个扩展名。</item>
         /// </list>
-        /// 命名依据：运行时 LuaComponent.InitAssetBundleLuaPaths 用
+        /// 命名依据：运行时 HonorLuaComponent.InitAssetBundleLuaPaths 用
         /// GetABFormatPath("Assets/LuaScripts") 前缀匹配 manifest 中的 bundle 名，
         /// 再用 GetABRestoredPath 还原出加载地址。因此 lua bundle 名必须基于
         /// "Assets/LuaScripts 全路径（只去 .txt）"，不能用相对 LuaScripts 的短路径。

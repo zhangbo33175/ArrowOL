@@ -332,11 +332,11 @@ EMapLayoutConfig = {
     gridSize = 32,      ---单格像素尺寸
     gridCols = 128,     ---网格总列数
     gridRows = 128,     ---网格总行数
-    levelWidth = 2048,  ---关卡宽度
-    levelHeight = 2048, ---关卡高度
+    levelWidth = 4096,  ---关卡宽度
+    levelHeight = 4096, ---关卡高度
     scale = 1.0,        ---整体缩放
-    width = 2048,       ---地图总宽度
-    height = 2048,      ---地图总高度
+    width = 4096,       ---地图总宽度
+    height = 4096,      ---地图总高度
 }
 
 --endregion

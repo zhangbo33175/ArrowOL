@@ -108,7 +108,7 @@ namespace Honor.Editor.BuildPackage
         /// 一次 BuildAssetBundles 同时打包 res 与 lua（合并分组）
         /// 说明：res 由 <paramref name="configs"/> 经 BuildMap 收集；lua 等额外分组
         ///       <paramref name="extraBundles"/> 合并进同一打包列表，保证只产出单一 manifest，
-        ///       运行时 LuaComponent 才能在同一份 manifest 中扫到 lua bundle。
+        ///       运行时 HonorLuaComponent 才能在同一份 manifest 中扫到 lua bundle。
         ///       bundle 名冲突时合并资产列表（去重）。
         /// </summary>
         /// <param name="target">目标构建平台</param>
@@ -382,7 +382,7 @@ namespace Honor.Editor.BuildPackage
         /// <item>Assets/Res/ 下资源：相对 Res 的路径（不含后缀），沿用既有语义；</item>
         /// <item>Assets/LuaScripts/ 下资源：形如 "LuaScripts/Game/GameMain.lua"
         ///       （去掉 "Assets/" 前缀、去掉尾部 ".txt"，保留 ".lua"）——
-        ///       与运行时 LuaComponent 按 LuaScripts/ 前缀定位脚本的约定一致；</item>
+        ///       与运行时 HonorLuaComponent 按 LuaScripts/ 前缀定位脚本的约定一致；</item>
         /// <item>其他路径跳过。</item>
         /// </list>
         /// 追加语义：若文件已存在（如 lua-only 打包，此前已由 res 打包生成 respathtab），

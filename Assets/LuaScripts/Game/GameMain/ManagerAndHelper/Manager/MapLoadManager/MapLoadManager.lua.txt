@@ -144,11 +144,12 @@ function MapLoadManager:_PopulateZoneItems(levelDatas)
             end
         end
 
-        -- 设置背景图
-        if data.BgName then
+        -- 设置背景图（兼容新旧格式：新格式在 Meta.BgName，旧格式在根级别 BgName）
+        local bgName = (data.Meta and data.Meta.BgName) or data.BgName
+        if bgName then
             local img = rawImg and rawImg:GetComponent(typeof(UnityEngine.UI.Image))
             if img then
-                local r = LoadSpriteByName(data.BgName)
+                local r = LoadSpriteByName(bgName)
                 if r then
                     local sprite = LoadAssetSync(r)
                     if sprite then img.sprite = sprite end

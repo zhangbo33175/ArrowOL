@@ -1,0 +1,41 @@
+--=====================================================================================================
+-- filename:  LevelData_1_1_Characters
+-- descrip:   角色列表（自动生成）
+-- notices:   由地图编辑器自动生成，禁止手动修改
+-- @brief     关卡角色实体列表（只存差异字段）
+--=====================================================================================================
+
+Tables.LevelData_1_1_Characters = {
+    [1] = {
+        Uid         = "e9649ec2",
+        TemplateId  = "1001",
+        Name        = "主角猫咪",
+        GridX       = 76,
+        GridY       = 97,
+        Width       = 1,
+        Height      = 2,
+        Image       = "Assets/Res/Textures/Map/Objects/e9649ec2.png",
+        Anim        = "Idle",
+        PatrolLoop  = "once",
+        Interactable = false,
+        InteractType = "none",
+        DialogBubble = "",
+        PathId      = "path_e9649ec2",
+    },
+    [2] = {
+        Uid         = "09053b5a",
+        TemplateId  = "1002",
+        Name        = "NPC坐着-橘猫",
+        GridX       = 79,
+        GridY       = 98,
+        Width       = 1,
+        Height      = 2,
+        Image       = "Assets/Res/Textures/Map/Objects/09053b5a.png",
+        Anim        = "Sit",
+        PatrolLoop  = "once",
+        Interactable = true,
+        InteractType = "talk",
+        DialogBubble = "你好呀！",
+        PathId      = "path_09053b5a",
+    },
+}

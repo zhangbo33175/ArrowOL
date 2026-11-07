@@ -99,10 +99,72 @@ namespace Honor.Editor.MapTool
 
         /// <summary>
         /// 更新地图按钮点击
+        /// 流程：磁盘 JSON 可能被外部修改 → 刷新 AssetDatabase → 用最新配置文件重建地图
+        /// 1. 校验当前已加载关卡
+        /// 2. 二次确认（编辑器内未保存的摆放/修改会被磁盘配置覆盖）
+        /// 3. AssetDatabase.Refresh 拉取最新 JSON
+        /// 4. 清空当前选中态与摆放物
+        /// 5. LoadMapConfig 从 JSON 还原宽高/背景/摆放物/视口
+        /// 6. 同步宽高输入框、重新实例化预制体、同步场景节点
         /// </summary>
         private void OnUpdateMapClicked()
         {
-            Debug.Log("更新地图");
+            // 1. 前置校验：没有当前关卡或保存路径时不允许更新
+            if (string.IsNullOrEmpty(m_CurrentLevelId) || string.IsNullOrEmpty(m_MapSavePath))
+            {
+                ShowMessage("请先在左侧选择一个关卡再更新地图");
+                EditorUtility.DisplayDialog("更新地图", "请先在左侧章节/关卡列表中选择一个关卡，再点击更新地图。", "知道了");
+                return;
+            }
+
+            // 2. 二次确认：编辑器内未保存的摆放会被磁盘 JSON 覆盖
+            bool confirm = EditorUtility.DisplayDialog(
+                "更新地图",
+                $"将从磁盘配置文件重新加载地图：\n{m_MapSavePath}\n\n" +
+                $"当前编辑器中的未保存修改（摆放物、宽高调整等）会被丢弃，是否继续？",
+                "重新加载", "取消");
+            if (!confirm)
+            {
+                ShowMessage("已取消更新地图");
+                return;
+            }
+
+            // 3. 拉取磁盘最新文件（外部工具/脚本改过 JSON/配置表/PNG 时，Unity 缓存可能是旧的）
+            AssetDatabase.Refresh();
+
+            // 4. 清空当前选中态与编辑面板
+            m_EditTarget = null;
+            if (m_ObjectEditPanel != null)
+                m_ObjectEditPanel.style.display = DisplayStyle.None;
+
+            // 5. 先重读主关卡配置表（Level_cfg）——背景图名的权威来源，
+            //    否则只看 JSON 会漏掉在 Level_cfg 里改过 Level_bg 的情况
+            LoadMainLevelsConfig();
+
+            // 6. 再从 JSON 还原地图数据（宽高、摆放物、视口定位；
+            //    若 JSON 里 bgName 非空会覆盖字典，优先级高于主配置表）
+            LoadMapConfig();
+
+            // 7. 同步宽高到输入框（LoadMapConfig 只改了 m_MapWidth/Height，没写回 TextField）
+            if (m_MapWidth > 0 && m_WidthField != null)
+                m_WidthField.SetValueWithoutNotify(m_MapWidth.ToString());
+            if (m_MapHeight > 0 && m_HeightField != null)
+                m_HeightField.SetValueWithoutNotify(m_MapHeight.ToString());
+            m_ConfigMapWidth = m_MapWidth;
+            m_ConfigMapHeight = m_MapHeight;
+
+            // 8. 重新实例化地图预制体到场景（按最新配置重建场景节点）
+            if (m_MapPrefab != null)
+            {
+                InstantiateMapInScene();
+            }
+            // 9. 把还原后的摆放物同步到场景节点
+            RefreshSceneObjects();
+
+            UpdateStatusBar();
+            ShowMessage($"已从配置文件重新加载地图（摆放物 {m_PlacedObjects.Count}）");
+            string currentBg = m_LevelBgDict.TryGetValue(m_CurrentLevelId, out string bg) ? bg : "<空>";
+            Debug.Log($"[更新地图] 已从 {m_MapSavePath} 重新加载，摆放物 {m_PlacedObjects.Count}，宽高 {m_MapWidth}x{m_MapHeight}，背景 {currentBg}");
         }
 
         /// <summary>
