@@ -389,11 +389,24 @@ namespace Honor.Editor.MapTool
             if (m_MapLayerToggle != null)
                 m_MapLayerToggle.RegisterValueChangedCallback(evt => m_ShowMapLayer = evt.newValue);
             if (m_BuildingLayerToggle != null)
-                m_BuildingLayerToggle.RegisterValueChangedCallback(evt => m_ShowBuildingLayer = evt.newValue);
+                m_BuildingLayerToggle.RegisterValueChangedCallback(evt =>
+                {
+                    m_ShowBuildingLayer = evt.newValue;
+                    // 勾选时联动切换放置类型（取消勾选不改变放置类型，只隐藏显示）
+                    if (evt.newValue) SetPlaceType(0);
+                });
             if (m_CharacterLayerToggle != null)
-                m_CharacterLayerToggle.RegisterValueChangedCallback(evt => m_ShowCharacterLayer = evt.newValue);
+                m_CharacterLayerToggle.RegisterValueChangedCallback(evt =>
+                {
+                    m_ShowCharacterLayer = evt.newValue;
+                    if (evt.newValue) SetPlaceType(1);
+                });
             if (m_ObjectLayerToggle != null)
-                m_ObjectLayerToggle.RegisterValueChangedCallback(evt => m_ShowObjectLayer = evt.newValue);
+                m_ObjectLayerToggle.RegisterValueChangedCallback(evt =>
+                {
+                    m_ShowObjectLayer = evt.newValue;
+                    if (evt.newValue) SetPlaceType(2);
+                });
             if (m_BackgroundLayerToggle != null)
                 m_BackgroundLayerToggle.RegisterValueChangedCallback(evt => m_ShowBackgroundLayer = evt.newValue);
             if (m_PathGridToggle != null)

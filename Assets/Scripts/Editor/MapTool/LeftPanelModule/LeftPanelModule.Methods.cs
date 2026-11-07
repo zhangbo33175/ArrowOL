@@ -112,6 +112,8 @@ namespace Honor.Editor.MapTool
                     tabButtons[i].RemoveFromClassList("active");
             }
             RefreshResourceList();
+            // 通知外部：Tab 切换了（用于联动顶部图层 Toggle）
+            OnTabChanged?.Invoke(index);
         }
 
         /// <summary>

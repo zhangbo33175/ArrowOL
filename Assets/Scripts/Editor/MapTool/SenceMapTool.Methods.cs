@@ -48,6 +48,7 @@ namespace Honor.Editor.MapTool
                 // 监听关卡选择事件
                 m_LeftPanelModule.OnLevelSelected += OnLevelSelected;
                 m_LeftPanelModule.OnResourceSelected += OnResourceSelected;
+                m_LeftPanelModule.OnTabChanged += OnTabChanged;
             }
 
             // 场景编辑模块
@@ -173,6 +174,15 @@ namespace Honor.Editor.MapTool
             }
 
             m_SceneModule?.SetSelectedObject(objectId, objectName, type);
+        }
+
+        /// <summary>
+        /// Tab 切换事件：建筑/人物/物件 Tab 切换时联动顶部图层 Toggle
+        /// </summary>
+        /// <param name="type">类型：0=建筑 1=人物 2=物件</param>
+        private void OnTabChanged(int type)
+        {
+            m_SceneModule?.SetPlaceType(type);
         }
 
         /// <summary>

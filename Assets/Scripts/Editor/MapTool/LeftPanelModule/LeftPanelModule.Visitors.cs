@@ -65,6 +65,10 @@ namespace Honor.Editor.MapTool
         /// 资源选中事件（资源名、类型：0=建筑 1=人物 2=物件）
         /// </summary>
         public System.Action<string, int> OnResourceSelected;
+        /// <summary>
+        /// Tab 切换事件（类型：0=建筑 1=人物 2=物件）——用于联动顶部图层 Toggle
+        /// </summary>
+        public System.Action<int> OnTabChanged;
         // 资源分类Tab按钮（索引与 GetResourceDataByTab 对应）
         /// <summary>
         /// 建筑Tab按钮

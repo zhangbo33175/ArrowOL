@@ -95,11 +95,13 @@ namespace Honor.Editor.MapTool
         /// <param name="mapRect">地图显示区域</param>
         private void DrawPlacedObjects(Rect mapRect)
         {
-            // 排序逻辑：
-            // - YSortEnabled=true 的物件：有效SortOrder = 基础SortOrder + Y坐标偏移（Y越大越靠前）
-            // - YSortEnabled=false 的物件：用固定 SortOrder
+            // 排序逻辑（2D 地图层级规则）：
+            // 1. 先按层级类型排：建筑(0) → 人物(1) → 物件(2)（层级越高越后画）
+            // 2. 同一层级内：按 SortOrder 排
+            // 3. 同一 SortOrder：按 Y 坐标排（Y 越大越靠前）
             var sortedObjects = m_PlacedObjects
-                .OrderBy(obj => GetEffectiveSortOrder(obj))
+                .OrderBy(obj => GetLayerOrder(obj.Type))
+                .ThenBy(obj => GetEffectiveSortOrder(obj))
                 .ThenBy(obj => obj.Position.y)
                 .ToList();
             foreach (var obj in sortedObjects)
@@ -124,6 +126,20 @@ namespace Honor.Editor.MapTool
                 // 绘制物体名称
                 GUI.Label(new Rect(objRect.x, objRect.y - 20, 100, 20), obj.Name,
                     new GUIStyle(GUI.skin.label) { normal = { textColor = Color.white } });
+            }
+        }
+
+        /// <summary>
+        /// 获取物件的层级顺序（2D 地图层级规则：建筑在最下，人物中间，物件最上）
+        /// </summary>
+        private int GetLayerOrder(MapObjectType type)
+        {
+            switch (type)
+            {
+                case MapObjectType.Building: return 0;   // 最底层
+                case MapObjectType.Character: return 1; // 中间层
+                case MapObjectType.Prop: return 2;      // 最上层
+                default: return 0;
             }
         }
 

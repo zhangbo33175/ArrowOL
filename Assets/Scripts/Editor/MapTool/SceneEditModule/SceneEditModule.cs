@@ -676,6 +676,36 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 设置当前放置类型（Tab 切换 / 顶部图层 Toggle 联动）
+        /// 建筑/人物/物件三选一，选中哪个就勾选对应图层 Toggle，取消另外两个
+        /// </summary>
+        /// <param name="type">类型：0=建筑 1=人物 2=物件</param>
+        public void SetPlaceType(int type)
+        {
+            MapObjectType objectType = (MapObjectType)type;
+            m_SelectedObjectType = objectType;
+
+            // 联动图层 Toggle：三选一
+            SetToggleWithoutNotify(m_BuildingLayerToggle, objectType == MapObjectType.Building);
+            SetToggleWithoutNotify(m_CharacterLayerToggle, objectType == MapObjectType.Character);
+            SetToggleWithoutNotify(m_ObjectLayerToggle, objectType == MapObjectType.Prop);
+
+            // 同步显示开关
+            m_ShowBuildingLayer = (objectType == MapObjectType.Building);
+            m_ShowCharacterLayer = (objectType == MapObjectType.Character);
+            m_ShowObjectLayer = (objectType == MapObjectType.Prop);
+        }
+
+        /// <summary>
+        /// 设置 Toggle 值但不触发回调（避免联动时循环触发）
+        /// </summary>
+        private static void SetToggleWithoutNotify(Toggle toggle, bool value)
+        {
+            if (toggle == null) return;
+            toggle.SetValueWithoutNotify(value);
+        }
+
+        /// <summary>
         /// 设置选中要放置的物体
         /// </summary>
         /// <param name="objectId">物体ID</param>
