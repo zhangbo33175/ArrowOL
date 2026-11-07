@@ -52,20 +52,11 @@ namespace Honor.Editor.MapTool
             DrawBoundingBoxLayer(mapRect);
             DrawGrid(mapRect);
 
-            // 绘制临时提示消息（放置被拒绝等）
-            if (!string.IsNullOrEmpty(m_TempMessage) && Time.realtimeSinceStartup < m_TempMessageTime)
-            {
-                GUIStyle style = new GUIStyle(GUI.skin.label)
-                {
-                    normal = { textColor = Color.red },
-                    fontSize = 14,
-                    alignment = TextAnchor.MiddleCenter
-                };
-                GUI.Label(new Rect(0, rect.height - 40, rect.width, 30), m_TempMessage, style);
-            }
+            // 绘制临时提示消息（放置被拒绝等，委托给 EditorStatusBar）
+            m_StatusBar.DrawTempMessage(rect);
 
-            // 更新状态栏
-            UpdateStatusBar();
+            // 更新状态栏（增量刷新，委托给 EditorStatusBar）
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
             // 最后处理鼠标事件，避免影响绘制
             Event e = Event.current;
             HandleMouseEvent(e);

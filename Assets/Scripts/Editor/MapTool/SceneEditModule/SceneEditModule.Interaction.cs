@@ -154,7 +154,7 @@ namespace Honor.Editor.MapTool
                     if (!m_PreviewValid)
                     {
                         Debug.LogWarning($"无法放置: {m_PreviewReason}");
-                        ShowMessage(m_PreviewReason);
+                        m_StatusBar.ShowMessage(m_PreviewReason);
                         e.Use();
                         return;
                     }

@@ -38,35 +38,10 @@ namespace Honor.Editor.MapTool
         /// IMGUI渲染容器（场景绘制入口）
         /// </summary>
         private IMGUIContainer m_GuiContainer;
-        // 状态栏 Labels
         /// <summary>
-        /// 状态栏缩放显示
+        /// 状态栏管理器（UI 引用 + 增量刷新 + 临时消息）
         /// </summary>
-        private Label m_ZoomLabel;
-        /// <summary>
-        /// 状态栏鼠标X坐标显示
-        /// </summary>
-        private Label m_MouseXLabel;
-        /// <summary>
-        /// 状态栏鼠标Y坐标显示
-        /// </summary>
-        private Label m_MouseYLabel;
-        /// <summary>
-        /// 状态栏格子X显示
-        /// </summary>
-        private Label m_TileXLabel;
-        /// <summary>
-        /// 状态栏格子Y显示
-        /// </summary>
-        private Label m_TileYLabel;
-        /// <summary>
-        /// 状态栏格子计数显示
-        /// </summary>
-        private Label m_TileCountLabel;
-        /// <summary>
-        /// 保存路径按钮
-        /// </summary>
-        private Button m_SavePathBtn;
+        private readonly EditorStatusBar m_StatusBar = new EditorStatusBar();
         /// <summary>
         /// 地图预制体选择框
         /// </summary>
@@ -286,31 +261,6 @@ namespace Honor.Editor.MapTool
         /// 地图预制体变化事件
         /// </summary>
         public System.Action<string> OnMapPrefabChanged;
-        // 状态栏上次值（用于优化更新）
-        /// <summary>
-        /// 上次缩放值（状态栏增量更新）
-        /// </summary>
-        private float m_LastZoom = -1;
-        /// <summary>
-        /// 上次鼠标X（状态栏增量更新）
-        /// </summary>
-        private float m_LastMouseX = float.MinValue;
-        /// <summary>
-        /// 上次鼠标Y（状态栏增量更新）
-        /// </summary>
-        private float m_LastMouseY = float.MinValue;
-        /// <summary>
-        /// 上次格子X（状态栏增量更新）
-        /// </summary>
-        private int m_LastTileX = int.MinValue;
-        /// <summary>
-        /// 上次格子Y（状态栏增量更新）
-        /// </summary>
-        private int m_LastTileY = int.MinValue;
-        /// <summary>
-        /// 上次保存路径（状态栏增量更新）
-        /// </summary>
-        private string m_LastSavePath = "";
         // ===== 对象编辑（路径 / 动画）=====
         /// <summary>
         /// 当前选中编辑的物体（人物）

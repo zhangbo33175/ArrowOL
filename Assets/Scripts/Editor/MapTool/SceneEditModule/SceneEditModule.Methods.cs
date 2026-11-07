@@ -112,7 +112,7 @@ namespace Honor.Editor.MapTool
             // 1. 前置校验：没有当前关卡或保存路径时不允许更新
             if (string.IsNullOrEmpty(m_CurrentLevelId) || string.IsNullOrEmpty(m_MapSavePath))
             {
-                ShowMessage("请先在左侧选择一个关卡再更新地图");
+                m_StatusBar.ShowMessage("请先在左侧选择一个关卡再更新地图");
                 EditorUtility.DisplayDialog("更新地图", "请先在左侧章节/关卡列表中选择一个关卡，再点击更新地图。", "知道了");
                 return;
             }
@@ -125,7 +125,7 @@ namespace Honor.Editor.MapTool
                 "重新加载", "取消");
             if (!confirm)
             {
-                ShowMessage("已取消更新地图");
+                m_StatusBar.ShowMessage("已取消更新地图");
                 return;
             }
 
@@ -161,8 +161,8 @@ namespace Honor.Editor.MapTool
             // 9. 把还原后的摆放物同步到场景节点
             RefreshSceneObjects();
 
-            UpdateStatusBar();
-            ShowMessage($"已从配置文件重新加载地图（摆放物 {m_PlacedObjects.Count}）");
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
+            m_StatusBar.ShowMessage($"已从配置文件重新加载地图（摆放物 {m_PlacedObjects.Count}）");
             string currentBg = m_LevelBgDict.TryGetValue(m_CurrentLevelId, out string bg) ? bg : "<空>";
             Debug.Log($"[更新地图] 已从 {m_MapSavePath} 重新加载，摆放物 {m_PlacedObjects.Count}，宽高 {m_MapWidth}x{m_MapHeight}，背景 {currentBg}");
         }
@@ -235,60 +235,6 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 更新状态栏（仅在值变化时刷新，避免每帧重建 UI）
-        /// </summary>
-        private void UpdateStatusBar()
-        {
-            bool needUpdate = false;
-            float currentZoom = m_Zoom * 100;
-            if (!Mathf.Approximately(currentZoom, m_LastZoom))
-            {
-                m_LastZoom = currentZoom;
-                needUpdate = true;
-            }
-            if (!Mathf.Approximately(m_MousePos.x, m_LastMouseX))
-            {
-                m_LastMouseX = m_MousePos.x;
-                needUpdate = true;
-            }
-            if (!Mathf.Approximately(m_MousePos.y, m_LastMouseY))
-            {
-                m_LastMouseY = m_MousePos.y;
-                needUpdate = true;
-            }
-            if (m_TileX != m_LastTileX)
-            {
-                m_LastTileX = m_TileX;
-                needUpdate = true;
-            }
-            if (m_TileY != m_LastTileY)
-            {
-                m_LastTileY = m_TileY;
-                needUpdate = true;
-            }
-            if (m_MapSavePath != m_LastSavePath)
-            {
-                m_LastSavePath = m_MapSavePath;
-                needUpdate = true;
-            }
-            if (!needUpdate) return;
-            if (m_ZoomLabel != null)
-                m_ZoomLabel.text = $"{m_Zoom * 100:F0}%";
-            if (m_MouseXLabel != null)
-                m_MouseXLabel.text = m_MousePos.x.ToString("F0");
-            if (m_MouseYLabel != null)
-                m_MouseYLabel.text = m_MousePos.y.ToString("F0");
-            if (m_TileXLabel != null)
-                m_TileXLabel.text = m_TileX.ToString();
-            if (m_TileYLabel != null)
-                m_TileYLabel.text = m_TileY.ToString();
-            if (m_TileCountLabel != null)
-                m_TileCountLabel.text = (m_TileX * m_TileY).ToString();
-            if (m_SavePathBtn != null)
-                m_SavePathBtn.text = m_MapSavePath;
-        }
-
-        /// <summary>
         /// 保存路径按钮点击
         /// </summary>
         private void OnSavePathClicked()
@@ -302,7 +248,7 @@ namespace Honor.Editor.MapTool
                     path = "Assets" + path.Substring(Application.dataPath.Length);
                 }
                 m_MapSavePath = path;
-                UpdateStatusBar();
+                m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
             }
         }
 
@@ -312,14 +258,8 @@ namespace Honor.Editor.MapTool
         private void FindElements()
         {
             m_SceneView = m_Root.Q<VisualElement>(className: "scene-view");
-            // 查找状态栏 Labels
-            m_ZoomLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusZoom);
-            m_MouseXLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusMouseX);
-            m_MouseYLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusMouseY);
-            m_TileXLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusTileX);
-            m_TileYLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusTileY);
-            m_TileCountLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusTileCount);
-            m_SavePathBtn = m_Root.Q<Button>(name: MapToolUiNames.StatusSavePath);
+            // 状态栏 UI 元素查找（委托给 EditorStatusBar）
+            m_StatusBar.FindElements(m_Root);
             // 查找地图预制体 ObjectField 容器
             var prefabRow = m_Root.Q<VisualElement>(name: MapToolUiNames.MapPrefabRow);
             Debug.Log($"查找 map-prefab-row: {prefabRow != null}");
@@ -441,9 +381,8 @@ namespace Honor.Editor.MapTool
             m_SceneIdField = m_Root.Q<TextField>(name: MapToolUiNames.SceneIdField);
             m_WidthField = m_Root.Q<TextField>(name: MapToolUiNames.MapWidthField);
             m_HeightField = m_Root.Q<TextField>(name: MapToolUiNames.MapHeightField);
-            // 绑定保存路径按钮点击事件
-            if (m_SavePathBtn != null)
-                m_SavePathBtn.clicked += OnSavePathClicked;
+            // 绑定保存路径按钮点击事件（委托给 EditorStatusBar）
+            m_StatusBar.BindSavePathClick(OnSavePathClicked);
             // 绑定图层 Toggle 事件
             if (m_PlaceGridToggle != null)
                 m_PlaceGridToggle.RegisterValueChangedCallback(evt => m_ShowPlaceGrid = evt.newValue);

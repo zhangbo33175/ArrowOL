@@ -179,7 +179,7 @@ namespace Honor.Editor.MapTool
         public void SetMapSavePath(string path)
         {
             m_MapSavePath = path;
-            UpdateStatusBar();
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace Honor.Editor.MapTool
             // 重置偏移和缩放
             m_MapOffset = Vector2.zero;
             m_Zoom = 1.0f;
-            UpdateStatusBar();
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
 
             // 加载已保存的地图配置
             LoadMapConfig();

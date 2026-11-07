@@ -223,17 +223,6 @@ namespace Honor.Editor.MapTool
             return true;
         }
 
-        /// <summary>
-        /// 显示临时提示消息
-        /// </summary>
-        private string m_TempMessage;
-        private float m_TempMessageTime;
-        private void ShowMessage(string msg)
-        {
-            m_TempMessage = msg;
-            m_TempMessageTime = Time.realtimeSinceStartup + MapToolConstants.TempMessageDuration;
-        }
-
         // ---TODO 编辑器加载还原：有已保存 JSON 地图配置时优先还原摆放物/背景（SaveMapConfig 反向）
         /// <summary>
         /// 从已保存的 JSON 地图配置还原摆放物 / 背景图
