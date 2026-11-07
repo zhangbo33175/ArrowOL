@@ -112,47 +112,33 @@ namespace Honor.Editor.MapTool
                 ? m_CurrentChapterData.ChapterTitle
                 : data.sceneName;
 
-            // 写入 JSON 文件
-            string relativePath = MapToolPathHelper.NormalizeToAssetRelative(m_MapSavePath);
-            string fullPath = MapToolPathHelper.ToAbsolutePath(relativePath);
+            // 写入 JSON 文件（委托给 MapConfigRepository，本类只负责组装数据）
+            if (!MapConfigRepository.SaveToJson(data, m_MapSavePath))
+                return;
+
+            // Lua 导出（可选，失败不影响 JSON 保存）
             try
             {
-                string dir = Path.GetDirectoryName(fullPath);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-                string json = JsonUtility.ToJson(data, true);
-                File.WriteAllText(fullPath, json, new UTF8Encoding(false));
+                string exportChapterId = data.chapterId;
+                string exportChapterName = data.chapterName;
+                string exportMapName = m_CurrentChapterData != null && !string.IsNullOrEmpty(m_CurrentChapterData.MapName)
+                    ? m_CurrentChapterData.MapName
+                    : data.sceneName;
+                MapChapterExportContext exportContext = new MapChapterExportContext
+                {
+                    ChapterId = exportChapterId,
+                    ChapterName = exportChapterName,
+                    MapName = exportMapName,
+                    LevelId = m_CurrentLevelId,
+                    LevelIdBase = 0,
+                };
+                List<string> luaFiles = MapDataLuaExporter.Export(data, exportContext, m_ChapterDataList);
                 AssetDatabase.Refresh();
-                Debug.Log($"关卡地图已保存: {relativePath}（建筑 {data.buildings.Count}，物件 {data.objects.Count}，人物 {data.characters.Count}）");
-
-                // Lua 导出（可选，失败不影响 JSON 保存）
-                try
-                {
-                    string exportChapterId = data.chapterId;
-                    string exportChapterName = data.chapterName;
-                    string exportMapName = m_CurrentChapterData != null && !string.IsNullOrEmpty(m_CurrentChapterData.MapName)
-                        ? m_CurrentChapterData.MapName
-                        : data.sceneName;
-                    MapChapterExportContext exportContext = new MapChapterExportContext
-                    {
-                        ChapterId = exportChapterId,
-                        ChapterName = exportChapterName,
-                        MapName = exportMapName,
-                        LevelId = m_CurrentLevelId,
-                        LevelIdBase = 0,
-                    };
-                    List<string> luaFiles = MapDataLuaExporter.Export(data, exportContext, m_ChapterDataList);
-                    AssetDatabase.Refresh();
-                    Debug.Log($"Lua 数据已导出: 共 {luaFiles.Count} 个文件\n{string.Join("\n", luaFiles)}");
-                }
-                catch (System.Exception luaException)
-                {
-                    Debug.LogError($"Lua 数据导出失败（JSON 已保存成功，不影响）: {luaException.Message}");
-                }
+                Debug.Log($"Lua 数据已导出: 共 {luaFiles.Count} 个文件\n{string.Join("\n", luaFiles)}");
             }
-            catch (System.Exception e)
+            catch (System.Exception luaException)
             {
-                Debug.LogError($"保存地图配置失败: {e.Message}");
+                Debug.LogError($"Lua 数据导出失败（JSON 已保存成功，不影响）: {luaException.Message}");
             }
         }
 

@@ -141,14 +141,8 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void LoadMainLevelsConfig()
         {
-            m_LevelBgDict.Clear();
-            var dataList = MapToolEditorUtils.LoadTableData<TableMainLevelsEditor>(MapToolConstants.TableMainLevelsPath);
-            foreach (var data in dataList)
-            {
-                if (!string.IsNullOrEmpty(data.ID) && !string.IsNullOrEmpty(data.Level_bg))
-                    m_LevelBgDict[data.ID] = data.Level_bg;
-            }
-            Debug.Log($"关卡配置表加载完成，共 {m_LevelBgDict.Count} 条");
+            // 委托给 MapConfigRepository 读配置表，本类只负责更新字典引用
+            m_LevelBgDict = MapConfigRepository.LoadLevelBgDict();
         }
 
         /// <summary>
@@ -230,25 +224,8 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void LoadMapConfig()
         {
-            if (string.IsNullOrEmpty(m_MapSavePath)) return;
-            string relativePath = MapToolPathHelper.NormalizeToAssetRelative(m_MapSavePath);
-            string fullPath = MapToolPathHelper.ToAbsolutePath(relativePath);
-            if (!File.Exists(fullPath))
-            {
-                Debug.Log($"未找到已保存的地图配置: {relativePath}，加载空场景");
-                return;
-            }
-
-            MapConfigData data;
-            try
-            {
-                data = JsonUtility.FromJson<MapConfigData>(File.ReadAllText(fullPath));
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"读取地图配置失败: {e.Message}");
-                return;
-            }
+            // 委托给 MapConfigRepository 读 JSON，本类只负责把数据还原到 UI 状态
+            MapConfigData data = MapConfigRepository.LoadFromJson(m_MapSavePath);
             if (data == null) return;
 
             // 整图宽高以 JSON 为准
@@ -316,7 +293,7 @@ namespace Honor.Editor.MapTool
             if (m_GuiContainer != null)
                 m_GuiContainer.MarkDirtyRepaint();
 
-            Debug.Log($"已加载关卡地图配置: {relativePath}（摆放物 {m_PlacedObjects.Count}）");
+            Debug.Log($"已加载关卡地图配置: {m_MapSavePath}（摆放物 {m_PlacedObjects.Count}）");
         }
 
         /// <summary>
