@@ -158,6 +158,16 @@ namespace Honor.Editor.MapTool
         public const float MaxZoom = 5f;
 
         /// <summary>
+        /// 最小缩放倍率（LoadMapConfig 自动定位视口时的下限）
+        /// </summary>
+        public const float MinZoom = 0.1f;
+
+        /// <summary>
+        /// 自动定位视口时的目标缩放上限（避免过度放大）
+        /// </summary>
+        public const float AutoFitMaxZoom = 4f;
+
+        /// <summary>
         /// 地图边缘拖拽留白（像素）
         /// </summary>
         public const float DragEdgeMargin = 100f;
@@ -166,6 +176,22 @@ namespace Honor.Editor.MapTool
         /// 判断点击 / 拖动的移动阈值（像素）
         /// </summary>
         public const float DragThreshold = 4f;
+
+        /// <summary>
+        /// 格子二维坐标编码乘数（gy * CellEncodeMultiplier + gx），用于 occupiedCells 去重
+        /// 需大于单关最大格子数（LevelPixelSize / GridSize = 4096/32 = 128）
+        /// </summary>
+        public const long CellEncodeMultiplier = 100000L;
+
+        /// <summary>
+        /// 临时提示消息显示时长（秒）
+        /// </summary>
+        public const float TempMessageDuration = 1.5f;
+
+        /// <summary>
+        /// 物体占位色块透明度（未加载预览图时使用）
+        /// </summary>
+        public const float PlaceholderAlpha = 0.5f;
 
         // ==================== 物体默认尺寸（格子数） ====================
 

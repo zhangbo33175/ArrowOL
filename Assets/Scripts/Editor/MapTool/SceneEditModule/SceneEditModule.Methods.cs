@@ -31,31 +31,31 @@ namespace Honor.Editor.MapTool
         private void BindEvents()
         {
             // 更新地图按钮
-            var updateBtn = m_Root.Q<Button>(name: "btn-update-map");
+            var updateBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnUpdateMap);
             if (updateBtn != null)
                 updateBtn.clicked += OnUpdateMapClicked;
             // 导出切片按钮
-            var exportBtn = m_Root.Q<Button>(name: "btn-export-slice");
+            var exportBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnExportSlice);
             if (exportBtn != null)
                 exportBtn.clicked += OnExportSliceClicked;
             // 保存按钮
-            var saveBtn = m_Root.Q<Button>(name: "btn-save");
+            var saveBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnSave);
             if (saveBtn != null)
                 saveBtn.clicked += OnSaveClicked;
             // 预览地图按钮
-            var previewBtn = m_Root.Q<Button>(name: "btn-preview-map");
+            var previewBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnPreviewMap);
             if (previewBtn != null)
                 previewBtn.clicked += OnPreviewClicked;
             // 清空摆放物按钮
-            var clearObjectsBtn = m_Root.Q<Button>(name: "btn-clear-objects");
+            var clearObjectsBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearObjects);
             if (clearObjectsBtn != null)
                 clearObjectsBtn.clicked += OnClearObjectsClicked;
             // 清空格子数据按钮
-            var clearGridBtn = m_Root.Q<Button>(name: "btn-clear-grid-data");
+            var clearGridBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearGridData);
             if (clearGridBtn != null)
                 clearGridBtn.clicked += OnClearGridDataClicked;
             // 导出设置按钮
-            var exportSettingsBtn = m_Root.Q<Button>(name: "btn-export-settings");
+            var exportSettingsBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnExportSettings);
             if (exportSettingsBtn != null)
                 exportSettingsBtn.clicked += OnExportSettingsClicked;
             // 对象编辑面板事件（可编辑路径 / 编辑动画 切页）
@@ -313,15 +313,15 @@ namespace Honor.Editor.MapTool
         {
             m_SceneView = m_Root.Q<VisualElement>(className: "scene-view");
             // 查找状态栏 Labels
-            m_ZoomLabel = m_Root.Q<Label>(name: "status-zoom");
-            m_MouseXLabel = m_Root.Q<Label>(name: "status-mouse-x");
-            m_MouseYLabel = m_Root.Q<Label>(name: "status-mouse-y");
-            m_TileXLabel = m_Root.Q<Label>(name: "status-tile-x");
-            m_TileYLabel = m_Root.Q<Label>(name: "status-tile-y");
-            m_TileCountLabel = m_Root.Q<Label>(name: "status-tile-count");
-            m_SavePathBtn = m_Root.Q<Button>(name: "status-save-path");
+            m_ZoomLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusZoom);
+            m_MouseXLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusMouseX);
+            m_MouseYLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusMouseY);
+            m_TileXLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusTileX);
+            m_TileYLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusTileY);
+            m_TileCountLabel = m_Root.Q<Label>(name: MapToolUiNames.StatusTileCount);
+            m_SavePathBtn = m_Root.Q<Button>(name: MapToolUiNames.StatusSavePath);
             // 查找地图预制体 ObjectField 容器
-            var prefabRow = m_Root.Q<VisualElement>(name: "map-prefab-row");
+            var prefabRow = m_Root.Q<VisualElement>(name: MapToolUiNames.MapPrefabRow);
             Debug.Log($"查找 map-prefab-row: {prefabRow != null}");
             if (prefabRow != null)
             {
@@ -333,49 +333,49 @@ namespace Honor.Editor.MapTool
                 Debug.Log("ObjectField 已创建");
             }
             // 查找图层 Toggle
-            m_PlaceGridToggle = m_Root.Q<Toggle>(name: "layer-place-grid");
-            m_MapLayerToggle = m_Root.Q<Toggle>(name: "layer-map");
-            m_BuildingLayerToggle = m_Root.Q<Toggle>(name: "layer-building");
-            m_CharacterLayerToggle = m_Root.Q<Toggle>(name: "layer-character");
-            m_ObjectLayerToggle = m_Root.Q<Toggle>(name: "layer-object");
-            m_BackgroundLayerToggle = m_Root.Q<Toggle>(name: "layer-background");
-            m_PathGridToggle = m_Root.Q<Toggle>(name: "layer-path-grid");
-            m_BoundingBoxToggle = m_Root.Q<Toggle>(name: "layer-bounding-box");
+            m_PlaceGridToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerPlaceGrid);
+            m_MapLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerMap);
+            m_BuildingLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBuilding);
+            m_CharacterLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerCharacter);
+            m_ObjectLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerObject);
+            m_BackgroundLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBackground);
+            m_PathGridToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerPathGrid);
+            m_BoundingBoxToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBoundingBox);
             // 对象编辑面板（选中人物后显示：可编辑路径 / 编辑动画）
-            m_ObjectEditPanel = m_Root.Q<VisualElement>(name: "object-edit-panel");
+            m_ObjectEditPanel = m_Root.Q<VisualElement>(name: MapToolUiNames.ObjectEditPanel);
             if (m_ObjectEditPanel != null)
             {
-                m_ObjEditTitle = m_ObjectEditPanel.Q<Label>(name: "obj-edit-title");
-                m_TabEditPath = m_ObjectEditPanel.Q<Button>(name: "tab-edit-path");
-                m_TabEditAnim = m_ObjectEditPanel.Q<Button>(name: "tab-edit-anim");
-                m_PathEditContent = m_ObjectEditPanel.Q<VisualElement>(name: "path-edit-content");
-                m_AnimEditContent = m_ObjectEditPanel.Q<VisualElement>(name: "anim-edit-content");
-                m_BtnPathDraw = m_ObjectEditPanel.Q<Button>(name: "btn-path-draw");
-                m_BtnPathUndo = m_ObjectEditPanel.Q<Button>(name: "btn-path-undo");
-                m_BtnPathClear = m_ObjectEditPanel.Q<Button>(name: "btn-path-clear");
-                m_BtnClearTarget = m_ObjectEditPanel.Q<Button>(name: "btn-clear-target");
-                m_PathPointList = m_ObjectEditPanel.Q<ScrollView>(name: "path-point-list");
+                m_ObjEditTitle = m_ObjectEditPanel.Q<Label>(name: MapToolUiNames.ObjEditTitle);
+                m_TabEditPath = m_ObjectEditPanel.Q<Button>(name: MapToolUiNames.TabEditPath);
+                m_TabEditAnim = m_ObjectEditPanel.Q<Button>(name: MapToolUiNames.TabEditAnim);
+                m_PathEditContent = m_ObjectEditPanel.Q<VisualElement>(name: MapToolUiNames.PathEditContent);
+                m_AnimEditContent = m_ObjectEditPanel.Q<VisualElement>(name: MapToolUiNames.AnimEditContent);
+                m_BtnPathDraw = m_ObjectEditPanel.Q<Button>(name: MapToolUiNames.BtnPathDraw);
+                m_BtnPathUndo = m_ObjectEditPanel.Q<Button>(name: MapToolUiNames.BtnPathUndo);
+                m_BtnPathClear = m_ObjectEditPanel.Q<Button>(name: MapToolUiNames.BtnPathClear);
+                m_BtnClearTarget = m_ObjectEditPanel.Q<Button>(name: MapToolUiNames.BtnClearTarget);
+                m_PathPointList = m_ObjectEditPanel.Q<ScrollView>(name: MapToolUiNames.PathPointList);
                 // 默认隐藏，选中物体后显示
                 m_ObjectEditPanel.style.display = DisplayStyle.None;
             }
             // 动画切页字段
-            m_AnimNameField = m_Root.Q<TextField>(name: "anim-name-field");
-            m_AnimLoopToggle = m_Root.Q<Toggle>(name: "anim-loop-toggle");
-            m_AnimSpeedField = m_Root.Q<TextField>(name: "anim-speed-field");
+            m_AnimNameField = m_Root.Q<TextField>(name: MapToolUiNames.AnimNameField);
+            m_AnimLoopToggle = m_Root.Q<Toggle>(name: MapToolUiNames.AnimLoopToggle);
+            m_AnimSpeedField = m_Root.Q<TextField>(name: MapToolUiNames.AnimSpeedField);
             // 底部属性面板字段
-            m_TemplateIdField = m_Root.Q<TextField>(name: "prop-template-id");
-            m_TagField = m_Root.Q<TextField>(name: "prop-tag");
-            m_GridPosField = m_Root.Q<TextField>(name: "prop-grid-pos");
-            m_BuildingTemplateField = m_Root.Q<TextField>(name: "prop-building-template");
-            m_GridPrefixField = m_Root.Q<TextField>(name: "prop-grid-prefix");
-            m_InteractStateField = m_Root.Q<TextField>(name: "prop-interact-state");
-            m_DeleteObjectBtn = m_Root.Q<Button>(name: "btn-delete-object");
-            m_PublishBtn = m_Root.Q<Button>(name: "btn-publish");
-            m_PropertyPanel = m_Root.Q<VisualElement>(name: "property-panel");
+            m_TemplateIdField = m_Root.Q<TextField>(name: MapToolUiNames.PropTemplateId);
+            m_TagField = m_Root.Q<TextField>(name: MapToolUiNames.PropTag);
+            m_GridPosField = m_Root.Q<TextField>(name: MapToolUiNames.PropGridPos);
+            m_BuildingTemplateField = m_Root.Q<TextField>(name: MapToolUiNames.PropBuildingTemplate);
+            m_GridPrefixField = m_Root.Q<TextField>(name: MapToolUiNames.PropGridPrefix);
+            m_InteractStateField = m_Root.Q<TextField>(name: MapToolUiNames.PropInteractState);
+            m_DeleteObjectBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnDeleteObject);
+            m_PublishBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnPublish);
+            m_PropertyPanel = m_Root.Q<VisualElement>(name: MapToolUiNames.PropertyPanel);
             // 新增属性面板字段
-            m_SortOrderField = m_Root.Q<TextField>(name: "prop-sort-order");
+            m_SortOrderField = m_Root.Q<TextField>(name: MapToolUiNames.PropSortOrder);
             // 交互类型下拉框
-            var interactContainer = m_Root.Q<VisualElement>(name: "prop-interact-type-container");
+            var interactContainer = m_Root.Q<VisualElement>(name: MapToolUiNames.PropInteractTypeContainer);
             if (interactContainer != null)
             {
                 m_InteractTypeField = new DropdownField();
@@ -389,9 +389,9 @@ namespace Honor.Editor.MapTool
                 });
                 interactContainer.Add(m_InteractTypeField);
             }
-            m_CollisionToggle = m_Root.Q<Toggle>(name: "prop-collision");
+            m_CollisionToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropCollision);
             // 气泡类型下拉框
-            var bubbleContainer = m_Root.Q<VisualElement>(name: "prop-dialog-bubble-container");
+            var bubbleContainer = m_Root.Q<VisualElement>(name: MapToolUiNames.PropDialogBubbleContainer);
             if (bubbleContainer != null)
             {
                 m_DialogBubbleField = new DropdownField();
@@ -406,7 +406,7 @@ namespace Honor.Editor.MapTool
                 bubbleContainer.Add(m_DialogBubbleField);
             }
             // ---TODO 气泡配置表通用化：气泡ID输入框（引用 Tables.Bubble；<=0 保存时不输出 BubbleId 行）
-            var bubbleIdContainer = m_Root.Q<VisualElement>(name: "prop-bubble-id-container");
+            var bubbleIdContainer = m_Root.Q<VisualElement>(name: MapToolUiNames.PropBubbleIdContainer);
             if (bubbleIdContainer != null)
             {
                 m_BubbleIdField = new IntegerField("");
@@ -420,7 +420,7 @@ namespace Honor.Editor.MapTool
                 bubbleIdContainer.Add(m_BubbleIdField);
             }
             // 朝向下拉框
-            var facingContainer = m_Root.Q<VisualElement>(name: "prop-facing-container");
+            var facingContainer = m_Root.Q<VisualElement>(name: MapToolUiNames.PropFacingContainer);
             if (facingContainer != null)
             {
                 m_FacingField = new DropdownField();
@@ -434,13 +434,13 @@ namespace Honor.Editor.MapTool
                 });
                 facingContainer.Add(m_FacingField);
             }
-            m_ShadowToggle = m_Root.Q<Toggle>(name: "prop-shadow");
-            m_CollectibleToggle = m_Root.Q<Toggle>(name: "prop-collectible");
+            m_ShadowToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropShadow);
+            m_CollectibleToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropCollectible);
             // 场景信息字段（保存配置时读取）
-            m_SceneNameField = m_Root.Q<TextField>(name: "scene-name-field");
-            m_SceneIdField = m_Root.Q<TextField>(name: "scene-id-field");
-            m_WidthField = m_Root.Q<TextField>(name: "map-width-field");
-            m_HeightField = m_Root.Q<TextField>(name: "map-height-field");
+            m_SceneNameField = m_Root.Q<TextField>(name: MapToolUiNames.SceneNameField);
+            m_SceneIdField = m_Root.Q<TextField>(name: MapToolUiNames.SceneIdField);
+            m_WidthField = m_Root.Q<TextField>(name: MapToolUiNames.MapWidthField);
+            m_HeightField = m_Root.Q<TextField>(name: MapToolUiNames.MapHeightField);
             // 绑定保存路径按钮点击事件
             if (m_SavePathBtn != null)
                 m_SavePathBtn.clicked += OnSavePathClicked;

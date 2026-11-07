@@ -336,11 +336,12 @@ namespace Honor.Editor.MapTool
         /// <returns>占位色</returns>
         private Color GetObjectPlaceholderColor(MapObjectType type)
         {
+            float alpha = MapToolConstants.PlaceholderAlpha;
             switch (type)
             {
-                case MapObjectType.Building: return new Color(0, 1, 1, 0.5f);  // 建筑：青色
-                case MapObjectType.Character: return new Color(1, 1, 0, 0.5f); // 人物：黄色
-                case MapObjectType.Prop: return new Color(0, 1, 0, 0.5f);      // 物件：绿色
+                case MapObjectType.Building: return new Color(0, 1, 1, alpha);  // 建筑：青色
+                case MapObjectType.Character: return new Color(1, 1, 0, alpha); // 人物：黄色
+                case MapObjectType.Prop: return new Color(0, 1, 0, alpha);      // 物件：绿色
                 default: return Color.cyan;
             }
         }

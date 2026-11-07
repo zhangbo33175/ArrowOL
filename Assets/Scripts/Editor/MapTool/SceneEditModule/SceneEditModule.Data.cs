@@ -231,7 +231,7 @@ namespace Honor.Editor.MapTool
         private void ShowMessage(string msg)
         {
             m_TempMessage = msg;
-            m_TempMessageTime = Time.realtimeSinceStartup + 1.5f;
+            m_TempMessageTime = Time.realtimeSinceStartup + MapToolConstants.TempMessageDuration;
         }
 
         // ---TODO 编辑器加载还原：有已保存 JSON 地图配置时优先还原摆放物/背景（SaveMapConfig 反向）
@@ -242,10 +242,8 @@ namespace Honor.Editor.MapTool
         private void LoadMapConfig()
         {
             if (string.IsNullOrEmpty(m_MapSavePath)) return;
-            string relativePath = m_MapSavePath.Replace("\\", "/");
-            if (!relativePath.StartsWith("Assets/"))
-                relativePath = "Assets/" + relativePath.TrimStart('/');
-            string fullPath = Path.Combine(Application.dataPath, relativePath.Substring("Assets/".Length));
+            string relativePath = MapToolPathHelper.NormalizeToAssetRelative(m_MapSavePath);
+            string fullPath = MapToolPathHelper.ToAbsolutePath(relativePath);
             if (!File.Exists(fullPath))
             {
                 Debug.Log($"未找到已保存的地图配置: {relativePath}，加载空场景");
@@ -318,7 +316,7 @@ namespace Honor.Editor.MapTool
                 float boundsH = Mathf.Max(1f, maxY - minY);
                 if (view.width > 0 && view.height > 0)
                 {
-                    m_Zoom = Mathf.Clamp(Mathf.Min(view.width / boundsW, view.height / boundsH), 0.1f, 4f);
+                    m_Zoom = Mathf.Clamp(Mathf.Min(view.width / boundsW, view.height / boundsH), MapToolConstants.MinZoom, MapToolConstants.AutoFitMaxZoom);
                     m_MapOffset = new Vector2(
                         view.width / 2 - (minX + maxX) / 2 * m_Zoom,
                         view.height / 2 - (minY + maxY) / 2 * m_Zoom);

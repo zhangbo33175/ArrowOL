@@ -96,14 +96,14 @@ namespace Honor.Editor.MapTool
                 {
                     for (int dx = 0; dx < spanX; dx++)
                     {
-                        occupiedKeys.Add(((long)(gy + dy)) * 100000 + (gx + dx));
+                        occupiedKeys.Add(((long)(gy + dy)) * MapToolConstants.CellEncodeMultiplier + (gx + dx));
                     }
                 }
             }
             data.occupiedCells = new List<MapGridCellData>();
             foreach (var key in occupiedKeys)
             {
-                data.occupiedCells.Add(new MapGridCellData { x = (int)(key % 100000), y = (int)(key / 100000) });
+                data.occupiedCells.Add(new MapGridCellData { x = (int)(key % MapToolConstants.CellEncodeMultiplier), y = (int)(key / MapToolConstants.CellEncodeMultiplier) });
             }
 
             // 章节信息
@@ -113,10 +113,8 @@ namespace Honor.Editor.MapTool
                 : data.sceneName;
 
             // 写入 JSON 文件
-            string relativePath = m_MapSavePath.Replace("\\", "/");
-            if (!relativePath.StartsWith("Assets/"))
-                relativePath = "Assets/" + relativePath.TrimStart('/');
-            string fullPath = Path.Combine(Application.dataPath, relativePath.Substring("Assets/".Length));
+            string relativePath = MapToolPathHelper.NormalizeToAssetRelative(m_MapSavePath);
+            string fullPath = MapToolPathHelper.ToAbsolutePath(relativePath);
             try
             {
                 string dir = Path.GetDirectoryName(fullPath);
