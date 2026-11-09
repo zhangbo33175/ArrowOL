@@ -203,16 +203,15 @@ namespace Honor.Runtime
                 // 1. 统一反斜杠为正斜杠（复用全局路径规范化工具）
                 string normalized = HonorUtils.NormalizePath(abPath);
 
-                // 2. 剥掉 "Assets/Res/" 前缀（打包器 bundle 名相对该根目录）
-                const string resRoot = "Assets/Res/";
-                if (normalized.StartsWith(resRoot, StringComparison.OrdinalIgnoreCase))
-                    normalized = normalized.Substring(resRoot.Length);
+                // 2. 剥掉资源根目录前缀（打包器 bundle 名相对该根目录）
+                if (normalized.StartsWith(HonorPathUtils.AssetsResRoot, StringComparison.OrdinalIgnoreCase))
+                    normalized = normalized.Substring(HonorPathUtils.AssetsResRoot.Length);
 
                 // 3. 清理开头多余 '/'，避免 "Assets/Res//Prefabs" 产生 "assets@res@@prefabs"
                 normalized = normalized.TrimStart('/');
 
                 // 4. 格式化：'/' → '@'，全小写，加后缀
-                cachedFormat = $"{normalized.Replace('/', '@').ToLower()}.bundle";
+                cachedFormat = $"{normalized.Replace('/', '@').ToLower()}{HonorPathUtils.AB.BundleFileSuffix}";
                 m_AssetBundleFormatPathCaches.Add(abPath, cachedFormat);
             }
 
@@ -243,7 +242,7 @@ namespace Honor.Runtime
 
             if (string.IsNullOrEmpty(restoredPath))
             {
-                string[] pieces = abFormatPath.Replace(".bundle", string.Empty).Split('@');
+                string[] pieces = abFormatPath.Replace(HonorPathUtils.AB.BundleFileSuffix, string.Empty).Split('@');
                 foreach (string piece in pieces)
                 {
                     string segment = $"{piece.Substring(0, 1).ToUpper()}{piece.Substring(1)}";

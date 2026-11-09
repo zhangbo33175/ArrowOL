@@ -19,8 +19,6 @@ namespace Honor.Runtime
     /// </summary>
     public sealed partial class UIManager
     {
-        // ---TODO 门面收敛：原 m_AssetComponent/m_LocalizationComponent/m_UIComponent 字段已删除，统一改为 HonorAssetManager/HonorCoreManager/HonorUIManager.Instance 门面直调
-
         #region 画布与根节点 (Screen / Scene / WebGL)
         /// <summary>
         /// 屏幕 UI 根画布

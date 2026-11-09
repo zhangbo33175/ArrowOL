@@ -131,7 +131,7 @@ namespace Honor.Runtime
 
                 if (m_TimeLeft <= 0f)
                 {
-                    // TODO: 优化——原逻辑用 (avg+cur)/2 简单滑动平均，保持原行为不变
+                    // 使用简单滑动平均计算 FPS（(avg+cur)/2）
                     m_CurrentFps = m_Accumulator > 0f ? m_Frames / m_Accumulator : 0f;
                     m_CurrentMsPerFrame = m_Accumulator > 0f ? m_Accumulator / m_Frames * 1000f : 0f;
 

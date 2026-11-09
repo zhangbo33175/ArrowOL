@@ -71,7 +71,7 @@ namespace Honor.Runtime
             // 配置缺失时从 2DSceneRoot 预制体加载
             if (m_ScreenUICanvas == null || m_SceneUICanvas == null)
             {
-                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab");
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(HonorPathUtils.Editor.SceneRoot2DPrefabPath);
                 if (prefab != null)
                 {
                     var go = UnityEngine.Object.Instantiate(prefab);

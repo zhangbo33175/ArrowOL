@@ -274,7 +274,6 @@ namespace Honor.Runtime
         [SerializeField]
         private GUISkin m_PopWindowSkin = null;
 
-        // TODO: m_ActiveWindow 字段已废弃，保留注释待后续清理
         // [SerializeField] private DebuggerActiveWindowType m_ActiveWindow = DebuggerActiveWindowType.AlwaysOpen;
 
         [SerializeField]

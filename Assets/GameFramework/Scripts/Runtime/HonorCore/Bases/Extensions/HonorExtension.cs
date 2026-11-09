@@ -23,7 +23,6 @@ namespace Honor.Runtime
     /// </summary>
     public static class HonorExtension
     {
-        // TODO: 将汉字匹配正则缓存为静态只读实例，避免每次调用 GetChineseNum 重复分配 Regex 对象
         /// <summary>
         /// 汉字字符匹配正则（静态缓存，线程安全）
         /// </summary>
@@ -212,7 +211,6 @@ namespace Honor.Runtime
 
             int count = 0;
 
-            // TODO: 复用静态缓存的汉字正则，消除每次调用的 Regex 构造开销
             foreach (char c in s)
             {
                 if (s_ChineseCharRegex.IsMatch(c.ToString()))

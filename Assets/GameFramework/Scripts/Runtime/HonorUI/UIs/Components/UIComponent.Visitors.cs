@@ -240,8 +240,6 @@ namespace Honor.Runtime
         #endregion
 
         #region 私有成员 - 组件与管理器
-        // ---TODO 门面收敛：原 m_AssetComponent/m_LocalizationComponent/m_ConfigComponent 字段已删除，统一改为 HonorAssetManager/HonorCoreManager.Instance 门面直调
-
         /// <summary>
         /// UI核心管理器
         /// </summary>

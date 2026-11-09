@@ -1002,13 +1002,19 @@ namespace Honor.Editor.MapTool
                 m_BtnPathDraw.text = "停止绘制路径";
             }
 
-            // 填充动画切页字段
+            // 从配置表查找模板配置（如果有配置，优先使用配置表中的属性）
+            ObjectTemplate template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
+
+            // 填充动画切页字段（实例属性优先，无配置时用默认值）
+            string animName = !string.IsNullOrEmpty(obj.AnimName) ? obj.AnimName : (template?.AnimName ?? "Idle");
+            bool loop = obj.Loop;
+            float speed = obj.Speed;
             if (m_AnimNameField != null)
-                m_AnimNameField.SetValueWithoutNotify(obj.AnimName);
+                m_AnimNameField.SetValueWithoutNotify(animName);
             if (m_AnimLoopToggle != null)
-                m_AnimLoopToggle.SetValueWithoutNotify(obj.Loop);
+                m_AnimLoopToggle.SetValueWithoutNotify(loop);
             if (m_AnimSpeedField != null)
-                m_AnimSpeedField.SetValueWithoutNotify(obj.Speed.ToString("F1"));
+                m_AnimSpeedField.SetValueWithoutNotify(speed.ToString("F1"));
 
             // 更新底部属性面板字段
             if (m_TemplateIdField != null)
@@ -1028,31 +1034,41 @@ namespace Honor.Editor.MapTool
             if (m_InteractStateField != null)
                 m_InteractStateField.SetValueWithoutNotify(obj.Interactable ? "点击&移动" : "不可交互");
 
-            // 填充新增属性面板字段
+            // 填充新增属性面板字段（实例属性优先，无配置时用模板默认值）
+            int sortOrder = obj.SortOrder > 0 ? obj.SortOrder : (template?.SortOrder ?? 10);
+            string interactType = !string.IsNullOrEmpty(obj.InteractType) ? obj.InteractType : (template?.InteractType ?? "none");
+            bool collision = obj.CollisionEnabled;
+            string dialogBubble = !string.IsNullOrEmpty(obj.DialogBubble) ? obj.DialogBubble : (template?.DialogBubble ?? string.Empty);
+            string facing = !string.IsNullOrEmpty(obj.FacingDirection) ? obj.FacingDirection : (template?.FacingDirection ?? "down");
+            bool shadow = obj.ShadowEnabled;
+            bool collectible = obj.IsCollectible;
+            int bubbleId = obj.bubbleId;
+
             if (m_SortOrderField != null)
-                m_SortOrderField.SetValueWithoutNotify(obj.SortOrder.ToString());
+                m_SortOrderField.SetValueWithoutNotify(sortOrder.ToString());
             if (m_InteractTypeField != null)
-                m_InteractTypeField.SetValueWithoutNotify(obj.InteractType);
+                m_InteractTypeField.SetValueWithoutNotify(interactType);
             if (m_CollisionToggle != null)
-                m_CollisionToggle.SetValueWithoutNotify(obj.CollisionEnabled);
+                m_CollisionToggle.SetValueWithoutNotify(collision);
             if (m_DialogBubbleField != null)
-                m_DialogBubbleField.SetValueWithoutNotify(obj.DialogBubble);
+                m_DialogBubbleField.SetValueWithoutNotify(dialogBubble);
             if (m_FacingField != null)
-                m_FacingField.SetValueWithoutNotify(obj.FacingDirection);
+                m_FacingField.SetValueWithoutNotify(facing);
             if (m_ShadowToggle != null)
-                m_ShadowToggle.SetValueWithoutNotify(obj.ShadowEnabled);
+                m_ShadowToggle.SetValueWithoutNotify(shadow);
             if (m_CollectibleToggle != null)
-                m_CollectibleToggle.SetValueWithoutNotify(obj.IsCollectible);
+                m_CollectibleToggle.SetValueWithoutNotify(collectible);
             // ---TODO 气泡配置表通用化：回显气泡ID（引用 Tables.Bubble）
             if (m_BubbleIdField != null)
-                m_BubbleIdField.SetValueWithoutNotify(obj.bubbleId);
+                m_BubbleIdField.SetValueWithoutNotify(bubbleId);
 
             // 显示底部属性面板
             if (m_PropertyPanel != null)
                 m_PropertyPanel.style.display = DisplayStyle.Flex;
 
             UpdateEditTargetUI();
-            Debug.Log($"选中编辑对象: {obj.Name}（类型: {MapToolEditorUtils.FormatObjectTypeName(obj.Type)}，路径点数: {obj.PathPoints.Count}）");
+            string templateInfo = template != null ? $"（配置表: {template.TemplateName}）" : "（无配置表）";
+            Debug.Log($"选中编辑对象: {obj.Name}（类型: {MapToolEditorUtils.FormatObjectTypeName(obj.Type)}，路径点数: {obj.PathPoints.Count}）{templateInfo}");
         }
 
         /// <summary>

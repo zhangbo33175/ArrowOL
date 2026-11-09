@@ -77,7 +77,11 @@ namespace Honor.Runtime
         /// </summary>
         private bool m_StartLoading;
         private bool m_SplashShown;
-        private float m_SplashShowTime; // TODO: 记录闪屏显示起始时间，用于按时长切换
+
+        /// <summary>
+        /// 闪屏显示起始时间（用于按时长切换）
+        /// </summary>
+        private float m_SplashShowTime;
 
         /// <summary>
         /// 加载启动时首批步骤总数（快照）
@@ -253,7 +257,7 @@ namespace Honor.Runtime
                         m_SplashShown = true;
                         m_SplashShowTime = Time.time;
                     }
-                    // TODO: 闪屏按配置时长显示后，再显示加载界面
+                    // 闪屏按配置时长显示后，再显示加载界面
                     else if (Time.time - m_SplashShowTime >= HonorUIManager.Instance.Procedure.SplashProcedureDuration)
                     {
                         m_UILauncherLoadingView = HonorUIManager.Instance.UI.ShowLoading(UILauncherLoadingView.LoadingMode.Preload);

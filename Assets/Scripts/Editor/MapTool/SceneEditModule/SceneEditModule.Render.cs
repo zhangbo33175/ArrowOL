@@ -99,16 +99,17 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 绘制已放置物体层（按 Y 排序计算遮挡，按图层开关过滤）
+        /// 绘制已放置物体层（按图层类型 + YSort 排序计算遮挡，按图层开关过滤）
         /// </summary>
         /// <param name="mapRect">地图显示区域</param>
         private void DrawPlacedObjects(Rect mapRect)
         {
-            // 2D 地图 YSort 排序规则：
-            // 用物体底部 Y 坐标排序（底部越靠下，越在前面）
-            // 而不是顶部 Y 坐标，否则高物体会被错误地放到矮物体后面
+            // 2D 地图遮挡排序规则：
+            // 第一层：按物体类型分层（建筑在最下，人物中间，物件，猫猫最上）
+            // 第二层：同一图层内按底部 Y 坐标排序（底部越靠下，越在前面）
             var sortedObjects = m_PlacedObjects
-                .OrderBy(obj =>
+                .OrderBy(obj => GetLayerOrder(obj.Type))
+                .ThenBy(obj =>
                 {
                     // 底部 Y = 顶部 Y + 高度
                     float height = obj.PreviewTexture != null ? obj.PreviewTexture.height : obj.Height * 32f;

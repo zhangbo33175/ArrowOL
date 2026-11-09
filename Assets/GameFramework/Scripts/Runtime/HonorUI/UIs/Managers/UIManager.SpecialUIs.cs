@@ -334,7 +334,7 @@ namespace Honor.Runtime
             {
                 m_TransitionUI = go.GetComponent<UILauncherLogoView>();
                 m_PermanentUIs.Add(go);
-                // TODO: 播放闪屏序列，总时长按配置
+                // 播放闪屏序列，总时长按配置
                 m_TransitionUI?.PlaySplashSequence(HonorUIManager.Instance.Procedure.SplashProcedureDuration);
             }
         }

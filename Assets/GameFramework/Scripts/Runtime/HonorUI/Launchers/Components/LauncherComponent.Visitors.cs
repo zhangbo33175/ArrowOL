@@ -135,7 +135,6 @@ namespace Honor.Runtime
         /// <summary>
         /// 调试界面皮肤
         /// </summary>
-        // TODO: debugSkin 字段已废弃，保留注释待后续清理
         // [SerializeField] private GUISkin debugSkin = null;
         #endregion
 

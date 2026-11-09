@@ -191,7 +191,7 @@ namespace Honor.Runtime
             m_LuaModuleNotFoundCache.Clear();
             string luaABRoot = AssetBundleLoader
                 .GetABFormatPath(HonorPathUtils.LuaScript.Game.GetRootDirectoryRelativePath())
-                .Replace(".bundle", string.Empty);
+                .Replace(HonorPathUtils.AB.BundleFileSuffix, string.Empty);
 
             foreach (string key in HonorAssetManager.Instance.DependsDataList.Keys)
             {

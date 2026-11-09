@@ -43,7 +43,6 @@ namespace Honor.Runtime
             /// <param name="realElapseSeconds">真实流逝时间</param>
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
-                // TODO: 抽离重复的 /1048576f 换算为常量 BytesPerMb
                 AllocatedRam = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / (float)BytesPerMb;
                 ReservedRam = UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong() / (float)BytesPerMb;
                 UnusedReservedRam = UnityEngine.Profiling.Profiler.GetTotalUnusedReservedMemoryLong() / (float)BytesPerMb;

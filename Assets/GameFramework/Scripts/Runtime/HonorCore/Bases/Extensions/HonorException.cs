@@ -95,7 +95,6 @@ namespace Honor.Runtime
                 {
                     originalMethodName = targetSite.Name;
 
-                    // TODO: 抽离重复的反射字段查找为私有辅助方法，避免两次 GetField 调用重复代码
                     // 若匹配到文件名则使用，否则标记为 Lua 异常
                     string displayName = string.IsNullOrEmpty(fileName) ? "Lua Exception" : fileName;
                     SetTargetSiteDisplayName(targetSite, displayName);
@@ -107,7 +106,6 @@ namespace Honor.Runtime
                 // 还原方法名（避免污染运行时）
                 if (targetSite != null && !string.IsNullOrEmpty(originalMethodName))
                 {
-                    // TODO: 复用私有辅助方法还原 TargetSite 显示名，与上方修改逻辑保持一致
                     SetTargetSiteDisplayName(targetSite, originalMethodName);
                 }
             }

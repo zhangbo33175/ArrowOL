@@ -585,7 +585,7 @@ namespace Honor.Runtime
         private void UnloadNormalAsset(object oriAsset, AssetUnloadOverCallback overCallback, bool rightNow)
         {
             UnityEngine.Object asset = oriAsset as UnityEngine.Object;
-            // TODO: 健壮性加固——Unload(object) 为 public 且经 XLua 可调入，兜底拦截非 UnityEngine.Object 实参，避免 GetInstanceID 空引用
+            // 兜底拦截非 UnityEngine.Object 实参，避免 GetInstanceID 空引用
             if (asset == null)
             {
                 return;

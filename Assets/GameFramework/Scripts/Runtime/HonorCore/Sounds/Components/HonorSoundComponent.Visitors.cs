@@ -34,7 +34,6 @@ namespace Honor.Runtime
         /// 声音组配置数组（编辑器配置）
         /// 用于在Inspector中预设声音组：BGM、Effect、UI、Voice等
         /// </summary>
-        // TODO: m_SoundGroupShells 字段已废弃，保留注释待后续清理
         // [SerializeField] private HonorSoundGroupShell[] m_SoundGroupShells = null;
 
         #endregion

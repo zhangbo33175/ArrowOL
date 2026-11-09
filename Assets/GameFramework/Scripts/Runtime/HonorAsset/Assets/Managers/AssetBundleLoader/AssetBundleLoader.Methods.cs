@@ -180,7 +180,7 @@ namespace Honor.Runtime
             if (m_LoadedAssetBundleList.TryGetValue(abFormatPath, out AssetBundleObject loadedEntry))
             {
                 AddSelfAndDependsRef(loadedEntry);
-                // TODO: 健壮性加固——public LoadAsync 允许回调为空，空条件调用避免命中已加载分支时 NRE
+                // 空条件调用避免命中已加载分支时回调为空导致 NRE
                 abLoadOverCallback?.Invoke(loadedEntry, loadedEntry.AssetBundles);
                 return loadedEntry;
             }

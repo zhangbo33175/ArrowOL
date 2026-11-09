@@ -41,7 +41,7 @@ namespace Honor.Runtime
             };
             if (showDebugger)
             {
-                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/Debugger/DebuggerManager.prefab");
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(HonorPathUtils.Editor.DebuggerManagerPrefabPath);
                 if (prefab != null)
                 {
                     var go = UnityEngine.Object.Instantiate(prefab);

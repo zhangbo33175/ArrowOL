@@ -29,7 +29,6 @@ namespace Honor.Runtime
                          string waitingUIABPath, string waitingUIAssetName,
                          string floatWordsUIABPath, string floatWordsUIAssetName, float floatWordsDuration)
         {
-            // ---TODO 门面收敛：原 m_AssetComponent/m_LocalizationComponent/m_UIComponent 字段已删除，统一改为 HonorAssetManager/HonorCoreManager/HonorUIManager.Instance 门面直调
             m_ScreenUICameras = screenUICameras;
             m_SceneUICameras = sceneUICameras;
             m_ScreenUICanvas = screenUICanvas;

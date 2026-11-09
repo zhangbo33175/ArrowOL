@@ -180,7 +180,7 @@ namespace Honor.Runtime
         public GameObject Load2DSceneRoot()
         {
 #if UNITY_EDITOR
-            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab");
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(HonorPathUtils.Editor.SceneRoot2DPrefabPath);
             if (prefab == null)
             {
                 Log.Error("未找到 2DSceneRoot.prefab");
@@ -434,7 +434,7 @@ namespace Honor.Runtime
             // 重复绑定时先释放旧纹理，避免相机纹理被覆盖后旧纹理泄漏
             ReleaseCameraRt(camera);
 
-            // ---TODO [修复] RT 尺寸按 RawImage 实际矩形宽高比动态计算，避免正方形 RT 与竖长视口不匹配
+            // RT 尺寸按 RawImage 实际矩形宽高比动态计算，避免正方形 RT 与竖长视口不匹配
             if (rtWidth <= 0 || rtHeight <= 0)
             {
                 RectTransform rectTrans = targetRawImage.rectTransform;

@@ -162,7 +162,7 @@ namespace Honor.Runtime
         }
 
         /// <summary>
-        /// TODO: 启动时显示闪屏
+        /// 启动时显示闪屏
         /// </summary>
         public void ShowLogoSplash()
         {

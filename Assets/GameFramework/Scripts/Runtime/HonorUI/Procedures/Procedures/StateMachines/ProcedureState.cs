@@ -26,8 +26,9 @@ namespace Honor.Runtime
 
         /// <summary>
         /// 切换流程时最大等待帧数（防止帧等待死循环）
+        /// TODO: 后续可配置化
         /// </summary>
-        private const int MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM = 5; // TODO: 硬编码等待帧数，后续可配置
+        private const int MAX_NEXT_PROCEDURE_WAIT_FRAME_NUM = 5;
 
         #endregion
 
@@ -246,7 +247,8 @@ namespace Honor.Runtime
             m_CurProcedureType = GetType();
             m_NextProcedureType = null;
             m_NextProcedureWaitFrameCount = 0;
-            m_EnterOver = true; // TODO: 转场已移除，直接标记进入完成
+            // 转场已移除，直接标记进入完成
+            m_EnterOver = true;
         }
 
         /// <summary>
