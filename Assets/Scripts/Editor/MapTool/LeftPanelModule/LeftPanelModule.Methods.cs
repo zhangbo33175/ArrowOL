@@ -179,8 +179,11 @@ namespace Honor.Editor.MapTool
                 resourceItem.RemoveFromClassList("selected");
             item.AddToClassList("selected");
             Debug.Log($"选中资源: {resourceName}");
-            // 触发资源选中事件（类型 = 当前Tab索引）
-            OnResourceSelected?.Invoke(resourceName, m_CurrentTabIndex);
+            // 根据 TemplateId 反查资源类型（人物 Tab 含 NPC + 猫猫，不能用 Tab 索引）
+            string templateId = resourceName.Split('_')[0];
+            var template = ObjectTemplateManager.Instance.GetTemplateById(templateId);
+            int objectType = template != null ? (int)template.Type : m_CurrentTabIndex;
+            OnResourceSelected?.Invoke(resourceName, objectType);
         }
 
         /// <summary>
@@ -216,8 +219,8 @@ namespace Honor.Editor.MapTool
                     foreach (var t in templates.FindAll(t => t.Type == MapObjectType.Building))
                         result.Add($"{t.TemplateId}_{t.TemplateName}");
                     break;
-                case 1: // 人物
-                    foreach (var t in templates.FindAll(t => t.Type == MapObjectType.Character))
+                case 1: // 人物（含 NPC + 猫猫）
+                    foreach (var t in templates.FindAll(t => t.Type == MapObjectType.Character || t.Type == MapObjectType.Cat))
                         result.Add($"{t.TemplateId}_{t.TemplateName}");
                     break;
                 case 2: // 物件

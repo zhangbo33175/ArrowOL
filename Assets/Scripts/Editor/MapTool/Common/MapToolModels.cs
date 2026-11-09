@@ -27,7 +27,10 @@ namespace Honor.Editor.MapTool
         Character = 1,
 
         /// <summary>场景物件类元素</summary>
-        Prop = 2
+        Prop = 2,
+
+        /// <summary>猫猫类元素（主角/猫咪）</summary>
+        Cat = 3
     }
 
     #endregion
@@ -196,6 +199,9 @@ namespace Honor.Editor.MapTool
         #endregion
 
         #region 动画属性
+
+        /// <summary>Spine 动画资源路径（SkeletonDataAsset）</summary>
+        public string SpineAssetPath = string.Empty;
 
         /// <summary>动画名称</summary>
         public string AnimName = "Idle";

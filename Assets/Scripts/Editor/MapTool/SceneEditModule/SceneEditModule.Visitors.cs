@@ -17,6 +17,7 @@ using System.IO;
 using System.Text;
 using Editor.MapEditor;
 using System.Linq;
+using Honor.Editor.MapTool.PsdImport;
 
 namespace Honor.Editor.MapTool
 {
@@ -161,6 +162,10 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private bool m_ShowObjectLayer = true;
         /// <summary>
+        /// 猫猫层显示开关
+        /// </summary>
+        private bool m_ShowCatLayer = true;
+        /// <summary>
         /// 背景层显示开关
         /// </summary>
         private bool m_ShowBackgroundLayer = true;
@@ -192,6 +197,10 @@ namespace Honor.Editor.MapTool
         /// 物件层开关控件
         /// </summary>
         private Toggle m_ObjectLayerToggle;
+        /// <summary>
+        /// 猫猫层开关控件
+        /// </summary>
+        private Toggle m_CatLayerToggle;
         /// <summary>
         /// 背景层开关控件
         /// </summary>
@@ -232,6 +241,11 @@ namespace Honor.Editor.MapTool
         /// 已放置物体列表
         /// </summary>
         private List<PlacedObject> m_PlacedObjects = new List<PlacedObject>();
+
+        /// <summary>
+        /// PSD/PSB 导入模块
+        /// </summary>
+        private PsdImportModule m_PsdImportModule;
         // 当前选中要放置的物体
         /// <summary>
         /// 当前选中放置的物体ID

@@ -129,21 +129,7 @@ namespace Honor.Editor.MapTool
             {
                 OnCtrlPathEditing(e);
             }
-            // 鼠标右键：删除物体 或 拖动地图
-            if (isMouseInRect && e.type == EventType.MouseDown && e.button == 1)
-            {
-                // 检查是否点击了某个物体
-                PlacedObject clickedObj = GetObjectAtPosition(e.mousePosition);
-                if (clickedObj != null)
-                {
-                    // 删除物体
-                    m_PlacedObjects.Remove(clickedObj);
-                    Debug.Log($"删除物体: {clickedObj.Name}");
-                    RefreshSceneObjects(); // 同步到场景
-                    e.Use();
-                    return;
-                }
-            }
+            // 鼠标右键：拖动地图（已取消右键删除，改为选中后点删除按钮）
             // 鼠标左键：放置物体、拖动物体 或 切换分区解锁
             if (isMouseInRect && e.type == EventType.MouseDown && e.button == 0)
             {
@@ -243,7 +229,7 @@ namespace Honor.Editor.MapTool
                     e.Use();
                 }
             }
-            // 鼠标右键拖动地图
+            // 鼠标右键：拖动地图
             if (isMouseInRect)
             {
                 if (e.type == EventType.MouseDown && e.button == 1)
@@ -380,8 +366,20 @@ namespace Honor.Editor.MapTool
                 var obj = m_PlacedObjects[i];
                 float screenX = m_MapOffset.x + obj.Position.x * m_Zoom;
                 float screenY = m_MapOffset.y + obj.Position.y * m_Zoom;
-                float width = obj.Width * 32 * m_Zoom;
-                float height = obj.Height * MapToolConstants.GridSize * m_Zoom;
+
+                // 优先用 PreviewTexture 的实际尺寸，否则用格子数 * 32
+                float width, height;
+                if (obj.PreviewTexture != null)
+                {
+                    width = obj.PreviewTexture.width * m_Zoom;
+                    height = obj.PreviewTexture.height * m_Zoom;
+                }
+                else
+                {
+                    width = obj.Width * 32 * m_Zoom;
+                    height = obj.Height * MapToolConstants.GridSize * m_Zoom;
+                }
+
                 Rect objRect = new Rect(screenX, screenY, width, height);
                 if (objRect.Contains(screenPos))
                 {

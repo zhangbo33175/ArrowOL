@@ -46,6 +46,16 @@ namespace Honor.Editor.MapTool
             var previewBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnPreviewMap);
             if (previewBtn != null)
                 previewBtn.clicked += OnPreviewClicked;
+
+            // 刷新层级按钮
+            var refreshLayerBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnRefreshLayer);
+            if (refreshLayerBtn != null)
+                refreshLayerBtn.clicked += OnRefreshLayerClicked;
+
+            // 资源整理 - 扫描未配置资源按钮
+            var scanResourcesBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnScanResources);
+            if (scanResourcesBtn != null)
+                scanResourcesBtn.clicked += OnScanResourcesClicked;
             // 清空摆放物按钮
             var clearObjectsBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearObjects);
             if (clearObjectsBtn != null)
@@ -54,6 +64,14 @@ namespace Honor.Editor.MapTool
             var clearGridBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearGridData);
             if (clearGridBtn != null)
                 clearGridBtn.clicked += OnClearGridDataClicked;
+            // 导入图片按钮（从 PNG 序列自动生成地图）
+            var importImagesBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnImportImages);
+            if (importImagesBtn != null)
+                importImagesBtn.clicked += OnImportImagesClicked;
+            // 导入 PSD 按钮（从 PSD 图层自动拆分生成地图）
+            var importPsdBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnImportPsd);
+            if (importPsdBtn != null)
+                importPsdBtn.clicked += () => m_PsdImportModule.ImportPsd();
             // 导出设置按钮
             var exportSettingsBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnExportSettings);
             if (exportSettingsBtn != null)
@@ -168,11 +186,297 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 导出切片按钮点击
+        /// <summary>
+        /// 导出切片按钮点击：导出所有物件图片到对应文件夹，按章节/关卡/类型分类
         /// </summary>
         private void OnExportSliceClicked()
         {
-            Debug.Log("导出切片");
+            if (m_PlacedObjects.Count == 0)
+            {
+                EditorUtility.DisplayDialog("导出切片", "当前地图没有任何物件", "确定");
+                return;
+            }
+
+            // 1. 获取章节名和关卡名
+            string chapterName = m_CurrentChapterData != null && !string.IsNullOrEmpty(m_CurrentChapterData.ChapterTitle)
+                ? m_CurrentChapterData.ChapterTitle
+                : (string.IsNullOrEmpty(m_CurrentChapterId) ? "DefaultChapter" : m_CurrentChapterId);
+            string levelName = string.IsNullOrEmpty(m_CurrentLevelId) ? "DefaultLevel" : m_CurrentLevelId;
+
+            // 2. 创建输出目录：Assets/Res/Textures/Map/{章节名}/{关卡名}/{类型}/
+            string baseDir = $"Assets/Res/Textures/Map/{chapterName}/{levelName}";
+            string buildingDir = $"{baseDir}/Building";
+            string characterDir = $"{baseDir}/Character";
+            string propDir = $"{baseDir}/Prop";
+            string catDir = $"{baseDir}/Cat";
+
+            // 确保目录存在
+            foreach (var dir in new[] { buildingDir, characterDir, propDir, catDir })
+            {
+                string fullPath = MapToolPathHelper.ToAbsolutePath(dir);
+                if (!System.IO.Directory.Exists(fullPath))
+                    System.IO.Directory.CreateDirectory(fullPath);
+            }
+
+            // 3. 导出所有物件
+            int exportedCount = 0;
+            var exportedNames = new HashSet<string>(); // 去重
+
+            int skippedCount = 0;
+            foreach (var obj in m_PlacedObjects)
+            {
+                if (obj.PreviewTexture == null) continue;
+
+                // 只导出带前缀的物件（bg_/building_/char_/prop_/cat_）
+                string lowerName = obj.Name.ToLower();
+                bool hasPrefix = lowerName.StartsWith("bg_")
+                    || lowerName.StartsWith("building_")
+                    || lowerName.StartsWith("char_")
+                    || lowerName.StartsWith("prop_")
+                    || lowerName.StartsWith("cat_");
+
+                // 带中文名字的跳过
+                bool hasChinese = System.Text.RegularExpressions.Regex.IsMatch(obj.Name, @"[\u4e00-\u9fff]");
+
+                if (!hasPrefix || hasChinese)
+                {
+                    skippedCount++;
+                    continue;
+                }
+
+                // 确定输出目录
+                string targetDir = propDir;
+                switch (obj.Type)
+                {
+                    case MapObjectType.Building: targetDir = buildingDir; break;
+                    case MapObjectType.Character: targetDir = characterDir; break;
+                    case MapObjectType.Cat: targetDir = catDir; break;
+                    case MapObjectType.Prop: targetDir = propDir; break;
+                }
+
+                // 文件名（去重）
+                string fileName = obj.Name.Replace(" ", "_").Replace("/", "_");
+                if (exportedNames.Contains(fileName)) continue;
+                exportedNames.Add(fileName);
+
+                // 导出 PNG
+                string fullPath = System.IO.Path.Combine(
+                    MapToolPathHelper.ToAbsolutePath(targetDir),
+                    $"{fileName}.png"
+                );
+
+                try
+                {
+                    // 方案1：直接复制源 PNG 文件（最快）
+                    string assetPath = AssetDatabase.GetAssetPath(obj.PreviewTexture);
+                    if (!string.IsNullOrEmpty(assetPath))
+                    {
+                        string srcFullPath = MapToolPathHelper.ToAbsolutePath(assetPath);
+                        if (System.IO.File.Exists(srcFullPath))
+                        {
+                            System.IO.File.Copy(srcFullPath, fullPath, true);
+                            exportedCount++;
+                            continue;
+                        }
+                    }
+
+                    // 方案2：如果 AssetDatabase 找不到，用 EncodeToPNG
+                    Texture2D srcTex = obj.PreviewTexture as Texture2D;
+                    if (srcTex == null)
+                    {
+                        Debug.LogWarning($"[导出切片] {obj.Name} 不是 Texture2D，跳过");
+                        continue;
+                    }
+
+                    RenderTexture rt = RenderTexture.GetTemporary(srcTex.width, srcTex.height, 0);
+                    Graphics.Blit(srcTex, rt);
+                    RenderTexture prev = RenderTexture.active;
+                    RenderTexture.active = rt;
+                    Texture2D readableTex = new Texture2D(srcTex.width, srcTex.height);
+                    readableTex.ReadPixels(new Rect(0, 0, srcTex.width, srcTex.height), 0, 0);
+                    readableTex.Apply();
+                    RenderTexture.active = prev;
+                    RenderTexture.ReleaseTemporary(rt);
+
+                    byte[] pngData = readableTex.EncodeToPNG();
+                    System.IO.File.WriteAllBytes(fullPath, pngData);
+                    exportedCount++;
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"[导出切片] 导出 {obj.Name} 失败: {e.Message}");
+                }
+            }
+
+            // 4. 刷新 AssetDatabase
+            AssetDatabase.Refresh();
+
+            EditorUtility.DisplayDialog("导出切片完成",
+                $"章节: {chapterName}\n关卡: {levelName}\n\n导出物件数: {exportedCount}\n跳过（无前缀）: {skippedCount}\n保存目录: {baseDir}\n\n按类型分类:\n  Building/Character/Prop/Cat/",
+                "确定");
+        }
+
+        /// <summary>
+        /// <summary>
+        /// 扫描未配置资源按钮点击
+        /// </summary>
+        private void OnScanResourcesClicked()
+        {
+            string mapDir = "Assets/Res/Textures/Map";
+            if (!AssetDatabase.IsValidFolder(mapDir))
+            {
+                EditorUtility.DisplayDialog("扫描资源", $"目录不存在：{mapDir}", "确定");
+                return;
+            }
+
+            // 扫描所有 PNG 图片
+            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { mapDir });
+            var allResources = new List<string>();
+            foreach (var guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (path.EndsWith(".png"))
+                {
+                    allResources.Add(path);
+                }
+            }
+
+            // 找出配置表里没有的资源
+            var unconfigured = new List<string>();
+            foreach (var path in allResources)
+            {
+                string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
+                var template = ObjectTemplateManager.Instance.GetTemplateByName(fileName);
+                if (template == null)
+                {
+                    unconfigured.Add(path);
+                }
+            }
+
+            // 显示结果
+            var listContainer = m_Root.Q<VisualElement>("unconfigured-resources-list");
+            if (listContainer != null)
+            {
+                listContainer.Clear();
+                if (unconfigured.Count == 0)
+                {
+                    listContainer.Add(new Label("所有资源都已在配置表中 ✓") { style = { color = Color.green } });
+                }
+                else
+                {
+                    listContainer.Add(new Label($"共发现 {unconfigured.Count} 个未配置资源："));
+                    foreach (var path in unconfigured)
+                    {
+                        string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
+                        var btn = new Button(() => ShowResourceDetail(path)) { text = fileName };
+                        listContainer.Add(btn);
+                    }
+                }
+            }
+
+            EditorUtility.DisplayDialog("扫描完成",
+                $"扫描目录: {mapDir}\n总资源数: {allResources.Count}\n未配置数: {unconfigured.Count}",
+                "确定");
+        }
+
+        /// <summary>
+        /// 显示资源详情
+        /// </summary>
+        private void ShowResourceDetail(string path)
+        {
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
+            var nameLabel = m_Root.Q<Label>("resource-detail-name");
+            var typeLabel = m_Root.Q<Label>("resource-detail-type");
+            var pathLabel = m_Root.Q<Label>("resource-detail-path");
+            var sizeLabel = m_Root.Q<Label>("resource-detail-size");
+
+            if (nameLabel != null) nameLabel.text = fileName;
+            if (pathLabel != null) pathLabel.text = path;
+
+            // 自动识别类型
+            string lowerName = fileName.ToLower();
+            string autoType = "未知";
+            if (lowerName.StartsWith("bg_")) autoType = "背景";
+            else if (lowerName.StartsWith("building_")) autoType = "建筑";
+            else if (lowerName.StartsWith("char_")) autoType = "人物";
+            else if (lowerName.StartsWith("prop_")) autoType = "物件";
+            else if (lowerName.StartsWith("cat_")) autoType = "猫猫";
+
+            if (typeLabel != null) typeLabel.text = autoType;
+
+            // 显示尺寸
+            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (tex != null && sizeLabel != null)
+            {
+                sizeLabel.text = $"{tex.width} x {tex.height}";
+            }
+        }
+
+        /// <summary>
+        /// 刷新层级按钮点击：按 YSort 规则重新排序所有物件，优化遮挡关系
+        /// </summary>
+        private void OnRefreshLayerClicked()
+        {
+            if (m_PlacedObjects == null || m_PlacedObjects.Count == 0)
+            {
+                EditorUtility.DisplayDialog("刷新层级", "当前地图没有任何物件", "确定");
+                return;
+            }
+
+            // 找到当前地图的 ZoneItem
+            var zoneRoot = GameObject.Find("GameMainMap");
+            if (zoneRoot == null)
+            {
+                EditorUtility.DisplayDialog("刷新层级", "找不到 GameMainMap 节点", "确定");
+                return;
+            }
+
+            // 调整层级节点顺序：Buildings（最底层） → Objects → Characters → Cats（最上层）
+            string[] layerOrder = { "Buildings", "Objects", "Characters", "Cats" };
+            var coordAdapter = FindChildRecursive(zoneRoot.transform, "CoordAdapter");
+            if (coordAdapter != null)
+            {
+                for (int i = 0; i < layerOrder.Length; i++)
+                {
+                    var layer = FindChildRecursive(coordAdapter, layerOrder[i]);
+                    if (layer != null)
+                    {
+                        layer.SetSiblingIndex(i);
+                    }
+                }
+            }
+
+            // 每个层级节点内部按左上角 Y 坐标排序（YSort 规则）
+            int totalSorted = 0;
+            foreach (var layerName in layerOrder)
+            {
+                var layer = FindChildRecursive(zoneRoot.transform, layerName);
+                if (layer == null) continue;
+
+                var objects = layer.GetComponentsInChildren<UnityEngine.UI.RawImage>()
+                    .Where(r => r.transform.parent == layer)
+                    .OrderBy(r =>
+                    {
+                        var rt = r.GetComponent<RectTransform>();
+                        // 按左上角 Y 坐标排序（YSort 规则）
+                        // 左上角 Y 越小越靠上，渲染在下层；越大越靠下，渲染在上层
+                        float topY = -rt.anchoredPosition.y;
+                        return topY;
+                    })
+                    .ToList();
+
+                for (int i = 0; i < objects.Count; i++)
+                {
+                    objects[i].transform.SetSiblingIndex(i);
+                    totalSorted++;
+                }
+            }
+
+            GUI.changed = true;
+
+            EditorUtility.DisplayDialog("刷新层级完成",
+                $"已按 YSort 规则重新排序\n排序物件数: {totalSorted}\n\n遮挡关系已优化：\n- 按左上角 Y 坐标排序\n- Y 越小越靠上，渲染在下层\n- Y 越大越靠下，渲染在上层",
+                "确定");
         }
 
         /// <summary>
@@ -278,6 +582,7 @@ namespace Honor.Editor.MapTool
             m_BuildingLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBuilding);
             m_CharacterLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerCharacter);
             m_ObjectLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerObject);
+            m_CatLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerCat);
             m_BackgroundLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBackground);
             m_PathGridToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerPathGrid);
             m_BoundingBoxToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBoundingBox);
@@ -330,6 +635,12 @@ namespace Honor.Editor.MapTool
                 interactContainer.Add(m_InteractTypeField);
             }
             m_CollisionToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropCollision);
+            if (m_CollisionToggle != null)
+                m_CollisionToggle.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.CollisionEnabled = evt.newValue;
+                });
             // 气泡类型下拉框
             var bubbleContainer = m_Root.Q<VisualElement>(name: MapToolUiNames.PropDialogBubbleContainer);
             if (bubbleContainer != null)
@@ -375,7 +686,19 @@ namespace Honor.Editor.MapTool
                 facingContainer.Add(m_FacingField);
             }
             m_ShadowToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropShadow);
+            if (m_ShadowToggle != null)
+                m_ShadowToggle.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.ShadowEnabled = evt.newValue;
+                });
             m_CollectibleToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropCollectible);
+            if (m_CollectibleToggle != null)
+                m_CollectibleToggle.RegisterValueChangedCallback(evt =>
+                {
+                    if (m_EditTarget != null)
+                        m_EditTarget.IsCollectible = evt.newValue;
+                });
             // 场景信息字段（保存配置时读取）
             m_SceneNameField = m_Root.Q<TextField>(name: MapToolUiNames.SceneNameField);
             m_SceneIdField = m_Root.Q<TextField>(name: MapToolUiNames.SceneIdField);
@@ -406,6 +729,12 @@ namespace Honor.Editor.MapTool
                 {
                     m_ShowObjectLayer = evt.newValue;
                     if (evt.newValue) SetPlaceType(2);
+                });
+            if (m_CatLayerToggle != null)
+                m_CatLayerToggle.RegisterValueChangedCallback(evt =>
+                {
+                    m_ShowCatLayer = evt.newValue;
+                    if (evt.newValue) SetPlaceType(3);
                 });
             if (m_BackgroundLayerToggle != null)
                 m_BackgroundLayerToggle.RegisterValueChangedCallback(evt => m_ShowBackgroundLayer = evt.newValue);
@@ -473,6 +802,38 @@ namespace Honor.Editor.MapTool
                 // TODO: 清空格子数据（迷雾、格子标记等）
                 Debug.Log("已清空格子数据");
             }
+        }
+
+        /// <summary>
+        /// 导入图片按钮点击：从 PNG 序列目录自动生成地图
+        /// 命名规范：bg_背景图 / building_建筑 / char_人物 / prop_物件
+        /// </summary>
+        private void OnImportImagesClicked()
+        {
+            string dirPath = EditorUtility.OpenFolderPanel("选择 PNG 序列目录", "Assets/Res/Textures/Map", "");
+            if (string.IsNullOrEmpty(dirPath)) return;
+
+            // 转换为 Assets 相对路径
+            string assetDir = MapToolPathHelper.ToAssetRelative(dirPath);
+            if (!assetDir.StartsWith("Assets/"))
+            {
+                EditorUtility.DisplayDialog("导入失败", "请选择 Assets 目录下的文件夹", "确定");
+                return;
+            }
+
+            MapImageImportResult result = MapImageImporter.ImportFromDirectory(assetDir);
+            if (result == null)
+            {
+                EditorUtility.DisplayDialog("导入失败", "目录下没有有效的 PNG 文件\n（需要 bg_/building_/char_/prop_ 前缀）", "确定");
+                return;
+            }
+
+            // 应用导入结果到编辑器
+            ApplyImageImport(result);
+
+            EditorUtility.DisplayDialog("导入完成",
+                $"背景图: {result.BackgroundName}\n物件数量: {result.Objects.Count}\n地图尺寸: {result.MapWidth}x{result.MapHeight}\n\n注意：物件位置默认错开排列，请手动调整",
+                "确定");
         }
 
         /// <summary>

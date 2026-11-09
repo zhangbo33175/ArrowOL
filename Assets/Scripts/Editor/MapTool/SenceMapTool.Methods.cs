@@ -11,6 +11,8 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
+using Honor.Editor.MapTool.ResourceOrganize;
 
 namespace Honor.Editor.MapTool
 {
@@ -29,6 +31,8 @@ namespace Honor.Editor.MapTool
             m_TabScene = visualTree.Q<Button>(name: "tab-scene");
             m_TabItemElement = visualTree.Q<Button>(name: "tab-item-element");
             m_TabFog = visualTree.Q<Button>(name: "tab-fog");
+            m_TabResource = visualTree.Q<Button>(name: "tab-resource");
+            m_ResourcePanel = visualTree.Q<VisualElement>(name: "resource-panel");
         }
 
         /// <summary>
@@ -77,6 +81,18 @@ namespace Honor.Editor.MapTool
                 m_FogModule = new FogEditModule();
                 m_FogModule.Init(fogPanel);
             }
+
+            // 资源整理模块
+            m_ResourceOrganizeModule = new ResourceOrganizeModule(root);
+            m_ResourceOrganizeModule.FindElements(root);
+            m_ResourceOrganizeModule.BindEvents();
+            m_ResourceOrganizeModule.OnSetActiveTab = SetActiveTab;
+            m_ResourceOrganizeModule.OnOtherModesHidden = () =>
+            {
+                m_SceneModule?.Hide();
+                m_ItemElementModule?.Hide();
+                m_FogModule?.Hide();
+            };
         }
 
         /// <summary>
@@ -90,6 +106,7 @@ namespace Honor.Editor.MapTool
                 m_TabItemElement.clicked += ShowItemElementMode;
             if (m_TabFog != null)
                 m_TabFog.clicked += ShowFogMode;
+            // 资源整理 Tab 按钮已由 ResourceOrganizeModule 绑定
         }
 
         /// <summary>
@@ -101,6 +118,7 @@ namespace Honor.Editor.MapTool
             m_SceneModule?.Show();
             m_ItemElementModule?.Hide();
             m_FogModule?.Hide();
+            m_ResourceOrganizeModule?.ShowResourcePanel(false);
         }
 
         /// <summary>
@@ -112,6 +130,7 @@ namespace Honor.Editor.MapTool
             m_SceneModule?.Hide();
             m_ItemElementModule?.Show();
             m_FogModule?.Hide();
+            m_ResourceOrganizeModule?.ShowResourcePanel(false);
         }
 
         /// <summary>
@@ -123,6 +142,7 @@ namespace Honor.Editor.MapTool
             m_SceneModule?.Hide();
             m_ItemElementModule?.Hide();
             m_FogModule?.Show();
+            m_ResourceOrganizeModule?.ShowResourcePanel(false);
         }
 
         /// <summary>
@@ -137,6 +157,7 @@ namespace Honor.Editor.MapTool
             m_TabScene?.RemoveFromClassList("active");
             m_TabItemElement?.RemoveFromClassList("active");
             m_TabFog?.RemoveFromClassList("active");
+            m_TabResource?.RemoveFromClassList("active");
 
             activeBtn.AddToClassList("active");
         }
@@ -183,6 +204,14 @@ namespace Honor.Editor.MapTool
         private void OnTabChanged(int type)
         {
             m_SceneModule?.SetPlaceType(type);
+        }
+
+        /// <summary>
+        /// 从 PNG 序列导入结果应用到场景编辑模块（菜单入口调用）
+        /// </summary>
+        public void ApplyImageImportToScene(MapImageImportResult result)
+        {
+            m_SceneModule?.ApplyImageImport(result);
         }
 
         /// <summary>

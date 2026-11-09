@@ -23,8 +23,15 @@ namespace Honor.Editor.MapTool
         public const string BtnExportSlice       = "btn-export-slice";
         public const string BtnExportSettings     = "btn-export-settings";
         public const string BtnPreviewMap        = "btn-preview-map";
+        public const string BtnRefreshLayer      = "btn-refresh-layer";
+        public const string TabResource          = "tab-resource";
+        public const string BtnScanResources     = "btn-scan-resources";
+        public const string BtnAddToConfig       = "btn-add-to-config";
+        public const string BtnAddAllToConfig    = "btn-add-all-to-config";
         public const string BtnClearObjects      = "btn-clear-objects";
         public const string BtnClearGridData     = "btn-clear-grid-data";
+        public const string BtnImportImages      = "btn-import-images";
+        public const string BtnImportPsd         = "btn-import-psd";
         public const string BtnDeleteObject      = "btn-delete-object";
         public const string BtnPublish           = "btn-publish";
         public const string BtnConfig            = "btn-config";
@@ -46,6 +53,7 @@ namespace Honor.Editor.MapTool
         public const string LayerBuilding        = "layer-building";
         public const string LayerCharacter       = "layer-character";
         public const string LayerObject          = "layer-object";
+        public const string LayerCat             = "layer-cat";
         public const string LayerBackground      = "layer-background";
         public const string LayerBoundingBox     = "layer-bounding-box";
 

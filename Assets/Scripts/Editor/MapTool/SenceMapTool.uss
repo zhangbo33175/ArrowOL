@@ -200,11 +200,16 @@
 .right-main-area {
     flex-grow: 1;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .top-toolbar {
     flex-grow: 0;
-    flex-direction: column;
+    flex-shrink: 0;
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    flex-direction: row;
     background-color: rgb(51, 51, 51);
 }
 
@@ -223,6 +228,19 @@
 
 .tab-btn.active {
     background-color: rgb(14, 99, 156);
+}
+
+.sub-tab-btn {
+    background-color: rgb(50, 50, 55);
+    color: rgb(200, 200, 200);
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: rgb(70, 70, 75);
+}
+
+.sub-tab-btn.active {
+    background-color: rgb(14, 99, 156);
+    color: white;
 }
 
 .tool-btn {
@@ -908,4 +926,71 @@
 .shortcut-text {
     color: rgb(150, 150, 150);
     font-size: 10px;
+}
+
+/* 资源整理 - 选中按钮高亮 */
+#unconfigured-resources-list Button {
+    margin: 2px 0;
+    padding: 4px 8px;
+    background-color: rgb(60, 60, 63);
+    color: rgb(220, 220, 220);
+    border-radius: 3px;
+}
+
+#unconfigured-resources-list Button:hover {
+    background-color: rgb(80, 80, 83);
+}
+
+#unconfigured-resources-list Button.selected {
+    background-color: rgb(14, 99, 156);
+    color: rgb(255, 255, 255);
+    border-left: 3px solid rgb(100, 180, 255);
+}
+
+/* 配置表表格 - 统一样式 */
+.config-table .table-row {
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid rgb(0, 0, 0);
+    border-left: 1px solid rgb(0, 0, 0);
+    border-right: 1px solid rgb(0, 0, 0);
+}
+
+.config-table .table-cell {
+    padding-left: 6px;
+    padding-right: 6px;
+    border-right: 1px solid rgb(0, 0, 0);
+    font-size: 11px;
+    color: rgb(0, 0, 0);
+}
+
+.config-table .table-cell-textfield {
+    background-color: transparent;
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    border-right: 1px solid rgb(0, 0, 0);
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 11px;
+    color: rgb(0, 0, 0);
+}
+
+.config-table .table-cell-textfield .unity-text-input {
+    background-color: transparent;
+    border-top: none;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    padding-left: 0;
+    padding-right: 0;
+    color: rgb(0, 0, 0);
+}
+
+.config-table .table-cell-toggle {
+    padding-left: 6px;
+    padding-right: 6px;
+    border-right: 1px solid rgb(0, 0, 0);
+    font-size: 11px;
+    background-color: transparent;
 }

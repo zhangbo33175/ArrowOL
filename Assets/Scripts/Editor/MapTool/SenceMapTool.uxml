@@ -4,7 +4,7 @@
         <ui:VisualElement name="VisualElement" class="left-panel" style="width: 193px; background-color: rgb(79, 76, 76); border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-left-color: rgb(87, 87, 96); border-right-color: rgb(87, 87, 96); border-top-color: rgb(87, 87, 96); border-bottom-color: rgb(87, 87, 96);">
             <ui:VisualElement class="left-btn-row">
                 <ui:Button text="配置" name="btn-config" class="left-btn" />
-                <ui:Button text="删除" class="left-btn" />
+                <ui:Button text="删除" name="btn-delete" class="left-btn" />
             </ui:VisualElement>
             <ui:VisualElement class="chapter-box" style="height: 205px;">
                 <ui:ScrollView name="chapter-list" class="chapter-list" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75);" />
@@ -71,11 +71,12 @@
         <ui:VisualElement class="separator-v" style="width: 3px;" />
         <ui:VisualElement class="h-space-4" style="width: 3px;" />
         <ui:VisualElement name="VisualElement" class="right-main-area" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75);">
-            <ui:VisualElement class="top-toolbar">
-                <ui:VisualElement name="VisualElement" class="toolbar-row" style="flex-direction: row; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75);">
-                    <ui:Button text="场景编辑" name="tab-scene" class="tab-btn active" style="width: 90px;" />
-                    <ui:Button text="物品元件编辑" name="tab-item-element" class="tab-btn" style="width: 90px;" />
-                    <ui:Button text="迷雾编辑" name="tab-fog" class="tab-btn" style="width: 90px;" />
+            <ui:VisualElement class="top-toolbar" style="flex-grow: 0; height: 30px;">
+                <ui:VisualElement name="VisualElement" class="toolbar-row" style="flex-direction: row; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); height: 30px;">
+                    <ui:Button text="场景编辑" name="tab-scene" class="tab-btn active" style="width: 90px; height: 28px;" />
+                    <ui:Button text="物品元件编辑" name="tab-item-element" class="tab-btn" style="width: 90px; height: 28px;" />
+                    <ui:Button text="迷雾编辑" name="tab-fog" class="tab-btn" style="width: 90px; height: 28px;" />
+                    <ui:Button text="资源整理" name="tab-resource" class="tab-btn" style="width: 90px; height: 28px;" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="scene-mode-panel" focusable="false" class="mode-panel" style="opacity: 1; display: flex; overflow: visible;">
@@ -84,6 +85,8 @@
                     <ui:Button text="保存" name="btn-save" class="tool-btn" />
                     <ui:Button text="清空摆放物" name="btn-clear-objects" class="tool-btn danger-btn" />
                     <ui:Button text="清空格子数据" name="btn-clear-grid-data" class="tool-btn" />
+                    <ui:Button text="导入图片" name="btn-import-images" class="tool-btn" />
+                    <ui:Button text="导入PSD" name="btn-import-psd" class="tool-btn" />
                     <ui:VisualElement name="VisualElement" class="flex-space" style="width: 80px; max-width: 80px;" />
                     <ui:Label text="图层：" style="justify-content: center; align-self: center; align-items: center;" />
                     <ui:Toggle text="摆放网格层" value="true" name="layer-place-grid" />
@@ -92,6 +95,7 @@
                     <ui:Toggle text="建筑层" value="true" name="layer-building" />
                     <ui:Toggle text="人物层" value="true" name="layer-character" />
                     <ui:Toggle text="物件层" value="true" name="layer-object" />
+                    <ui:Toggle text="猫猫层" value="true" name="layer-cat" />
                     <ui:Toggle text="背景层" value="true" name="layer-background" />
                     <ui:Toggle text="包围盒" name="layer-bounding-box" />
                 </ui:VisualElement>
@@ -125,7 +129,7 @@
                             <ui:TextField value="4096" name="map-width-field" class="small-textfield" style="width: 60px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
-                            <ui:Button text="导出切片" class="small-btn" style="min-width: 80px; height: 22px;" />
+                            <ui:Button text="导出切片" name="btn-export-slice" class="small-btn" style="min-width: 80px; height: 22px;" />
                             <ui:Label text="场景ID:" class="prop-label" style="width: 48px;" />
                             <ui:TextField value="1" name="scene-id-field" class="small-textfield flex-grow" />
                             <ui:Label text="高:" class="prop-label" style="width: 24px;" />
@@ -133,6 +137,7 @@
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
                             <ui:Button text="预览地图" name="btn-preview-map" class="small-btn" style="min-width: 80px; height: 22px;" />
+                            <ui:Button text="刷新层级" name="btn-refresh-layer" class="small-btn" style="min-width: 80px; height: 22px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
                             <ui:Toggle text="DrawClear:" value="true" name="Toggle" style="width: 110px;" />
@@ -361,6 +366,132 @@
                     <ui:VisualElement class="fog-list-panel">
                         <ui:Label text="迷雾区域列表" class="sub-title" />
                         <ui:Label text="（暂无迷雾区域，点击「添加迷雾区域」或开始绘制）" class="empty-tip" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- 资源整理面板 -->
+            <ui:VisualElement name="resource-panel" class="mode-panel hidden" style="display: none; overflow: hidden;">
+                <!-- 主内容区 -->
+                <ui:VisualElement style="flex-direction: row; flex-grow: 1; overflow: hidden; padding: 8px;">
+                    <!-- 左侧：未配置资源列表 -->
+                    <ui:VisualElement style="width: 300px; min-width: 300px; margin-right: 12px; background: rgb(38, 38, 38); border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75); padding: 8px;">
+                        <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 6px;">
+                            <ui:Label text="未配置资源" style="font-size: 12px; color: rgb(200, 200, 200); -unity-font-style: bold; flex-grow: 1;" />
+                            <ui:Button text="扫描" name="btn-scan-resources" class="tool-btn" style="width: 60px; height: 22px; font-size: 10px;" />
+                        </ui:VisualElement>
+                        <!-- 分类子 Tab -->
+                        <ui:VisualElement style="flex-direction: row; margin-bottom: 6px;">
+                            <ui:Button text="全部" name="tab-all" class="sub-tab-btn active" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
+                            <ui:Button text="背景" name="tab-bg" class="sub-tab-btn" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
+                            <ui:Button text="建筑" name="tab-building" class="sub-tab-btn" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
+                            <ui:Button text="人物" name="tab-char" class="sub-tab-btn" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
+                            <ui:Button text="物件" name="tab-prop" class="sub-tab-btn" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
+                            <ui:Button text="猫猫" name="tab-cat" class="sub-tab-btn" style="flex-grow: 1; height: 24px; font-size: 11px;" />
+                        </ui:VisualElement>
+                        <ui:ScrollView style="flex-grow: 1;">
+                            <ui:VisualElement name="unconfigured-resources-list">
+                                <ui:Label text="（点击「扫描」开始）" style="color: rgb(120, 120, 120); font-size: 11px; padding: 8px;" />
+                            </ui:VisualElement>
+                        </ui:ScrollView>
+                    </ui:VisualElement>
+                    <!-- 右侧：资源详情 -->
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: column; overflow: hidden;">
+                        <!-- 预览图 + 基本信息 -->
+                        <ui:VisualElement style="flex-direction: row; margin-bottom: 8px;">
+                            <!-- 预览图 -->
+                            <ui:VisualElement style="width: 100px; margin-right: 12px;">
+                                <ui:VisualElement name="resource-preview-container" style="background: rgb(42, 42, 42); height: 100px; align-items: center; justify-content: center; border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75);">
+                                    <ui:Label text="（预览图）" style="color: rgb(120, 120, 120); font-size: 11px;" />
+                                </ui:VisualElement>
+                                <ui:Label text="-" name="resource-detail-size" style="color: rgb(180, 180, 180); font-size: 11px; margin-top: 4px;" />
+                            </ui:VisualElement>
+                            <!-- 配置字段 -->
+                            <ui:VisualElement style="flex-grow: 1; background: rgb(38, 38, 38); border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75); padding: 8px;">
+                                <ui:VisualElement style="flex-direction: row; margin-bottom: 4px;">
+                                    <ui:Label text="ID" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px;" />
+                                    <ui:TextField name="field-template-id" style="width: 120px;" value="template_0001" />
+                                    <ui:Label text="ImagePath" style="width: 70px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 12px;" />
+                                    <ui:TextField name="field-image-path" style="flex-grow: 1;" value="-" />
+                                </ui:VisualElement>
+                                <ui:VisualElement style="flex-direction: row; margin-bottom: 4px;">
+                                    <ui:Label text="Name" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px;" />
+                                    <ui:TextField name="field-template-name" style="flex-grow: 1;" value="-" />
+                                    <ui:Label text="Anim" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 12px;" />
+                                    <ui:TextField name="field-anim-name" style="width: 60px;" value="Idle" />
+                                </ui:VisualElement>
+                                <ui:VisualElement style="flex-direction: row; align-items: center;">
+                                    <ui:Toggle text="Loop" name="field-loop" value="true" />
+                                    <ui:Label text="Speed" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 8px;" />
+                                    <ui:FloatField name="field-speed" style="width: 40px;" value="1" />
+                                    <ui:Label text="Order" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 8px;" />
+                                    <ui:IntegerField name="field-sort-order" style="width: 40px;" value="10" />
+                                    <ui:Toggle text="Shadow" name="field-shadow" value="true" style="margin-left: 8px;" />
+                                    <ui:Toggle text="Collectible" name="field-collectible" value="false" style="margin-left: 8px;" />
+                                    <ui:VisualElement style="flex-grow: 1;" />
+                                    <ui:Button text="添加到配置表" name="btn-add-to-config" class="tool-btn" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <!-- 配置表预览（Excel 样式） -->
+                        <ui:VisualElement style="flex-grow: 1; background: rgb(30, 30, 30); border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75); padding: 8px; overflow: hidden;">
+                            <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 6px;">
+                                <ui:Label text="已配置资源列表" style="font-size: 12px; color: rgb(200, 200, 200); -unity-font-style: bold;" />
+                                <ui:Label text="" name="current-config-name" style="font-size: 11px; color: rgb(150, 150, 150); margin-left: 8px;" />
+                                <ui:VisualElement style="flex-grow: 1;" />
+                                <ui:Button text="打开配置表" name="btn-open-config" class="tool-btn" style="width: 80px; height: 22px; font-size: 10px; margin-right: 4px;" />
+                                <ui:Button text="打开文件位置" name="btn-open-folder" class="tool-btn" style="width: 90px; height: 22px; font-size: 10px; margin-right: 4px;" />
+                                <ui:Button text="保存修改" name="btn-save-config" class="tool-btn" style="width: 80px; height: 22px; font-size: 10px;" />
+                            </ui:VisualElement>
+                            <!-- 表头（三行：英文列名、类型、中文说明） -->
+                            <ui:VisualElement style="flex-direction: row; background-color: rgb(0, 0, 0); border-top-width: 1px; border-left-width: 1px; border-right-width: 1px; border-top-color: rgb(0, 0, 0); border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); margin: 0; padding: 0;">
+                                <ui:Label text="TemplateId" style="width: 80px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="ImagePath" style="width: 140px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="ResName" style="width: 150px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="TemplateName" style="width: 90px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="Loop" style="width: 80px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="Speed" style="width: 80px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="SortOrder" style="width: 120px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="DialogBubble" style="width: 120px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="IsCollectible" style="width: 90px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="RespawnTime" style="width: 100px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="操作" style="width: 56px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6;" />
+                            </ui:VisualElement>
+                            <!-- 类型行 -->
+                            <ui:VisualElement style="flex-direction: row; background-color: rgb(128, 128, 128); border-left-width: 1px; border-right-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0);">
+                                <ui:Label text="int" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="string" style="width: 140px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="string" style="width: 150px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="string" style="width: 90px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="bool" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="float" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="int" style="width: 120px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="string" style="width: 120px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="bool" style="width: 90px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="float" style="width: 100px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="" style="width: 56px; color: white; font-size: 10px; padding-left: 6; padding-right: 6;" />
+                            </ui:VisualElement>
+                            <!-- 中文说明行 -->
+                            <ui:VisualElement style="flex-direction: row; background-color: rgb(0, 176, 80); border-left-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);">
+                                <ui:Label text="序号" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="图片名称" style="width: 140px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="资源ResDef的名字" style="width: 150px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="物件名称" style="width: 90px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="是否循环播放" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="动画播放速度" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="渲染层级排序(越大越靠前)" style="width: 120px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="对话气泡内容" style="width: 120px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="是否为收集物" style="width: 90px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="收集物重生时间(秒)" style="width: 100px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
+                                <ui:Label text="" style="width: 56px; color: white; font-size: 10px; padding-left: 6; padding-right: 6;" />
+                            </ui:VisualElement>
+                            <!-- 数据列表（可滚动） -->
+                            <ui:ScrollView style="flex-grow: 1; border-radius: 0 0 3px 3px;">
+                                <ui:VisualElement name="config-list-container" class="config-table">
+                                    <ui:Label text="（暂无配置数据）" style="color: rgb(120, 120, 120); font-size: 11px; padding: 8px;" />
+                                </ui:VisualElement>
+                            </ui:ScrollView>
+                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>

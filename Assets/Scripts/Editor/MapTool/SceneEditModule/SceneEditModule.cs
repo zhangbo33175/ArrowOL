@@ -18,6 +18,8 @@ using System.IO;
 using System.Text;
 using Editor.MapEditor;
 using System.Linq;
+using Spine.Unity;
+using Honor.Editor.MapTool.PsdImport;
 
 namespace Honor.Editor.MapTool
 {
@@ -35,6 +37,18 @@ namespace Honor.Editor.MapTool
             m_Root = root;
             // 初始化物体模板管理器
             ObjectTemplateManager.Instance.Initialize();
+
+            // 初始化 PSD/PSB 导入模块
+            m_PsdImportModule = new PsdImportModule(this);
+            m_PsdImportModule.OnMapSizeSet = (w, h) => { m_MapWidth = w; m_MapHeight = h; };
+            m_PsdImportModule.OnBackgroundSet = (path) =>
+            {
+                if (!string.IsNullOrEmpty(m_CurrentLevelId))
+                    m_LevelBgDict[m_CurrentLevelId] = path;
+            };
+            m_PsdImportModule.OnObjectCreated = (obj) => { m_PlacedObjects.Add(obj); };
+            m_PsdImportModule.OnRefreshScene = RefreshSceneObjects;
+
             FindElements();
             BindEvents();
         }
@@ -529,29 +543,143 @@ namespace Honor.Editor.MapTool
 
             float gridSize = MapToolConstants.GridSize;
 
-            // 所有物体挂到 ZoneItem 的 Root 下
-            Transform rootNode = FindChildRecursive(zoneItem, "Root");
-            RectTransform parent = rootNode != null ? rootNode as RectTransform : zoneItem as RectTransform;
+            // 找到各个层级节点
+            Transform coordAdapter = FindChildRecursive(zoneItem, "CoordAdapter");
+
+            // 给层级节点设置正确的尺寸和坐标系（铺满整个地图，左上角原点）
+            if (coordAdapter != null)
+            {
+                // CoordAdapter 铺满整个 ZoneItem
+                var caRt = coordAdapter as RectTransform;
+                if (caRt != null)
+                {
+                    caRt.anchorMin = new Vector2(0, 1); // 左上角
+                    caRt.anchorMax = new Vector2(1, 0); // 右下角
+                    caRt.pivot = new Vector2(0, 1); // 自身左上角
+                    caRt.offsetMin = Vector2.zero;
+                    caRt.offsetMax = Vector2.zero;
+                }
+
+                // 给 Buildings / Characters / Objects 也设置正确尺寸
+                string[] layerNames = { "Buildings", "Characters", "Objects" };
+                foreach (var name in layerNames)
+                {
+                    var layer = FindChildRecursive(coordAdapter, name) as RectTransform;
+                    if (layer != null)
+                    {
+                        layer.anchorMin = new Vector2(0, 1); // 左上角
+                        layer.anchorMax = new Vector2(1, 0); // 右下角
+                        layer.pivot = new Vector2(0, 1); // 自身左上角
+                        layer.offsetMin = Vector2.zero;
+                        layer.offsetMax = Vector2.zero;
+                    }
+                }
+            }
+
+            // 按类型找对应的父节点
+            Transform GetParentNode(MapObjectType type)
+            {
+                if (coordAdapter == null) return zoneItem;
+
+                // 按类型挂到对应层级节点下
+                string nodeName = type switch
+                {
+                    MapObjectType.Building => "Buildings",
+                    MapObjectType.Character => "Characters",
+                    MapObjectType.Prop => "Objects",
+                    MapObjectType.Cat => "Cats",
+                    _ => "Objects"
+                };
+
+                Transform node = FindChildRecursive(coordAdapter, nodeName);
+                return node != null ? node : zoneItem;
+            }
 
             foreach (var obj in m_PlacedObjects)
             {
                 var go = new GameObject();
-                go.transform.SetParent(parent, false);
+                var parentNode = GetParentNode(obj.Type);
+                go.transform.SetParent(parentNode, false);
                 go.name = obj.Type == MapObjectType.Character ? $"Char_{obj.Name}" : $"Obj_{obj.Name}";
 
                 var rt = go.AddComponent<RectTransform>();
-                // 和编辑器一致：左上角原点，Y 向下
-                rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0, 1);
-                rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y);
+                // 左上角坐标系（和编辑器完全一致）
+                // anchorMin = (0,1) 锚定在父节点左上角
+                // pivot = (0,1) 自身左上角
+                rt.anchorMin = rt.anchorMax = new Vector2(0, 1);
+                rt.pivot = new Vector2(0, 1);
+                rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y); // Y 向上为正，所以取反
                 rt.sizeDelta = new Vector2(obj.Width * gridSize, obj.Height * gridSize);
 
-                var rawImg = go.AddComponent<UnityEngine.UI.RawImage>();
-                rawImg.texture = obj.PreviewTexture as Texture2D;
-                rawImg.color = obj.Type == MapObjectType.Character ? new Color(1,1,0,0.8f)
-                             : obj.Type == MapObjectType.Building ? new Color(0,1,1,0.6f)
-                             : new Color(0,1,0,0.6f);
+                // 如果有 Spine 资源，就用 Spine 动画；否则用静态图片
+                if (!string.IsNullOrEmpty(obj.SpineAssetPath))
+                {
+                    // 加载 Spine SkeletonDataAsset
+                    var spineAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(obj.SpineAssetPath);
+                    if (spineAsset != null)
+                    {
+                        var skeletonAnimation = go.AddComponent<Spine.Unity.SkeletonAnimation>();
+                        skeletonAnimation.skeletonDataAsset = spineAsset;
+                        skeletonAnimation.Initialize(false);
+                        skeletonAnimation.AnimationName = obj.AnimName;
+                        skeletonAnimation.state.SetAnimation(0, obj.AnimName, obj.Loop);
+                    }
+                    else
+                    {
+                        // 加载失败，退回静态图片
+                        var rawImg = go.AddComponent<UnityEngine.UI.RawImage>();
+                        rawImg.texture = obj.PreviewTexture as Texture2D;
+                        rawImg.color = Color.white;
+                    }
+                }
+                else
+                {
+                    var rawImg = go.AddComponent<UnityEngine.UI.RawImage>();
+                    rawImg.texture = obj.PreviewTexture as Texture2D;
+                    rawImg.color = Color.white; // 白色，不 tint，直接显示原图颜色
+                }
             }
-            Debug.Log($"已同步 {m_PlacedObjects.Count} 个摆放物到场景");
+            // 调整层级节点顺序：Buildings（最底层） → Objects → Characters → Cats（最上层）
+            string[] layerOrder = { "Buildings", "Objects", "Characters", "Cats" };
+            if (coordAdapter != null)
+            {
+                for (int i = 0; i < layerOrder.Length; i++)
+                {
+                    Transform layer = FindChildRecursive(coordAdapter, layerOrder[i]);
+                    if (layer != null)
+                    {
+                        layer.SetSiblingIndex(i);
+                    }
+                }
+            }
+
+            // 每个层级节点内部按左上角 Y 坐标排序（YSort 规则）
+            foreach (var layerName in layerOrder)
+            {
+                Transform layer = FindChildRecursive(zoneRoot, layerName);
+                if (layer == null) continue;
+
+                var objects = layer.GetComponentsInChildren<UnityEngine.UI.RawImage>()
+                    .Where(r => r.transform.parent == layer) // 只取直接子物体
+                    .OrderBy(r =>
+                    {
+                        var rt = r.GetComponent<RectTransform>();
+                        // 按左上角 Y 坐标排序（YSort 规则）
+                        // 左上角 Y 越小越靠上，排在前面，siblingIndex=0，渲染在下层
+                        // 左上角 Y 越大越靠下，排在后面，siblingIndex=n-1，渲染在上层
+                        // 这样高树不会错误地排到矮人物前面
+                        float topY = -rt.anchoredPosition.y; // 取反变成向下为正
+                        return topY;
+                    })
+                    .ToList();
+
+                for (int i = 0; i < objects.Count; i++)
+                {
+                    objects[i].transform.SetSiblingIndex(i);
+                }
+            }
+
+            Debug.Log($"已同步 {m_PlacedObjects.Count} 个摆放物到场景，已按 YSort 调整渲染顺序");
             SyncPathPointsToScene(zoneRoot);
         }
 
@@ -676,6 +804,53 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 从 PNG 序列导入结果应用到编辑器（自动设置背景 + 创建物件列表）
+        /// 注意：物件位置默认在原点，需要手动调整
+        /// </summary>
+        /// <param name="result">导入结果</param>
+        public void ApplyImageImport(MapImageImportResult result)
+        {
+            if (result == null) return;
+
+            // 1. 设置背景图（存完整路径，方便直接加载）
+            if (!string.IsNullOrEmpty(result.BackgroundPath) && !string.IsNullOrEmpty(m_CurrentLevelId))
+            {
+                m_LevelBgDict[m_CurrentLevelId] = result.BackgroundPath; // 存完整 Assets 路径
+                Debug.Log($"背景图已设置: {result.BackgroundPath}");
+            }
+
+            // 2. 设置地图宽高
+            if (result.MapWidth > 0) m_MapWidth = result.MapWidth;
+            if (result.MapHeight > 0) m_MapHeight = result.MapHeight;
+
+            // 3. 自动创建物件（位置在原点，需要手动摆）
+            m_PlacedObjects.Clear();
+            int index = 0;
+            foreach (var info in result.Objects)
+            {
+                Texture2D previewTex = AssetDatabase.LoadAssetAtPath<Texture2D>(info.PreviewPath);
+                Vector2Int defaultSize = MapToolEditorUtils.GetDefaultObjectSize(info.Type);
+                m_PlacedObjects.Add(new PlacedObject
+                {
+                    Id = System.Guid.NewGuid().ToString("N").Substring(0, 8),
+                    TemplateId = info.ObjectId,
+                    Name = info.ObjectName,
+                    Type = info.Type,
+                    Position = new Vector2(index * MapToolConstants.GridSize, index * MapToolConstants.GridSize), // 错开排列，避免全叠在原点
+                    Width = defaultSize.x,
+                    Height = defaultSize.y,
+                    PreviewTexture = previewTex,
+                });
+                index++;
+            }
+
+            // 4. 刷新场景
+            RefreshSceneObjects();
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
+            m_StatusBar.ShowMessage($"已导入 {result.Objects.Count} 个物件，请手动调整位置");
+        }
+
+        /// <summary>
         /// 设置当前放置类型（Tab 切换 / 顶部图层 Toggle 联动）
         /// 建筑/人物/物件三选一，选中哪个就勾选对应图层 Toggle，取消另外两个
         /// </summary>
@@ -685,15 +860,17 @@ namespace Honor.Editor.MapTool
             MapObjectType objectType = (MapObjectType)type;
             m_SelectedObjectType = objectType;
 
-            // 联动图层 Toggle：三选一
+            // 联动图层 Toggle：四选一（建筑/人物/物件/猫猫）
             SetToggleWithoutNotify(m_BuildingLayerToggle, objectType == MapObjectType.Building);
             SetToggleWithoutNotify(m_CharacterLayerToggle, objectType == MapObjectType.Character);
             SetToggleWithoutNotify(m_ObjectLayerToggle, objectType == MapObjectType.Prop);
+            SetToggleWithoutNotify(m_CatLayerToggle, objectType == MapObjectType.Cat);
 
             // 同步显示开关
             m_ShowBuildingLayer = (objectType == MapObjectType.Building);
             m_ShowCharacterLayer = (objectType == MapObjectType.Character);
             m_ShowObjectLayer = (objectType == MapObjectType.Prop);
+            m_ShowCatLayer = (objectType == MapObjectType.Cat);
         }
 
         /// <summary>

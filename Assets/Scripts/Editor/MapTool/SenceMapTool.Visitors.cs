@@ -11,6 +11,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Honor.Editor.MapTool.ResourceOrganize;
 
 namespace Honor.Editor.MapTool
 {
@@ -46,6 +47,13 @@ namespace Honor.Editor.MapTool
         /// 迷雾切页按钮
         /// </summary>
         private Button m_TabFog;
+        /// <summary>
+        /// 资源整理切页按钮
+        /// </summary>
+        private Button m_TabResource;
+
+        /// <summary>资源整理面板</summary>
+        private VisualElement m_ResourcePanel;
 
         // 模块引用
         /// <summary>
@@ -64,6 +72,11 @@ namespace Honor.Editor.MapTool
         /// 迷雾编辑模块
         /// </summary>
         private FogEditModule m_FogModule;
+
+        /// <summary>
+        /// 资源整理模块
+        /// </summary>
+        private ResourceOrganizeModule m_ResourceOrganizeModule;
 
         #endregion
     }

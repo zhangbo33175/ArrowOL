@@ -78,14 +78,23 @@ namespace Honor.Editor.MapTool
         /// <param name="mapRect">地图显示区域</param>
         private void DrawMapLayer(Rect mapRect)
         {
-            if (!m_ShowMapLayer || m_MapPrefab == null) return;
-            // 预制体预览纹理仅获取一次
-            Texture previewTexture = GetMapPrefabPreviewTexture();
-            // 绘制当前关卡背景图，未配置或加载失败则回退预制体预览图
+            if (!m_ShowMapLayer) return;
+
+            // 1. 先画一层草地底色（防止背景图透明区域显示黑色）
+            EditorGUI.DrawRect(mapRect, new Color(0.76f, 0.89f, 0.65f)); // 浅绿色草地
+
+            // 2. 再画背景图（独立于预制体）
             Texture bgTexture = LoadRegionBackground(m_CurrentLevelId);
             if (bgTexture != null)
+            {
                 GUI.DrawTexture(mapRect, bgTexture, ScaleMode.StretchToFill);
-            else if (previewTexture != null)
+                return; // 有背景图就不画预制体预览了
+            }
+
+            // 2. 没有背景图，回退到预制体预览
+            if (m_MapPrefab == null) return;
+            Texture previewTexture = GetMapPrefabPreviewTexture();
+            if (previewTexture != null)
                 GUI.DrawTexture(mapRect, previewTexture, ScaleMode.StretchToFill);
         }
 
@@ -95,14 +104,16 @@ namespace Honor.Editor.MapTool
         /// <param name="mapRect">地图显示区域</param>
         private void DrawPlacedObjects(Rect mapRect)
         {
-            // 排序逻辑（2D 地图层级规则）：
-            // 1. 先按层级类型排：建筑(0) → 人物(1) → 物件(2)（层级越高越后画）
-            // 2. 同一层级内：按 SortOrder 排
-            // 3. 同一 SortOrder：按 Y 坐标排（Y 越大越靠前）
+            // 2D 地图 YSort 排序规则：
+            // 用物体底部 Y 坐标排序（底部越靠下，越在前面）
+            // 而不是顶部 Y 坐标，否则高物体会被错误地放到矮物体后面
             var sortedObjects = m_PlacedObjects
-                .OrderBy(obj => GetLayerOrder(obj.Type))
-                .ThenBy(obj => GetEffectiveSortOrder(obj))
-                .ThenBy(obj => obj.Position.y)
+                .OrderBy(obj =>
+                {
+                    // 底部 Y = 顶部 Y + 高度
+                    float height = obj.PreviewTexture != null ? obj.PreviewTexture.height : obj.Height * 32f;
+                    return obj.Position.y + height;
+                })
                 .ToList();
             foreach (var obj in sortedObjects)
             {
@@ -110,6 +121,7 @@ namespace Honor.Editor.MapTool
                 if (obj.Type == MapObjectType.Building && !m_ShowBuildingLayer) continue; // 建筑层
                 if (obj.Type == MapObjectType.Character && !m_ShowCharacterLayer) continue; // 人物层
                 if (obj.Type == MapObjectType.Prop && !m_ShowObjectLayer) continue; // 物件层
+                if (obj.Type == MapObjectType.Cat && !m_ShowCatLayer) continue; // 猫图层
                 // 世界坐标转屏幕坐标
                 float width = obj.Width * MapToolConstants.GridSize * m_Zoom;
                 float height = obj.Height * MapToolConstants.GridSize * m_Zoom;
@@ -123,9 +135,12 @@ namespace Honor.Editor.MapTool
                 {
                     EditorGUI.DrawRect(objRect, GetObjectPlaceholderColor(obj.Type));
                 }
-                // 绘制物体名称
-                GUI.Label(new Rect(objRect.x, objRect.y - 20, 100, 20), obj.Name,
-                    new GUIStyle(GUI.skin.label) { normal = { textColor = Color.white } });
+                // 只有选中的物件才显示名称
+                if (obj == m_EditTarget)
+                {
+                    GUI.Label(new Rect(objRect.x, objRect.y - 20, 200, 20), obj.Name,
+                        new GUIStyle(GUI.skin.label) { normal = { textColor = Color.yellow } });
+                }
             }
         }
 
@@ -138,7 +153,8 @@ namespace Honor.Editor.MapTool
             {
                 case MapObjectType.Building: return 0;   // 最底层
                 case MapObjectType.Character: return 1; // 中间层
-                case MapObjectType.Prop: return 2;      // 最上层
+                case MapObjectType.Prop: return 2;      // 物件层
+                case MapObjectType.Cat: return 3;       // 最上层（猫猫/主角）
                 default: return 0;
             }
         }
@@ -330,10 +346,18 @@ namespace Honor.Editor.MapTool
         /// <returns>背景纹理，未配置或加载失败返回 null</returns>
         private Texture LoadRegionBackground(string regionId)
         {
-            if (!m_LevelBgDict.TryGetValue(regionId, out string bgName))
+            if (!m_LevelBgDict.TryGetValue(regionId, out string bgPath))
                 return null;
-            string bgPath = $"{MapToolConstants.LevelBackgroundDir}/{bgName}.png";
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(bgPath);
+
+            // 如果已经是完整路径（以 Assets/ 开头），直接加载
+            if (bgPath.StartsWith("Assets/"))
+            {
+                return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(bgPath);
+            }
+
+            // 否则按旧方式拼接路径
+            string fullPath = $"{MapToolConstants.LevelBackgroundDir}/{bgPath}.png";
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(fullPath);
         }
 
         /// <summary>
@@ -349,6 +373,7 @@ namespace Honor.Editor.MapTool
                 case MapObjectType.Building: return new Color(0, 1, 1, alpha);  // 建筑：青色
                 case MapObjectType.Character: return new Color(1, 1, 0, alpha); // 人物：黄色
                 case MapObjectType.Prop: return new Color(0, 1, 0, alpha);      // 物件：绿色
+                case MapObjectType.Cat: return new Color(1, 0.5f, 0, alpha);   // 猫猫：橙色
                 default: return Color.cyan;
             }
         }

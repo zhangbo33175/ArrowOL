@@ -200,6 +200,24 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 根据名称获取模板（模糊匹配 TemplateName）
+        /// </summary>
+        /// <param name="templateName">模板名称</param>
+        /// <returns>模板对象，未找到返回 null</returns>
+        public ObjectTemplate GetTemplateByName(string templateName)
+        {
+            if (string.IsNullOrEmpty(templateName))
+                return null;
+
+            foreach (var t in _templates.Values)
+            {
+                if (t.TemplateName == templateName)
+                    return t;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 获取所有模板列表
         /// </summary>
         /// <returns>所有模板列表的副本</returns>
