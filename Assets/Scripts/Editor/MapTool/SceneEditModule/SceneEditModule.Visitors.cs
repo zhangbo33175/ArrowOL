@@ -170,6 +170,14 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private bool m_ShowBackgroundLayer = true;
         /// <summary>
+        /// 特效层显示开关
+        /// </summary>
+        private bool m_ShowEffectsLayer = true;
+        /// <summary>
+        /// 气泡层显示开关
+        /// </summary>
+        private bool m_ShowBubblesLayer = true;
+        /// <summary>
         /// 包围盒显示开关
         /// </summary>
         private bool m_ShowBoundingBox = false;
@@ -205,6 +213,14 @@ namespace Honor.Editor.MapTool
         /// 背景层开关控件
         /// </summary>
         private Toggle m_BackgroundLayerToggle;
+        /// <summary>
+        /// 特效层开关控件
+        /// </summary>
+        private Toggle m_EffectsLayerToggle;
+        /// <summary>
+        /// 气泡层开关控件
+        /// </summary>
+        private Toggle m_BubblesLayerToggle;
         /// <summary>
         /// 包围盒开关控件
         /// </summary>

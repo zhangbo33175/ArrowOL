@@ -580,6 +580,8 @@ namespace Honor.Editor.MapTool
             m_ObjectLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerObject);
             m_CatLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerCat);
             m_BackgroundLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBackground);
+            m_EffectsLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerEffects);
+            m_BubblesLayerToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBubbles);
             m_PathGridToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerPathGrid);
             m_BoundingBoxToggle = m_Root.Q<Toggle>(name: MapToolUiNames.LayerBoundingBox);
             // 对象编辑面板（选中人物后显示：可编辑路径 / 编辑动画）
@@ -707,33 +709,21 @@ namespace Honor.Editor.MapTool
                 m_PlaceGridToggle.RegisterValueChangedCallback(evt => m_ShowPlaceGrid = evt.newValue);
             if (m_MapLayerToggle != null)
                 m_MapLayerToggle.RegisterValueChangedCallback(evt => m_ShowMapLayer = evt.newValue);
+            // 图层开关独立控制，不联动切换放置类型（左侧按钮仍可切换放置类型）
             if (m_BuildingLayerToggle != null)
-                m_BuildingLayerToggle.RegisterValueChangedCallback(evt =>
-                {
-                    m_ShowBuildingLayer = evt.newValue;
-                    // 勾选时联动切换放置类型（取消勾选不改变放置类型，只隐藏显示）
-                    if (evt.newValue) SetPlaceType(0);
-                });
+                m_BuildingLayerToggle.RegisterValueChangedCallback(evt => m_ShowBuildingLayer = evt.newValue);
             if (m_CharacterLayerToggle != null)
-                m_CharacterLayerToggle.RegisterValueChangedCallback(evt =>
-                {
-                    m_ShowCharacterLayer = evt.newValue;
-                    if (evt.newValue) SetPlaceType(1);
-                });
+                m_CharacterLayerToggle.RegisterValueChangedCallback(evt => m_ShowCharacterLayer = evt.newValue);
             if (m_ObjectLayerToggle != null)
-                m_ObjectLayerToggle.RegisterValueChangedCallback(evt =>
-                {
-                    m_ShowObjectLayer = evt.newValue;
-                    if (evt.newValue) SetPlaceType(2);
-                });
+                m_ObjectLayerToggle.RegisterValueChangedCallback(evt => m_ShowObjectLayer = evt.newValue);
             if (m_CatLayerToggle != null)
-                m_CatLayerToggle.RegisterValueChangedCallback(evt =>
-                {
-                    m_ShowCatLayer = evt.newValue;
-                    if (evt.newValue) SetPlaceType(3);
-                });
+                m_CatLayerToggle.RegisterValueChangedCallback(evt => m_ShowCatLayer = evt.newValue);
             if (m_BackgroundLayerToggle != null)
                 m_BackgroundLayerToggle.RegisterValueChangedCallback(evt => m_ShowBackgroundLayer = evt.newValue);
+            if (m_EffectsLayerToggle != null)
+                m_EffectsLayerToggle.RegisterValueChangedCallback(evt => m_ShowEffectsLayer = evt.newValue);
+            if (m_BubblesLayerToggle != null)
+                m_BubblesLayerToggle.RegisterValueChangedCallback(evt => m_ShowBubblesLayer = evt.newValue);
             if (m_PathGridToggle != null)
                 m_PathGridToggle.RegisterValueChangedCallback(evt => m_ShowPathGrid = evt.newValue);
             if (m_BoundingBoxToggle != null)

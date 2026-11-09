@@ -91,11 +91,13 @@
                     <ui:Toggle text="摆放网格层" value="true" name="layer-place-grid" />
                     <ui:Toggle text="路径网格" name="layer-path-grid" />
                     <ui:Toggle text="地图层" value="true" name="layer-map" />
-                    <ui:Toggle text="建筑层" value="true" name="layer-building" />
-                    <ui:Toggle text="人物层" value="true" name="layer-character" />
-                    <ui:Toggle text="物件层" value="true" name="layer-object" />
-                    <ui:Toggle text="猫猫层" value="true" name="layer-cat" />
                     <ui:Toggle text="背景层" value="true" name="layer-background" />
+                    <ui:Toggle text="建筑层" value="true" name="layer-building" />
+                    <ui:Toggle text="物件层" value="true" name="layer-object" />
+                    <ui:Toggle text="人物层" value="true" name="layer-character" />
+                    <ui:Toggle text="猫猫层" value="true" name="layer-cat" />
+                    <ui:Toggle text="特效层" value="true" name="layer-effects" />
+                    <ui:Toggle text="气泡层" value="true" name="layer-bubbles" />
                     <ui:Toggle text="包围盒" name="layer-bounding-box" />
                 </ui:VisualElement>
                 <ui:VisualElement name="map-prefab-row" style="flex-direction: row; padding: 4px 8px; margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75);">

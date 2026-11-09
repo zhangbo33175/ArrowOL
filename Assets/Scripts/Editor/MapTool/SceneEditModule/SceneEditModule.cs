@@ -560,8 +560,8 @@ namespace Honor.Editor.MapTool
                     caRt.offsetMax = Vector2.zero;
                 }
 
-                // 给 Buildings / Characters / Objects 也设置正确尺寸
-                string[] layerNames = { "Buildings", "Characters", "Objects" };
+                // 给 Buildings / Props / Characters 也设置正确尺寸
+                string[] layerNames = { "Background", "Buildings", "Props", "Characters", "Cats", "Effects", "Bubbles" };
                 foreach (var name in layerNames)
                 {
                     var layer = FindChildRecursive(coordAdapter, name) as RectTransform;
@@ -586,9 +586,9 @@ namespace Honor.Editor.MapTool
                 {
                     MapObjectType.Building => "Buildings",
                     MapObjectType.Character => "Characters",
-                    MapObjectType.Prop => "Objects",
+                    MapObjectType.Prop => "Props",
                     MapObjectType.Cat => "Cats",
-                    _ => "Objects"
+                    _ => "Props"
                 };
 
                 Transform node = FindChildRecursive(coordAdapter, nodeName);
@@ -639,8 +639,8 @@ namespace Honor.Editor.MapTool
                     rawImg.color = Color.white; // 白色，不 tint，直接显示原图颜色
                 }
             }
-            // 调整层级节点顺序：Buildings（最底层） → Objects → Characters → Cats（最上层）
-            string[] layerOrder = { "Buildings", "Objects", "Characters", "Cats" };
+            // 调整层级节点顺序：Background（最底层） → Buildings → Props → Characters → Cats → Effects → Bubbles（最上层）
+            string[] layerOrder = { "Background", "Buildings", "Props", "Characters", "Cats", "Effects", "Bubbles" };
             if (coordAdapter != null)
             {
                 for (int i = 0; i < layerOrder.Length; i++)
@@ -852,25 +852,15 @@ namespace Honor.Editor.MapTool
 
         /// <summary>
         /// 设置当前放置类型（Tab 切换 / 顶部图层 Toggle 联动）
-        /// 建筑/人物/物件三选一，选中哪个就勾选对应图层 Toggle，取消另外两个
+        /// 建筑/人物/物件类型切换（仅切换左侧列表筛选，不影响图层显示开关）
         /// </summary>
-        /// <param name="type">类型：0=建筑 1=人物 2=物件</param>
+        /// <param name="type">类型：0=建筑 1=人物 2=物件 3=猫猫</param>
         public void SetPlaceType(int type)
         {
             MapObjectType objectType = (MapObjectType)type;
             m_SelectedObjectType = objectType;
-
-            // 联动图层 Toggle：四选一（建筑/人物/物件/猫猫）
-            SetToggleWithoutNotify(m_BuildingLayerToggle, objectType == MapObjectType.Building);
-            SetToggleWithoutNotify(m_CharacterLayerToggle, objectType == MapObjectType.Character);
-            SetToggleWithoutNotify(m_ObjectLayerToggle, objectType == MapObjectType.Prop);
-            SetToggleWithoutNotify(m_CatLayerToggle, objectType == MapObjectType.Cat);
-
-            // 同步显示开关
-            m_ShowBuildingLayer = (objectType == MapObjectType.Building);
-            m_ShowCharacterLayer = (objectType == MapObjectType.Character);
-            m_ShowObjectLayer = (objectType == MapObjectType.Prop);
-            m_ShowCatLayer = (objectType == MapObjectType.Cat);
+            // 图层显示开关独立控制，不随放置类型联动切换
+            // 用户可通过顶部图层开关自由控制各层级的显示/隐藏
         }
 
         /// <summary>

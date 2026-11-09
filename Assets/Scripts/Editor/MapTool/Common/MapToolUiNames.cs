@@ -90,6 +90,10 @@ namespace Honor.Editor.MapTool
         public const string LayerCat             = "layer-cat";
         /// <summary>背景图层开关</summary>
         public const string LayerBackground      = "layer-background";
+        /// <summary>特效图层开关</summary>
+        public const string LayerEffects         = "layer-effects";
+        /// <summary>气泡图层开关</summary>
+        public const string LayerBubbles         = "layer-bubbles";
         /// <summary>包围盒图层开关</summary>
         public const string LayerBoundingBox     = "layer-bounding-box";
 
