@@ -7,6 +7,7 @@
  * descrip:   物体模板管理器 - 统一管理所有物品元件模板
  ***************************************************************/
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -120,6 +121,45 @@ namespace Honor.Editor.MapTool
             Debug.Log($"[ObjectTemplateManager] 从配置文件加载完成: {Path.GetFileName(filePath)}，共 {templates.Count} 个模板");
         }
 
+        /// <summary>
+        /// 从所有类型的配置表 Excel 文件批量加载最新数据
+        /// </summary>
+        public void LoadAllConfigTables()
+        {
+            _templates.Clear();
+
+            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            string tableDir = Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir);
+
+            // 所有类型的配置表文件
+            string[] tableFiles = new[]
+            {
+                MapToolConstants.TableBuildingFileName,
+                MapToolConstants.TableCharacterFileName,
+                MapToolConstants.TablePropFileName,
+                MapToolConstants.TableCatFileName,
+                MapToolConstants.TableBgFileName,
+            };
+
+            int totalLoaded = 0;
+            foreach (var fileName in tableFiles)
+            {
+                string filePath = Path.Combine(tableDir, fileName);
+                if (!File.Exists(filePath)) continue;
+
+                List<ObjectTemplate> templates = TemplateConfigReader.ReadFromExcel(filePath);
+                if (templates == null) continue;
+
+                foreach (var t in templates)
+                {
+                    AddTemplate(t);
+                    totalLoaded++;
+                }
+            }
+
+            Debug.Log($"[ObjectTemplateManager] 已从所有配置表重新加载，共 {totalLoaded} 个模板");
+        }
+
         #endregion
 
         #region 模板增删改
@@ -157,6 +197,39 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 原子性地更新模板ID（同时更新字典key和对象属性）
+        /// </summary>
+        /// <param name="template">要更新的模板对象</param>
+        /// <param name="newId">新的模板ID</param>
+        /// <returns>是否更新成功</returns>
+        public bool UpdateTemplateId(ObjectTemplate template, string newId)
+        {
+            if (template == null || string.IsNullOrEmpty(newId))
+                return false;
+
+            string oldId = template.TemplateId;
+            if (oldId == newId)
+                return true;
+
+            // 从字典中移除旧 key
+            if (!_templates.ContainsKey(oldId))
+            {
+                Debug.LogWarning($"[ObjectTemplateManager] 更新ID失败，旧key不存在: '{oldId}'");
+                return false;
+            }
+
+            _templates.Remove(oldId);
+
+            // 更新对象属性
+            template.TemplateId = newId;
+
+            // 以新 key 重新添加到字典
+            _templates[newId] = template;
+
+            return true;
+        }
+
+        /// <summary>
         /// 根据ID删除模板
         /// </summary>
         /// <param name="templateId">模板ID</param>
@@ -165,6 +238,13 @@ namespace Honor.Editor.MapTool
         {
             if (string.IsNullOrEmpty(templateId))
                 return false;
+
+            Debug.Log($"[ObjectTemplateManager] 尝试删除模板: ID='{templateId}' (长度={templateId.Length})");
+            Debug.Log($"[ObjectTemplateManager] 当前字典中的键数量: {_templates.Count}");
+            foreach (var key in _templates.Keys)
+            {
+                Debug.Log($"[ObjectTemplateManager] 字典键: '{key}' (长度={key.Length})");
+            }
 
             if (_templates.ContainsKey(templateId))
             {
@@ -248,6 +328,72 @@ namespace Honor.Editor.MapTool
         public int TemplateCount
         {
             get { return _templates.Count; }
+        }
+
+        #endregion
+
+        #region JSON 持久化（编辑器内保存，不直接写 Excel）
+
+        /// <summary>
+        /// 将所有模板保存为 JSON 文件（用于编辑器内修改的持久化）
+        /// </summary>
+        /// <param name="jsonPath">JSON 文件绝对路径</param>
+        public void SaveToJson(string jsonPath)
+        {
+            try
+            {
+                var list = new List<ObjectTemplate>(_templates.Values);
+                string json = JsonUtility.ToJson(new TemplateListWrapper { templates = list }, true);
+                File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
+                Debug.Log($"[ObjectTemplateManager] JSON 保存完成: {jsonPath}，共 {list.Count} 个模板");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ObjectTemplateManager] JSON 保存失败: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 从 JSON 文件加载模板（覆盖当前内存数据）
+        /// </summary>
+        /// <param name="jsonPath">JSON 文件绝对路径</param>
+        /// <returns>加载的模板数量</returns>
+        public int LoadFromJson(string jsonPath)
+        {
+            if (!File.Exists(jsonPath))
+                return 0;
+
+            try
+            {
+                string json = File.ReadAllText(jsonPath, System.Text.Encoding.UTF8);
+                var wrapper = JsonUtility.FromJson<TemplateListWrapper>(json);
+                if (wrapper?.templates == null)
+                    return 0;
+
+                _templates.Clear();
+                foreach (var t in wrapper.templates)
+                {
+                    if (!string.IsNullOrEmpty(t.TemplateId))
+                        _templates[t.TemplateId] = t;
+                }
+
+                Debug.Log($"[ObjectTemplateManager] JSON 加载完成: {jsonPath}，共 {_templates.Count} 个模板");
+                return _templates.Count;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[ObjectTemplateManager] JSON 加载失败: {e.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// JSON 序列化包装类（JsonUtility 不支持直接序列化 List）
+        /// </summary>
+        [System.Serializable]
+        private class TemplateListWrapper
+        {
+            public List<ObjectTemplate> templates;
         }
 
         #endregion

@@ -64,10 +64,6 @@ namespace Honor.Editor.MapTool
             var clearGridBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearGridData);
             if (clearGridBtn != null)
                 clearGridBtn.clicked += OnClearGridDataClicked;
-            // 导入图片按钮（从 PNG 序列自动生成地图）
-            var importImagesBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnImportImages);
-            if (importImagesBtn != null)
-                importImagesBtn.clicked += OnImportImagesClicked;
             // 导入 PSD 按钮（从 PSD 图层自动拆分生成地图）
             var importPsdBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnImportPsd);
             if (importPsdBtn != null)
@@ -802,38 +798,6 @@ namespace Honor.Editor.MapTool
                 // TODO: 清空格子数据（迷雾、格子标记等）
                 Debug.Log("已清空格子数据");
             }
-        }
-
-        /// <summary>
-        /// 导入图片按钮点击：从 PNG 序列目录自动生成地图
-        /// 命名规范：bg_背景图 / building_建筑 / char_人物 / prop_物件
-        /// </summary>
-        private void OnImportImagesClicked()
-        {
-            string dirPath = EditorUtility.OpenFolderPanel("选择 PNG 序列目录", "Assets/Res/Textures/Map", "");
-            if (string.IsNullOrEmpty(dirPath)) return;
-
-            // 转换为 Assets 相对路径
-            string assetDir = MapToolPathHelper.ToAssetRelative(dirPath);
-            if (!assetDir.StartsWith("Assets/"))
-            {
-                EditorUtility.DisplayDialog("导入失败", "请选择 Assets 目录下的文件夹", "确定");
-                return;
-            }
-
-            MapImageImportResult result = MapImageImporter.ImportFromDirectory(assetDir);
-            if (result == null)
-            {
-                EditorUtility.DisplayDialog("导入失败", "目录下没有有效的 PNG 文件\n（需要 bg_/building_/char_/prop_ 前缀）", "确定");
-                return;
-            }
-
-            // 应用导入结果到编辑器
-            ApplyImageImport(result);
-
-            EditorUtility.DisplayDialog("导入完成",
-                $"背景图: {result.BackgroundName}\n物件数量: {result.Objects.Count}\n地图尺寸: {result.MapWidth}x{result.MapHeight}\n\n注意：物件位置默认错开排列，请手动调整",
-                "确定");
         }
 
         /// <summary>

@@ -119,6 +119,8 @@ namespace Honor.Editor.MapTool
             m_ItemElementModule?.Hide();
             m_FogModule?.Hide();
             m_ResourceOrganizeModule?.ShowResourcePanel(false);
+            // 刷新左下角物件列表（配置表可能已被资源整理 Tab 修改）
+            m_LeftPanelModule?.RefreshResourceList();
         }
 
         /// <summary>
@@ -131,6 +133,8 @@ namespace Honor.Editor.MapTool
             m_ItemElementModule?.Show();
             m_FogModule?.Hide();
             m_ResourceOrganizeModule?.ShowResourcePanel(false);
+            // 刷新元件列表（配置表可能已被资源整理 Tab 修改）
+            m_ItemElementModule?.RefreshItemList();
         }
 
         /// <summary>

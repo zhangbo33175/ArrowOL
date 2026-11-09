@@ -140,6 +140,59 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public const string GameDataDir = "Assets/GameData";
 
+        // ==================== 资源整理模块常量 ====================
+
+        /// <summary>
+        /// 资源整理：未配置资源扫描目录（相对 Assets）
+        /// </summary>
+        public const string ResourceScanDir = "Assets/Res/Textures/Map";
+
+        /// <summary>
+        /// 资源整理：配置表根目录（相对项目根目录）
+        /// </summary>
+        public const string ConfigTableRootDir = "Docs/Designs/Excels/Tables/AlTables/Item";
+
+        // ==================== 美术命名前缀 ====================
+
+        /// <summary>背景图命名前缀</summary>
+        public const string PrefixBg = "bg_";
+        /// <summary>建筑命名前缀</summary>
+        public const string PrefixBuilding = "building_";
+        /// <summary>人物命名前缀</summary>
+        public const string PrefixCharacter = "char_";
+        /// <summary>物件命名前缀</summary>
+        public const string PrefixProp = "prop_";
+        /// <summary>猫猫命名前缀</summary>
+        public const string PrefixCat = "cat_";
+
+        // ==================== 筛选类型枚举字符串 ====================
+
+        /// <summary>筛选类型：全部</summary>
+        public const string FilterAll = "all";
+        /// <summary>筛选类型：背景</summary>
+        public const string FilterBg = "bg";
+        /// <summary>筛选类型：建筑</summary>
+        public const string FilterBuilding = "building";
+        /// <summary>筛选类型：人物</summary>
+        public const string FilterCharacter = "char";
+        /// <summary>筛选类型：物件</summary>
+        public const string FilterProp = "prop";
+        /// <summary>筛选类型：猫猫</summary>
+        public const string FilterCat = "cat";
+
+        // ==================== 配置表文件名 ====================
+
+        /// <summary>背景配置表文件名</summary>
+        public const string TableBgFileName = "TableBackgrounds.xlsm";
+        /// <summary>建筑配置表文件名</summary>
+        public const string TableBuildingFileName = "TableBuildings.xlsm";
+        /// <summary>人物配置表文件名</summary>
+        public const string TableCharacterFileName = "TableCharacters.xlsm";
+        /// <summary>物件配置表文件名</summary>
+        public const string TablePropFileName = "TableProps.xlsm";
+        /// <summary>猫猫配置表文件名</summary>
+        public const string TableCatFileName = "TableCats.xlsm";
+
         // ==================== 地图尺寸 ====================
 
         /// <summary>

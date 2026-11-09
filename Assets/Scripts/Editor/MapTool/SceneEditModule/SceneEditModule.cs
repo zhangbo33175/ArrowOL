@@ -35,8 +35,8 @@ namespace Honor.Editor.MapTool
         public void Init(VisualElement root)
         {
             m_Root = root;
-            // 初始化物体模板管理器
-            ObjectTemplateManager.Instance.Initialize();
+            // 加载所有类型的配置表（建筑/人物/物件/猫猫），而非旧的默认模板表
+            ObjectTemplateManager.Instance.LoadAllConfigTables();
 
             // 初始化 PSD/PSB 导入模块
             m_PsdImportModule = new PsdImportModule(this);

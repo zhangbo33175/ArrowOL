@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  ResourceOrganizeModule.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   资源整理模块 - 扫描未配置资源、分类过滤、详情编辑、配置表预览
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -166,7 +176,10 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// </summary>
         private void OnScanResourcesClicked()
         {
-            string mapDir = "Assets/Res/Textures/Map";
+            // 先从所有 Excel 配置表重新加载最新数据，确保和磁盘文件同步
+            ObjectTemplateManager.Instance.LoadAllConfigTables();
+
+            string mapDir = MapToolConstants.ResourceScanDir;
             if (!AssetDatabase.IsValidFolder(mapDir))
             {
                 EditorUtility.DisplayDialog("扫描失败", $"目录不存在: {mapDir}", "确定");
@@ -233,11 +246,11 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     string fileName = Path.GetFileNameWithoutExtension(p).ToLower();
                     switch (m_CurrentFilter)
                     {
-                        case "bg": return fileName.StartsWith("bg_");
-                        case "building": return fileName.StartsWith("building_");
-                        case "char": return fileName.StartsWith("char_");
-                        case "prop": return fileName.StartsWith("prop_");
-                        case "cat": return fileName.StartsWith("cat_");
+                        case MapToolConstants.FilterBg: return fileName.StartsWith(MapToolConstants.PrefixBg);
+                        case MapToolConstants.FilterBuilding: return fileName.StartsWith(MapToolConstants.PrefixBuilding);
+                        case MapToolConstants.FilterCharacter: return fileName.StartsWith(MapToolConstants.PrefixCharacter);
+                        case MapToolConstants.FilterProp: return fileName.StartsWith(MapToolConstants.PrefixProp);
+                        case MapToolConstants.FilterCat: return fileName.StartsWith(MapToolConstants.PrefixCat);
                         default: return true;
                     }
                 }).ToList();
@@ -288,6 +301,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 item.Add(nameLabel);
 
                 // 点击事件
+                item.userData = path; // 保存路径供后续查找高亮
                 item.RegisterCallback<MouseDownEvent>(evt =>
                 {
                     ShowResourceDetail(path);
@@ -306,12 +320,34 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         {
             switch (filter)
             {
-                case "bg": return "TableBackgrounds.xlsm";
-                case "building": return "TableBuildings.xlsm";
-                case "char": return "TableCharacters.xlsm";
-                case "prop": return "TableProps.xlsm";
-                case "cat": return "TableCats.xlsm";
+                case MapToolConstants.FilterBg: return MapToolConstants.TableBgFileName;
+                case MapToolConstants.FilterBuilding: return MapToolConstants.TableBuildingFileName;
+                case MapToolConstants.FilterCharacter: return MapToolConstants.TableCharacterFileName;
+                case MapToolConstants.FilterProp: return MapToolConstants.TablePropFileName;
+                case MapToolConstants.FilterCat: return MapToolConstants.TableCatFileName;
                 default: return "全部配置表";
+            }
+        }
+
+        /// <summary>
+        /// 判断模板是否匹配当前过滤分类
+        /// </summary>
+        private bool MatchesFilter(ObjectTemplate t, string filter)
+        {
+            switch (filter)
+            {
+                case MapToolConstants.FilterBg:
+                    return t.Type == MapObjectType.Prop && t.ImagePath.ToLower().StartsWith("bg_");
+                case MapToolConstants.FilterBuilding:
+                    return t.Type == MapObjectType.Building;
+                case MapToolConstants.FilterCharacter:
+                    return t.Type == MapObjectType.Character;
+                case MapToolConstants.FilterProp:
+                    return t.Type == MapObjectType.Prop && !t.ImagePath.ToLower().StartsWith("bg_");
+                case MapToolConstants.FilterCat:
+                    return t.Type == MapObjectType.Cat;
+                default:
+                    return true;
             }
         }
 
@@ -329,6 +365,24 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     ve.style.backgroundColor = new Color(0.15f, 0.15f, 0.15f);
             }
             selected.style.backgroundColor = new Color(0.1f, 0.4f, 0.7f);
+        }
+
+        /// <summary>
+        /// 根据资源路径高亮列表项
+        /// </summary>
+        private void HighlightItemByPath(string path)
+        {
+            var listContainer = m_ResourcePanel?.Q<VisualElement>(name: "unconfigured-resources-list");
+            if (listContainer == null) return;
+
+            foreach (var child in listContainer.Children())
+            {
+                var itemPath = child.userData as string;
+                bool isMatch = itemPath == path;
+                child.style.backgroundColor = isMatch
+                    ? new Color(0.1f, 0.4f, 0.7f)
+                    : new Color(0.15f, 0.15f, 0.15f);
+            }
         }
 
         /// <summary>
@@ -380,7 +434,11 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             int rowIndex = 0;
             foreach (var t in filtered)
             {
+                // 显式捕获循环变量，确保删除按钮绑定正确的模板对象
+                var capturedTemplate = t;
+
                 var row = new VisualElement();
+                row.userData = capturedTemplate; // 保存模板引用，供保存时读取
                 row.style.flexDirection = FlexDirection.Row;
                 row.style.alignItems = Align.Center;
                 row.style.borderBottomWidth = 1;
@@ -398,24 +456,19 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 rowIndex++;
 
                 // 各列（和 Excel 表头一致）
-                AddEditableCell(row, t.TemplateId, 80, false); // ID 只读
-                AddEditableCell(row, t.ImagePath, 140, true, t); // ImagePath 可编辑
-                AddEditableCell(row, "GameObject_" + t.Type.ToString(), 150, false); // ResName（固定格式）
-                AddEditableCell(row, t.TemplateName, 90, true, t); // TemplateName 可编辑
-                AddToggleCell(row, t.Loop, 80, t); // Loop Toggle
-                AddEditableCell(row, t.Speed.ToString("0.#"), 80, true, t); // Speed 可编辑
-                AddEditableCell(row, t.SortOrder.ToString(), 120, true, t); // SortOrder 可编辑
-                AddEditableCell(row, t.DialogBubble, 120, true, t); // DialogBubble 可编辑
-                AddToggleCell(row, t.IsCollectible, 90, t); // IsCollectible Toggle
-                AddEditableCell(row, t.RespawnTime.ToString("0.#"), 100, true, t); // RespawnTime 可编辑
+                ConfigTableBuilder.AddEditableCell(row, t.TemplateId, ConfigTableBuilder.ColWidthId, false); // ID 只读
+                ConfigTableBuilder.AddEditableCell(row, t.ImagePath, ConfigTableBuilder.ColWidthImagePath, true); // ImagePath 可编辑
+                ConfigTableBuilder.AddEditableCell(row, "GameObject_" + t.Type.ToString(), ConfigTableBuilder.ColWidthResName, false); // ResName（固定格式）
+                ConfigTableBuilder.AddEditableCell(row, t.TemplateName, ConfigTableBuilder.ColWidthName, true); // TemplateName 可编辑
+                ConfigTableBuilder.AddToggleCell(row, t.Loop, ConfigTableBuilder.ColWidthLoop); // Loop Toggle
+                ConfigTableBuilder.AddEditableCell(row, t.Speed.ToString("0.#"), ConfigTableBuilder.ColWidthSpeed, true); // Speed 可编辑
+                ConfigTableBuilder.AddEditableCell(row, t.SortOrder.ToString(), ConfigTableBuilder.ColWidthSortOrder, true); // SortOrder 可编辑
+                ConfigTableBuilder.AddEditableCell(row, t.DialogBubble, ConfigTableBuilder.ColWidthDialog, true); // DialogBubble 可编辑
+                ConfigTableBuilder.AddToggleCell(row, t.IsCollectible, ConfigTableBuilder.ColWidthCollectible); // IsCollectible Toggle
+                ConfigTableBuilder.AddEditableCell(row, t.RespawnTime.ToString("0.#"), ConfigTableBuilder.ColWidthRespawn, true); // RespawnTime 可编辑
 
                 // 删除按钮
-                var deleteBtn = new Button(() => DeleteTemplate(t));
-                deleteBtn.text = "删除";
-                deleteBtn.style.width = 56;
-                deleteBtn.style.height = 20;
-                deleteBtn.style.fontSize = 10;
-                row.Add(deleteBtn);
+                ConfigTableBuilder.AddDeleteButton(row, () => DeleteTemplate(capturedTemplate));
 
                 container.Add(row);
             }
@@ -426,139 +479,28 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// </summary>
         private void DeleteTemplate(ObjectTemplate template)
         {
+            Debug.Log($"[ResourceOrganize] 删除模板: ID={template.TemplateId}, 名称={template.TemplateName}, 类型={template.Type}");
+
             // 确认删除
             var confirm = EditorUtility.DisplayDialog(
                 "确认删除",
                 $"确定要删除模板 {template.TemplateId} ({template.TemplateName}) 吗？\n删除后同类型的 ID 将自动重新排序。",
                 "删除", "取消");
-            if (!confirm) return;
+            if (!confirm)
+            {
+                Debug.Log("[ResourceOrganize] 用户取消删除");
+                return;
+            }
 
             // 从管理器中删除
-            ObjectTemplateManager.Instance.RemoveTemplate(template.TemplateId);
+            bool removed = ObjectTemplateManager.Instance.RemoveTemplate(template.TemplateId);
+            Debug.Log($"[ResourceOrganize] RemoveTemplate 返回: {removed}");
 
             // 按类型重新排序 ID
-            ReorderTemplateIds(template.Type);
+            TemplateIdGenerator.ReorderIds(template.Type);
 
             // 刷新列表
             RefreshConfigList();
-
-            EditorUtility.DisplayDialog("提示", "删除成功，ID 已自动补全。", "确定");
-        }
-
-        /// <summary>
-        /// 按类型重新排序 ID
-        /// </summary>
-        private void ReorderTemplateIds(MapObjectType type)
-        {
-            // 获取该类型的所有模板，按当前 ID 排序
-            var allTemplates = ObjectTemplateManager.Instance.GetAllTemplates();
-            var typeTemplates = allTemplates
-                .Where(t => t.Type == type)
-                .OrderBy(t =>
-                {
-                    int id;
-                    int.TryParse(t.TemplateId, out id);
-                    return id;
-                })
-                .ToList();
-
-            // 按类型确定起始 ID
-            int startId = 1000;
-            switch (type)
-            {
-                case MapObjectType.Character: startId = 1000; break;
-                case MapObjectType.Building: startId = 2000; break;
-                case MapObjectType.Prop: startId = 3000; break;
-                case MapObjectType.Cat: startId = 4000; break;
-            }
-
-            // 重新分配 ID
-            for (int i = 0; i < typeTemplates.Count; i++)
-            {
-                typeTemplates[i].TemplateId = (startId + i + 1).ToString();
-            }
-        }
-
-        private void AddEditableCell(VisualElement parent, string text, float width, bool editable, ObjectTemplate template = null)
-        {
-            if (!editable)
-            {
-                var label = new Label(text);
-                label.style.width = width;
-                label.style.fontSize = 11;
-                label.style.color = Color.black;
-                label.style.marginLeft = 0;
-                label.style.marginRight = 0;
-                label.style.paddingLeft = 6;
-                label.style.paddingRight = 6;
-                label.style.borderRightWidth = 1;
-                label.style.borderRightColor = Color.black;
-                parent.Add(label);
-            }
-            else
-            {
-                var field = new TextField();
-                field.value = text;
-                field.style.width = width;
-                field.style.fontSize = 11;
-                field.style.color = Color.black;
-                field.style.marginLeft = 0;
-                field.style.marginRight = 0;
-                field.style.paddingLeft = 6;
-                field.style.paddingRight = 6;
-                // 去掉外层所有边框
-                field.style.borderTopWidth = 0;
-                field.style.borderBottomWidth = 0;
-                field.style.borderLeftWidth = 0;
-                field.style.borderRightWidth = 1;
-                field.style.borderRightColor = Color.black;
-                field.style.backgroundColor = Color.clear;
-
-                // 清除内部输入框的默认样式
-                var innerInput = field.Q("unity-text-input");
-                if (innerInput != null)
-                {
-                    innerInput.style.backgroundColor = Color.clear;
-                    innerInput.style.borderTopWidth = 0;
-                    innerInput.style.borderBottomWidth = 0;
-                    innerInput.style.borderLeftWidth = 0;
-                    innerInput.style.borderRightWidth = 0;
-                    innerInput.style.marginLeft = 0;
-                    innerInput.style.marginRight = 0;
-                    innerInput.style.paddingLeft = 0;
-                    innerInput.style.paddingRight = 0;
-                    innerInput.style.color = Color.black;
-                }
-
-                parent.Add(field);
-            }
-        }
-
-        private void AddToggleCell(VisualElement parent, bool value, float width, ObjectTemplate template)
-        {
-            var toggle = new Toggle();
-            toggle.value = value;
-            toggle.style.width = width;
-            toggle.style.fontSize = 11;
-            toggle.style.marginLeft = 0;
-            toggle.style.marginRight = 0;
-            toggle.style.paddingLeft = 6;
-            toggle.style.paddingRight = 6;
-            toggle.style.borderRightWidth = 1;
-            toggle.style.borderRightColor = Color.black;
-            toggle.style.backgroundColor = Color.clear;
-            parent.Add(toggle);
-        }
-
-        private void AddTypeCell(VisualElement parent, ObjectTemplate template, float width)
-        {
-            var dropdown = new DropdownField();
-            dropdown.choices = new List<string> { "Building", "Character", "Prop", "Cat" };
-            dropdown.value = template.Type.ToString();
-            dropdown.style.width = width;
-            dropdown.style.fontSize = 10;
-            dropdown.style.marginRight = 8;
-            parent.Add(dropdown);
         }
 
         /// <summary>
@@ -575,15 +517,131 @@ namespace Honor.Editor.MapTool.ResourceOrganize
 
             if (!confirm) return;
 
-            // 遍历配置表行，把修改写回模板
+            // 遍历配置表行，把修改写回模板对象
             var container = m_ResourcePanel?.Q<VisualElement>(name: "config-list-container");
-            if (container == null) return;
+            if (container == null)
+            {
+                EditorUtility.DisplayDialog("错误", "找不到配置表容器", "确定");
+                return;
+            }
 
-            // TODO: 从 UI 控件读取修改并写回 ObjectTemplate
-            // 目前先刷新列表
+            int savedCount = 0;
+            foreach (var row in container.Children())
+            {
+                // 跳过非数据行（如"暂无配置数据"提示行）
+                var template = row.userData as ObjectTemplate;
+                if (template == null) continue;
+
+                // 按顺序提取所有 TextField 和 Toggle
+                var textFields = row.Query<TextField>().ToList();
+                var toggles = row.Query<Toggle>().ToList();
+
+                // TextField 顺序（与 RefreshConfigList 创建顺序一致）：
+                // 0: ImagePath, 1: TemplateName, 2: Speed, 3: SortOrder, 4: DialogBubble, 5: RespawnTime
+                if (textFields.Count >= 6)
+                {
+                    template.ImagePath = textFields[0].value;
+                    template.TemplateName = textFields[1].value;
+
+                    float speed;
+                    if (float.TryParse(textFields[2].value, out speed))
+                        template.Speed = speed;
+
+                    int sortOrder;
+                    if (int.TryParse(textFields[3].value, out sortOrder))
+                        template.SortOrder = sortOrder;
+
+                    template.DialogBubble = textFields[4].value;
+
+                    float respawnTime;
+                    if (float.TryParse(textFields[5].value, out respawnTime))
+                        template.RespawnTime = respawnTime;
+                }
+
+                // Toggle 顺序：0: Loop, 1: IsCollectible
+                if (toggles.Count >= 2)
+                {
+                    template.Loop = toggles[0].value;
+                    template.IsCollectible = toggles[1].value;
+                }
+
+                savedCount++;
+            }
+
+            // 刷新列表显示
             RefreshConfigList();
 
-            EditorUtility.DisplayDialog("成功", "配置已保存", "确定");
+            // 将当前分类的模板数据写回 Excel 文件
+            string excelPath = GetConfigExcelPath();
+            var allTemplates = ObjectTemplateManager.Instance.GetAllTemplates();
+            var filteredTemplates = allTemplates.Where(t => MatchesFilter(t, m_CurrentFilter)).ToList();
+
+            // 保存时把每个模板对应的图片复制到 Map/{类型}/ 分类文件夹下
+            int copiedImages = 0;
+            foreach (var t in filteredTemplates)
+            {
+                if (CopyTemplateImageToCategoryFolder(t))
+                    copiedImages++;
+            }
+
+            bool excelSaved = TemplateConfigWriter.WriteToExcel(excelPath, filteredTemplates);
+
+            if (excelSaved)
+            {
+                Debug.Log($"[ResourceOrganize] 保存完成，共写入 {filteredTemplates.Count} 行配置到 Excel，{copiedImages} 张图片已整理到分类文件夹");
+                EditorUtility.DisplayDialog("成功",
+                    $"配置已保存到 Excel 文件：\n{System.IO.Path.GetFileName(excelPath)}\n\n共更新 {filteredTemplates.Count} 行数据。\n{copiedImages} 张图片已整理到分类文件夹。",
+                    "确定");
+            }
+            else
+            {
+                Debug.LogWarning($"[ResourceOrganize] Excel 写入失败，已保存到内存");
+                EditorUtility.DisplayDialog("部分成功",
+                    $"已保存到内存数据，但 Excel 文件写入失败。\n\n可能原因：\n1. Excel 文件正在被占用（请先关闭 Excel）\n2. 文件路径不正确\n\n请关闭 Excel 后重试。",
+                    "确定");
+            }
+        }
+
+        /// <summary>
+        /// 把模板对应的图片复制到 Map/{类型}/ 分类文件夹下
+        /// </summary>
+        /// <returns>是否执行了复制（false 表示已在目标位置或找不到图片）</returns>
+        private bool CopyTemplateImageToCategoryFolder(ObjectTemplate template)
+        {
+            if (string.IsNullOrEmpty(template.ImagePath)) return false;
+
+            // 根据类型确定目标文件夹名
+            string targetDirName = template.Type == MapObjectType.Building ? "Building" :
+                                    template.Type == MapObjectType.Character ? "Character" :
+                                    template.Type == MapObjectType.Cat ? "Cat" : "Prop";
+            string targetDir = $"{MapToolConstants.ResourceScanDir}/{targetDirName}";
+            string fileName = template.ImagePath;
+
+            // 确保目标文件夹存在
+            if (!AssetDatabase.IsValidFolder(targetDir))
+            {
+                AssetDatabase.CreateFolder(MapToolConstants.ResourceScanDir, targetDirName);
+            }
+
+            string targetPath = $"{targetDir}/{fileName}.png";
+
+            // 如果目标位置已有该图片，跳过
+            if (AssetDatabase.LoadAssetAtPath<Texture2D>(targetPath) != null)
+                return false;
+
+            // 按文件名查找源图片（可能在任意子目录中）
+            string[] guids = AssetDatabase.FindAssets($"{fileName} t:Texture2D", new[] { MapToolConstants.ResourceScanDir });
+            if (guids.Length == 0) return false;
+
+            string sourcePath = AssetDatabase.GUIDToAssetPath(guids[0]);
+
+            // 如果源文件已经在目标文件夹中，跳过
+            if (sourcePath == targetPath) return false;
+
+            // 复制图片
+            AssetDatabase.CopyAsset(sourcePath, targetPath);
+            Debug.Log($"[ResourceOrganize] 图片已整理: {fileName} → {targetDirName}/");
+            return true;
         }
 
         /// <summary>
@@ -630,7 +688,32 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         {
             // 项目根目录 = Assets 目录的上一级
             string projectRoot = System.IO.Path.GetDirectoryName(Application.dataPath);
-            return System.IO.Path.Combine(projectRoot, "Docs/Designs/Excels/Tables/AlTables/Item/TableCharacters.xlsm");
+
+            // 根据当前过滤分类选择对应的配置表文件
+            string fileName;
+            switch (m_CurrentFilter)
+            {
+                case MapToolConstants.FilterBuilding:
+                    fileName = MapToolConstants.TableBuildingFileName;
+                    break;
+                case MapToolConstants.FilterCharacter:
+                    fileName = MapToolConstants.TableCharacterFileName;
+                    break;
+                case MapToolConstants.FilterProp:
+                    fileName = MapToolConstants.TablePropFileName;
+                    break;
+                case MapToolConstants.FilterCat:
+                    fileName = MapToolConstants.TableCatFileName;
+                    break;
+                case MapToolConstants.FilterBg:
+                    fileName = MapToolConstants.TableBgFileName;
+                    break;
+                default:
+                    fileName = MapToolConstants.TableCharacterFileName;
+                    break;
+            }
+
+            return System.IO.Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir, fileName);
         }
 
         /// <summary>
@@ -683,21 +766,51 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             var animNameField = m_ResourcePanel?.Q<TextField>(name: "field-anim-name");
 
             // 自动推断类型
-            string typePrefix = "prop";
+            string typePrefix = MapToolConstants.FilterProp;
             MapObjectType objType = MapObjectType.Prop;
-            if (fileName.StartsWith("bg_")) { typePrefix = "bg"; objType = MapObjectType.Prop; }
-            else if (fileName.StartsWith("building_")) { typePrefix = "building"; objType = MapObjectType.Building; }
-            else if (fileName.StartsWith("char_")) { typePrefix = "character"; objType = MapObjectType.Character; }
-            else if (fileName.StartsWith("cat_")) { typePrefix = "cat"; objType = MapObjectType.Cat; }
+            if (fileName.StartsWith(MapToolConstants.PrefixBg)) { typePrefix = MapToolConstants.FilterBg; objType = MapObjectType.Prop; }
+            else if (fileName.StartsWith(MapToolConstants.PrefixBuilding)) { typePrefix = MapToolConstants.FilterBuilding; objType = MapObjectType.Building; }
+            else if (fileName.StartsWith(MapToolConstants.PrefixCharacter)) { typePrefix = "character"; objType = MapObjectType.Character; }
+            else if (fileName.StartsWith(MapToolConstants.PrefixCat)) { typePrefix = MapToolConstants.FilterCat; objType = MapObjectType.Cat; }
 
-            if (templateIdField != null)
-                templateIdField.value = GetNextTemplateId(objType);
-            if (imagePathField != null)
-                imagePathField.value = fileName;
-            if (templateNameField != null)
-                templateNameField.value = fileName;
-            if (animNameField != null)
-                animNameField.value = "Idle";
+            // 检查该资源是否已在配置表中（如果已存在则做修改模式）
+            var existingTemplate = ObjectTemplateManager.Instance.GetAllTemplates()
+                .FirstOrDefault(t => t.ImagePath.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+
+            // 字段填充
+            var addBtn = m_ResourcePanel?.Q<Button>(name: "btn-add-to-config");
+
+            if (existingTemplate != null)
+            {
+                // 已存在 → 修改模式，填充已有数据
+                if (templateIdField != null) templateIdField.value = existingTemplate.TemplateId;
+                if (imagePathField != null) imagePathField.value = existingTemplate.ImagePath;
+                if (templateNameField != null) templateNameField.value = existingTemplate.TemplateName;
+                if (animNameField != null) animNameField.value = existingTemplate.AnimName;
+
+                var loopToggle = m_ResourcePanel?.Q<Toggle>(name: "field-loop");
+                if (loopToggle != null) loopToggle.value = existingTemplate.Loop;
+                var speedField = m_ResourcePanel?.Q<FloatField>(name: "field-speed");
+                if (speedField != null) speedField.value = existingTemplate.Speed;
+                var sortOrderField = m_ResourcePanel?.Q<IntegerField>(name: "field-sort-order");
+                if (sortOrderField != null) sortOrderField.value = existingTemplate.SortOrder;
+                var shadowToggle = m_ResourcePanel?.Q<Toggle>(name: "field-shadow");
+                if (shadowToggle != null) shadowToggle.value = existingTemplate.ShadowEnabled;
+                var collectibleToggle = m_ResourcePanel?.Q<Toggle>(name: "field-collectible");
+                if (collectibleToggle != null) collectibleToggle.value = existingTemplate.IsCollectible;
+
+                if (addBtn != null) addBtn.text = "修改到配置表";
+            }
+            else
+            {
+                // 不存在 → 新建模式，用默认值
+                if (templateIdField != null) templateIdField.value = GetNextTemplateId(objType);
+                if (imagePathField != null) imagePathField.value = fileName;
+                if (templateNameField != null) templateNameField.value = fileName;
+                if (animNameField != null) animNameField.value = "Idle";
+
+                if (addBtn != null) addBtn.text = "添加到配置表";
+            }
 
             // 更新配置表预览
             UpdateConfigPreview(fileName, typePrefix);
@@ -757,41 +870,114 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             var shadowToggle = m_ResourcePanel?.Q<Toggle>(name: "field-shadow");
             var collectibleToggle = m_ResourcePanel?.Q<Toggle>(name: "field-collectible");
 
-            string templateId = templateIdField?.value ?? "";
-            string imagePath = imagePathField?.value ?? "";
-            string templateName = templateNameField?.value ?? "";
-            string animName = animNameField?.value ?? "Idle";
+            // 读取字段值（空字符串也要兜底设置默认值）
+            string templateId = string.IsNullOrWhiteSpace(templateIdField?.value)
+                ? GetNextTemplateId(MapObjectType.Prop)
+                : templateIdField.value.Trim();
+
+            string imagePath = string.IsNullOrWhiteSpace(imagePathField?.value)
+                ? Path.GetFileNameWithoutExtension(m_CurrentSelectedPath)
+                : imagePathField.value.Trim();
+
+            string templateName = string.IsNullOrWhiteSpace(templateNameField?.value)
+                ? imagePath
+                : templateNameField.value.Trim();
+
+            string animName = string.IsNullOrWhiteSpace(animNameField?.value)
+                ? "Idle"
+                : animNameField.value.Trim();
+
             bool loop = loopToggle?.value ?? true;
             float speed = speedField?.value ?? 1f;
             int sortOrder = sortOrderField?.value ?? 10;
             bool shadow = shadowToggle?.value ?? true;
             bool collectible = collectibleToggle?.value ?? false;
 
-            // 推断类型
+            // 根据 imagePath 推断类型（覆盖 ID 的类型）
             MapObjectType objType = MapObjectType.Prop;
-            if (imagePath.StartsWith("building_")) objType = MapObjectType.Building;
-            else if (imagePath.StartsWith("char_")) objType = MapObjectType.Character;
-            else if (imagePath.StartsWith("cat_")) objType = MapObjectType.Cat;
+            if (imagePath.StartsWith(MapToolConstants.PrefixBuilding)) objType = MapObjectType.Building;
+            else if (imagePath.StartsWith(MapToolConstants.PrefixCharacter)) objType = MapObjectType.Character;
+            else if (imagePath.StartsWith(MapToolConstants.PrefixCat)) objType = MapObjectType.Cat;
 
-            // 添加到配置表
-            ObjectTemplateManager.Instance.AddTemplate(new ObjectTemplate
+            // 如果 ID 是占位符（template_0001 这种），自动生成正确的数字 ID
+            int parsedId;
+            if (!int.TryParse(templateId, out parsedId))
             {
-                TemplateId = templateId,
-                ImagePath = imagePath,
-                TemplateName = templateName,
-                AnimName = animName,
-                Loop = loop,
-                Speed = speed,
-                SortOrder = sortOrder,
-                ShadowEnabled = shadow,
-                IsCollectible = collectible,
-                Type = objType,
-            });
+                templateId = GetNextTemplateId(objType);
+            }
 
-            EditorUtility.DisplayDialog("成功", $"已添加到配置表:\nID: {templateId}\n图片: {imagePath}\n名称: {templateName}", "确定");
+            // 检查是否已存在（区分新建/修改模式）
+            var existingTemplate = ObjectTemplateManager.Instance.GetAllTemplates()
+                .FirstOrDefault(t => t.ImagePath.Equals(imagePath, StringComparison.OrdinalIgnoreCase));
+            bool isUpdate = existingTemplate != null;
 
-            // 重新扫描
+            // 记录当前资源在列表中的位置，新建模式下添加后自动选中下一个
+            int currentIndex = m_UnconfiguredResources.IndexOf(m_CurrentSelectedPath);
+
+            // 二级确认
+            string dialogTitle = isUpdate ? "确认修改" : "确认添加";
+            string dialogMsg = isUpdate
+                ? $"确定要修改以下配置吗？\n\nID: {templateId}\n图片: {imagePath}\n名称: {templateName}\n类型: {objType}"
+                : $"确定要添加以下配置到配置表吗？\n\nID: {templateId}\n图片: {imagePath}\n名称: {templateName}\n类型: {objType}\n动画: {animName}";
+            bool confirm = EditorUtility.DisplayDialog(dialogTitle, dialogMsg, isUpdate ? "修改" : "添加", "取消");
+            if (!confirm)
+            {
+                Debug.Log("[ResourceOrganize] 用户取消操作");
+                return;
+            }
+
+            if (isUpdate)
+            {
+                // ===== 修改模式：更新已有模板字段 =====
+                existingTemplate.TemplateId = templateId;
+                existingTemplate.ImagePath = imagePath;
+                existingTemplate.TemplateName = templateName;
+                existingTemplate.AnimName = animName;
+                existingTemplate.Loop = loop;
+                existingTemplate.Speed = speed;
+                existingTemplate.SortOrder = sortOrder;
+                existingTemplate.ShadowEnabled = shadow;
+                existingTemplate.IsCollectible = collectible;
+                existingTemplate.Type = objType;
+
+                Debug.Log($"[ResourceOrganize] 已修改: ID={templateId}, 名称={templateName}");
+            }
+            else
+            {
+                // ===== 新建模式：直接添加到内存模板 =====
+                // 图片复制统一在"保存修改"时执行，这里只做内存添加
+
+                // 添加到配置表
+                ObjectTemplateManager.Instance.AddTemplate(new ObjectTemplate
+                {
+                    TemplateId = templateId,
+                    ImagePath = imagePath,
+                    TemplateName = templateName,
+                    AnimName = animName,
+                    Loop = loop,
+                    Speed = speed,
+                    SortOrder = sortOrder,
+                    ShadowEnabled = shadow,
+                    IsCollectible = collectible,
+                    Type = objType,
+                    IsBuiltIn = false,
+                });
+
+                Debug.Log($"[ResourceOrganize] 已添加: ID={templateId}, 名称={templateName}（图片将在保存时整理）");
+            }
+
+            // 重新扫描并刷新列表
             OnScanResourcesClicked();
+            RefreshConfigList();
+
+            // 新建模式下自动选中下一个未配置资源（修改模式不跳转）
+            if (!isUpdate && m_UnconfiguredResources.Count > 0)
+            {
+                int nextIndex = Mathf.Min(currentIndex, m_UnconfiguredResources.Count - 1);
+                string nextPath = m_UnconfiguredResources[nextIndex];
+                ShowResourceDetail(nextPath);
+                HighlightItemByPath(nextPath);
+            }
         }
 
         /// <summary>
@@ -817,9 +1003,9 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 string fileName = Path.GetFileNameWithoutExtension(path);
 
                 MapObjectType objType = MapObjectType.Prop;
-                if (fileName.StartsWith("building_")) objType = MapObjectType.Building;
-                else if (fileName.StartsWith("char_")) objType = MapObjectType.Character;
-                else if (fileName.StartsWith("cat_")) objType = MapObjectType.Cat;
+                if (fileName.StartsWith(MapToolConstants.PrefixBuilding)) objType = MapObjectType.Building;
+                else if (fileName.StartsWith(MapToolConstants.PrefixCharacter)) objType = MapObjectType.Character;
+                else if (fileName.StartsWith(MapToolConstants.PrefixCat)) objType = MapObjectType.Cat;
 
                 // 获取基础 ID，再加上当前偏移
                 string baseId = GetNextTemplateId(objType);
@@ -858,6 +1044,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     ShadowEnabled = true,
                     IsCollectible = false,
                     Type = objType,
+                    IsBuiltIn = false,
                 });
                 added++;
             }
@@ -871,17 +1058,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// </summary>
         private string GetNextTemplateId(MapObjectType type)
         {
-            int maxNum = 0;
-            foreach (var t in ObjectTemplateManager.Instance.GetAllTemplates())
-            {
-                if (t.Type != type) continue; // 只统计同类型的
-                if (string.IsNullOrEmpty(t.TemplateId)) continue;
-                // 从 TemplateId 中提取数字部分
-                string numStr = new string(t.TemplateId.Where(char.IsDigit).ToArray());
-                if (int.TryParse(numStr, out int num) && num > maxNum)
-                    maxNum = num;
-            }
-            return (maxNum + 1).ToString();
+            return TemplateIdGenerator.GetNextId(type);
         }
 
         /// <summary>

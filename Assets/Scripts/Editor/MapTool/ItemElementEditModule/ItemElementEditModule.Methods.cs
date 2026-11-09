@@ -175,16 +175,45 @@ namespace Honor.Editor.MapTool
             var item = new VisualElement();
             item.AddToClassList("item-element-item");
 
-            // 图标
-            var icon = new VisualElement();
+            // 图标 - 加载实际预览图，加载失败则用类型色占位
+            var icon = new Image();
             icon.AddToClassList("item-icon");
-            // 根据类型设置图标背景色
-            if (template.Type == MapObjectType.Building)
-                icon.style.backgroundColor = new Color(0.27f, 0.45f, 0.78f); // 蓝色
-            else if (template.Type == MapObjectType.Character)
-                icon.style.backgroundColor = new Color(0.44f, 0.68f, 0.28f); // 绿色
+            icon.scaleMode = ScaleMode.ScaleToFit;
+            // 强制固定尺寸，防止不同大小的图片撑开行高
+            icon.style.width = 52;
+            icon.style.height = 52;
+            icon.style.overflow = Overflow.Hidden;
+            icon.style.flexShrink = 0;
+
+            // 根据文件名查找完整资源路径（图片可能在多级子目录中）
+            Texture tex = null;
+            string[] guids = AssetDatabase.FindAssets($"{template.ImagePath} t:Texture2D", new[] { MapToolConstants.ResourceScanDir });
+            if (guids.Length > 0)
+            {
+                string texPath = AssetDatabase.GUIDToAssetPath(guids[0]);
+                // 尝试用 Texture2D 加载，失败则尝试用 Sprite 加载
+                tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+                if (tex == null)
+                {
+                    var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texPath);
+                    if (sprite != null) tex = sprite.texture;
+                }
+            }
+
+            if (tex != null)
+            {
+                icon.image = tex;
+            }
             else
-                icon.style.backgroundColor = new Color(1.0f, 0.75f, 0.0f); // 黄色
+            {
+                // 加载失败时用类型色占位
+                if (template.Type == MapObjectType.Building)
+                    icon.style.backgroundColor = new Color(0.27f, 0.45f, 0.78f); // 蓝色
+                else if (template.Type == MapObjectType.Character)
+                    icon.style.backgroundColor = new Color(0.44f, 0.68f, 0.28f); // 绿色
+                else
+                    icon.style.backgroundColor = new Color(1.0f, 0.75f, 0.0f); // 黄色
+            }
             item.Add(icon);
 
             // 名称和描述
@@ -204,9 +233,10 @@ namespace Honor.Editor.MapTool
 
             item.Add(textArea);
 
-            // 显示复选框
-            var showToggle = new Toggle("显示");
+            // 显示复选框（只显示勾选框，不显示文字）
+            var showToggle = new Toggle();
             showToggle.value = true;
+            showToggle.AddToClassList("item-show-toggle");
             item.Add(showToggle);
 
             // 点击选中

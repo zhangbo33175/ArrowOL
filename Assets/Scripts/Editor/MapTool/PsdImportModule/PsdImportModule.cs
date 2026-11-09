@@ -1,3 +1,13 @@
+/***************************************************************
+ * (c) copyright 2026 - 2030, Honor.Runtime
+ * All Rights Reserved.
+ * -------------------------------------------------------------
+ * filename:  PsdImportModule.cs
+ * author:    云毅
+ * created:   2026
+ * descrip:   PSD/PSB 导入模块 - 解析 PSD 图层、导出切片、自动生成地图物件
+ ***************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

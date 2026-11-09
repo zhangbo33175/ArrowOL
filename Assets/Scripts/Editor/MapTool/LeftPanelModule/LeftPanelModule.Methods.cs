@@ -155,14 +155,83 @@ namespace Honor.Editor.MapTool
         {
             var item = new VisualElement();
             item.AddToClassList("resource-item");
-            // 资源图标
-            var icon = new VisualElement();
+
+            // 资源图标 - 加载实际预览图，失败则用纯色占位
+            var icon = new Image();
             icon.AddToClassList("resource-icon");
+            icon.scaleMode = ScaleMode.ScaleToFit;
+            // 强制固定 32x32 尺寸，防止不同大小的图片撑开行高
+            icon.style.width = 32;
+            icon.style.height = 32;
+            icon.style.overflow = Overflow.Hidden;
+            icon.style.flexShrink = 0;
+
+            // 通过 TemplateId 反查模板，用 ImagePath 加载图片
+            string imageFileName = null;
+            int firstUnderscore = resourceName.IndexOf('_');
+            if (firstUnderscore > 0)
+            {
+                string idStr = resourceName.Substring(0, firstUnderscore);
+                int tempId;
+                if (int.TryParse(idStr, out tempId))
+                {
+                    var template = Honor.Editor.MapTool.ObjectTemplateManager.Instance.GetTemplateById(idStr);
+                    if (template != null && !string.IsNullOrEmpty(template.ImagePath))
+                    {
+                        imageFileName = template.ImagePath;
+                    }
+                }
+            }
+
+            // 如果没找到模板，回退到从名称中提取
+            if (string.IsNullOrEmpty(imageFileName))
+            {
+                imageFileName = resourceName;
+                if (firstUnderscore > 0)
+                {
+                    string prefix = resourceName.Substring(0, firstUnderscore);
+                    int tempId;
+                    if (int.TryParse(prefix, out tempId))
+                    {
+                        imageFileName = resourceName.Substring(firstUnderscore + 1);
+                    }
+                }
+            }
+
+            // 按文件名查找纹理
+            Texture tex = null;
+            string[] guids = UnityEditor.AssetDatabase.FindAssets(
+                $"{imageFileName} t:Texture2D",
+                new[] { MapToolConstants.ResourceScanDir });
+
+            if (guids.Length > 0)
+            {
+                string texPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
+                // 尝试用 Texture2D 加载，失败则尝试用 Sprite 加载
+                tex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+                if (tex == null)
+                {
+                    var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(texPath);
+                    if (sprite != null) tex = sprite.texture;
+                }
+            }
+
+            if (tex != null)
+            {
+                icon.image = tex;
+            }
+            else
+            {
+                icon.style.backgroundColor = new Color(0.4f, 0.3f, 0.6f);
+            }
+
             item.Add(icon);
+
             // 资源名称
             var nameLabel = new Label(resourceName);
             nameLabel.AddToClassList("resource-name");
             item.Add(nameLabel);
+
             // 点击资源（闭包捕获 name，避免循环变量共享）
             string name = resourceName;
             item.RegisterCallback<ClickEvent>(evt => OnResourceItemClicked(name, item));

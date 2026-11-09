@@ -30,7 +30,6 @@ namespace Honor.Editor.MapTool
         public const string BtnAddAllToConfig    = "btn-add-all-to-config";
         public const string BtnClearObjects      = "btn-clear-objects";
         public const string BtnClearGridData     = "btn-clear-grid-data";
-        public const string BtnImportImages      = "btn-import-images";
         public const string BtnImportPsd         = "btn-import-psd";
         public const string BtnDeleteObject      = "btn-delete-object";
         public const string BtnPublish           = "btn-publish";

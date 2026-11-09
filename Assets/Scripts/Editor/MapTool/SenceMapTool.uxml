@@ -85,7 +85,6 @@
                     <ui:Button text="保存" name="btn-save" class="tool-btn" />
                     <ui:Button text="清空摆放物" name="btn-clear-objects" class="tool-btn danger-btn" />
                     <ui:Button text="清空格子数据" name="btn-clear-grid-data" class="tool-btn" />
-                    <ui:Button text="导入图片" name="btn-import-images" class="tool-btn" />
                     <ui:Button text="导入PSD" name="btn-import-psd" class="tool-btn" />
                     <ui:VisualElement name="VisualElement" class="flex-space" style="width: 80px; max-width: 80px;" />
                     <ui:Label text="图层：" style="justify-content: center; align-self: center; align-items: center;" />

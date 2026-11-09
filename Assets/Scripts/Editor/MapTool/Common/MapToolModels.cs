@@ -58,6 +58,9 @@ namespace Honor.Editor.MapTool
         /// <summary>预览图资源路径</summary>
         public string ImagePath = string.Empty;
 
+        /// <summary>是否为内置模板（从 Excel 读取的为 true，用户通过编辑器添加的为 false，内置模板不可删除）</summary>
+        public bool IsBuiltIn = true;
+
         #endregion
 
         #region 动画属性
