@@ -184,7 +184,7 @@ namespace Honor.Editor.MapTool
         {
             VisualElement root = rootVisualElement;
 
-            m_PrefabField = root.Q<ObjectField>(name: "map-prefab-field");
+            m_PrefabField = root.Q<ObjectField>(name: MapToolUiNames.MapPrefabField);
             m_PrefabField?.RegisterValueChangedCallback(OnPrefabChanged);
 
             foreach (PathConfigItem item in PathConfigItems)
@@ -212,11 +212,11 @@ namespace Honor.Editor.MapTool
         {
             VisualElement root = rootVisualElement;
 
-            var cancelBtn = root.Q<Button>(name: "btn-cancel");
+            var cancelBtn = root.Q<Button>(name: MapToolUiNames.BtnCancel);
             if (cancelBtn != null)
                 cancelBtn.clicked += CancelClicked;
 
-            var confirmBtn = root.Q<Button>(name: "btn-confirm");
+            var confirmBtn = root.Q<Button>(name: MapToolUiNames.BtnConfirm);
             if (confirmBtn != null)
                 confirmBtn.clicked += ConfirmClicked;
         }

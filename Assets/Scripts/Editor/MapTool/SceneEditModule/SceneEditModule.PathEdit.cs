@@ -45,7 +45,7 @@ namespace Honor.Editor.MapTool
                 m_BtnPathDraw.text = "开始绘制路径";
             // 动画字段填充默认值
             if (m_AnimNameField != null)
-                m_AnimNameField.SetValueWithoutNotify("Idle");
+                m_AnimNameField.SetValueWithoutNotify(MapToolConstants.DefaultAnimName);
             if (m_AnimLoopToggle != null)
                 m_AnimLoopToggle.SetValueWithoutNotify(true);
             if (m_AnimSpeedField != null)

@@ -263,6 +263,79 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public static readonly Vector2Int PropDefaultSize = new Vector2Int(1, 1);
 
+        // ==================== 预制体路径 ====================
+
+        /// <summary>
+        /// 场景根节点预制体路径
+        /// </summary>
+        public const string SceneRootPrefabPath = "Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab";
+
+        /// <summary>
+        /// 区域项（ZoneItem）预制体路径
+        /// </summary>
+        public const string ZoneItemPrefabPath = "Assets/Res/Prefabs/Map/ZoneItem.prefab";
+
+        // ==================== UI 尺寸常量 ====================
+
+        /// <summary>
+        /// 左侧面板物件列表图标尺寸（像素）
+        /// </summary>
+        public const int LeftPanelIconSize = 32;
+
+        /// <summary>
+        /// 中间元件列表图标尺寸（像素）
+        /// </summary>
+        public const int ItemElementIconSize = 52;
+
+        /// <summary>
+        /// 列表项默认右边距（像素）
+        /// </summary>
+        public const int ListItemMarginRight = 8;
+
+        /// <summary>
+        /// 地图预览窗口默认缩放比例
+        /// </summary>
+        public const float PreviewDefaultZoom = 0.25f;
+
+        /// <summary>
+        /// 预览窗口中物体移动速度（像素/秒）
+        /// </summary>
+        public const float PreviewMoveSpeed = 200f;
+
+        // ==================== 动画相关常量 ====================
+
+        /// <summary>
+        /// 默认动画名称
+        /// </summary>
+        public const string DefaultAnimName = "Idle";
+
+        /// <summary>
+        /// 无动画标记（表示不播放动画）
+        /// </summary>
+        public const string NoAnimName = "none";
+
+        // ==================== 文件扩展名 ====================
+
+        /// <summary>
+        /// Excel 配置表文件扩展名（Office Open XML 格式）
+        /// </summary>
+        public const string ExtExcel = ".xlsm";
+
+        /// <summary>
+        /// JSON 文件扩展名
+        /// </summary>
+        public const string ExtJson = ".json";
+
+        /// <summary>
+        /// PNG 图片文件扩展名
+        /// </summary>
+        public const string ExtPng = ".png";
+
+        /// <summary>
+        /// Unity 预制体文件扩展名
+        /// </summary>
+        public const string ExtPrefab = ".prefab";
+
         // ==================== 可配置路径读写 ====================
 
         /// <summary>

@@ -182,5 +182,86 @@ namespace Honor.Editor.MapTool
                 default: return Vector2Int.one;
             }
         }
+
+        /// <summary>
+        /// 按文件名在资源目录中查找纹理（递归搜索，支持 Sprite 类型）
+        /// </summary>
+        /// <param name="imageName">图片文件名（不含扩展名）</param>
+        /// <returns>纹理对象，未找到返回 null</returns>
+        public static Texture LoadTextureByName(string imageName)
+        {
+            if (string.IsNullOrEmpty(imageName)) return null;
+
+            string[] guids = AssetDatabase.FindAssets(
+                $"{imageName} t:Texture2D",
+                new[] { MapToolConstants.ResourceScanDir });
+
+            if (guids.Length == 0) return null;
+
+            string texPath = AssetDatabase.GUIDToAssetPath(guids[0]);
+            // 先尝试 Texture2D，失败再尝试 Sprite
+            Texture tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
+            if (tex == null)
+            {
+                var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texPath);
+                if (sprite != null) tex = sprite.texture;
+            }
+            return tex;
+        }
+
+        /// <summary>
+        /// 显示提示对话框（单按钮"确定"）
+        /// </summary>
+        /// <param name="title">标题</param>
+        /// <param name="message">内容</param>
+        public static void ShowInfo(string title, string message)
+        {
+            EditorUtility.DisplayDialog(title, message, "确定");
+        }
+
+        /// <summary>
+        /// 显示确认对话框（确定/取消）
+        /// </summary>
+        /// <param name="title">标题</param>
+        /// <param name="message">内容</param>
+        /// <returns>用户点确定返回 true，点取消返回 false</returns>
+        public static bool ShowConfirm(string title, string message)
+        {
+            return EditorUtility.DisplayDialog(title, message, "确定", "取消");
+        }
+
+        /// <summary>
+        /// 根据图片文件名前缀判断物体类型
+        /// </summary>
+        /// <param name="imageName">图片文件名（不含扩展名）</param>
+        /// <returns>物体类型，无法识别返回 Prop</returns>
+        public static MapObjectType GetObjectTypeByImageName(string imageName)
+        {
+            if (string.IsNullOrEmpty(imageName)) return MapObjectType.Prop;
+
+            string lowerName = imageName.ToLower();
+            if (lowerName.StartsWith(MapToolConstants.PrefixBuilding)) return MapObjectType.Building;
+            if (lowerName.StartsWith(MapToolConstants.PrefixCharacter)) return MapObjectType.Character;
+            if (lowerName.StartsWith(MapToolConstants.PrefixCat)) return MapObjectType.Cat;
+            if (lowerName.StartsWith(MapToolConstants.PrefixBg)) return MapObjectType.Prop; // 背景图归为 Prop
+            return MapObjectType.Prop;
+        }
+
+        /// <summary>
+        /// 根据物体类型获取对应的配置表文件名
+        /// </summary>
+        /// <param name="type">物体类型</param>
+        /// <returns>配置表文件名</returns>
+        public static string GetConfigFileNameByType(MapObjectType type)
+        {
+            switch (type)
+            {
+                case MapObjectType.Building: return MapToolConstants.TableBuildingFileName;
+                case MapObjectType.Character: return MapToolConstants.TableCharacterFileName;
+                case MapObjectType.Prop: return MapToolConstants.TablePropFileName;
+                case MapObjectType.Cat: return MapToolConstants.TableCatFileName;
+                default: return MapToolConstants.TablePropFileName;
+            }
+        }
     }
 }

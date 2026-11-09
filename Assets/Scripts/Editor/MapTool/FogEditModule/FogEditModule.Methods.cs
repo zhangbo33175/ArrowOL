@@ -24,10 +24,10 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void BindEvents()
         {
-            m_ClearFogBtn = m_Root.Q<Button>(name: "btn-clear-fog");
+            m_ClearFogBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearFog);
             if (m_ClearFogBtn != null)
                 m_ClearFogBtn.clicked += OnClearFogClicked;
-            m_ResetFogBtn = m_Root.Q<Button>(name: "btn-reset-fog");
+            m_ResetFogBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnResetFog);
             if (m_ResetFogBtn != null)
                 m_ResetFogBtn.clicked += OnResetFogClicked;
         }

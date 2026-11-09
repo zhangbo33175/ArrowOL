@@ -243,8 +243,8 @@ namespace Honor.Editor.MapTool
             }
             else if (!string.IsNullOrEmpty(prefabPath))
             {
-                string templateFullPath = System.IO.Path.Combine(Application.dataPath, prefabPath.Replace("Assets/", ""));
-                string levelFullPath = System.IO.Path.Combine(Application.dataPath, levelPrefabPath.Replace("Assets/", ""));
+                string templateFullPath = MapToolPathHelper.ToAbsolutePath(prefabPath);
+                string levelFullPath = MapToolPathHelper.ToAbsolutePath(levelPrefabPath);
                 if (System.IO.File.Exists(templateFullPath) && System.IO.File.Exists(levelFullPath))
                 {
                     DateTime templateTime = System.IO.File.GetLastWriteTime(templateFullPath);
@@ -338,7 +338,7 @@ namespace Honor.Editor.MapTool
             }
 
             // 3. 实例化 2DSceneRoot.prefab
-            string sceneRootPath = "Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab";
+            string sceneRootPath = MapToolConstants.SceneRootPrefabPath;
             var sceneRootPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(sceneRootPath);
             if (sceneRootPrefab == null)
             {
@@ -419,7 +419,7 @@ namespace Honor.Editor.MapTool
             }
 
             // 8. 加载并实例化 ZoneItem.prefab（单张地图）
-            string zoneItemPath = "Assets/Res/Prefabs/Map/ZoneItem.prefab";
+            string zoneItemPath = MapToolConstants.ZoneItemPrefabPath;
             var zoneItemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(zoneItemPath);
             if (zoneItemPrefab == null)
             {

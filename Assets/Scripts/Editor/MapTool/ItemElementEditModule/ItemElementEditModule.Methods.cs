@@ -186,19 +186,7 @@ namespace Honor.Editor.MapTool
             icon.style.flexShrink = 0;
 
             // 根据文件名查找完整资源路径（图片可能在多级子目录中）
-            Texture tex = null;
-            string[] guids = AssetDatabase.FindAssets($"{template.ImagePath} t:Texture2D", new[] { MapToolConstants.ResourceScanDir });
-            if (guids.Length > 0)
-            {
-                string texPath = AssetDatabase.GUIDToAssetPath(guids[0]);
-                // 尝试用 Texture2D 加载，失败则尝试用 Sprite 加载
-                tex = AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
-                if (tex == null)
-                {
-                    var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texPath);
-                    if (sprite != null) tex = sprite.texture;
-                }
-            }
+            Texture tex = MapToolEditorUtils.LoadTextureByName(template.ImagePath);
 
             if (tex != null)
             {

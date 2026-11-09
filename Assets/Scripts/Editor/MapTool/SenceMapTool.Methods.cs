@@ -28,11 +28,11 @@ namespace Honor.Editor.MapTool
         /// <param name="visualTree">实例化后的视觉树</param>
         private void FindElements(VisualElement visualTree)
         {
-            m_TabScene = visualTree.Q<Button>(name: "tab-scene");
-            m_TabItemElement = visualTree.Q<Button>(name: "tab-item-element");
-            m_TabFog = visualTree.Q<Button>(name: "tab-fog");
-            m_TabResource = visualTree.Q<Button>(name: "tab-resource");
-            m_ResourcePanel = visualTree.Q<VisualElement>(name: "resource-panel");
+            m_TabScene = visualTree.Q<Button>(name: MapToolUiNames.TabScene);
+            m_TabItemElement = visualTree.Q<Button>(name: MapToolUiNames.TabItemElement);
+            m_TabFog = visualTree.Q<Button>(name: MapToolUiNames.TabFog);
+            m_TabResource = visualTree.Q<Button>(name: MapToolUiNames.TabResource);
+            m_ResourcePanel = visualTree.Q<VisualElement>(name: MapToolUiNames.ResourcePanel);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Honor.Editor.MapTool
             }
 
             // 场景编辑模块
-            var scenePanel = root.Q<VisualElement>(name: "scene-mode-panel");
+            var scenePanel = root.Q<VisualElement>(name: MapToolUiNames.SceneModePanel);
             if (scenePanel != null)
             {
                 m_SceneModule = new SceneEditModule();
@@ -67,7 +67,7 @@ namespace Honor.Editor.MapTool
             }
 
             // 物品元件编辑模块
-            var itemElementPanel = root.Q<VisualElement>(name: "item-element-mode-panel");
+            var itemElementPanel = root.Q<VisualElement>(name: MapToolUiNames.ItemElementModePanel);
             if (itemElementPanel != null)
             {
                 m_ItemElementModule = new ItemElementEditModule();
@@ -75,7 +75,7 @@ namespace Honor.Editor.MapTool
             }
 
             // 迷雾编辑模块
-            var fogPanel = root.Q<VisualElement>(name: "fog-mode-panel");
+            var fogPanel = root.Q<VisualElement>(name: MapToolUiNames.FogModePanel);
             if (fogPanel != null)
             {
                 m_FogModule = new FogEditModule();

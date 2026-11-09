@@ -440,10 +440,10 @@ namespace Honor.Editor.MapTool
         public string sceneName = string.Empty;
 
         /// <summary>地图宽度（像素）</summary>
-        public int width = 4096;
+        public int width = MapToolConstants.LevelPixelSize;
 
         /// <summary>地图高度（像素）</summary>
-        public int height = 4096;
+        public int height = MapToolConstants.LevelPixelSize;
 
         // ---TODO 双格式保存：新增章节信息字段（JSON 落 MapDatas，Lua 同源导出）
         /// <summary>章节ID（来自 TableChapterEditor.ID）</summary>

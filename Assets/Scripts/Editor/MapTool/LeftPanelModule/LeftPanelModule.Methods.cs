@@ -161,8 +161,8 @@ namespace Honor.Editor.MapTool
             icon.AddToClassList("resource-icon");
             icon.scaleMode = ScaleMode.ScaleToFit;
             // 强制固定 32x32 尺寸，防止不同大小的图片撑开行高
-            icon.style.width = 32;
-            icon.style.height = 32;
+            icon.style.width = MapToolConstants.LeftPanelIconSize;
+            icon.style.height = MapToolConstants.LeftPanelIconSize;
             icon.style.overflow = Overflow.Hidden;
             icon.style.flexShrink = 0;
 
@@ -199,22 +199,7 @@ namespace Honor.Editor.MapTool
             }
 
             // 按文件名查找纹理
-            Texture tex = null;
-            string[] guids = UnityEditor.AssetDatabase.FindAssets(
-                $"{imageFileName} t:Texture2D",
-                new[] { MapToolConstants.ResourceScanDir });
-
-            if (guids.Length > 0)
-            {
-                string texPath = UnityEditor.AssetDatabase.GUIDToAssetPath(guids[0]);
-                // 尝试用 Texture2D 加载，失败则尝试用 Sprite 加载
-                tex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(texPath);
-                if (tex == null)
-                {
-                    var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(texPath);
-                    if (sprite != null) tex = sprite.texture;
-                }
-            }
+            Texture tex = MapToolEditorUtils.LoadTextureByName(imageFileName);
 
             if (tex != null)
             {
@@ -261,17 +246,17 @@ namespace Honor.Editor.MapTool
         private void FindElements()
         {
             // 顶部按钮
-            m_ConfigBtn = m_Root.Q<Button>(name: "btn-config");
-            m_DeleteBtn = m_Root.Q<Button>(name: "btn-delete");
+            m_ConfigBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnConfig);
+            m_DeleteBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnDelete);
             // 章节列表
-            m_ChapterList = m_Root.Q<ScrollView>(name: "chapter-list");
+            m_ChapterList = m_Root.Q<ScrollView>(name: MapToolUiNames.ChapterList);
             // 资源分类Tab按钮
-            m_BuildingTabBtn = m_Root.Q<Button>(name: "tab-building");
-            m_GroundTabBtn = m_Root.Q<Button>(name: "tab-ground");
-            m_PropTabBtn = m_Root.Q<Button>(name: "tab-prop");
-            m_RefreshBtn = m_Root.Q<Button>(name: "btn-refresh");
+            m_BuildingTabBtn = m_Root.Q<Button>(name: MapToolUiNames.TabBuilding);
+            m_GroundTabBtn = m_Root.Q<Button>(name: MapToolUiNames.TabGround);
+            m_PropTabBtn = m_Root.Q<Button>(name: MapToolUiNames.TabProp);
+            m_RefreshBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnRefresh);
             // 资源列表
-            m_ResourceList = m_Root.Q<ScrollView>(name: "resource-list");
+            m_ResourceList = m_Root.Q<ScrollView>(name: MapToolUiNames.ResourceList);
         }
 
         /// <summary>

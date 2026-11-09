@@ -318,7 +318,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnScanResourcesClicked()
         {
-            string mapDir = "Assets/Res/Textures/Map";
+            string mapDir = MapToolConstants.ResourceScanDir;
             if (!AssetDatabase.IsValidFolder(mapDir))
             {
                 EditorUtility.DisplayDialog("扫描资源", $"目录不存在：{mapDir}", "确定");

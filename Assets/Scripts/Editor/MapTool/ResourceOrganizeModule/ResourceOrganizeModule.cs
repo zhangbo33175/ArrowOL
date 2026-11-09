@@ -57,16 +57,16 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// </summary>
         public void FindElements(VisualElement visualTree)
         {
-            m_TabResource = visualTree.Q<Button>(name: "tab-resource");
-            m_ResourcePanel = visualTree.Q<VisualElement>(name: "resource-panel");
+            m_TabResource = visualTree.Q<Button>(name: MapToolUiNames.TabResource);
+            m_ResourcePanel = visualTree.Q<VisualElement>(name: MapToolUiNames.ResourcePanel);
 
             // 子 Tab 按钮
-            m_TabAll = m_ResourcePanel?.Q<Button>(name: "tab-all");
-            m_TabBg = m_ResourcePanel?.Q<Button>(name: "tab-bg");
-            m_TabBuilding = m_ResourcePanel?.Q<Button>(name: "tab-building");
-            m_TabChar = m_ResourcePanel?.Q<Button>(name: "tab-char");
-            m_TabProp = m_ResourcePanel?.Q<Button>(name: "tab-prop");
-            m_TabCat = m_ResourcePanel?.Q<Button>(name: "tab-cat");
+            m_TabAll = m_ResourcePanel?.Q<Button>(name: MapToolUiNames.TabAll);
+            m_TabBg = m_ResourcePanel?.Q<Button>(name: MapToolUiNames.TabBg);
+            m_TabBuilding = m_ResourcePanel?.Q<Button>(name: MapToolUiNames.TabBuilding);
+            m_TabChar = m_ResourcePanel?.Q<Button>(name: MapToolUiNames.TabChar);
+            m_TabProp = m_ResourcePanel?.Q<Button>(name: MapToolUiNames.TabProp);
+            m_TabCat = m_ResourcePanel?.Q<Button>(name: MapToolUiNames.TabCat);
         }
 
         /// <summary>
@@ -79,23 +79,23 @@ namespace Honor.Editor.MapTool.ResourceOrganize
 
             if (m_ResourcePanel != null)
             {
-                var scanBtn = m_ResourcePanel.Q<Button>(name: "btn-scan-resources");
+                var scanBtn = m_ResourcePanel.Q<Button>(name: MapToolUiNames.BtnScanResources);
                 if (scanBtn != null)
                     scanBtn.clicked += OnScanResourcesClicked;
 
-                var addBtn = m_ResourcePanel.Q<Button>(name: "btn-add-to-config");
+                var addBtn = m_ResourcePanel.Q<Button>(name: MapToolUiNames.BtnAddToConfig);
                 if (addBtn != null)
                     addBtn.clicked += OnAddToConfigClicked;
 
-                var addAllBtn = m_ResourcePanel.Q<Button>(name: "btn-save-config");
+                var addAllBtn = m_ResourcePanel.Q<Button>(name: MapToolUiNames.BtnSaveConfig);
                 if (addAllBtn != null)
                     addAllBtn.clicked += OnSaveConfigClicked;
 
-                var openConfigBtn = m_ResourcePanel.Q<Button>(name: "btn-open-config");
+                var openConfigBtn = m_ResourcePanel.Q<Button>(name: MapToolUiNames.BtnOpenConfig);
                 if (openConfigBtn != null)
                     openConfigBtn.clicked += OnOpenConfigClicked;
 
-                var openFolderBtn = m_ResourcePanel.Q<Button>(name: "btn-open-folder");
+                var openFolderBtn = m_ResourcePanel.Q<Button>(name: MapToolUiNames.BtnOpenFolder);
                 if (openFolderBtn != null)
                     openFolderBtn.clicked += OnOpenFolderClicked;
 
@@ -182,7 +182,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             string mapDir = MapToolConstants.ResourceScanDir;
             if (!AssetDatabase.IsValidFolder(mapDir))
             {
-                EditorUtility.DisplayDialog("扫描失败", $"目录不存在: {mapDir}", "确定");
+                MapToolEditorUtils.ShowInfo("扫描失败", $"目录不存在: {mapDir}");
                 return;
             }
 
@@ -283,7 +283,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 var preview = new Image();
                 preview.style.width = 36;
                 preview.style.height = 36;
-                preview.style.marginRight = 8;
+                preview.style.marginRight = MapToolConstants.ListItemMarginRight;
                 preview.scaleMode = ScaleMode.ScaleToFit;
                 preview.style.backgroundColor = new Color(0.3f, 0.3f, 0.5f);
 
@@ -509,11 +509,9 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         private void OnSaveConfigClicked()
         {
             // 弹出二级确认
-            bool confirm = EditorUtility.DisplayDialog(
+            bool confirm = MapToolEditorUtils.ShowConfirm(
                 "确认保存",
-                "确定要保存所有修改到配置表吗？",
-                "确定",
-                "取消");
+                "确定要保存所有修改到配置表吗？");
 
             if (!confirm) return;
 
@@ -521,7 +519,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             var container = m_ResourcePanel?.Q<VisualElement>(name: "config-list-container");
             if (container == null)
             {
-                EditorUtility.DisplayDialog("错误", "找不到配置表容器", "确定");
+                MapToolEditorUtils.ShowInfo("错误", "找不到配置表容器");
                 return;
             }
 
@@ -766,12 +764,12 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             var animNameField = m_ResourcePanel?.Q<TextField>(name: "field-anim-name");
 
             // 自动推断类型
+            MapObjectType objType = MapToolEditorUtils.GetObjectTypeByImageName(fileName);
             string typePrefix = MapToolConstants.FilterProp;
-            MapObjectType objType = MapObjectType.Prop;
-            if (fileName.StartsWith(MapToolConstants.PrefixBg)) { typePrefix = MapToolConstants.FilterBg; objType = MapObjectType.Prop; }
-            else if (fileName.StartsWith(MapToolConstants.PrefixBuilding)) { typePrefix = MapToolConstants.FilterBuilding; objType = MapObjectType.Building; }
-            else if (fileName.StartsWith(MapToolConstants.PrefixCharacter)) { typePrefix = "character"; objType = MapObjectType.Character; }
-            else if (fileName.StartsWith(MapToolConstants.PrefixCat)) { typePrefix = MapToolConstants.FilterCat; objType = MapObjectType.Cat; }
+            if (fileName.StartsWith(MapToolConstants.PrefixBg)) typePrefix = MapToolConstants.FilterBg;
+            else if (fileName.StartsWith(MapToolConstants.PrefixBuilding)) typePrefix = MapToolConstants.FilterBuilding;
+            else if (fileName.StartsWith(MapToolConstants.PrefixCharacter)) typePrefix = "character";
+            else if (fileName.StartsWith(MapToolConstants.PrefixCat)) typePrefix = MapToolConstants.FilterCat;
 
             // 检查该资源是否已在配置表中（如果已存在则做修改模式）
             var existingTemplate = ObjectTemplateManager.Instance.GetAllTemplates()
@@ -807,7 +805,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 if (templateIdField != null) templateIdField.value = GetNextTemplateId(objType);
                 if (imagePathField != null) imagePathField.value = fileName;
                 if (templateNameField != null) templateNameField.value = fileName;
-                if (animNameField != null) animNameField.value = "Idle";
+                if (animNameField != null) animNameField.value = MapToolConstants.DefaultAnimName;
 
                 if (addBtn != null) addBtn.text = "添加到配置表";
             }
@@ -840,7 +838,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             if (previewTemplateId != null) previewTemplateId.text = GetNextTemplateId(objType);
             if (previewImagePath != null) previewImagePath.text = imageName;
             if (previewTemplateName != null) previewTemplateName.text = imageName;
-            if (previewAnimName != null) previewAnimName.text = "Idle";
+            if (previewAnimName != null) previewAnimName.text = MapToolConstants.DefaultAnimName;
             if (previewLoop != null) previewLoop.text = "true";
             if (previewSpeed != null) previewSpeed.text = "1";
             if (previewSortOrder != null) previewSortOrder.text = "10";
@@ -884,7 +882,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 : templateNameField.value.Trim();
 
             string animName = string.IsNullOrWhiteSpace(animNameField?.value)
-                ? "Idle"
+                ? MapToolConstants.DefaultAnimName
                 : animNameField.value.Trim();
 
             bool loop = loopToggle?.value ?? true;
@@ -894,10 +892,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             bool collectible = collectibleToggle?.value ?? false;
 
             // 根据 imagePath 推断类型（覆盖 ID 的类型）
-            MapObjectType objType = MapObjectType.Prop;
-            if (imagePath.StartsWith(MapToolConstants.PrefixBuilding)) objType = MapObjectType.Building;
-            else if (imagePath.StartsWith(MapToolConstants.PrefixCharacter)) objType = MapObjectType.Character;
-            else if (imagePath.StartsWith(MapToolConstants.PrefixCat)) objType = MapObjectType.Cat;
+            MapObjectType objType = MapToolEditorUtils.GetObjectTypeByImageName(imagePath);
 
             // 如果 ID 是占位符（template_0001 这种），自动生成正确的数字 ID
             int parsedId;
@@ -948,7 +943,8 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 // 图片复制统一在"保存修改"时执行，这里只做内存添加
 
                 // 添加到配置表
-                ObjectTemplateManager.Instance.AddTemplate(new ObjectTemplate
+                // 添加到配置表
+                var template = new ObjectTemplate
                 {
                     TemplateId = templateId,
                     ImagePath = imagePath,
@@ -961,7 +957,8 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     IsCollectible = collectible,
                     Type = objType,
                     IsBuiltIn = false,
-                });
+                };
+                ObjectTemplateManager.Instance.AddTemplate(template);
 
                 Debug.Log($"[ResourceOrganize] 已添加: ID={templateId}, 名称={templateName}（图片将在保存时整理）");
             }
@@ -1002,10 +999,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             {
                 string fileName = Path.GetFileNameWithoutExtension(path);
 
-                MapObjectType objType = MapObjectType.Prop;
-                if (fileName.StartsWith(MapToolConstants.PrefixBuilding)) objType = MapObjectType.Building;
-                else if (fileName.StartsWith(MapToolConstants.PrefixCharacter)) objType = MapObjectType.Character;
-                else if (fileName.StartsWith(MapToolConstants.PrefixCat)) objType = MapObjectType.Cat;
+                MapObjectType objType = MapToolEditorUtils.GetObjectTypeByImageName(fileName);
 
                 // 获取基础 ID，再加上当前偏移
                 string baseId = GetNextTemplateId(objType);
@@ -1032,20 +1026,8 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     propIdOffset++;
                 }
 
-                ObjectTemplateManager.Instance.AddTemplate(new ObjectTemplate
-                {
-                    TemplateId = finalId,
-                    ImagePath = fileName,
-                    TemplateName = fileName,
-                    AnimName = "Idle",
-                    Loop = true,
-                    Speed = 1f,
-                    SortOrder = 10,
-                    ShadowEnabled = true,
-                    IsCollectible = false,
-                    Type = objType,
-                    IsBuiltIn = false,
-                });
+                ObjectTemplateManager.Instance.AddTemplate(
+                    ObjectTemplateManager.CreateTemplate(finalId, fileName, fileName, objType));
                 added++;
             }
 

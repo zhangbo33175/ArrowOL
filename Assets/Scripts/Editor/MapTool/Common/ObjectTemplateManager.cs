@@ -330,6 +330,32 @@ namespace Honor.Editor.MapTool
             get { return _templates.Count; }
         }
 
+        /// <summary>
+        /// 创建新模板的工厂方法（使用默认值，调用者只需设置关键字段）
+        /// </summary>
+        /// <param name="templateId">模板ID</param>
+        /// <param name="imagePath">图片路径</param>
+        /// <param name="templateName">模板名称</param>
+        /// <param name="type">物体类型</param>
+        /// <returns>初始化好默认值的模板对象</returns>
+        public static ObjectTemplate CreateTemplate(string templateId, string imagePath, string templateName, MapObjectType type)
+        {
+            return new ObjectTemplate
+            {
+                TemplateId = templateId,
+                ImagePath = imagePath,
+                TemplateName = templateName,
+                Type = type,
+                AnimName = MapToolConstants.DefaultAnimName,
+                Loop = true,
+                Speed = 1f,
+                SortOrder = 10,
+                ShadowEnabled = true,
+                IsCollectible = false,
+                IsBuiltIn = false,
+            };
+        }
+
         #endregion
 
         #region JSON 持久化（编辑器内保存，不直接写 Excel）

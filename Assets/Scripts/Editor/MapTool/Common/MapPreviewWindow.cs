@@ -23,23 +23,23 @@ namespace Honor.Editor.MapTool
         private List<ObjectTemplate> m_Templates;
         private Texture m_Background;
         private string m_MapName = "";
-        private int m_MapWidth = 4096;
-        private int m_MapHeight = 4096;
+        private int m_MapWidth = MapToolConstants.LevelPixelSize;
+        private int m_MapHeight = MapToolConstants.LevelPixelSize;
         private bool m_IsPlaying = false;
         private float m_PlayTime = 0f;
         private double m_LastTime = 0f;
-        private float m_Zoom = 0.25f;
+        private float m_Zoom = MapToolConstants.PreviewDefaultZoom;
         private bool m_ShowPathPoints = true;
         private Vector2 m_PanOffset = Vector2.zero;
         private bool m_IsDragging = false;
         private Vector2 m_DragStartPos = Vector2.zero;
         private Vector2 m_DragStartOffset = Vector2.zero;
-        private float m_EffectiveZoom = 0.25f; // 当前实际生效的缩放比例
+        private float m_EffectiveZoom = MapToolConstants.PreviewDefaultZoom; // 当前实际生效的缩放比例
 
         // 物件播放状态（每个物件当前在路径上的位置）
         private Dictionary<PlacedObject, int> m_CurrentPathIndex = new Dictionary<PlacedObject, int>();
         private Dictionary<PlacedObject, float> m_PathProgress = new Dictionary<PlacedObject, float>();
-        private const float MoveSpeed = 200f; // 移动速度（像素/秒）
+        private const float MoveSpeed = MapToolConstants.PreviewMoveSpeed; // 移动速度（像素/秒）
 
         private GUIStyle m_ToolbarStyle;
         private GUIStyle m_ButtonStyle;
@@ -49,7 +49,7 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 打开预览窗口
         /// </summary>
-        public static void ShowWindow(List<PlacedObject> objects, List<ObjectTemplate> templates, Texture background, string mapName, int mapWidth = 4096, int mapHeight = 4096)
+        public static void ShowWindow(List<PlacedObject> objects, List<ObjectTemplate> templates, Texture background, string mapName, int mapWidth = MapToolConstants.LevelPixelSize, int mapHeight = MapToolConstants.LevelPixelSize)
         {
             var window = GetWindow<MapPreviewWindow>("地图预览");
             window.minSize = new Vector2(900, 650);
@@ -214,7 +214,7 @@ namespace Honor.Editor.MapTool
             {
                 m_PlayTime = 0f;
                 m_PanOffset = Vector2.zero;
-                m_Zoom = 0.25f;
+                m_Zoom = MapToolConstants.PreviewDefaultZoom;
                 m_CurrentPathIndex.Clear();
                 m_PathProgress.Clear();
             }
