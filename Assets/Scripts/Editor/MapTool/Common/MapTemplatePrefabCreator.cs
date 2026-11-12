@@ -33,9 +33,9 @@ namespace Honor.Editor.MapTool
             EditorGUILayout.Space();
 
             EditorGUILayout.HelpBox("此工具将在 Assets/Res/Prefabs/Model/ 下生成三个基础模板预制体：\n" +
-                "1. ObjectTemplate.prefab - 物件模板\n" +
-                "2. BuildingTemplate.prefab - 建筑模板\n" +
-                "3. CharacterTemplate.prefab - 人物模板", MessageType.Info);
+                "1. Prop_BaseTemplate.prefab - 物件模板\n" +
+                "2. Building_BaseTemplate.prefab - 建筑模板\n" +
+                "3. Character_BaseTemplate.prefab - 人物模板", MessageType.Info);
 
             EditorGUILayout.Space();
 
@@ -59,13 +59,13 @@ namespace Honor.Editor.MapTool
             }
 
             // 1. 物件模板
-            CreateTemplatePrefab(savePath + "ObjectTemplate.prefab", "物件模板", MapObjectType.Prop, 10, false);
+            CreateTemplatePrefab(savePath + "Prop_BaseTemplate.prefab", "物件模板", MapObjectType.Prop, 10, false);
 
             // 2. 建筑模板
-            CreateTemplatePrefab(savePath + "BuildingTemplate.prefab", "建筑模板", MapObjectType.Building, 5, true);
+            CreateTemplatePrefab(savePath + "Building_BaseTemplate.prefab", "建筑模板", MapObjectType.Building, 5, true);
 
             // 3. 人物模板
-            CreateTemplatePrefab(savePath + "CharacterTemplate.prefab", "人物模板", MapObjectType.Character, 50, true);
+            CreateTemplatePrefab(savePath + "Character_BaseTemplate.prefab", "人物模板", MapObjectType.Character, 50, true);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -75,34 +75,25 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 创建单个模板预制体
+        /// 创建单个模板预制体（2D 世界模式：SpriteRenderer + BoxCollider2D）
         /// </summary>
         private void CreateTemplatePrefab(string path, string name, MapObjectType type, int defaultSortOrder, bool defaultCollision)
         {
             // 创建GameObject
             GameObject go = new GameObject(name);
 
-            // 添加SpriteRenderer
+            // 添加 SpriteRenderer（2D 世界模式）
             SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
             sr.sortingOrder = defaultSortOrder;
+            sr.sortingLayerName = "Default";
 
-            // 添加BoxCollider2D
+            // 添加 BoxCollider2D（碰撞体）
             BoxCollider2D col = go.AddComponent<BoxCollider2D>();
             col.size = new Vector2(1f, 1f);
             col.enabled = defaultCollision;
 
-            // 添加Animator
+            // 添加 Animator（动画）
             Animator anim = go.AddComponent<Animator>();
-
-            // 添加模板基类脚本（暂未实现，先注释掉）
-            // MapObjectTemplateBase template = go.AddComponent<MapObjectTemplateBase>();
-            // template.templateName = name;
-            // template.objectType = (Honor.Runtime.Map.MapObjectType)type;
-            // template.sortOrder = defaultSortOrder;
-            // template.collisionEnabled = defaultCollision;
-            // template.spriteRenderer = sr;
-            // template.animator = anim;
-            // template.collider = col;
 
             // 保存为预制体
             PrefabUtility.SaveAsPrefabAsset(go, path);
@@ -110,7 +101,7 @@ namespace Honor.Editor.MapTool
             // 删除临时GameObject
             DestroyImmediate(go);
 
-            Debug.Log($"[MapTemplatePrefabCreator] 生成: {path}");
+            Debug.Log($"[MapTemplatePrefabCreator] 生成: {path} (2D世界模式)");
         }
     }
 }

@@ -1,8 +1,16 @@
 """
-PSD 地图导入解析脚本
-用法: python psd_import.py <psd_file_path> <output_dir>
+PSD 地图导入解析脚本（V2：三级资源目录 + 跨PSD去重）
+用法: python psd_import.py <psd_file> <chapter_dir> <shared_dir> <json_dir>
+
+参数:
+  psd_file    - PSD/PSB 文件路径
+  chapter_dir - 当前章节专属资源目录（Chapter{id}）
+  shared_dir  - 全局共享资源目录（Shared）
+  json_dir    - import_result.json 输出目录（Map根目录）
+
 输出:
   - 每个图层导出为单独 PNG 文件（组不导出，只导出实际图层）
+  - 三级去重检查: Shared → Chapter → 新导出
   - import_result.json 包含所有图层信息
 """
 import sys
@@ -11,18 +19,40 @@ import os
 from psd_tools import PSDImage
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python psd_import.py <psd_file> <output_dir>")
+    if len(sys.argv) < 5:
+        print("Usage: python psd_import.py <psd_file> <chapter_dir> <shared_dir> <json_dir>")
         sys.exit(1)
 
     psd_path = sys.argv[1]
-    output_dir = sys.argv[2]
+    chapter_dir = sys.argv[2]
+    shared_dir = sys.argv[3]
+    json_dir = sys.argv[4]
 
     if not os.path.exists(psd_path):
         print(f"PSD file not found: {psd_path}")
         sys.exit(1)
 
-    os.makedirs(output_dir, exist_ok=True)
+    # 创建目录
+    os.makedirs(chapter_dir, exist_ok=True)
+    os.makedirs(shared_dir, exist_ok=True)
+    os.makedirs(json_dir, exist_ok=True)
+
+    # 按类型创建子目录（章节层 + 共享层）
+    type_dirs_chapter = {
+        "building": os.path.join(chapter_dir, "Building"),
+        "character": os.path.join(chapter_dir, "Character"),
+        "prop": os.path.join(chapter_dir, "Prop"),
+        "cat": os.path.join(chapter_dir, "Cat"),
+        "background": os.path.join(chapter_dir, "Background"),
+    }
+    type_dirs_shared = {
+        "building": os.path.join(shared_dir, "Building"),
+        "character": os.path.join(shared_dir, "Character"),
+        "prop": os.path.join(shared_dir, "Prop"),
+        "cat": os.path.join(shared_dir, "Cat"),
+    }
+    for d in list(type_dirs_chapter.values()) + list(type_dirs_shared.values()):
+        os.makedirs(d, exist_ok=True)
 
     psd = PSDImage.open(psd_path)
     print(f"PSD size: {psd.width} x {psd.height}")
@@ -36,7 +66,6 @@ def main():
     }
 
     # 1. 找纯背景图层（bg_开头，或者叫 bg_color / background 的图层）
-    #    不用整张 PSD 合成图，避免和拆分的物件重叠
     bg_layer = None
 
     def find_bg_layer(layer):
@@ -57,35 +86,19 @@ def main():
     if bg_layer is not None:
         bg_image = bg_layer.composite()
         if bg_image:
-            bg_path = os.path.join(output_dir, "_background.png")
+            # 背景图导出到章节 Background 子目录，按PSD文件名命名
+            psd_base_name = os.path.splitext(os.path.basename(psd_path))[0]
+            bg_filename = f"bg_{psd_base_name}.png"
+            bg_path = os.path.join(type_dirs_chapter["background"], bg_filename)
             bg_image.save(bg_path)
             result["backgroundName"] = bg_layer.name
             result["backgroundPath"] = bg_path.replace("\\", "/")
-            print(f"Background exported from layer: {bg_layer.name}")
+            print(f"Background exported: {bg_layer.name} -> Background/{bg_filename}")
     else:
         print("Warning: No bg_* layer found, background will be empty (transparent)")
 
     # 2. 处理所有图层（递归）
-    name_counter = {}  # 同名文件计数，避免覆盖
-    exported_names = set()  # 已导出的文件名（去重）
-
-    # 按类型创建子目录
-    type_dirs = {
-        "building": os.path.join(output_dir, "Building"),
-        "character": os.path.join(output_dir, "Character"),
-        "prop": os.path.join(output_dir, "Prop"),
-        "cat": os.path.join(output_dir, "Cat"),
-        "background": os.path.join(output_dir, "Background"),
-    }
-    for d in type_dirs.values():
-        os.makedirs(d, exist_ok=True)
-
-    def get_unique_name(base_name):
-        if base_name not in name_counter:
-            name_counter[base_name] = 0
-            return base_name
-        name_counter[base_name] += 1
-        return f"{base_name}_{name_counter[base_name]}"
+    exported_names = set()  # 同PSD内已导出的文件名（去重）
 
     def get_type_by_name(name, parent_group_name=""):
         """根据图层名和父组名自动判断类型"""
@@ -125,6 +138,27 @@ def main():
         # 4. 默认当作物件
         return "prop"
 
+    def find_existing_resource(safe_name, layer_type):
+        """
+        三级去重检查，返回资源路径或 None
+        检查顺序: Shared → Chapter
+        """
+        # 第1级: 检查全局共享层 Shared/
+        shared_dir_for_type = type_dirs_shared.get(layer_type)
+        if shared_dir_for_type:
+            shared_path = os.path.join(shared_dir_for_type, f"{safe_name}.png")
+            if os.path.exists(shared_path):
+                return ("shared", shared_path.replace("\\", "/"))
+
+        # 第2级: 检查当前章节层 Chapter{id}/
+        chapter_dir_for_type = type_dirs_chapter.get(layer_type)
+        if chapter_dir_for_type:
+            chapter_path = os.path.join(chapter_dir_for_type, f"{safe_name}.png")
+            if os.path.exists(chapter_path):
+                return ("chapter", chapter_path.replace("\\", "/"))
+
+        return (None, None)
+
     def process_layer(layer, parent_group_name=""):
         if not layer.visible:
             return
@@ -147,11 +181,11 @@ def main():
             print(f"  Skip background layer: {layer_name}")
             return
 
-        # 同名去重：只导出第一张
+        # 第1重: 同PSD内同名去重
         if safe_name in exported_names:
-            print(f"  Skip duplicate: {layer_name} (already exported)")
-            # 仍然加入物件列表，但路径指向已导出的文件
-            existing_path = os.path.join(type_dirs.get(layer_type, output_dir), f"{safe_name}.png")
+            print(f"  Skip duplicate: {layer_name} (same PSD)")
+            # 仍然加入物件列表，路径指向已存在的文件
+            _, existing_path = find_existing_resource(safe_name, layer_type)
             result["objects"].append({
                 "name": clean_name,
                 "layerName": layer_name,
@@ -160,12 +194,45 @@ def main():
                 "y": layer.top,
                 "width": layer.width,
                 "height": layer.height,
-                "pngPath": existing_path.replace("\\", "/")
+                "pngPath": existing_path
             })
             return
 
-        # 导出 PNG（按类型放到对应子目录）
-        target_dir = type_dirs.get(layer_type, output_dir)
+        # 第2重: 跨PSD去重（Shared → Chapter 检查）
+        source, existing_path = find_existing_resource(safe_name, layer_type)
+
+        if source == "shared":
+            print(f"  Skip shared: {layer_name} -> {layer_type}/{safe_name}.png (reuse Shared)")
+            result["objects"].append({
+                "name": clean_name,
+                "layerName": layer_name,
+                "type": layer_type,
+                "x": layer.left,
+                "y": layer.top,
+                "width": layer.width,
+                "height": layer.height,
+                "pngPath": existing_path
+            })
+            exported_names.add(safe_name)
+            return
+
+        if source == "chapter":
+            print(f"  Skip chapter: {layer_name} -> {layer_type}/{safe_name}.png (reuse Chapter)")
+            result["objects"].append({
+                "name": clean_name,
+                "layerName": layer_name,
+                "type": layer_type,
+                "x": layer.left,
+                "y": layer.top,
+                "width": layer.width,
+                "height": layer.height,
+                "pngPath": existing_path
+            })
+            exported_names.add(safe_name)
+            return
+
+        # 第3重: 都不存在 → 导出到章节目录
+        target_dir = type_dirs_chapter.get(layer_type, chapter_dir)
         png_path = os.path.join(target_dir, f"{safe_name}.png")
 
         try:
@@ -195,11 +262,13 @@ def main():
         process_layer(layer)
 
     # 输出 JSON
-    json_path = os.path.join(output_dir, "import_result.json")
+    json_path = os.path.join(json_dir, "import_result.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print(f"\nDone! Exported to: {output_dir}")
+    print(f"\nDone!")
+    print(f"Chapter dir: {chapter_dir}")
+    print(f"Shared dir: {shared_dir}")
     print(f"Background: {result['backgroundName']}")
     print(f"Objects: {len(result['objects'])}")
     print(f"JSON: {json_path}")

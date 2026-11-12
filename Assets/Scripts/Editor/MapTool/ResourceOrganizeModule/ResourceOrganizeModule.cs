@@ -601,6 +601,55 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         }
 
         /// <summary>
+        /// 自动保存到 Excel（添加模板后调用，不弹确认框）
+        /// </summary>
+        private void SaveToExcel()
+        {
+            // 刷新列表显示
+            RefreshConfigList();
+
+            var allTemplates = ObjectTemplateManager.Instance.GetAllTemplates();
+
+            // 按类型分组，分别写入对应的 Excel 文件
+            var buildingTemplates = allTemplates.Where(t => t.Type == MapObjectType.Building).ToList();
+            var characterTemplates = allTemplates.Where(t => t.Type == MapObjectType.Character).ToList();
+            var propTemplates = allTemplates.Where(t => t.Type == MapObjectType.Prop).ToList();
+            var catTemplates = allTemplates.Where(t => t.Type == MapObjectType.Cat).ToList();
+
+            string projectRoot = System.IO.Path.GetDirectoryName(Application.dataPath);
+
+            // 写入 Building 配置表
+            if (buildingTemplates.Count > 0)
+            {
+                string path = System.IO.Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir, MapToolConstants.TableBuildingFileName);
+                TemplateConfigWriter.WriteToExcel(path, buildingTemplates);
+            }
+
+            // 写入 Character 配置表
+            if (characterTemplates.Count > 0)
+            {
+                string path = System.IO.Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir, MapToolConstants.TableCharacterFileName);
+                TemplateConfigWriter.WriteToExcel(path, characterTemplates);
+            }
+
+            // 写入 Prop 配置表
+            if (propTemplates.Count > 0)
+            {
+                string path = System.IO.Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir, MapToolConstants.TablePropFileName);
+                TemplateConfigWriter.WriteToExcel(path, propTemplates);
+            }
+
+            // 写入 Cat 配置表
+            if (catTemplates.Count > 0)
+            {
+                string path = System.IO.Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir, MapToolConstants.TableCatFileName);
+                TemplateConfigWriter.WriteToExcel(path, catTemplates);
+            }
+
+            Debug.Log($"[ResourceOrganize] 自动保存成功，共写入 Building:{buildingTemplates.Count}, Character:{characterTemplates.Count}, Prop:{propTemplates.Count}, Cat:{catTemplates.Count}");
+        }
+
+        /// <summary>
         /// 把模板对应的图片复制到 Map/{类型}/ 分类文件夹下
         /// </summary>
         /// <returns>是否执行了复制（false 表示已在目标位置或找不到图片）</returns>
@@ -960,7 +1009,10 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 };
                 ObjectTemplateManager.Instance.AddTemplate(template);
 
-                Debug.Log($"[ResourceOrganize] 已添加: ID={templateId}, 名称={templateName}（图片将在保存时整理）");
+                Debug.Log($"[ResourceOrganize] 已添加: ID={templateId}, 名称={templateName}");
+
+                // 添加后自动保存到 Excel
+                SaveToExcel();
             }
 
             // 重新扫描并刷新列表

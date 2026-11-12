@@ -28,6 +28,12 @@ namespace Honor.Editor.MapTool
     /// </summary>
     public partial class SceneEditModule
     {
+        /// <summary>当前选中的章节ID（供PSD导入模块等外部模块读取）</summary>
+        public string CurrentChapterId => m_CurrentChapterId;
+
+        /// <summary>当前选中的关卡ID（供PSD导入模块等外部模块读取）</summary>
+        public string CurrentLevelId => m_CurrentLevelId;
+
         /// <summary>
         /// 初始化模块
         /// </summary>
@@ -500,6 +506,71 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 按图片名在 Map 资源目录下查找对应的 PNG 文件
+        /// 查找顺序：Shared/{类型}/ → Chapter{id}/{类型}/
+        /// </summary>
+        /// <param name="imageName">图片文件名（不含扩展名）</param>
+        /// <param name="type">物体类型</param>
+        /// <returns>Assets 相对路径，未找到返回 null</returns>
+        private string FindMapTextureByName(string imageName, MapObjectType type)
+        {
+            if (string.IsNullOrEmpty(imageName)) return null;
+
+            string mapRoot = "Assets/Res/Textures/Map";
+
+            // 类型 → 子目录名映射
+            string typeDir = type switch
+            {
+                MapObjectType.Building => "Building",
+                MapObjectType.Character => "Character",
+                MapObjectType.Prop => "Prop",
+                MapObjectType.Cat => "Cat",
+                _ => "Prop"
+            };
+
+            // 第1级：查找 Shared 全局共享层
+            string sharedPath = $"{mapRoot}/Shared/{typeDir}/{imageName}.png";
+            if (UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(sharedPath) != null)
+            {
+                return sharedPath;
+            }
+
+            // 第2级：查找当前章节层
+            if (!string.IsNullOrEmpty(m_CurrentChapterId))
+            {
+                string chapterPath = $"{mapRoot}/Chapter{m_CurrentChapterId}/{typeDir}/{imageName}.png";
+                if (UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(chapterPath) != null)
+                {
+                    return chapterPath;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 自动从当前章节 Background 目录查找背景图（bg_*.png）
+        /// </summary>
+        /// <returns>Assets 相对路径，未找到返回 null</returns>
+        private string FindBackgroundImageByChapter()
+        {
+            if (string.IsNullOrEmpty(m_CurrentChapterId)) return null;
+
+            string bgDir = $"Assets/Res/Textures/Map/Chapter{m_CurrentChapterId}/Background";
+            string fullPath = Path.GetFullPath(bgDir);
+
+            if (!Directory.Exists(fullPath)) return null;
+
+            // 查找 bg_*.png 开头的文件
+            string[] bgFiles = Directory.GetFiles(fullPath, "bg_*.png");
+            if (bgFiles.Length == 0) return null;
+
+            // 取第一个（或者按编号排序取第一个）
+            string firstFile = bgFiles[0];
+            return firstFile.Replace('\\', '/');
+        }
+
+        /// <summary>
         /// 将编辑器中的摆放物同步到场景 ZoneItem 下
         /// </summary>
         /// <param name="zoneRoot">ZoneRoot 节点</param>
@@ -543,8 +614,93 @@ namespace Honor.Editor.MapTool
 
             float gridSize = MapToolConstants.GridSize;
 
+            // 加载模板预制体（按类型）
+            var buildingTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/Model/Building_BaseTemplate.prefab");
+            var characterTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/Model/Character_BaseTemplate.prefab");
+            var propTemplate = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Res/Prefabs/Model/Prop_BaseTemplate.prefab");
+
+            Debug.Log($"[SyncPlacedObjects] 模板加载: Building={buildingTemplate != null}, Character={characterTemplate != null}, Prop={propTemplate != null}");
+
             // 找到各个层级节点
             Transform coordAdapter = FindChildRecursive(zoneItem, "CoordAdapter");
+
+            // 设置背景图到 Background 节点下的 BG 子节点
+            if (coordAdapter != null)
+            {
+                var backgroundNode = FindChildRecursive(coordAdapter, "Background");
+                if (backgroundNode != null)
+                {
+                    // 查找 BG 子节点，没有就创建
+                    var bgNode = FindChildRecursive(backgroundNode, "BG");
+                    if (bgNode == null)
+                    {
+                        bgNode = new GameObject("BG", typeof(RectTransform), typeof(UnityEngine.UI.Image)).transform;
+                        bgNode.SetParent(backgroundNode, false);
+                        var bgRt = bgNode as RectTransform;
+                        bgRt.anchorMin = Vector2.zero;
+                        bgRt.anchorMax = Vector2.one;
+                        bgRt.offsetMin = Vector2.zero;
+                        bgRt.offsetMax = Vector2.zero;
+                    }
+
+                    var bgImage = bgNode.GetComponent<UnityEngine.UI.Image>();
+                    if (bgImage == null) bgImage = bgNode.gameObject.AddComponent<UnityEngine.UI.Image>();
+
+                    bool bgLoaded = false;
+
+                    // 第1级：从 m_LevelBgDict 取 PSD 导入时记录的路径
+                    if (m_LevelBgDict.TryGetValue(m_CurrentLevelId, out string bgPath) && !string.IsNullOrEmpty(bgPath))
+                    {
+                        var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(bgPath);
+                        if (sprite != null)
+                        {
+                            bgImage.sprite = sprite;
+                            bgImage.color = Color.white;
+                            bgLoaded = true;
+                            Debug.Log($"[SyncPlacedObjects] 背景图设置成功: {bgPath}");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[SyncPlacedObjects] 背景图路径无效，尝试自动查找: {bgPath}");
+                        }
+                    }
+
+                    // 第2级：自动从当前章节 Background 目录查找 bg_*.png
+                    if (!bgLoaded)
+                    {
+                        string foundBg = FindBackgroundImageByChapter();
+                        if (!string.IsNullOrEmpty(foundBg))
+                        {
+                            var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(foundBg);
+                            if (sprite != null)
+                            {
+                                bgImage.sprite = sprite;
+                                bgImage.color = Color.white;
+                                bgLoaded = true;
+                                Debug.Log($"[SyncPlacedObjects] 自动查找背景图成功: {foundBg}");
+                            }
+                            else
+                            {
+                                // 不是 Sprite 类型，用 Texture2D 创建 Sprite
+                                var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(foundBg);
+                                if (tex != null)
+                                {
+                                    var bgSprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, tex.width, tex.height), new UnityEngine.Vector2(0.5f, 0.5f));
+                                    bgImage.sprite = bgSprite;
+                                    bgImage.color = Color.white;
+                                    bgLoaded = true;
+                                    Debug.Log($"[SyncPlacedObjects] 自动查找背景图(Texture2D模式): {foundBg}");
+                                }
+                            }
+                        }
+                    }
+
+                    if (!bgLoaded)
+                    {
+                        Debug.LogWarning($"[SyncPlacedObjects] 未找到背景图（章节: {m_CurrentChapterId}），BG 节点已创建但图片为空");
+                    }
+                }
+            }
 
             // 给层级节点设置正确的尺寸和坐标系（铺满整个地图，左上角原点）
             if (coordAdapter != null)
@@ -595,29 +751,68 @@ namespace Honor.Editor.MapTool
                 return node != null ? node : zoneItem;
             }
 
+            // 按类型获取 SortOrder（7层结构：每层间隔10）
+            int GetSortOrderByType(MapObjectType type)
+            {
+                return type switch
+                {
+                    MapObjectType.Building => 10,
+                    MapObjectType.Prop => 20,
+                    MapObjectType.Character => 30,
+                    MapObjectType.Cat => 40,
+                    _ => 20
+                };
+            }
+
             foreach (var obj in m_PlacedObjects)
             {
-                var go = new GameObject();
+                // 按类型选择模板预制体
+                GameObject templatePrefab = obj.Type switch
+                {
+                    MapObjectType.Building => buildingTemplate,
+                    MapObjectType.Character => characterTemplate,
+                    MapObjectType.Prop => propTemplate,
+                    MapObjectType.Cat => propTemplate,
+                    _ => propTemplate
+                };
+
+                GameObject go;
                 var parentNode = GetParentNode(obj.Type);
-                go.transform.SetParent(parentNode, false);
+
+                if (templatePrefab != null)
+                {
+                    // 实例化模板预制体
+                    go = UnityEngine.Object.Instantiate(templatePrefab);
+                    go.transform.SetParent(parentNode, false);
+                }
+                else
+                {
+                    // 模板不存在时，回退到创建空物体 + SpriteRenderer
+                    go = new GameObject();
+                    go.transform.SetParent(parentNode, false);
+                    go.AddComponent<SpriteRenderer>();
+                }
+
                 go.name = obj.Type == MapObjectType.Character ? $"Char_{obj.Name}" : $"Obj_{obj.Name}";
 
-                var rt = go.AddComponent<RectTransform>();
-                // 左上角坐标系（和编辑器完全一致）
-                // anchorMin = (0,1) 锚定在父节点左上角
-                // pivot = (0,1) 自身左上角
+                // 设置位置（RectTransform 坐标系：左上角原点，Y 向下）
+                var rt = go.GetComponent<RectTransform>();
+                if (rt == null) rt = go.AddComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0, 1);
                 rt.pivot = new Vector2(0, 1);
-                rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y); // Y 向上为正，所以取反
+                rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y);
                 rt.sizeDelta = new Vector2(obj.Width * gridSize, obj.Height * gridSize);
 
                 // 如果有 Spine 资源，就用 Spine 动画；否则用静态图片
                 if (!string.IsNullOrEmpty(obj.SpineAssetPath))
                 {
-                    // 加载 Spine SkeletonDataAsset
                     var spineAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(obj.SpineAssetPath);
                     if (spineAsset != null)
                     {
+                        // 移除模板上的 SpriteRenderer（如果有）
+                        var existingSr = go.GetComponent<SpriteRenderer>();
+                        if (existingSr != null) UnityEngine.Object.DestroyImmediate(existingSr);
+
                         var skeletonAnimation = go.AddComponent<Spine.Unity.SkeletonAnimation>();
                         skeletonAnimation.skeletonDataAsset = spineAsset;
                         skeletonAnimation.Initialize(false);
@@ -626,17 +821,95 @@ namespace Honor.Editor.MapTool
                     }
                     else
                     {
-                        // 加载失败，退回静态图片
-                        var rawImg = go.AddComponent<UnityEngine.UI.RawImage>();
-                        rawImg.texture = obj.PreviewTexture as Texture2D;
-                        rawImg.color = Color.white;
+                        // 加载失败，设置静态 Sprite（从模板获取 ImagePath）
+                        var sr = go.GetComponent<SpriteRenderer>();
+                        if (sr == null) sr = go.AddComponent<SpriteRenderer>();
+                        var template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
+                        if (template != null && !string.IsNullOrEmpty(template.ImagePath))
+                        {
+                            sr.sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(template.ImagePath);
+                        }
+                        sr.color = Color.white;
                     }
                 }
                 else
                 {
-                    var rawImg = go.AddComponent<UnityEngine.UI.RawImage>();
-                    rawImg.texture = obj.PreviewTexture as Texture2D;
-                    rawImg.color = Color.white; // 白色，不 tint，直接显示原图颜色
+                    // 静态图片：使用 Image 组件（UI 模式）
+                    var img = go.GetComponent<UnityEngine.UI.Image>();
+                    if (img == null) img = go.AddComponent<UnityEngine.UI.Image>();
+                    img.raycastTarget = false;
+
+                    bool spriteLoaded = false;
+
+                    // 第1级：优先从配置表模板加载 Sprite
+                    var template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
+                    if (template != null && !string.IsNullOrEmpty(template.ImagePath))
+                    {
+                        var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(template.ImagePath);
+                        if (sprite != null)
+                        {
+                            img.sprite = sprite;
+                            spriteLoaded = true;
+                            Debug.Log($"[SyncPlacedObjects] 从模板加载 Sprite 成功: {obj.Name}, 路径: {template.ImagePath}");
+                        }
+                    }
+
+                    // 第2级：从 PreviewTexture 反查资产路径
+                    if (!spriteLoaded && obj.PreviewTexture != null)
+                    {
+                        string assetPath = UnityEditor.AssetDatabase.GetAssetPath(obj.PreviewTexture);
+                        if (!string.IsNullOrEmpty(assetPath))
+                        {
+                            var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(assetPath);
+                            if (sprite == null)
+                            {
+                                var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(assetPath);
+                                if (tex != null)
+                                {
+                                    sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, tex.width, tex.height), new UnityEngine.Vector2(0.5f, 0.5f));
+                                }
+                            }
+
+                            if (sprite != null)
+                            {
+                                img.sprite = sprite;
+                                spriteLoaded = true;
+                            }
+                        }
+                    }
+
+                    // 第3级：按图片名在 Map 目录下查找（Shared → Chapter）
+                    // 解决 PSD导入后资源还未添加到配置表的情况
+                    if (!spriteLoaded)
+                    {
+                        string foundPath = FindMapTextureByName(obj.Name, obj.Type);
+                        if (!string.IsNullOrEmpty(foundPath))
+                        {
+                            var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(foundPath);
+                            if (sprite == null)
+                            {
+                                var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(foundPath);
+                                if (tex != null)
+                                {
+                                    sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, tex.width, tex.height), new UnityEngine.Vector2(0.5f, 0.5f));
+                                }
+                            }
+                            if (sprite != null)
+                            {
+                                img.sprite = sprite;
+                                spriteLoaded = true;
+                                Debug.Log($"[SyncPlacedObjects] 按文件名查找 Sprite 成功: {obj.Name}, 路径: {foundPath}");
+                            }
+                        }
+                    }
+
+                    if (!spriteLoaded)
+                    {
+                        Debug.LogWarning($"[SyncPlacedObjects] 无法加载图片: {obj.Name} (类型: {obj.Type})");
+                    }
+
+                    img.color = Color.white;
+                    img.SetNativeSize();
                 }
             }
             // 调整层级节点顺序：Background（最底层） → Buildings → Props → Characters → Cats → Effects → Bubbles（最上层）

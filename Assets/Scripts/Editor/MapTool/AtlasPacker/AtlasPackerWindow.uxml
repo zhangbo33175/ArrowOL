@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements"
+         xmlns:x="http://schemas.unity3d.com/uilayout/2020">
+
+    <ui:VisualElement name="root" class="root-container">
+
+        <!-- 工具栏 -->
+        <ui:VisualElement name="toolbar" class="toolbar">
+            <ui:Button name="btnNew" text="New" class="toolbar-button" />
+            <ui:Button name="btnOpen" text="Open" class="toolbar-button" />
+            <ui:Button name="btnSave" text="Save" class="toolbar-button" />
+            <ui:Button name="btnSaveDefaults" text="Save defaults" class="toolbar-button" />
+            <ui:VisualElement class="toolbar-separator" />
+            <ui:Button name="btnAddSprites" text="Add Sprites" class="toolbar-button" />
+            <ui:Button name="btnAddFolder" text="Add Folder" class="toolbar-button" />
+            <ui:Button name="btnDelete" text="Delete" class="toolbar-button" />
+            <ui:VisualElement class="toolbar-separator" />
+            <ui:Button name="btnPublish" text="Publish" class="toolbar-button" />
+            <ui:Button name="btnPvr" text="PVR Viewer" class="toolbar-button" />
+        </ui:VisualElement>
+
+        <!-- 主容器（三栏） -->
+        <ui:VisualElement name="main-container" class="main-container">
+
+            <!-- 左侧设置面板 -->
+            <ui:VisualElement name="left-panel" class="left-panel">
+                <ui:Label text="TextureSettings" class="panel-title" />
+                <ui:ScrollView name="left-scroll" class="left-scroll">
+
+                    <!-- Output -->
+                    <ui:Foldout name="foldoutOutput" text="Output" value="true" class="section-foldout">
+                        <ui:VisualElement class="settings-group">
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Data Format" class="setting-label" />
+                                <ui:DropdownField name="popupDataFormat" choices="Unity3D,cocos2d,cocos2d-iphone,plist,json,xml,css,starling" value="Unity3D" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Data filename" class="setting-label" />
+                                <ui:VisualElement class="filename-row">
+                                    <ui:TextField name="txtDataFilename" value="NewAtlas.txt" class="setting-textfield" />
+                                    <ui:Button name="btnDataBrowse" text="..." class="browse-button" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Texture format" class="setting-label" />
+                                <ui:DropdownField name="popupTextureFormat" choices="PNG (.png),JPG (.jpg)" value="PNG (.png)" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Texture file" class="setting-label" />
+                                <ui:VisualElement class="filename-row">
+                                    <ui:TextField name="txtTextureFile" value="NewAtlasTex.png" class="setting-textfield" />
+                                    <ui:Button name="btnTexBrowse" text="..." class="browse-button" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Png Opt Level" class="setting-label" />
+                                <ui:VisualElement class="slider-row">
+                                    <ui:Slider name="sliderPngOpt" lowValue="0" highValue="9" value="3" class="setting-slider" />
+                                    <ui:Label name="lblPngOpt" text="none" class="slider-value-label" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="DPI" class="setting-label" />
+                                <editor:IntegerField name="intDpi" value="72" class="setting-int" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Premultiply alpha" class="setting-label" />
+                                <ui:Toggle name="togglePremultiply" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Image format" class="setting-label" />
+                                <ui:DropdownField name="popupImageFormat" choices="RGBA8888,RGBA4444,RGB888,RGB565" value="RGBA8888" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Dithering" class="setting-label" />
+                                <ui:DropdownField name="popupDithering" choices="NearestNeighbour,Bilinear" value="NearestNeighbour" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="AutoSD" class="setting-label" />
+                                <ui:Button text="⚙" class="icon-button" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Content protection" class="setting-label" />
+                                <ui:Button text="🔒" class="icon-button" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:Foldout>
+
+                    <!-- Geometry -->
+                    <ui:Foldout name="foldoutGeometry" text="Geometry" value="true" class="section-foldout">
+                        <ui:VisualElement class="settings-group">
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Max size W:" class="setting-label" />
+                                <ui:VisualElement class="setting-value-pair">
+                                    <ui:DropdownField name="popupMaxWidth" choices="64,128,256,512,1024,2048,4096,8192" value="2048" class="setting-dropdown" />
+                                    <ui:Label text="H:" class="pair-label" />
+                                    <ui:DropdownField name="popupMaxHeight" choices="64,128,256,512,1024,2048,4096,8192" value="2048" class="setting-dropdown" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Fixed size W:" class="setting-label" />
+                                <ui:VisualElement class="setting-value-pair">
+                                    <ui:DropdownField name="popupFixedWidth" choices="0,32,64,128,256,512,1024,2048" value="0" class="setting-dropdown" />
+                                    <ui:Label text="H:" class="pair-label" />
+                                    <ui:DropdownField name="popupFixedHeight" choices="0,32,64,128,256,512,1024,2048" value="0" class="setting-dropdown" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Size constraints" class="setting-label" />
+                                <ui:DropdownField name="popupSizeConstraints" choices="POT (Power of 2),NPOT" value="POT (Power of 2)" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Force squared" class="setting-label" />
+                                <ui:Toggle name="toggleForceSquare" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Force word aligned" class="setting-label" />
+                                <ui:Toggle name="toggleForceWord" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Scale" class="setting-label" />
+                                <editor:FloatField name="floatScale" value="1" class="setting-float" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Scale mode" class="setting-label" />
+                                <ui:DropdownField name="popupScaleMode" choices="Smooth,Nearest" value="Smooth" class="setting-popup" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:Foldout>
+
+                    <!-- Layout -->
+                    <ui:Foldout name="foldoutLayout" text="Layout" value="true" class="section-foldout">
+                        <ui:VisualElement class="settings-group">
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Algorithm" class="setting-label" />
+                                <ui:DropdownField name="popupAlgorithm" choices="MaxRects,Basic" value="MaxRects" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Heuristics" class="setting-label" />
+                                <ui:DropdownField name="popupHeuristics" choices="Best,ShortSide,LongSide,MinWidth,MinArea,MaxAspect" value="Best" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Pack" class="setting-label" />
+                                <ui:DropdownField name="popupPack" choices="Best,Width,Height" value="Best" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Multipack" class="setting-label" />
+                                <ui:Toggle name="toggleMultipack" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Border padding" class="setting-label" />
+                                <editor:IntegerField name="intBorderPadding" value="2" class="setting-int" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Shape padding" class="setting-label" />
+                                <editor:IntegerField name="intShapePadding" value="2" class="setting-int" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Inner padding" class="setting-label" />
+                                <editor:IntegerField name="intInnerPadding" value="0" class="setting-int" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Extrude" class="setting-label" />
+                                <editor:IntegerField name="intExtrude" value="0" class="setting-int" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Common divisor" class="setting-label" />
+                                <ui:VisualElement class="setting-value-pair">
+                                    <editor:IntegerField name="intDivisorX" value="1" class="setting-int-small" />
+                                    <ui:Label text="y" class="pair-label" />
+                                    <editor:IntegerField name="intDivisorY" value="1" class="setting-int-small" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Reduce border artifacts" class="setting-label" />
+                                <ui:Toggle name="toggleReduceBorder" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Allow rotation" class="setting-label" />
+                                <ui:Toggle name="toggleAllowRotation" value="true" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Trim mode" class="setting-label" />
+                                <ui:DropdownField name="popupTrimMode" choices="None,Trim,Crop" value="Trim" class="setting-popup" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Trim / Crop threshold" class="setting-label" />
+                                <editor:IntegerField name="intTrimThreshold" value="1" class="setting-int" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Shape outlines" class="setting-label" />
+                                <ui:Toggle name="toggleShapeOutlines" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Enable auto alias" class="setting-label" />
+                                <ui:Toggle name="toggleAutoAlias" value="true" class="setting-toggle" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Heuristic mask" class="setting-label" />
+                                <ui:Toggle name="toggleHeuristicMask" class="setting-toggle" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:Foldout>
+
+                    <!-- Advanced -->
+                    <ui:Foldout name="foldoutAdvanced" text="Advanced" value="false" class="section-foldout">
+                        <ui:VisualElement class="settings-group">
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Texture path" class="setting-label" />
+                                <ui:TextField name="txtTexturePath" class="setting-textfield" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="setting-row">
+                                <ui:Label text="Trim sprite names" class="setting-label" />
+                                <ui:Toggle name="toggleTrimNames" class="setting-toggle" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:Foldout>
+
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <!-- 中间预览区 -->
+            <ui:VisualElement name="center-panel" class="center-panel">
+                <ui:ScrollView name="preview-scroll" class="preview-scroll">
+                    <ui:VisualElement name="preview-area" class="preview-area">
+                        <ui:VisualElement name="preview-image-container" class="preview-image-container" visible="false">
+                            <ui:Image name="imgPreview" class="preview-image" />
+                        </ui:VisualElement>
+                        <ui:Label name="lblPreviewEmpty" text="Add sprites via Add Sprites or Add Folder" class="preview-empty-label" />
+                    </ui:VisualElement>
+                </ui:ScrollView>
+
+                <!-- 底部缩放栏 -->
+                <ui:VisualElement name="zoom-bar" class="zoom-bar">
+                    <ui:FloatField name="zoomField" value="1.0" class="zoom-field" />
+                    <ui:Button name="btnZoomReset" text="" class="zoom-btn" />
+                    <ui:Slider name="zoomSlider" lowValue="0.01" highValue="10.0" value="1.0" class="zoom-slider" />
+                    <ui:VisualElement class="zoom-spacer" />
+                    <ui:Button name="btnZoomOut" text="" class="zoom-btn" />
+                    <ui:Button name="btnZoomIn" text="" class="zoom-btn" />
+                    <ui:Button name="btnZoomFit" text="" class="zoom-btn" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <!-- 右侧 Sprites 列表 -->
+            <ui:VisualElement name="right-panel" class="right-panel">
+                <ui:Label text="Sprites" class="panel-title" />
+                <ui:ScrollView name="sprites-scroll" class="sprites-scroll">
+                    <ui:VisualElement name="sprites-list" class="sprites-list">
+                    </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:VisualElement name="sprites-status" class="sprites-status">
+                    <ui:Label name="lblSpriteCount" text="0 sprites" class="status-label" />
+                    <ui:Label name="lblAtlasSize" text="" class="status-label" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>
