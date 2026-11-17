@@ -21,7 +21,8 @@ namespace Honor.Editor.MapTool.AtlasPacker
     /// 图集 PNG 优化编码器。
     /// 仅在 Editor 导出链路使用，不进入运行时包。
     /// 输出 8-bit / RGBA / 非交错 PNG，IDAT 采用 level 9 zlib 包装流，
-    /// 每行在 5 种 PNG 滤镜中按残差绝对值和选最优，降低导出体积。
+    /// 每行在 5 种 PNG 滤镜中按残差绝对值和选最优；deflate 策略在
+    /// Default / Filtered 之间择优取较小输出，进一步降低导出体积。
     /// </summary>
     internal static class PngAtlasEncoder
     {
@@ -63,7 +64,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
             byte[] filtered = BuildFilteredStream(rawRows, rowBytes);
 
             // 3. zlib 包装流压缩滤波流（PNG IDAT 格式）。
-            byte[] idat = DeflateZlib(filtered, CompressionLevel);
+            //    同一滤波流分别用 Default / Filtered 策略压缩，取较小输出；
+            //    两种策略均为无损，Filtered 更贴合 PNG 滤波残差（小重复值），
+            //    对高熵数据回退 Default，保证不劣化。
+            byte[] idatDefault = DeflateZlib(filtered, CompressionLevel, DeflateStrategy.Default);
+            byte[] idatFiltered = DeflateZlib(filtered, CompressionLevel, DeflateStrategy.Filtered);
+            byte[] idat = idatFiltered.Length < idatDefault.Length ? idatFiltered : idatDefault;
 
             // 4. 组装 PNG：签名 + IHDR + IDAT + IEND。
             using (var ms = new MemoryStream())
@@ -188,10 +194,14 @@ namespace Honor.Editor.MapTool.AtlasPacker
         }
 
         /// <summary>用 SharpZipLib 输出 zlib 包装流（含 zlib 头与 Adler32 尾），匹配 PNG IDAT。</summary>
-        private static byte[] DeflateZlib(byte[] data, int level)
+        /// <param name="data">待压缩滤波流。</param>
+        /// <param name="level">deflate 级别（0..9）。</param>
+        /// <param name="strategy">deflate 策略（Default / Filtered）。</param>
+        private static byte[] DeflateZlib(byte[] data, int level, DeflateStrategy strategy)
         {
             // noZlibHeaderOrFooter: false —— PNG IDAT 是 RFC1950 zlib 流，不是 raw deflate。
             var deflater = new Deflater(level, false);
+            deflater.SetStrategy(strategy);
             deflater.SetInput(data, 0, data.Length);
 
             var buffer = new byte[16384];

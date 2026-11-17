@@ -47,7 +47,7 @@
 ---@field RefreshMapBoundsAndCamera fun(root:UnityEngine.GameObject,zoneH:number,cam:UnityEngine.Camera):void
 
 ---@class GameLib.MapPathMoveUtil @路径移动工具
----@field BuildLocalMoveSeq fun(tr:UnityEngine.Transform,points:table,speed:number):DG.Tweening.Sequence
+---@field BuildLocalMoveSeq fun(tr:UnityEngine.Transform,points:table,speed:number,isLoop:boolean?,label:string?,shouldBlock:fun(toPoint:UnityEngine.Vector3):boolean?):DG.Tweening.Sequence
 ---@field Kill fun(seq:DG.Tweening.Sequence):void
 ---@field ResumePath fun(seq:DG.Tweening.Sequence):void
 
@@ -357,6 +357,9 @@
 ---@field GridSize number
 ---@field GridCols number
 ---@field GridRows number
+---@field BaselineStep number
+---@field DrawShape string @绘制形状 "rect"/"diamond"，默认 "diamond"
+---@field RegionType string @区域类型 "place"/"forbid"/"common"，默认 "place"
 ---@field OccupiedCells table[]
 
 ---@class Tables.Bubble_Item

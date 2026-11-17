@@ -1,0 +1,383 @@
+--=====================================================================================================
+-- (c) copyright 2026 - 2030, Honor.Runtime
+--=====================================================================================================
+-- filename:  TrafficManager.lua
+-- author:    云毅
+-- created:   2026
+-- @brief     交通规则管理器（门面，数据驱动）
+-- @desc      从地图 Traffic 子表加载红绿灯 / 横道 / 人行道格 / 车道格，运行时维护相位时钟并对外提供
+--            行人可走判定、横道放行判定、载具让行判定。规则全部来自地图配置，C# 层不写交通规则；
+--            本类只做"数据装载 + 相位计算 + 判定查询"，不直接驱动角色移动，移动侧按查询结果自行等待。
+-- @core      交通子表装载、红绿灯相位时钟、行人/载具规则判定
+-- @scope     GameMain 地图运行时；由地图生成流程在角色生成前后调用 LoadTrafficData，关卡退出调用 Clear
+-- @dependency Tables, PrintInfo, PrintWarning
+--=====================================================================================================
+
+---@class TrafficManager @交通规则管理器（门面）
+---@field _lights table<string,table> 红绿灯表：Uid → 灯配置（RedDuration/GreenDuration/YellowDuration/OffsetPhase/BoundCrosswalkId/...）
+---@field _crosswalks table<string,table> 横道表：Uid → 横道配置（PointA/PointB/Width/Direction/BoundLightId）
+---@field _sidewalkCells table<string,boolean> 人行道格集合："gx,gy" 为键
+---@field _roadCells table<string,boolean> 车道格集合："gx,gy" 为键
+---@field _elapsed number 本局相位累计秒数（驱动各灯相位循环）
+---@field _loaded boolean 是否已装载有效交通数据
+local TrafficManager = class("TrafficManager")
+
+--region 【构造 & 单例工厂】
+
+---=========================================================================
+---@brief 构造函数（框架驱动，勿删）
+---@type fun():void
+---=========================================================================
+function TrafficManager:ctor()
+    self._lights = {}
+    self._crosswalks = {}
+    self._sidewalkCells = {}
+    self._roadCells = {}
+    self._elapsed = 0
+    self._loaded = false
+end
+
+---=========================================================================
+---@brief 创建实例（框架驱动，勿删）
+---@type fun():TrafficManager
+---@return TrafficManager @交通规则管理器实例
+---=========================================================================
+function TrafficManager:Create()
+    return TrafficManager.new()
+end
+
+--endregion
+
+--region 【数据装载】
+
+---=========================================================================
+---@brief 装载地图交通数据
+---@desc 读取 Traffic 子表（Lights/Crosswalks/SidewalkCells/RoadCells）并建索引；子表缺失时清空为无交通配置的空场景，不阻断生成链。
+---@type fun(mapSectionData:table):void
+---@param mapSectionData table @分区主表数据（含 Meta.ChapterId/LevelId 与 SubTables.Traffic）
+---=========================================================================
+function TrafficManager:LoadTrafficData(mapSectionData)
+    self:Clear()
+    local traffic = self:_ResolveTrafficTable(mapSectionData)
+    if type(traffic) ~= "table" then
+        PrintInfo("[Traffic] 无交通子表，按无交通场景处理")
+        return
+    end
+
+    ---@type table 红绿灯索引
+    if type(traffic.Lights) == "table" then
+        for _, light in ipairs(traffic.Lights) do
+            if light and light.Uid then
+                self._lights[light.Uid] = light
+            end
+        end
+    end
+
+    ---@type table 横道索引
+    if type(traffic.Crosswalks) == "table" then
+        for _, crosswalk in ipairs(traffic.Crosswalks) do
+            if crosswalk and crosswalk.Uid then
+                self._crosswalks[crosswalk.Uid] = crosswalk
+            end
+        end
+    end
+
+    self:_FillCellSet(self._sidewalkCells, traffic.SidewalkCells)
+    self:_FillCellSet(self._roadCells, traffic.RoadCells)
+    self._loaded = true
+    PrintInfo(string.format("[Traffic] 装载完成: 灯=%d 横道=%d 人行道格=%d 车道格=%d",
+        self:_CountKeys(self._lights), self:_CountKeys(self._crosswalks),
+        self:_CountKeys(self._sidewalkCells), self:_CountKeys(self._roadCells)))
+end
+
+---=========================================================================
+---@brief 统计表键数量
+---@type fun(tbl:table):number
+---@param tbl table @待统计表
+---@return number @键数量
+---=========================================================================
+function TrafficManager:_CountKeys(tbl)
+    local n = 0
+    for _ in pairs(tbl) do
+        n = n + 1
+    end
+    return n
+end
+
+---=========================================================================
+---@brief 解析 Traffic 子表
+---@desc 与角色/路径子表同一约定：SubTables.Traffic 为 require 路径，表名 = 主表名 + "_Traffic"；
+---      require 失败或表为空时返回 nil，调用方按无交通场景兜底。
+---@type fun(mapData:table):table|nil
+---@param mapData table @分区主表数据
+---@return table|nil @交通子表
+---=========================================================================
+function TrafficManager:_ResolveTrafficTable(mapData)
+    if type(mapData) ~= "table" then
+        return nil
+    end
+
+    local mainTableName = "LevelData"
+    if type(mapData.Meta) == "table" and mapData.Meta.ChapterId and mapData.Meta.LevelId then
+        mainTableName = "LevelData_" .. tostring(mapData.Meta.ChapterId) .. "_" .. tostring(mapData.Meta.LevelId)
+    end
+
+    local subPath = nil
+    if type(mapData.SubTables) == "table" then
+        subPath = mapData.SubTables.Traffic
+    end
+    if not subPath then
+        return nil
+    end
+
+    local ok, err = pcall(require, subPath)
+    if not ok then
+        PrintWarning("[Traffic] 交通子表 require 失败: " .. tostring(subPath) .. " 错误: " .. tostring(err))
+        return nil
+    end
+
+    local tableName = mainTableName .. "_Traffic"
+    local data = Tables[tableName]
+    if type(data) ~= "table" then
+        PrintWarning("[Traffic] 交通子表为空: Tables." .. tableName)
+        return nil
+    end
+    return data
+end
+
+---=========================================================================
+---@brief 把纯数组格子 {gx, gy} 填入键集合
+---@type fun(cellSet:table, cells:table|nil):void
+---@param cellSet table @目标集合（"gx,gy" → true）
+---@param cells table|nil @格子纯数组
+---=========================================================================
+function TrafficManager:_FillCellSet(cellSet, cells)
+    if type(cells) ~= "table" then
+        return
+    end
+    for _, cell in ipairs(cells) do
+        if type(cell) == "table" then
+            local gx = tonumber(cell[1] or cell.gx)
+            local gy = tonumber(cell[2] or cell.gy)
+            if gx ~= nil and gy ~= nil then
+                cellSet[self:_CellKey(gx, gy)] = true
+            end
+        end
+    end
+end
+
+---=========================================================================
+---@brief 生成格子键
+---@type fun(gx:number,gy:number):string
+---@param gx number @格子列
+---@param gy number @格子行
+---@return string @"gx,gy" 键
+---=========================================================================
+function TrafficManager:_CellKey(gx, gy)
+    return tostring(gx) .. "," .. tostring(gy)
+end
+
+--endregion
+
+--region 【相位时钟】
+
+---=========================================================================
+---@brief 时钟推进
+---@desc 由玩法更新循环驱动；相位为无状态实时计算（按 elapsed 取模周期），这里只累计本局秒数。
+---@type fun(dt:number?):void
+---@param dt number? @帧间隔秒；缺省取 UnityEngine.Time.deltaTime
+---=========================================================================
+function TrafficManager:Update(dt)
+    if not self._loaded then
+        return
+    end
+    dt = tonumber(dt)
+    if dt == nil then
+        dt = UnityEngine.Time.deltaTime
+    end
+    self._elapsed = self._elapsed + (dt or 0)
+end
+
+---=========================================================================
+---@brief 查询指定灯当前相位
+---@desc 周期顺序 red → green → yellow；OffsetPhase 作为周期起始偏移参与取模。
+---      行人侧只消费 red/green，yellow 透传给载具按兜底规则处理。灯不存在时默认 green 放行（兼容无灯场景）。
+---@type fun(lightId:string):string
+---@param lightId string @灯 Uid
+---@return string @"red" | "green" | "yellow"
+---=========================================================================
+function TrafficManager:GetLightPhase(lightId)
+    local light = self._lights[lightId]
+    if not light then
+        return "green"
+    end
+
+    local red = tonumber(light.RedDuration) or 5
+    local green = tonumber(light.GreenDuration) or 5
+    local yellow = tonumber(light.YellowDuration) or 0
+    local cycle = red + green + yellow
+    if cycle <= 0 then
+        return tostring(light.InitialPhase or "red")
+    end
+
+    local offset = tonumber(light.OffsetPhase) or 0
+    local t = (self._elapsed + offset) % cycle
+    if t < red then
+        return "red"
+    elseif t < red + green then
+        return "green"
+    end
+    return "yellow"
+end
+
+--endregion
+
+--region 【查询接口】
+
+---=========================================================================
+---@brief 取灯配置
+---@type fun(lightId:string):table|nil
+---@param lightId string @灯 Uid
+---@return table|nil @灯配置
+---=========================================================================
+function TrafficManager:GetLight(lightId)
+    return self._lights[lightId]
+end
+
+---=========================================================================
+---@brief 取横道配置
+---@type fun(crosswalkId:string):table|nil
+---@param crosswalkId string @横道 Uid
+---@return table|nil @横道配置
+---=========================================================================
+function TrafficManager:GetCrosswalk(crosswalkId)
+    return self._crosswalks[crosswalkId]
+end
+
+---=========================================================================
+---@brief 判断格子是否为人行道
+---@type fun(gx:number,gy:number):boolean
+---@param gx number @格子列
+---@param gy number @格子行
+---@return boolean @是否人行道格
+---=========================================================================
+function TrafficManager:IsSidewalkCell(gx, gy)
+    return self._sidewalkCells[self:_CellKey(gx, gy)] == true
+end
+
+---=========================================================================
+---@brief 判断格子是否为车道
+---@type fun(gx:number,gy:number):boolean
+---@param gx number @格子列
+---@param gy number @格子行
+---@return boolean @是否车道格
+---=========================================================================
+function TrafficManager:IsRoadCell(gx, gy)
+    return self._roadCells[self:_CellKey(gx, gy)] == true
+end
+
+---=========================================================================
+---@brief 行人是否可进入该格子
+---@desc 行人只允许活动在人行道格；横道穿越由 CanCrossCrosswalk 按绑定灯相位单独判定。
+---      未装载交通数据时不限制（兼容旧地图）。
+---@type fun(gx:number,gy:number):boolean
+---@param gx number @格子列
+---@param gy number @格子行
+---@return boolean @是否允许行人进入
+---=========================================================================
+function TrafficManager:CanPedestrianEnterCell(gx, gy)
+    if not self._loaded then
+        return true
+    end
+    return self:IsSidewalkCell(gx, gy)
+end
+
+---=========================================================================
+---@brief 横道是否放行行人
+---@desc 横道绑定的灯处于绿灯时允许过街；红灯/黄灯禁止进入横道。横道未绑定灯时默认放行（兼容旧配置）。
+---@type fun(crosswalkId:string):boolean
+---@param crosswalkId string @横道 Uid
+---@return boolean @是否允许过街
+---=========================================================================
+function TrafficManager:CanCrossCrosswalk(crosswalkId)
+    if not self._loaded then
+        return true
+    end
+    local crosswalk = self._crosswalks[crosswalkId]
+    if not crosswalk or not crosswalk.BoundLightId then
+        return true
+    end
+    return self:GetLightPhase(crosswalk.BoundLightId) == "green"
+end
+
+---=========================================================================
+---@brief 载具是否需要在停止线前停车
+---@desc 按绑定灯相位判定：绿灯放行；红灯停车；黄灯按 YellowTreatAsRed 决定停车（默认 true 停车）或仅减速放行。
+---      支持绑定多个灯（BoundLightIds 数组），任一绑定灯需停车即停车；兼容旧单值 BoundLightId。
+---      未绑定灯或未装载交通数据时不停车（兼容旧地图/无车场景）。
+---@type fun(vehicleData:table):boolean
+---@param vehicleData table @载具数据（BoundLightIds / BoundLightId / YellowTreatAsRed）
+---@return boolean @是否需要停车让行
+---=========================================================================
+function TrafficManager:ShouldVehicleStop(vehicleData)
+    if not self._loaded or type(vehicleData) ~= "table" then
+        return false
+    end
+
+    ---绑定灯集合：多选列表优先，旧单值兜底
+    local lightIds = vehicleData.BoundLightIds
+    if (not lightIds or #lightIds == 0) and vehicleData.BoundLightId then
+        lightIds = { vehicleData.BoundLightId }
+    end
+    if not lightIds or #lightIds == 0 then
+        return false
+    end
+
+    local treatAsRed = vehicleData.YellowTreatAsRed
+    if treatAsRed == nil then
+        treatAsRed = true
+    end
+
+    ---单个绑定灯是否要求停车
+    local function LightStops(lightId)
+        local phase = self:GetLightPhase(lightId)
+        if phase == "green" then
+            return false
+        end
+        if phase == "red" then
+            return true
+        end
+        -- 黄灯：treatAsRed 为真（默认）按红灯停车，否则减速继续通行
+        return treatAsRed == true
+    end
+
+    -- 任一绑定灯需停车即停车
+    for i = 1, #lightIds do
+        if LightStops(lightIds[i]) then
+            return true
+        end
+    end
+    return false
+end
+
+--endregion
+
+--region 【清理】
+
+---=========================================================================
+---@brief 清空运行时交通数据
+---@desc 关卡退出 / 重置时调用，等待下次地图生成重新装载。
+---@type fun():void
+---=========================================================================
+function TrafficManager:Clear()
+    self._lights = {}
+    self._crosswalks = {}
+    self._sidewalkCells = {}
+    self._roadCells = {}
+    self._elapsed = 0
+    self._loaded = false
+end
+
+--endregion
+
+return TrafficManager

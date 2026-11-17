@@ -26,6 +26,7 @@ column_mapping = {
     "是否显示阴影": "ShadowEnabled",
     "是否收集物": "IsCollectible",
     "重生时间": "RespawnTime",
+    "交通类别": "TrafficCategory",
 }
 
 files = ["TableBuildings.xlsm", "TableCharacters.xlsm", "TableProps.xlsm", "TableTemplate.xlsm"]

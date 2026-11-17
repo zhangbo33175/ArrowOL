@@ -163,6 +163,10 @@ function GamePlayingState:OnUpdate()
     GameMapMotionManager:OnUpdate()
     -- 相机平滑跟随 + 惯性滑动
     GameMapCameraManager:OnUpdate()
+    ---TODO 交通规则：每帧推进红绿灯相位时钟，供行人横道/载具让行查询
+    if TrafficManager then
+        TrafficManager:Update()
+    end
 end
 
 --endregion

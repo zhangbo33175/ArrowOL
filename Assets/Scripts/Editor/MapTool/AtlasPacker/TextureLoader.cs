@@ -45,7 +45,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 m_Cache[fullPath] = tex;
                 return tex;
             }
-            catch
+            catch (Exception)
             {
                 return null;
             }

@@ -106,7 +106,7 @@ namespace Honor.Editor.MapTool
             {
                 m_ObjEditTitle.text = m_EditTarget == null
                     ? "对象编辑：未选择"
-                    : $"对象编辑：{m_EditTarget.Name}（类型：{MapToolEditorUtils.FormatObjectTypeName(m_EditTarget.Type)}）· 路径点 {m_EditTarget.PathPoints.Count}";
+                    : $"对象编辑：{m_EditTarget.Name}（类型：{MapToolEditorUtils.FormatObjectTypeName(ResolveDisplayType(m_EditTarget), m_EditTarget.IsVehicle)}）· 路径点 {m_EditTarget.PathPoints.Count}";
             }
             RefreshPathPointList();
         }

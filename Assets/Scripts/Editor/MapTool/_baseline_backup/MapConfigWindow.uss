@@ -1,0 +1,139 @@
+/* 地图配置弹窗样式（与主地图编辑器 SenceMapTool 主题统一）
+ * 视觉规范：深色底 + 分组卡片 + 浅色描边按钮，hover/active 状态反馈清晰 */
+
+.config-root {
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 14px;
+    background-color: rgb(32, 32, 35);
+}
+
+/* 路径配置区：分组卡片 */
+.config-box {
+    background-color: rgb(45, 45, 48);
+    border-width: 1px;
+    border-color: rgb(68, 68, 73);
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+
+/* 路径行：标签 + 路径按钮 同行 */
+.path-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.path-label {
+    width: 120px;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: rgb(200, 200, 205);
+}
+
+.path-btn {
+    flex-grow: 1;
+    min-width: 0;
+    height: 26px;
+    font-size: 11px;
+    -unity-text-align: middle-left;
+    background-color: rgb(58, 60, 66);
+    border-width: 1px;
+    border-color: rgb(82, 84, 90);
+    border-radius: 3px;
+    color: rgb(235, 235, 235);
+    padding-left: 10px;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.path-btn:hover {
+    background-color: rgb(72, 74, 80);
+    border-color: rgb(120, 130, 150);
+}
+
+.path-btn:active {
+    background-color: rgb(48, 50, 56);
+}
+
+/* 预制体选择行 */
+.prefab-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.prefab-label {
+    width: 120px;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: rgb(220, 220, 220);
+}
+
+.prefab-field {
+    flex-grow: 1;
+    max-width: 480px;
+    height: 24px;
+}
+
+/* ObjectField 内部：图标与文字统一水平中线对齐，紧凑排列 */
+.prefab-field .unity-base-field__input {
+    flex-grow: 1;
+    justify-content: flex-start;
+    align-items: center;
+    min-width: 0;
+}
+
+.prefab-field .unity-object-field__selector {
+    align-self: center;
+    flex-shrink: 0;
+}
+
+.prefab-field .unity-object-field__text,
+.prefab-field .unity-object-field__label {
+    align-self: center;
+    -unity-text-align: middle-left;
+}
+
+/* 底部按钮行 */
+.btn-row {
+    flex-direction: row;
+    justify-content: flex-end;
+    padding-top: 4px;
+}
+
+.cancel-btn {
+    width: 72px;
+    height: 28px;
+    margin-right: 10px;
+    border-radius: 3px;
+    background-color: rgb(60, 60, 60);
+    border-width: 1px;
+    border-color: rgb(80, 80, 85);
+    color: rgb(255, 255, 255);
+}
+
+.cancel-btn:hover {
+    background-color: rgb(72, 72, 72);
+    border-color: rgb(110, 110, 115);
+}
+
+.confirm-btn {
+    width: 72px;
+    height: 28px;
+    border-radius: 3px;
+    background-color: rgb(14, 99, 156);
+    border-width: 1px;
+    border-color: rgb(20, 120, 190);
+    color: rgb(255, 255, 255);
+}
+
+.confirm-btn:hover {
+    background-color: rgb(18, 116, 184);
+}
+
+.confirm-btn:active {
+    background-color: rgb(12, 84, 134);
+}

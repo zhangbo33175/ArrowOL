@@ -197,6 +197,13 @@ function MapObjectBase:StartPathMove(pathPoints, speed, isLoop)
     self._MoveSeq = CS.GameLib.MapPathMoveUtil.BuildLocalMoveSeq(self.cs.transform, points,
         tonumber(speed) or 1, isLoop == true,
         "物件" .. tostring(self._MapData and (self._MapData.Id or self._MapData.InstanceId) or "?"), nil)
+    -- 每段到达路径点后重排本层遮挡：物件 Y 位置变化后，与相邻物件的前后关系需按脚底 Y 刷新
+    if self._MoveSeq ~= nil then
+        self._MoveSeq:OnStepComplete(function()
+            if self._Destroying then return end
+            GameCoreManager:RefreshObjectOrdering(self)
+        end)
+    end
 end
 
 --endregion

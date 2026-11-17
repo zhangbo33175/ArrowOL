@@ -43,17 +43,20 @@ namespace Honor.Editor.MapTool
 
             // 从模板管理器加载所有模板，按当前Tab类型过滤
             var allTemplates = ObjectTemplateManager.Instance.GetAllTemplates();
-            var templates = allTemplates.FindAll(t => t.Type == m_CurrentTypeTab);
 
-            for (int i = 0; i < templates.Count; i++)
+            // 列表项直接持有模板引用，选中时按 TemplateId 反查，不依赖字典快照的位置下标。
+            int filteredCount = 0;
+            foreach (var template in allTemplates)
             {
-                var template = templates[i];
-                var item = CreateItemElement(template, i);
+                if (template.Type != m_CurrentTypeTab) continue;
+
+                var item = CreateItemElement(template);
                 m_ItemList.Add(item);
                 m_ItemItems.Add(item);
+                filteredCount++;
             }
 
-            Debug.Log($"[ItemElementEditModule] 刷新元件列表，类型={m_CurrentTypeTab}，共加载 {templates.Count} 个模板");
+            Debug.Log($"[ItemElementEditModule] 刷新元件列表，类型={m_CurrentTypeTab}，共加载 {filteredCount} 个模板");
         }
 
         /// <summary>

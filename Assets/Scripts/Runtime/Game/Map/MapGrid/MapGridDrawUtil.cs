@@ -56,7 +56,7 @@ namespace GameLib
         #region 几何计算
 
         /// <summary>
-        /// 计算格线位置（单关卡模式：整图网格）
+        /// 计算格线位置（单关卡模式：整图正交直角格）
         /// 几何契约：编辑器 Handles 与游戏 Overlay 共用同一套坐标
         /// </summary>
         /// <param name="mapW">地图总宽度（像素）</param>

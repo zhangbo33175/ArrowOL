@@ -1,9 +1,9 @@
 --=====================================================================================================
 -- filename:  LevelData_1_1_Objects
--- descrip:   待收集物件列表（自动生成·数组压缩格式）
+-- descrip:   待收集物件列表（自动生成·命名块格式）
 -- notices:   由地图编辑器自动生成，禁止手动修改
 -- @brief     关卡待收集物件列表
--- @desc      数组格式：{ TemplateId, GridX, GridY, ImageName, CollectId }
+-- @desc      字段与 Buildings 对齐：GridX/GridY 兼容旧换算，PosX/PosY/PixelWidth/PixelHeight/Stretch/LayerType 按 PSD 还原
 --=====================================================================================================
 
 Tables.LevelData_1_1_Objects = {

@@ -48,6 +48,7 @@ namespace Honor.Editor.MapTool
             DrawPendingPlacePreview(mapRect);
             DrawPathGridLayer(mapRect);
             DrawEditTargetOverlay(mapRect);
+            DrawTrafficOverlay(mapRect);
             DrawRegionMist(mapRect);
             DrawBoundingBoxLayer(mapRect);
             DrawGrid(mapRect);
@@ -56,7 +57,7 @@ namespace Honor.Editor.MapTool
             m_StatusBar.DrawTempMessage(rect);
 
             // 更新状态栏（增量刷新，委托给 EditorStatusBar）
-            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, m_MapSavePath);
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, OccupiedCellCount, GridCols, GridRows, m_MapSavePath);
             // 最后处理鼠标事件，避免影响绘制
             Event e = Event.current;
             HandleMouseEvent(e);
@@ -105,28 +106,26 @@ namespace Honor.Editor.MapTool
         private void DrawPlacedObjects(Rect mapRect)
         {
             // 2D 地图遮挡排序规则：
-            // 第一层：按物体类型分层（建筑在最下，人物中间，物件，猫猫最上）
+            // 第一层：按归一后 LayerType 分层（背景 0 / 绿化 10 / 道路 20 / 建筑 30 / 道具 40 / 角色·载具 50 / 前景 60 / 气泡 70）
             // 第二层：同一图层内按底部 Y 坐标排序（底部越靠下，越在前面）
-            var sortedObjects = m_PlacedObjects
-                .OrderBy(obj => GetLayerOrder(obj.Type))
-                .ThenBy(obj =>
-                {
-                    // 底部 Y = 顶部 Y + 高度
-                    float height = obj.PreviewTexture != null ? obj.PreviewTexture.height : obj.Height * 32f;
-                    return obj.Position.y + height;
-                })
-                .ToList();
+            // 排序序列与命中检测共用 GetPlacedObjectsSorted 同一口径，保证所见即可点
+            var sortedObjects = GetPlacedObjectsSorted();
             foreach (var obj in sortedObjects)
             {
-                // 根据图层开关过滤
-                if (obj.Type == MapObjectType.Building && !m_ShowBuildingLayer) continue; // 建筑层
-                if (obj.Type == MapObjectType.Character && !m_ShowCharacterLayer) continue; // 人物层
-                if (obj.Type == MapObjectType.Prop && !m_ShowObjectLayer) continue; // 物件层
-                if (obj.Type == MapObjectType.Cat && !m_ShowCatLayer) continue; // 猫图层
-                // 世界坐标转屏幕坐标
-                float width = obj.Width * MapToolConstants.GridSize * m_Zoom;
-                float height = obj.Height * MapToolConstants.GridSize * m_Zoom;
-                Rect objRect = new Rect(WorldToScreen(obj.Position), new Vector2(width, height));
+                // 根据图层开关过滤：按有效显示层判定（归属层为空时回退归属层），与排序/命中/层级档下拉同一口径；
+                // 即物件层级档选到哪一层，就跟随顶部对应层开关显隐。八层逐一对应顶部图层栏。
+                if (IsLayerSwitchHidden(obj)) continue;
+                // 世界坐标转屏幕坐标（尺寸口径与命中/排序一致：预览贴图 → PSD 像素 → 格子数 × 网格尺寸）
+                GetObjectPixelSize(obj, out float baseW, out float baseH);
+                Vector2 rawSize = new Vector2(baseW * m_Zoom, baseH * m_Zoom);
+                Rect rawRect = new Rect(WorldToScreen(obj.Position), rawSize);
+                // 缩放以原矩形中心为锚点；Scale=1 时与原始矩形重合
+                Vector2 scaledSize = rawSize * obj.Scale;
+                Rect objRect = new Rect(rawRect.center - scaledSize * 0.5f, scaledSize);
+                // 旋转围绕矩形中心；绘制结束必须复位旋转矩阵，避免影响后续物件
+                bool rotated = !Mathf.Approximately(obj.Rotation, 0f);
+                if (rotated)
+                    GUIUtility.RotateAroundPivot(obj.Rotation, rawRect.center);
                 // 有预览图则绘制预览图，否则绘制类型占位色块
                 if (obj.PreviewTexture != null)
                 {
@@ -136,6 +135,8 @@ namespace Honor.Editor.MapTool
                 {
                     EditorGUI.DrawRect(objRect, GetObjectPlaceholderColor(obj.Type));
                 }
+                if (rotated)
+                    GUIUtility.RotateAroundPivot(0f, rawRect.center);
                 // 只有选中的物件才显示名称
                 if (obj == m_EditTarget)
                 {
@@ -146,36 +147,78 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 获取物件的层级顺序（2D 地图层级规则：建筑在最下，人物中间，物件最上）
+        /// 计算物件在编辑器画布上的基础像素尺寸（未乘缩放倍率）。
+        /// 口径委托公共工具 <see cref="MapToolEditorUtils.GetObjectPixelSize"/>，与命中/排序/预览窗口一致。
         /// </summary>
-        private int GetLayerOrder(MapObjectType type)
+        /// <param name="obj">摆放物件</param>
+        /// <param name="width">输出：基础像素宽</param>
+        /// <param name="height">输出：基础像素高</param>
+        private void GetObjectPixelSize(PlacedObject obj, out float width, out float height)
         {
-            switch (type)
-            {
-                case MapObjectType.Building: return 0;   // 最底层
-                case MapObjectType.Character: return 1; // 中间层
-                case MapObjectType.Prop: return 2;      // 物件层
-                case MapObjectType.Cat: return 3;       // 最上层（猫猫/主角）
-                default: return 0;
-            }
+            MapToolEditorUtils.GetObjectPixelSize(obj, out width, out height);
         }
 
         /// <summary>
-        /// 计算物件的有效排序值（开启YSort时根据Y坐标自动调整）
+        /// 计算物件底部 Y 坐标（左上原点坐标系：底部 Y = 顶部 Y + 高度）。
+        /// 口径委托公共工具 <see cref="MapToolEditorUtils.GetObjectBottomY"/>。
         /// </summary>
-        private float GetEffectiveSortOrder(PlacedObject obj)
+        /// <param name="obj">摆放物件</param>
+        /// <returns>底部 Y 像素值，越大越靠下</returns>
+        private float GetObjectBottomY(PlacedObject obj)
         {
-            if (obj.YSortEnabled)
+            return MapToolEditorUtils.GetObjectBottomY(obj);
+        }
+
+        /// <summary>
+        /// 获取按遮挡规则排序后的物件序列（绘制与命中共用同一口径，保证所见即可点）
+        /// 三级排序键：
+        /// ① 层基准 SortOrder（八层固定契约，跨层不可手动打乱）；
+        /// ② 物件手动 SortOrder（同层内 z-order，数值越大越靠前）；
+        /// ③ YSort 底部 Y + YSortOffset（仅 YSortEnabled 生效；固定遮挡模式第三键恒为 0）。
+        /// 序列前部在下层、后部在上层；命中时从末尾向前取第一个命中项。
+        /// 仅拖拽中的物件临时置顶到序列末尾（最上层），方便拖动时看清；纯选中物件保持其真实层级绘制，
+        /// 避免选中查看或调整层级档时遮挡关系被强制打乱（选中仅以黄色框 + 名称标识）。
+        /// 临时置顶仅作用于绘制与命中，不回写数据 SortOrder；松开拖拽后即恢复设定层级。
+        /// </summary>
+        /// <summary>
+        /// 判断物件是否被顶部图层开关隐藏。按有效显示层判定（归属层为空时回退归属层），
+        /// 与排序、命中检测、层级档下拉同一口径：物件层级档选到哪一层，就跟随对应层开关显隐。
+        /// </summary>
+        /// <param name="obj">摆放物件</param>
+        /// <returns>true 表示所属层开关已关闭、物件应隐藏（且不可被点中）</returns>
+        private bool IsLayerSwitchHidden(PlacedObject obj)
+        {
+            string layerType = MapLayerCatalog.ResolveDisplayLayer(obj.LayerType, obj.DisplayLayer);
+            switch (layerType)
             {
-                // YSort模式：Y坐标越大（越靠下），排序值越大，越靠前
-                // 基础SortOrder + Y坐标 * 系数 + 偏移
-                return obj.SortOrder + obj.Position.y * 0.01f + obj.YSortOffset;
+                case MapLayerCatalog.Background: return !m_ShowBackgroundLayer;
+                case MapLayerCatalog.Greenery: return !m_ShowGreeneryLayer;
+                case MapLayerCatalog.Road: return !m_ShowRoadLayer;
+                case MapLayerCatalog.Building: return !m_ShowBuildingLayer;
+                case MapLayerCatalog.Prop: return !m_ShowObjectLayer;
+                case MapLayerCatalog.Character: return !m_ShowCharacterLayer;
+                case MapLayerCatalog.Foreground: return !m_ShowForegroundLayer;
+                case MapLayerCatalog.Bubble: return !m_ShowBubblesLayer;
+                default: return false;
             }
-            else
+        }
+
+        /// <returns>排序后的物件列表（新实例，不影响原列表顺序）</returns>
+        private List<PlacedObject> GetPlacedObjectsSorted()
+        {
+            var sorted = m_PlacedObjects
+                .OrderBy(obj => MapToolEditorUtils.GetDisplayBaseline(obj))
+                .ThenBy(obj => obj.SortOrder)
+                .ThenBy(obj => obj.YSortEnabled ? GetObjectBottomY(obj) + obj.YSortOffset : 0f)
+                .ToList();
+
+            // ---TODO [临时置顶] 仅拖拽目标临时压在最前；纯选中目标不参与置顶，保持真实遮挡层级
+            PlacedObject temporaryTop = m_DraggingObject;
+            if (temporaryTop != null && sorted.Remove(temporaryTop))
             {
-                // 固定模式：用基础SortOrder
-                return obj.SortOrder;
+                sorted.Add(temporaryTop);
             }
+            return sorted;
         }
 
         /// <summary>
@@ -217,9 +260,10 @@ namespace Honor.Editor.MapTool
         private void DrawEditTargetOverlay(Rect mapRect)
         {
             if (m_EditTarget == null) return;
-            // 选中物体高亮边框（黄色）
-            float selW = m_EditTarget.Width * MapToolConstants.GridSize * m_Zoom;
-            float selH = m_EditTarget.Height * MapToolConstants.GridSize * m_Zoom;
+            // 选中高亮边框尺寸与绘制/命中统一口径（预览贴图 → PSD 像素 → 格子数 × 网格尺寸）
+            GetObjectPixelSize(m_EditTarget, out float selBaseW, out float selBaseH);
+            float selW = selBaseW * m_Zoom;
+            float selH = selBaseH * m_Zoom;
             DrawSelectionBorder(new Rect(WorldToScreen(m_EditTarget.Position), new Vector2(selW, selH)));
             // 该物体无路径则直接结束
             if (m_EditTarget.PathPoints.Count == 0) return;
@@ -294,13 +338,22 @@ namespace Honor.Editor.MapTool
         private void DrawGrid(Rect mapRect)
         {
             // 摆放网格层
-            if (m_ShowPlaceGrid)
+            if (!m_ShowPlaceGrid) return;
+
+            var style = GameLib.MapGridDrawUtil.DefaultStyle();
+            Handles.color = style.lineColor;
+            float mapW = mapRect.width / m_Zoom;
+            float mapH = mapRect.height / m_Zoom;
+
+            // 菱形绘制模式：等距 45° 斜格（两组斜向格线 + 格点菱形标记）；
+            // 矩形绘制模式：正交直角格。落盘格子坐标口径两种模式保持一致。
+            bool diamond = DrawShape.IsDiamond(m_DrawShape);
+            if (diamond)
             {
-                // 统一核心：MapGridDrawUtil.ComputeGridLinePositions（与游戏同几何）
-                var style = GameLib.MapGridDrawUtil.DefaultStyle();
-                Handles.color = style.lineColor;
-                float mapW = mapRect.width / m_Zoom;
-                float mapH = mapRect.height / m_Zoom;
+                DrawDiamondGrid(mapRect, style);
+            }
+            else
+            {
                 int gridCols = Mathf.RoundToInt(mapW / MapToolConstants.GridSize);
                 GameLib.MapGridDrawUtil.ComputeGridLinePositions(mapW, mapH, gridCols,
                     out float[] vLines, out float[] hLines, out Rect mapRectOut);
@@ -311,6 +364,127 @@ namespace Honor.Editor.MapTool
                     Handles.DrawLine(new Vector3(mapRect.x, mapRect.y + h * m_Zoom),
                                      new Vector3(mapRect.xMax, mapRect.y + h * m_Zoom));
             }
+        }
+
+        /// <summary>
+        /// 绘制等距菱形（45° 斜格）背景网格：两组整族斜向格线铺满地图矩形并裁剪到边界。
+        /// 斜格为视觉辅助，不改变格子编号 / 吸附与落盘坐标；配色与正交灰格区分，便于一眼识别当前模式。
+        /// </summary>
+        private void DrawDiamondGrid(Rect mapRect,
+            GameLib.MapGridDrawUtil.GridStyle style)
+        {
+            float cell = MapToolConstants.GridSize;
+            float mapW = mapRect.width / m_Zoom;
+            float mapH = mapRect.height / m_Zoom;
+
+            // 斜格线配色：青灰色、较高不透明度，与正交灰色直角格明显区分
+            Color diamondLine = new Color(0.20f, 0.45f, 0.55f, 0.55f);
+            // 两组 45° 整族斜格线铺满地图矩形，裁剪到背景边界，边缘菱形由边界正常切半
+            DrawDiagonalLines(mapRect, mapW, mapH, cell, slope: 1f, diamondLine);
+            DrawDiagonalLines(mapRect, mapW, mapH, cell, slope: -1f, diamondLine);
+
+            // 地图外框
+            Handles.color = style.boundaryColor;
+            Handles.DrawLine(new Vector3(mapRect.x, mapRect.y), new Vector3(mapRect.xMax, mapRect.y));
+            Handles.DrawLine(new Vector3(mapRect.xMax, mapRect.y), new Vector3(mapRect.xMax, mapRect.yMax));
+            Handles.DrawLine(new Vector3(mapRect.xMax, mapRect.yMax), new Vector3(mapRect.x, mapRect.yMax));
+            Handles.DrawLine(new Vector3(mapRect.x, mapRect.yMax), new Vector3(mapRect.x, mapRect.y));
+        }
+
+        /// <summary>
+        /// 绘制一族铺满地图矩形的 45° 斜向格线。
+        /// slope=+1 为左下→右上（世界坐标 y = x - k），slope=-1 为左上→右下（x + y = s）；
+        /// 线族以左上角 (0,0) 为相位基准、按 cell 等距排布，每条整线经 Liang-Barsky 裁剪到
+        /// 地图矩形内，边缘菱形由边界正常切半，既不留空隙也不探出背景。
+        /// </summary>
+        private void DrawDiagonalLines(Rect mapRect, float mapW, float mapH,
+            float cell, float slope, Color lineColor)
+        {
+            Handles.color = lineColor;
+
+            // 世界坐标 → 屏幕坐标
+            Vector2 Screen(float wx, float wy)
+            {
+                return new Vector2(mapRect.x + wx * m_Zoom, mapRect.y + wy * m_Zoom);
+            }
+
+            if (slope >= 0f)
+            {
+                // +1 族：y = x - k，k = x - y；从覆盖矩形的最小 k 到最大 k 按 cell 步长取整线
+                float kMin = -mapH;
+                float kMax = mapW;
+                for (float k = kMin; k <= kMax + 0.001f; k += cell)
+                {
+                    // 取矩形上下两条水平边上的端点，保证整线横跨矩形
+                    Vector2 p0 = Screen(k, 0f);
+                    Vector2 p1 = Screen(k + mapH, mapH);
+                    if (TryClipToRect(p0, p1, mapRect, out Vector2 c0, out Vector2 c1))
+                    {
+                        Handles.DrawLine(new Vector3(c0.x, c0.y), new Vector3(c1.x, c1.y));
+                    }
+                }
+            }
+            else
+            {
+                // -1 族：x + y = s；从 0 到 mapW + mapH 按 cell 步长取整线
+                float sMax = mapW + mapH;
+                for (float s = 0f; s <= sMax + 0.001f; s += cell)
+                {
+                    // 取矩形左、下两条边上的端点，保证整线横跨矩形
+                    Vector2 p0 = Screen(0f, s);
+                    Vector2 p1 = Screen(s, 0f);
+                    if (TryClipToRect(p0, p1, mapRect, out Vector2 c0, out Vector2 c1))
+                    {
+                        Handles.DrawLine(new Vector3(c0.x, c0.y), new Vector3(c1.x, c1.y));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Liang-Barsky 线段裁剪：把线段 (p0,p1) 裁剪到矩形 rect 内；
+        /// 线段与矩形无交集返回 false。用于边缘斜格线不探出背景边界。
+        /// </summary>
+        private static bool TryClipToRect(Vector2 p0, Vector2 p1, Rect rect,
+            out Vector2 c0, out Vector2 c1)
+        {
+            c0 = p0;
+            c1 = p1;
+            float dx = p1.x - p0.x;
+            float dy = p1.y - p0.y;
+            float t0 = 0f;
+            float t1 = 1f;
+
+            // 四个方向的裁剪不等式：p * t <= q
+            float[] p = { -dx, dx, -dy, dy };
+            float[] q = { p0.x - rect.x, rect.xMax - p0.x, p0.y - rect.y, rect.yMax - p0.y };
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (Mathf.Approximately(p[i], 0f))
+                {
+                    // 线段平行于该边界；若落在边界外侧则整段不可见
+                    if (q[i] < 0f) return false;
+                }
+                else
+                {
+                    float r = q[i] / p[i];
+                    if (p[i] < 0f)
+                    {
+                        if (r > t1) return false;
+                        if (r > t0) t0 = r;
+                    }
+                    else
+                    {
+                        if (r < t0) return false;
+                        if (r < t1) t1 = r;
+                    }
+                }
+            }
+
+            c0 = p0 + t0 * new Vector2(dx, dy);
+            c1 = p0 + t1 * new Vector2(dx, dy);
+            return true;
         }
 
         /// <summary>
@@ -353,12 +527,12 @@ namespace Honor.Editor.MapTool
             // 如果已经是完整路径（以 Assets/ 开头），直接加载
             if (bgPath.StartsWith("Assets/"))
             {
-                return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(bgPath);
+                return LoadCachedTexture2D(bgPath);
             }
 
             // 否则按旧方式拼接路径
             string fullPath = $"{MapToolConstants.LevelBackgroundDir}/{bgPath}.png";
-            return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(fullPath);
+            return LoadCachedTexture2D(fullPath);
         }
 
         /// <summary>
@@ -387,9 +561,9 @@ namespace Honor.Editor.MapTool
         {
             if (m_PendingPlace == null) return;
 
-            // 世界坐标转屏幕坐标
-            float width = m_PendingPlace.Width * MapToolConstants.GridSize * m_Zoom;
-            float height = m_PendingPlace.Height * MapToolConstants.GridSize * m_Zoom;
+            // 世界坐标转屏幕坐标（PSD 像素尺寸优先）
+            float width = (m_PendingPlace.PixelWidth > 0 ? m_PendingPlace.PixelWidth : m_PendingPlace.Width * MapToolConstants.GridSize) * m_Zoom;
+            float height = (m_PendingPlace.PixelHeight > 0 ? m_PendingPlace.PixelHeight : m_PendingPlace.Height * MapToolConstants.GridSize) * m_Zoom;
             Rect previewRect = new Rect(WorldToScreen(m_PendingPlace.Position), new Vector2(width, height));
 
             // 根据是否合法选择颜色

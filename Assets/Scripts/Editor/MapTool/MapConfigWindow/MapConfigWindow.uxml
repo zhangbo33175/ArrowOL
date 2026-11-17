@@ -28,6 +28,11 @@
                 <ui:Button name="path-btn-map-save" class="path-btn" />
             </ui:VisualElement>
         </ui:VisualElement>
+        <!-- 基线步长配置行：相邻显示层 SortOrder 基线间距（可配置，保存/发布随地图数据与 Lua 同源导出） -->
+        <ui:VisualElement class="step-row">
+            <ui:Label text="基线步长：" class="step-label" />
+            <uie:IntegerField name="map-baseline-step-field" class="step-field" />
+        </ui:VisualElement>
         <!-- 预制体选择行 -->
         <ui:VisualElement class="prefab-row">
             <ui:Label text="地图预制体:" class="prefab-label" />

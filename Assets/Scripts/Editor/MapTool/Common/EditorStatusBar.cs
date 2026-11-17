@@ -30,6 +30,7 @@ namespace Honor.Editor.MapTool
         private Label m_TileXLabel;
         private Label m_TileYLabel;
         private Label m_TileCountLabel;
+        private Label m_GridSizeLabel;
         private Button m_SavePathBtn;
 
         // ==================== 上次值缓存（增量刷新） ====================
@@ -38,6 +39,9 @@ namespace Honor.Editor.MapTool
         private float m_LastMouseY = float.MinValue;
         private int m_LastTileX = int.MinValue;
         private int m_LastTileY = int.MinValue;
+        private int m_LastTileCount = int.MinValue;
+        private int m_LastGridCols = int.MinValue;
+        private int m_LastGridRows = int.MinValue;
         private string m_LastSavePath = "";
 
         // ==================== 临时消息 ====================
@@ -55,6 +59,7 @@ namespace Honor.Editor.MapTool
             m_TileXLabel = root.Q<Label>(name: MapToolUiNames.StatusTileX);
             m_TileYLabel = root.Q<Label>(name: MapToolUiNames.StatusTileY);
             m_TileCountLabel = root.Q<Label>(name: MapToolUiNames.StatusTileCount);
+            m_GridSizeLabel = root.Q<Label>(name: MapToolUiNames.StatusGridSize);
             m_SavePathBtn = root.Q<Button>(name: MapToolUiNames.StatusSavePath);
         }
 
@@ -74,8 +79,11 @@ namespace Honor.Editor.MapTool
         /// <param name="mousePos">鼠标世界坐标</param>
         /// <param name="tileX">格子 X</param>
         /// <param name="tileY">格子 Y</param>
+        /// <param name="occupiedCellCount">已占用格子去重计数</param>
+        /// <param name="gridCols">网格总列数</param>
+        /// <param name="gridRows">网格总行数</param>
         /// <param name="savePath">地图保存路径</param>
-        public void Refresh(float zoom, Vector2 mousePos, int tileX, int tileY, string savePath)
+        public void Refresh(float zoom, Vector2 mousePos, int tileX, int tileY, int occupiedCellCount, int gridCols, int gridRows, string savePath)
         {
             bool needUpdate = false;
 
@@ -105,6 +113,17 @@ namespace Honor.Editor.MapTool
                 m_LastTileY = tileY;
                 needUpdate = true;
             }
+            if (occupiedCellCount != m_LastTileCount)
+            {
+                m_LastTileCount = occupiedCellCount;
+                needUpdate = true;
+            }
+            if (gridCols != m_LastGridCols || gridRows != m_LastGridRows)
+            {
+                m_LastGridCols = gridCols;
+                m_LastGridRows = gridRows;
+                needUpdate = true;
+            }
             if (savePath != m_LastSavePath)
             {
                 m_LastSavePath = savePath;
@@ -118,7 +137,8 @@ namespace Honor.Editor.MapTool
             if (m_MouseYLabel != null) m_MouseYLabel.text = mousePos.y.ToString("F0");
             if (m_TileXLabel != null) m_TileXLabel.text = tileX.ToString();
             if (m_TileYLabel != null) m_TileYLabel.text = tileY.ToString();
-            if (m_TileCountLabel != null) m_TileCountLabel.text = (tileX * tileY).ToString();
+            if (m_TileCountLabel != null) m_TileCountLabel.text = occupiedCellCount.ToString();
+            if (m_GridSizeLabel != null) m_GridSizeLabel.text = $"{gridCols}×{gridRows}";
             if (m_SavePathBtn != null) m_SavePathBtn.text = savePath;
         }
 

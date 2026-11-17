@@ -40,12 +40,25 @@ namespace Honor.Editor.MapTool
         private const string ColumnIsInteractable = "Interactable";
         private const string ColumnInteractType = "InteractType";
         private const string ColumnSortOrder = "SortOrder";
+        private const string ColumnDisplayLayer = "DisplayLayer";
         private const string ColumnHasCollision = "CollisionEnabled";
         private const string ColumnDialogBubble = "DialogBubble";
+        private const string ColumnBubbleId = "BubbleId";
         private const string ColumnFacingDirection = "FacingDirection";
         private const string ColumnHasShadow = "ShadowEnabled";
         private const string ColumnIsCollectible = "IsCollectible";
         private const string ColumnRespawnTime = "RespawnTime";
+        private const string ColumnTrafficCategory = "TrafficCategory";
+        private const string ColumnYSortEnabled = "YSortEnabled";
+        private const string ColumnYSortOffset = "YSortOffset";
+        private const string ColumnIsMovable = "IsMovable";
+        private const string ColumnMoveAnimName = "MoveAnimName";
+        private const string ColumnLoopRestartDelay = "LoopRestartDelay";
+        private const string ColumnHideWhenOffMap = "HideWhenOffMap";
+        private const string ColumnIsTeleport = "IsTeleport";
+        private const string ColumnTeleportTargetScene = "TeleportTargetScene";
+        private const string ColumnTeleportTargetX = "TeleportTargetX";
+        private const string ColumnTeleportTargetY = "TeleportTargetY";
 
         /// <summary>
         /// 列名行索引（第2行）
@@ -198,17 +211,54 @@ namespace Honor.Editor.MapTool
                     Interactable = GetBoolValue(dataRow, columnIndexMap, ColumnIsInteractable),
                     InteractType = GetStringValue(dataRow, columnIndexMap, ColumnInteractType),
                     SortOrder = GetIntValue(dataRow, columnIndexMap, ColumnSortOrder),
+                    DisplayLayer = GetStringValue(dataRow, columnIndexMap, ColumnDisplayLayer),
                     CollisionEnabled = GetBoolValue(dataRow, columnIndexMap, ColumnHasCollision),
                     DialogBubble = GetStringValue(dataRow, columnIndexMap, ColumnDialogBubble),
+                    BubbleId = GetIntValue(dataRow, columnIndexMap, ColumnBubbleId),
                     FacingDirection = GetStringValue(dataRow, columnIndexMap, ColumnFacingDirection),
                     ShadowEnabled = GetBoolValue(dataRow, columnIndexMap, ColumnHasShadow),
                     IsCollectible = GetBoolValue(dataRow, columnIndexMap, ColumnIsCollectible),
                     RespawnTime = GetFloatValue(dataRow, columnIndexMap, ColumnRespawnTime),
+                    TrafficCategory = GetStringValue(dataRow, columnIndexMap, ColumnTrafficCategory),
+                    YSortEnabled = GetBoolValue(dataRow, columnIndexMap, ColumnYSortEnabled),
+                    YSortOffset = GetFloatValue(dataRow, columnIndexMap, ColumnYSortOffset),
+                    IsMovable = GetBoolValue(dataRow, columnIndexMap, ColumnIsMovable),
+                    MoveAnimName = GetStringValue(dataRow, columnIndexMap, ColumnMoveAnimName),
+                    LoopRestartDelay = GetFloatValue(dataRow, columnIndexMap, ColumnLoopRestartDelay),
+                    HideWhenOffMap = GetBoolValue(dataRow, columnIndexMap, ColumnHideWhenOffMap),
+                    IsTeleport = GetBoolValue(dataRow, columnIndexMap, ColumnIsTeleport),
+                    TeleportTargetScene = GetStringValue(dataRow, columnIndexMap, ColumnTeleportTargetScene),
+                    TeleportTargetX = GetFloatValue(dataRow, columnIndexMap, ColumnTeleportTargetX),
+                    TeleportTargetY = GetFloatValue(dataRow, columnIndexMap, ColumnTeleportTargetY),
                 };
 
                 // 根据资源名判断物体类型
                 string resName = GetStringValue(dataRow, columnIndexMap, ColumnResName);
+                template.ResName = resName;
                 template.Type = DetermineObjectType(resName);
+
+                // 交通类别空值/中文显示名归一为类别键
+                template.TrafficCategory = TemplateTrafficCategory.Normalize(
+                    GetStringValue(dataRow, columnIndexMap, ColumnTrafficCategory));
+
+                // 交互类型/朝向归一为 code（存量表可能存中文显示名）
+                template.InteractType = TemplateInteractType.ToCode(template.InteractType);
+                template.FacingDirection = TemplateFacing.ToCode(template.FacingDirection);
+
+                // 移动动画缺省回落模型默认 walk
+                if (string.IsNullOrEmpty(template.MoveAnimName))
+                {
+                    template.MoveAnimName = "walk";
+                }
+
+                // 层级档非空归一为八层键；空值保留，加载时跟随类型归属层
+                if (!string.IsNullOrWhiteSpace(template.DisplayLayer))
+                {
+                    template.DisplayLayer = MapLayerCatalog.Normalize(template.DisplayLayer);
+                }
+
+                // 渲染层级归一到类型所属八层基线区间（旧三档/裸值按层内槽位叠基线）
+                template.SortOrder = MapToolEditorUtils.NormalizeTemplateSortOrder(template, template.SortOrder);
 
                 return template;
             }

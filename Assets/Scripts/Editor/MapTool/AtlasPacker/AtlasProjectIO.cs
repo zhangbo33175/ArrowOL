@@ -99,7 +99,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 var project = JsonUtility.FromJson<AtlasProjectData>(json);
                 return project;
             }
-            catch
+            catch (Exception)
             {
                 return null;
             }

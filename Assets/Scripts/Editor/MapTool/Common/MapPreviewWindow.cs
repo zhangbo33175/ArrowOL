@@ -11,6 +11,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Honor.Editor.MapTool
 {
@@ -400,30 +401,17 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 获取排序后的物件列表（YSort）
+        /// 获取排序后的物件列表（遮挡排序，与编辑器画布 / 运行时 Lua 同口径）。
+        /// 三级稳定键：① 显示层基线（八层契约隔离跨层）；② 层内 SortOrder（手动 z-order）；
+        /// ③ YSort 脚底 Y + YSortOffset（仅 YSortEnabled 生效，固定遮挡模式第三键恒 0）。
         /// </summary>
         private List<PlacedObject> GetSortedObjects()
         {
-            var list = new List<PlacedObject>(m_Objects);
-            list.Sort((a, b) =>
-            {
-                float orderA = GetEffectiveSortOrder(a);
-                float orderB = GetEffectiveSortOrder(b);
-                return orderA.CompareTo(orderB);
-            });
-            return list;
-        }
-
-        /// <summary>
-        /// 计算有效排序值
-        /// </summary>
-        private float GetEffectiveSortOrder(PlacedObject obj)
-        {
-            if (obj.YSortEnabled)
-            {
-                return obj.SortOrder + obj.Position.y * 0.01f + obj.YSortOffset;
-            }
-            return obj.SortOrder;
+            return m_Objects
+                .OrderBy(o => MapToolEditorUtils.GetDisplayBaseline(o))
+                .ThenBy(o => o.SortOrder)
+                .ThenBy(o => o.YSortEnabled ? MapToolEditorUtils.GetObjectBottomY(o) + o.YSortOffset : 0f)
+                .ToList();
         }
 
         /// <summary>
@@ -563,8 +551,8 @@ namespace Honor.Editor.MapTool
             // 获取当前播放位置
             Vector2 pos = GetObjectPlayPosition(obj);
 
-            float width = obj.Width * 32 * m_EffectiveZoom;
-            float height = obj.Height * 32 * m_EffectiveZoom;
+            float width = obj.Width * MapToolConstants.GridSize * m_EffectiveZoom;
+            float height = obj.Height * MapToolConstants.GridSize * m_EffectiveZoom;
             width = Mathf.Max(width, 24f);
             height = Mathf.Max(height, 24f);
 

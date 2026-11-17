@@ -21,9 +21,9 @@ Tables.LevelData_1_1 = {
         LevelId       = "1",
         LevelIndex    = 1,
         MapName       = "GameMainMap",
-        BgName        = "Level_bg_main_21",
+        BgName        = "Assets/Res/Textures/Map/Chapter1/Level1/Background/bg_1.png",
         SavePath      = "Assets/GameData/MapDatas/Map_1_1.json",
-        Time          = "2026-11-05 18:35:12",
+        Time          = "2026-11-16 19:56:31",
         Width         = 4096,
         Height        = 4096,
         GridSize      = 32,
@@ -50,9 +50,11 @@ Tables.LevelData_1_1 = {
     -- 3. 实体数量统计
     -- ==========================================================================
     Counts = {
-        Characters = 2,
-        Buildings  = 0,
+        Characters = 437,
+        Buildings  = 10,
         Objects    = 0,
+        Lights     = 0,
+        Crosswalks = 0,
     },
 
     -- ==========================================================================
@@ -63,5 +65,6 @@ Tables.LevelData_1_1 = {
         Buildings  = "TableLevelData_1_1_Buildings",
         Objects    = "TableLevelData_1_1_Objects",
         Paths      = "TableLevelData_1_1_Paths",
+        Traffic    = "TableLevelData_1_1_Traffic",
     },
 }

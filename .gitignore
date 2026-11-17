@@ -50,3 +50,9 @@ sysinfo.txt
 # ---- 操作系统 ----
 .DS_Store
 Thumbs.db
+
+# ---- PSD / PSB 分层设计源文件（体积过大，不纳入版本控制；走设计稿库 / 网盘管理） ----
+*.psd
+*.psb
+*.psd.meta
+*.psb.meta

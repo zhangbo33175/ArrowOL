@@ -72,6 +72,8 @@ namespace Honor.Editor.MapTool
             {
                 m_ItemElementModule = new ItemElementEditModule();
                 m_ItemElementModule.Init(itemElementPanel);
+                // 模板保存后，转发场景模块按最新模板同步已摆放实例
+                m_ItemElementModule.OnTemplatesSaved += () => m_SceneModule?.SyncInstancesFromTemplates();
             }
 
             // 迷雾编辑模块

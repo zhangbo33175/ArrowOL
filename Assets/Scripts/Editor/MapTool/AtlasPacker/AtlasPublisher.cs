@@ -96,9 +96,18 @@ namespace Honor.Editor.MapTool.AtlasPacker
             };
             var atlasTex = exporter.GenerateAtlasPng(Items, atlasW, atlasH, padding, shapePadding);
 
-            // 保存 PNG
+            // 保存 PNG：优先自建优化编码器（level 9 + 滤镜选优 + 策略择优）；失败兜底内置 EncodeToPNG
             string pngPath = System.IO.Path.Combine(outputPath, textureFilename);
-            byte[] pngBytes = atlasTex.EncodeToPNG();
+            byte[] pngBytes;
+            try
+            {
+                pngBytes = PngAtlasEncoder.Encode(atlasTex);
+            }
+            catch (Exception encoderEx)
+            {
+                Debug.LogWarning($"[AtlasPacker] 自建 PNG 编码器失败，回退 EncodeToPNG：{encoderEx.Message}");
+                pngBytes = atlasTex.EncodeToPNG();
+            }
             System.IO.File.WriteAllBytes(AssetToFullPath?.Invoke(pngPath) ?? pngPath, pngBytes);
 
             // 生成 JSON

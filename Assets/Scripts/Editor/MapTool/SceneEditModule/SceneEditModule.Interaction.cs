@@ -81,19 +81,19 @@ namespace Honor.Editor.MapTool
             if (isMouseInRect)
             {
                 m_MousePos = e.mousePosition;
-                m_TileX = Mathf.FloorToInt((m_MousePos.x - m_MapOffset.x) / MapToolConstants.GridSize);
-                m_TileY = Mathf.FloorToInt((m_MousePos.y - m_MapOffset.y) / MapToolConstants.GridSize);
+                // 网格坐标统一走公共换算（借鉴 Tilemap GridLayout 口径）
+                Vector2 mouseWorld = new Vector2(
+                    (e.mousePosition.x - m_MapOffset.x) / m_Zoom,
+                    (e.mousePosition.y - m_MapOffset.y) / m_Zoom);
+                Vector2Int mouseCell = MapToolEditorUtils.WorldToCell(mouseWorld);
+                m_TileX = mouseCell.x;
+                m_TileY = mouseCell.y;
 
                 // 更新待放置预览位置
                 if (m_PendingPlace != null)
                 {
-                    float worldX = (e.mousePosition.x - m_MapOffset.x) / m_Zoom;
-                    float worldY = (e.mousePosition.y - m_MapOffset.y) / m_Zoom;
-                    // 吸附到网格中心
-                    float gridSize = MapToolConstants.GridSize;
-                    worldX = Mathf.Floor(worldX / gridSize) * gridSize;
-                    worldY = Mathf.Floor(worldY / gridSize) * gridSize;
-                    m_PendingPlace.Position = new Vector2(worldX, worldY);
+                    // 吸附到最近格子（公共网格吸附口径）
+                    m_PendingPlace.Position = MapToolEditorUtils.SnapToGrid(mouseWorld);
                     // 检查是否可以放置
                     m_PreviewValid = CanPlaceObject(m_PendingPlace, out m_PreviewReason);
                     GUI.changed = true;
@@ -133,6 +133,14 @@ namespace Honor.Editor.MapTool
             // 鼠标左键：放置物体、拖动物体 或 切换分区解锁
             if (isMouseInRect && e.type == EventType.MouseDown && e.button == 0)
             {
+                // ---TODO 交通规则：交通工具模式（刷格 / 画横道 / 放灯）优先于放置与选中
+                if (m_TrafficTool != TrafficTool.None)
+                {
+                    OnTrafficToolClick(e);
+                    e.Use();
+                    return;
+                }
+
                 // 如果有待放置预览，就放置物体
                 if (m_PendingPlace != null)
                 {
@@ -152,9 +160,13 @@ namespace Honor.Editor.MapTool
                         TemplateId = m_PendingPlace.TemplateId,
                         Name = m_PendingPlace.Name,
                         Type = m_PendingPlace.Type,
+                        LayerType = m_PendingPlace.LayerType,
                         Position = m_PendingPlace.Position,
                         Width = m_PendingPlace.Width,
                         Height = m_PendingPlace.Height,
+                        PixelWidth = m_PendingPlace.PixelWidth,
+                        PixelHeight = m_PendingPlace.PixelHeight,
+                        Stretch = m_PendingPlace.Stretch,
                         PreviewTexture = m_PendingPlace.PreviewTexture,
                         // 复制模板属性
                         AnimName = m_PendingPlace.AnimName,
@@ -169,6 +181,9 @@ namespace Honor.Editor.MapTool
                         ShadowEnabled = m_PendingPlace.ShadowEnabled,
                         IsCollectible = m_PendingPlace.IsCollectible,
                         RespawnTime = m_PendingPlace.RespawnTime,
+                        // 复制交通默认分类（模板类别继承而来，实例右栏可再调整）
+                        TrafficRole = m_PendingPlace.TrafficRole,
+                        IsVehicle = m_PendingPlace.IsVehicle,
                     };
 
                     m_PlacedObjects.Add(newObj);
@@ -262,7 +277,7 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 处理鼠标滚轮缩放（限制最小缩放为地图刚好填满视口，最大缩放为常量上限）
+        /// 处理鼠标滚轮缩放（下限保证整图完整落在视口内，最大缩放为常量上限）
         /// </summary>
         /// <param name="e">鼠标事件</param>
         private void OnScrollZoom(Event e)
@@ -270,12 +285,13 @@ namespace Honor.Editor.MapTool
             Rect rect = m_GuiContainer.contentRect;
             float oldZoom = m_Zoom;
             m_Zoom -= e.delta.y * 0.1f;
-            // 最小缩放：地图刚好填满显示框
+            // 最小缩放：取宽向/高向的较小值，保证整图完整落在视口内（高度主导），
+            // 避免宽扁视口按宽度铺满后上下被裁，把边缘菱形切成半格窄条。
             float minZoomX = rect.width / m_MapWidth;
             float minZoomY = rect.height / m_MapHeight;
-            float minZoom = Mathf.Max(minZoomX, minZoomY);
+            float minZoom = Mathf.Min(minZoomX, minZoomY);
             m_Zoom = Mathf.Clamp(m_Zoom, minZoom, MapToolConstants.MaxZoom);
-            // 缩放被限制在地图填满视口时，调整偏移让地图居中
+            // 缩放被限制在整图可见的下限时，调整偏移让地图在视口内居中
             if (m_Zoom == minZoom && oldZoom > minZoom)
             {
                 m_MapOffset = new Vector2(
@@ -343,16 +359,13 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 世界坐标吸附到网格（GridSize 整数倍）
+        /// 世界坐标吸附到网格（转发公共网格吸附口径，GridSize 整数倍）
         /// </summary>
         /// <param name="worldPos">原始世界坐标</param>
         /// <returns>吸附后的世界坐标</returns>
         private Vector2 SnapToGrid(Vector2 worldPos)
         {
-            return new Vector2(
-                Mathf.Round(worldPos.x / MapToolConstants.GridSize) * MapToolConstants.GridSize,
-                Mathf.Round(worldPos.y / MapToolConstants.GridSize) * MapToolConstants.GridSize
-            );
+            return MapToolEditorUtils.SnapToGrid(worldPos);
         }
 
         /// <summary>
@@ -360,27 +373,21 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private PlacedObject GetObjectAtPosition(Vector2 screenPos)
         {
-            // 从后往前遍历（后面绘制的在最上面）
-            for (int i = m_PlacedObjects.Count - 1; i >= 0; i--)
+            // 与绘制共用 GetPlacedObjectsSorted 同一排序序列：从最上层（序列末尾）向前取
+            // 第一个命中项，避免点到被上层物件压住的下层物件。
+            var sorted = GetPlacedObjectsSorted();
+            for (int i = sorted.Count - 1; i >= 0; i--)
             {
-                var obj = m_PlacedObjects[i];
-                float screenX = m_MapOffset.x + obj.Position.x * m_Zoom;
-                float screenY = m_MapOffset.y + obj.Position.y * m_Zoom;
-
-                // 优先用 PreviewTexture 的实际尺寸，否则用格子数 * 32
-                float width, height;
-                if (obj.PreviewTexture != null)
-                {
-                    width = obj.PreviewTexture.width * m_Zoom;
-                    height = obj.PreviewTexture.height * m_Zoom;
-                }
-                else
-                {
-                    width = obj.Width * 32 * m_Zoom;
-                    height = obj.Height * MapToolConstants.GridSize * m_Zoom;
-                }
-
-                Rect objRect = new Rect(screenX, screenY, width, height);
+                var obj = sorted[i];
+                // 与绘制同一口径：被顶部层开关隐藏的物件不可被点中（所见即可点）
+                if (IsLayerSwitchHidden(obj)) continue;
+                // 命中尺寸口径与绘制/排序一致：预览贴图 → PSD 像素 → 格子数 × 网格尺寸
+                GetObjectPixelSize(obj, out float baseW, out float baseH);
+                Rect objRect = new Rect(
+                    m_MapOffset.x + obj.Position.x * m_Zoom,
+                    m_MapOffset.y + obj.Position.y * m_Zoom,
+                    baseW * m_Zoom,
+                    baseH * m_Zoom);
                 if (objRect.Contains(screenPos))
                 {
                     return obj;

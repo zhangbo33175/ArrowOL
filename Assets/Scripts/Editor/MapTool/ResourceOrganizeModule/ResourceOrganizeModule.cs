@@ -547,7 +547,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
 
                     int sortOrder;
                     if (int.TryParse(textFields[3].value, out sortOrder))
-                        template.SortOrder = sortOrder;
+                        template.SortOrder = MapToolEditorUtils.ClampTemplateSortOrder(template, sortOrder);
 
                     template.DialogBubble = textFields[4].value;
 
@@ -657,17 +657,36 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         {
             if (string.IsNullOrEmpty(template.ImagePath)) return false;
 
-            // 根据类型确定目标文件夹名
-            string targetDirName = template.Type == MapObjectType.Building ? "Building" :
-                                    template.Type == MapObjectType.Character ? "Character" :
-                                    template.Type == MapObjectType.Cat ? "Cat" : "Prop";
-            string targetDir = $"{MapToolConstants.ResourceScanDir}/{targetDirName}";
+            // 根据类型确定层级目录（资源整理归入全局公共目录 Shared/<Layer>，便于后续打图集）
+            // 文件名前缀优先识别绿化（grass_/plant_）与道路市政（road_），枚举归并不影响归类
+            string lowerImage = (template.ImagePath ?? string.Empty).ToLowerInvariant();
+            string layerKey;
+            if (lowerImage.StartsWith(MapToolConstants.PrefixRoad))
+            {
+                layerKey = MapLayerCatalog.Road;
+            }
+            else if (lowerImage.StartsWith(MapToolConstants.PrefixGrass) ||
+                     lowerImage.StartsWith(MapToolConstants.PrefixPlant))
+            {
+                layerKey = MapLayerCatalog.Greenery;
+            }
+            else if (template.Type == MapObjectType.Building) layerKey = MapLayerCatalog.Building;
+            else if (template.Type == MapObjectType.Character) layerKey = MapLayerCatalog.Character;
+            else if (template.Type == MapObjectType.Cat) layerKey = MapLayerCatalog.Character;
+            else layerKey = MapLayerCatalog.Prop;
+            string targetDir = MapLayerCatalog.GetGlobalSharedDir(layerKey);
             string fileName = template.ImagePath;
 
-            // 确保目标文件夹存在
+            // 确保目标文件夹存在（Shared → <Layer> 两级）
+            string sharedRoot = MapLayerCatalog.GetGlobalSharedDir(layerKey);
+            string sharedParent = MapToolConstants.ResourceScanDir;
+            if (!AssetDatabase.IsValidFolder($"{sharedParent}/Shared"))
+            {
+                AssetDatabase.CreateFolder(sharedParent, "Shared");
+            }
             if (!AssetDatabase.IsValidFolder(targetDir))
             {
-                AssetDatabase.CreateFolder(MapToolConstants.ResourceScanDir, targetDirName);
+                AssetDatabase.CreateFolder($"{sharedParent}/Shared", MapLayerCatalog.GetLayerDir(layerKey));
             }
 
             string targetPath = $"{targetDir}/{fileName}.png";
@@ -687,7 +706,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
 
             // 复制图片
             AssetDatabase.CopyAsset(sourcePath, targetPath);
-            Debug.Log($"[ResourceOrganize] 图片已整理: {fileName} → {targetDirName}/");
+            Debug.Log($"[ResourceOrganize] 图片已整理: {fileName} → {targetDir}/");
             return true;
         }
 
@@ -890,7 +909,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             if (previewAnimName != null) previewAnimName.text = MapToolConstants.DefaultAnimName;
             if (previewLoop != null) previewLoop.text = "true";
             if (previewSpeed != null) previewSpeed.text = "1";
-            if (previewSortOrder != null) previewSortOrder.text = "10";
+            if (previewSortOrder != null) previewSortOrder.text = MapLayerCatalog.GetSortOrder(objType).ToString();
             if (previewShadow != null) previewShadow.text = "true";
             if (previewCollectible != null) previewCollectible.text = "false";
         }
@@ -936,7 +955,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
 
             bool loop = loopToggle?.value ?? true;
             float speed = speedField?.value ?? 1f;
-            int sortOrder = sortOrderField?.value ?? 10;
+            int sortOrder = sortOrderField?.value ?? 0;
             bool shadow = shadowToggle?.value ?? true;
             bool collectible = collectibleToggle?.value ?? false;
 
@@ -979,7 +998,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 existingTemplate.AnimName = animName;
                 existingTemplate.Loop = loop;
                 existingTemplate.Speed = speed;
-                existingTemplate.SortOrder = sortOrder;
+                existingTemplate.SortOrder = MapToolEditorUtils.NormalizeTemplateSortOrder(objType, sortOrder);
                 existingTemplate.ShadowEnabled = shadow;
                 existingTemplate.IsCollectible = collectible;
                 existingTemplate.Type = objType;
@@ -1001,7 +1020,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     AnimName = animName,
                     Loop = loop,
                     Speed = speed,
-                    SortOrder = sortOrder,
+                    SortOrder = MapToolEditorUtils.NormalizeTemplateSortOrder(objType, sortOrder),
                     ShadowEnabled = shadow,
                     IsCollectible = collectible,
                     Type = objType,

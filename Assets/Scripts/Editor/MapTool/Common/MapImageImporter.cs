@@ -44,6 +44,8 @@ namespace Honor.Editor.MapTool
         public string ObjectName;
         /// <summary>物件类型</summary>
         public MapObjectType Type;
+        /// <summary>八层类型键（background/greenery/road/building/prop/character/foreground/bubble，见 MapLayerCatalog）</summary>
+        public string LayerType;
         /// <summary>预览图路径（Assets 相对路径）</summary>
         public string PreviewPath;
     }
@@ -52,6 +54,7 @@ namespace Honor.Editor.MapTool
     /// 从 PNG 序列目录自动生成地图配置
     /// 命名规范：
     /// - bg_*.png → 背景图（只取第一个匹配）
+    /// - grass_/road_/plant_*.png → 地面装饰（草地/道路/绿植）
     /// - building_*.png → 建筑物件
     /// - char_*.png → 人物物件
     /// - prop_*.png → 物件
@@ -104,6 +107,33 @@ namespace Honor.Editor.MapTool
                         }
                     }
                 }
+                else if (fileName.StartsWith("road_"))
+                {
+                    // 道路市政：人行道/车道/斑马线/路灯/路牌，挂 Road 层（枚举归并 Prop，层级由 LayerType 区分）
+                    string roadName = fileName.Substring(5);
+                    result.Objects.Add(new ImportedObjectInfo
+                    {
+                        ObjectId = roadName,
+                        ObjectName = roadName,
+                        Type = MapObjectType.Prop,
+                        LayerType = MapLayerCatalog.Road,
+                        PreviewPath = assetPath,
+                    });
+                }
+                else if (fileName.StartsWith("grass_") || fileName.StartsWith("plant_"))
+                {
+                    // 绿化：乔木/灌木/绿篱/花丛，挂 Greenery 层（枚举归并 Prop，层级由 LayerType 区分）
+                    string greenPrefix = fileName.StartsWith("grass_") ? "grass_" : "plant_";
+                    string greenName = fileName.Substring(greenPrefix.Length);
+                    result.Objects.Add(new ImportedObjectInfo
+                    {
+                        ObjectId = greenName,
+                        ObjectName = greenName,
+                        Type = MapObjectType.Prop,
+                        LayerType = MapLayerCatalog.Greenery,
+                        PreviewPath = assetPath,
+                    });
+                }
                 else if (fileName.StartsWith("building_"))
                 {
                     result.Objects.Add(new ImportedObjectInfo
@@ -111,6 +141,7 @@ namespace Honor.Editor.MapTool
                         ObjectId = fileName.Substring(9),
                         ObjectName = fileName.Substring(9),
                         Type = MapObjectType.Building,
+                        LayerType = MapLayerCatalog.Building,
                         PreviewPath = assetPath,
                     });
                 }
@@ -121,6 +152,7 @@ namespace Honor.Editor.MapTool
                         ObjectId = fileName.Substring(5),
                         ObjectName = fileName.Substring(5),
                         Type = MapObjectType.Character,
+                        LayerType = MapLayerCatalog.Character,
                         PreviewPath = assetPath,
                     });
                 }
@@ -131,6 +163,7 @@ namespace Honor.Editor.MapTool
                         ObjectId = fileName.Substring(5),
                         ObjectName = fileName.Substring(5),
                         Type = MapObjectType.Prop,
+                        LayerType = MapLayerCatalog.Prop,
                         PreviewPath = assetPath,
                     });
                 }
@@ -141,6 +174,30 @@ namespace Honor.Editor.MapTool
                         ObjectId = fileName.Substring(4),
                         ObjectName = fileName.Substring(4),
                         Type = MapObjectType.Cat,
+                        LayerType = MapLayerCatalog.Character,
+                        PreviewPath = assetPath,
+                    });
+                }
+                else if (fileName.StartsWith("eff_") || fileName.StartsWith("fg_"))
+                {
+                    string fgPrefix = fileName.StartsWith("eff_") ? "eff_" : "fg_";
+                    result.Objects.Add(new ImportedObjectInfo
+                    {
+                        ObjectId = fileName.Substring(fgPrefix.Length),
+                        ObjectName = fileName.Substring(fgPrefix.Length),
+                        Type = MapObjectType.Prop,
+                        LayerType = MapLayerCatalog.Foreground,
+                        PreviewPath = assetPath,
+                    });
+                }
+                else if (fileName.StartsWith("bubble_"))
+                {
+                    result.Objects.Add(new ImportedObjectInfo
+                    {
+                        ObjectId = fileName.Substring(7),
+                        ObjectName = fileName.Substring(7),
+                        Type = MapObjectType.Prop,
+                        LayerType = MapLayerCatalog.Bubble,
                         PreviewPath = assetPath,
                     });
                 }

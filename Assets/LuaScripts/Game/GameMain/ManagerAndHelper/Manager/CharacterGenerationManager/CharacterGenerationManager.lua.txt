@@ -17,6 +17,52 @@
 ---@field _mapObjectTable HonorList @地图物件/建筑实例列表（Buildings/Objects 实体，回收用）
 local CharacterGenerationManager = class("CharacterGenerationManager")
 
+--region 【分层遮挡契约基线】
+
+-- 层节点名 → 契约基线 SortOrder（与编辑器 MapLayerCatalog 对齐：每层预留 100 个排序档位）
+-- Background0/Greenery100/Road200/Buildings300/Props400/Characters500/Foreground600/Bubbles700
+-- 旧节点 Ground/Cats/Effects 保留兜底基线，兼容旧预制体；缺 SortOrder 字段的实体按所在层节点名回退基线
+local LAYER_NODE_BASELINE = {
+    Background  = 0,
+    Greenery    = 100,
+    Road        = 200,
+    Buildings   = 300,
+    Props       = 400,
+    Characters  = 500,
+    Foreground  = 600,
+    Bubbles     = 700,
+    -- 旧节点兜底（旧预制体未改造时按归并层基线回退）
+    Ground      = 100,
+    Cats        = 500,
+    Effects     = 600,
+}
+
+-- 层类型键（小写）→ 契约基线，供条目 LayerType 缺失节点归属时兜底
+-- 旧键 ground/cat/effect 作为别名保留，读取时归一到 greenery/character/foreground
+local LAYER_TYPE_BASELINE = {
+    background  = 0,
+    greenery    = 100,
+    road        = 200,
+    building    = 300,
+    prop        = 400,
+    character   = 500,
+    foreground  = 600,
+    bubble      = 700,
+    -- 旧键别名兜底
+    ground      = 100,
+    cat         = 500,
+    effect      = 600,
+}
+
+-- 同层手动改层级时，按序列次序回写等差 SortOrder 的步长（与编辑器 MapToolConstants.LayerOrderSeqStep 对齐）
+local LOCAL_ORDER_STEP = 1
+
+-- 每层可分配的独立排序档位数量（与编辑器 MapToolConstants.LayerSlotCount 对齐）；
+-- 超出部分钳到最高档同档共享，再按脚底 Y 排序，不越界到相邻层基线
+local LOCAL_SLOT_COUNT = 100
+
+--endregion
+
 --region 构造 & 实例化
 
 ---=========================================================================
@@ -135,6 +181,10 @@ end
 function CharacterGenerationManager:DespawnAllCharacters()
     self:_DespawnEntityList(self._characterBaseTable)
     self:_DespawnEntityList(self._mapObjectTable)
+    ---TODO 交通规则：角色/物件回收时同步清空运行时交通数据，等待下次地图生成重新装载
+    if TrafficManager then
+        TrafficManager:Clear()
+    end
 end
 
 --endregion
@@ -226,6 +276,85 @@ function CharacterGenerationManager:_GridToLocalPos(gridX, gridY)
 end
 
 ---=========================================================================
+---@brief PSD 左上角像素坐标 → CoordAdapter 本地坐标（公共换算）
+---@desc 编辑器/PSD 为左上角原点、Y 向下；CoordAdapter 为左下角原点、Y 向上，需 Y 轴翻转；
+---      锚点按图层像素高折算到本地底部，保证与 PSD 图层位置 1:1 对应。
+---@type fun(posX:number,posY:number,pixelHeight:number):UnityEngine.Vector3
+---@param posX number @PSD 左上 X（像素）
+---@param posY number @PSD 左上 Y（像素，向下为正）
+---@param pixelHeight number @图层像素高（锚点折算用）
+---@return UnityEngine.Vector3 @localPosition
+---=========================================================================
+function CharacterGenerationManager:_PsdToLocalPos(posX, posY, pixelHeight)
+    local gs = self:_GetGridSize()
+    local mapH = (EMapLayoutConfig.gridRows or 128) * gs
+    local x = tonumber(posX) or 0
+    local ph = tonumber(pixelHeight) or 0
+    local y = mapH - (tonumber(posY) or 0) - ph
+    return UnityEngine.Vector3(x, y, 0)
+end
+
+---=========================================================================
+---@brief 按条目 LayerType 解析对应层级挂载节点（Background/Greenery/Road/Buildings/Props/Characters/Foreground/Bubbles）
+---@desc 节点缺失时回退地图根节点；层级键小写归一化，旧键 ground/cat/effect 归一到 greenery/character/foreground，兼容旧 Objects 节点名。
+---@type fun(gameMapRoot:UnityEngine.Transform,layerType:string):UnityEngine.Transform
+---@param gameMapRoot UnityEngine.Transform @地图根节点（CoordAdapter）
+---@param layerType string @图层类型键（background/greenery/road/building/prop/character/foreground/bubble）
+---@return UnityEngine.Transform @层级节点
+---=========================================================================
+function CharacterGenerationManager:_ResolveLayerRoot(gameMapRoot, layerType)
+    if gameMapRoot == nil then return nil end
+    local dirMap = {
+        background  = "Background",
+        greenery    = "Greenery",
+        ground      = "Greenery",
+        road        = "Road",
+        building    = "Buildings",
+        prop        = "Props",
+        character   = "Characters",
+        cat         = "Characters",
+        foreground  = "Foreground",
+        effect      = "Foreground",
+        bubble      = "Bubbles",
+    }
+    local key = (layerType or ""):lower()
+    local nodeName = dirMap[key] or "Props"
+    -- 新节点优先；缺失时兜底旧预制体同名节点，再回退 Objects / 地图根
+    return gameMapRoot:Find(nodeName)
+        or gameMapRoot:Find("Objects")
+        or gameMapRoot
+end
+
+---=========================================================================
+---@brief 解析有效显示层键：DisplayLayer 为空/非法时回退归属 LayerType
+---@desc 与编辑器 MapLayerCatalog.ResolveDisplayLayer 同口径；归属层字段不变，仅渲染挂载档位跟随显示层
+---@type fun(displayLayer:string, layerType:string):string
+---@param displayLayer string @显示层档位（可为空）
+---@param layerType string @归属层类型键
+---@return string 有效层键（小写）
+---=========================================================================
+function CharacterGenerationManager:_ResolveDisplayLayer(displayLayer, layerType)
+    -- 合法层键归一映射：旧键 ground/cat/effect 归一到 greenery/character/foreground
+    local normalizeMap = {
+        background  = "background",
+        greenery    = "greenery",
+        ground      = "greenery",
+        road        = "road",
+        building    = "building",
+        prop        = "prop",
+        character   = "character",
+        cat         = "character",
+        foreground  = "foreground",
+        effect      = "foreground",
+        bubble      = "bubble",
+    }
+    local disp = (displayLayer or ""):lower()
+    if disp ~= "" and normalizeMap[disp] then return normalizeMap[disp] end
+    local owner = (layerType or ""):lower()
+    return normalizeMap[owner] or "prop"
+end
+
+---=========================================================================
 ---@brief 刷新单个角色图标
 ---@desc 查找角色身上的 CharacterIcon 图标组件，解析别名后刷新显示；组件缺失则静默跳过
 ---@type fun(characterBase:CharacterBase,sprite:string,fallbackIcon:string):void
@@ -297,6 +426,11 @@ function CharacterGenerationManager:LoadCharacterByMapData(gameMapRoot)
         .. " 建筑=" .. tostring(mapData.Buildings and #mapData.Buildings or 0)
         .. " 物件=" .. tostring(mapData.Objects and #mapData.Objects or 0))
     GameCoreManager:SetCurLevelData(mapData)
+
+    ---TODO 交通规则：角色生成前装载交通子表（红绿灯/横道/人行道格/车道格），供行人/载具运行时查询判定
+    if TrafficManager then
+        TrafficManager:LoadTrafficData(mapData)
+    end
 
     -- 清空旧角色列表，防止重载/重玩时残留脏数据
     local characterList = self:_ClearCharacterList()
@@ -465,8 +599,9 @@ function CharacterGenerationManager:_ProcessSingleCharacter(v, index, gameMapRoo
         return defaults[k]
     end })
 
-    -- 根据ID生成角色实体挂载到地图根节点
-    local characterBase = self:SpawnCharacter(templateId, gameMapRoot)
+    -- 按显示档解析挂载节点（归属 LayerType 不变，物理挂载跟随独立显示层档位；节点缺失回退地图根）
+    local charLayerRoot = self:_ResolveLayerRoot(gameMapRoot, self:_ResolveDisplayLayer(v.DisplayLayer, v.LayerType))
+    local characterBase = self:SpawnCharacter(templateId, charLayerRoot)
     if not characterBase then
         print("[CharacterGenerationManager] 角色生成失败 ID:" .. tostring(templateId))
         return
@@ -477,9 +612,44 @@ function CharacterGenerationManager:_ProcessSingleCharacter(v, index, gameMapRoo
     characterBase.ID = templateId
     characterBase._CollectKey = collectKey
 
-    -- 【坐标系】实体挂到 CoordAdapter（pivot=左下角）下，Y 轴翻转
-    local startPos = self:_GridToLocalPos(v.GridX, v.GridY)
+    -- 【坐标系】优先 PSD 像素坐标（左上原点 → 本地左下原点翻转）；无像素坐标回退 Grid×gridSize，Y 轴翻转
+    local startPos
+    if v.PosX ~= nil or v.PosY ~= nil then
+        startPos = self:_PsdToLocalPos(v.PosX, v.PosY, v.PixelHeight)
+    else
+        startPos = self:_GridToLocalPos(v.GridX, v.GridY)
+    end
     characterBase._GameObject.transform.localPosition = startPos
+
+    -- 遮挡排序键（条目优先、Defaults 兜底）：供生成分区实体后同层 sibling 重排使用；
+    -- 字段缺失时不在此硬编码档位，由排序层按所在层契约基线兜底，避免缺配置被抬到特效档(50)
+    ---TODO [遮挡排序] 角色路径移动到路径点后的本层重排，已由 CharacterBase:StartPathMove 的 OnStepComplete 回调触发
+    characterBase._SortOrder = tonumber(charConfig.SortOrder)
+    characterBase._YSortEnabled = charConfig.YSortEnabled ~= false
+    characterBase._YSortOffset = tonumber(charConfig.YSortOffset) or 0
+
+    -- 比例 / 角度变换（条目优先、Defaults 兜底：Scale=1、Rotation=0）
+    local charScale = tonumber(charConfig.Scale) or 1
+    local charRotation = tonumber(charConfig.Rotation) or 0
+    characterBase._GameObject.transform.localScale = UnityEngine.Vector3(charScale, charScale, 1)
+    characterBase._GameObject.transform.localRotation = UnityEngine.Quaternion.Euler(0, 0, charRotation)
+    characterBase._Scale = charScale
+    characterBase._Rotation = charRotation
+
+    ---TODO 交通规则：快照角色/载具交通属性，供运行时横道等待与停止线让行查询（移动中断钩子待接 MapPathMoveUtil 拦截谓词）
+    characterBase._TrafficRole = charConfig.TrafficRole or "none"
+    characterBase._IsVehicle = charConfig.IsVehicle == true
+    characterBase._BoundLightId = charConfig.BoundLightId or nil
+    ---TODO 交通规则：绑定灯多选列表；旧地图仅有单值 BoundLightId 时兜底为单元素表
+    local boundIds = charConfig.BoundLightIds
+    if (not boundIds or #boundIds == 0) and charConfig.BoundLightId then
+        boundIds = { charConfig.BoundLightId }
+    end
+    characterBase._BoundLightIds = boundIds
+    characterBase._StopLineX = tonumber(charConfig.StopLineX)
+    characterBase._StopLineY = tonumber(charConfig.StopLineY)
+    characterBase._YellowTreatAsRed = charConfig.YellowTreatAsRed ~= false
+
     PrintInfo("[坐标调试] 角色ID=" .. tostring(templateId)
         .. " GridX=" .. tostring(v.GridX) .. " GridY=" .. tostring(v.GridY)
         .. " → PosX=" .. string.format("%.1f", startPos.x)
@@ -541,10 +711,10 @@ function CharacterGenerationManager:_GenerateEntitiesForSection(mapSectionData, 
     if not mapSectionData or gameMapRoot == nil then
         return
     end
-    -- 分层挂载：角色→Characters，建筑→Buildings，物件→Objects
+    -- 分层挂载（日志用快速根）：角色→Characters，建筑→Buildings，物件→Props；实际挂载节点由 _ResolveLayerRoot 按层解析
     local charRoot = gameMapRoot:Find("Characters") or gameMapRoot
     local buildRoot = gameMapRoot:Find("Buildings") or gameMapRoot
-    local objRoot = gameMapRoot:Find("Objects") or gameMapRoot
+    local objRoot = gameMapRoot:Find("Props") or gameMapRoot:Find("Objects") or gameMapRoot
     PrintInfo("[CGM] 分层挂载: char=" .. charRoot.name .. " build=" .. buildRoot.name .. " obj=" .. objRoot.name)
 
     -- 列表初始化
@@ -555,15 +725,368 @@ function CharacterGenerationManager:_GenerateEntitiesForSection(mapSectionData, 
     self._BuildingList = buildingList
     self._ObjectList = objectList
 
-    -- 角色生成
-    self:_SpawnCharactersForSection(mapSectionData, charRoot, characterList)
+    -- 角色生成（传 CoordAdapter 根，内部按显示档解析对应层节点；节点缺失由解析兜底回退）
+    self:_SpawnCharactersForSection(mapSectionData, gameMapRoot, characterList)
 
-    -- 建筑生成（从子表加载）
+    -- 建筑生成（传 CoordAdapter 根，内部按显示档解析 Buildings 等层节点）
     local objSeq = 0
-    objSeq = self:_SpawnBuildingsForSection(mapSectionData, buildRoot, objSeq, buildingList)
+    objSeq = self:_SpawnBuildingsForSection(mapSectionData, gameMapRoot, objSeq, buildingList)
 
-    -- 物件生成（从子表加载）
-    objSeq = self:_SpawnMapObjectsForSection(mapSectionData, objRoot, objSeq, objectList)
+    -- 物件生成（从子表加载）：传入 CoordAdapter 根节点，便于按 LayerType 找到 Props/Characters/Foreground/Bubbles 同级层节点
+    objSeq = self:_SpawnMapObjectsForSection(mapSectionData, gameMapRoot, objSeq, objectList)
+
+    -- 三类实体生成完毕后，按遮挡规则重排各层 sibling 顺序（层间顺序由 Prefab 层节点固定契约保证）
+    self:_ApplyLayerOrdering(gameMapRoot)
+end
+
+---=========================================================================
+---@brief 生成分区实体后按遮挡规则重排各层 sibling 顺序（内部整图入口）
+---@desc 层内三级稳定键：① SortOrder（数值越大越靠前/上层）② YSort 脚底近处优先 ③ 实例 ID 兜底防抖动；
+---      运行时为左下原点、Y 向上，近处（屏幕下方）脚底 Y 小应在上层，故 Y 键取 -footY + YSortOffset；
+---      固定遮挡模式（YSortEnabled=false）第二键恒 0。层间顺序由 Prefab 层节点契约固定，此方法不打乱。
+---@type fun(gameMapRoot:UnityEngine.Transform):void
+---@param gameMapRoot UnityEngine.Transform @地图根节点（CoordAdapter）
+---=========================================================================
+function CharacterGenerationManager:_ApplyLayerOrdering(gameMapRoot)
+    if not gameMapRoot or IsNull(gameMapRoot) then
+        return
+    end
+    -- 层节点名（与 Prefab 层结构对齐，自底向上）；节点缺失即跳过，不回退地图根节点，避免根下实体被重复排序
+    -- 新节点优先，旧节点 Ground/Cats/Effects 作为旧预制体兜底一并参与重排
+    local layerNames = { "Background", "Greenery", "Road", "Buildings", "Props", "Characters", "Foreground", "Bubbles",
+        "Ground", "Cats", "Effects" }
+    for _, nodeName in ipairs(layerNames) do
+        local layerRoot = gameMapRoot:Find(nodeName)
+        if layerRoot and not IsNull(layerRoot) then
+            self:_SortLayerChildren(layerRoot)
+        end
+    end
+end
+
+---=========================================================================
+---@brief 整图分层遮挡次序重排（公开入口）
+---@desc 供批量改层级 / 关卡刷新后调用，等价于生成时的层内重排；不改变层间契约顺序。
+---@type fun(gameMapRoot:UnityEngine.Transform):void
+---@param gameMapRoot UnityEngine.Transform @地图根节点（CoordAdapter）
+---=========================================================================
+function CharacterGenerationManager:RefreshAllLayerOrdering(gameMapRoot)
+    self:_ApplyLayerOrdering(gameMapRoot)
+end
+
+---=========================================================================
+---@brief 解析实体根节点 Transform（内部公共）
+---@desc 实体 Lua 实例优先取 _GameObject.transform，缺失回退 cs.transform；已销毁/取不到返回 nil。
+---@type fun(entity:MapObjectBase|CharacterBase):UnityEngine.Transform|nil
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@return UnityEngine.Transform|nil @实体根节点
+---=========================================================================
+function CharacterGenerationManager:_ResolveEntityTransform(entity)
+    if not entity then return nil end
+    local trans = nil
+    if entity._GameObject and not IsNull(entity._GameObject) then
+        trans = entity._GameObject.transform
+    elseif entity.cs and not IsNull(entity.cs) then
+        trans = entity.cs.transform
+    end
+    if not trans or IsNull(trans) then return nil end
+    return trans
+end
+
+---=========================================================================
+---@brief 单个实体层级 / 位置变更后，重排其所在层的 sibling 遮挡次序（公开入口）
+---@desc 供运行时调试面板拖动层级滑条、实体走到路径点后调用；只重排实体所在层，不跨层打乱契约。
+---      实体取不到节点或已销毁时静默跳过。
+---@type fun(entity:MapObjectBase|CharacterBase):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例（需含 _GameObject 或 cs 引用）
+---=========================================================================
+function CharacterGenerationManager:RefreshObjectOrdering(entity)
+    local trans = self:_ResolveEntityTransform(entity)
+    if not trans then return end
+    local layerRoot = trans.parent
+    if layerRoot and not IsNull(layerRoot) then
+        self:_SortLayerChildren(layerRoot)
+    end
+end
+
+---=========================================================================
+---@brief 读取实体当前遮挡排序状态（公开入口）
+---@desc 供调试面板显示层内位次（siblingIndex+1/layerCount）与层级档位，并作为「取消」回滚快照；
+---      sortOrder 为 nil 表示未显式配置，排序时按所在层契约基线兜底。
+---@type fun(entity:MapObjectBase|CharacterBase):table|nil
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@return table|nil @{ sortOrder, ySortEnabled, ySortOffset, layerName, siblingIndex, layerCount }，实体无效返回 nil
+---=========================================================================
+function CharacterGenerationManager:GetEntityOrdering(entity)
+    local trans = self:_ResolveEntityTransform(entity)
+    if not trans then return nil end
+    local parent = trans.parent
+    return {
+        sortOrder    = entity._SortOrder,
+        ySortEnabled = entity._YSortEnabled,
+        ySortOffset  = entity._YSortOffset,
+        layerName    = parent and parent.name or "",
+        siblingIndex = trans:GetSiblingIndex(),
+        layerCount   = parent and parent.childCount or 1,
+    }
+end
+
+---=========================================================================
+---@brief 设置实体层内层级档位并重排本层（公开入口）
+---@desc 仅改同层内 z-order 档位（_SortOrder），不跨层移动节点；写入后触发本层 sibling 重排。
+---      档位值非法（非数值）时静默忽略。
+---@type fun(entity:MapObjectBase|CharacterBase, sortOrder:number):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@param sortOrder number @层内层级档位（数值越大越靠前/上层）
+---=========================================================================
+function CharacterGenerationManager:SetEntitySortOrder(entity, sortOrder)
+    if not entity then return end
+    local order = tonumber(sortOrder)
+    if order == nil then return end
+    entity._SortOrder = order
+    self:RefreshObjectOrdering(entity)
+end
+
+---=========================================================================
+---@brief 按快照还原实体遮挡排序状态（公开入口，供「取消」回滚）
+---@desc 还原 sortOrder / ySortEnabled / ySortOffset 后重排本层；快照为空时静默跳过。
+---@type fun(entity:MapObjectBase|CharacterBase, snapshot:table):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@param snapshot table @GetEntityOrdering 返回的状态快照
+---=========================================================================
+function CharacterGenerationManager:RestoreEntityOrdering(entity, snapshot)
+    if not entity or not snapshot then return end
+    entity._SortOrder = snapshot.sortOrder
+    entity._YSortEnabled = snapshot.ySortEnabled
+    entity._YSortOffset = snapshot.ySortOffset
+    self:RefreshObjectOrdering(entity)
+end
+
+---=========================================================================
+---@brief 按当前层内条目次序回写等差 SortOrder 并落位 sibling（内部公共）
+---@desc 与编辑器 RebuildLayerSortOrder 口径一致：基线取所在层契约值，次序越靠后（上层）SortOrder 越大，
+---      步长 LOCAL_ORDER_STEP；每层仅 LOCAL_SLOT_COUNT 个独立档位，超出部分钳到最高档同档共享（再按脚底 Y 排序），
+---      保证手动交换 / 置顶置底的位次在下次 YSort 重排后仍保持，不被等值基线拉回。
+---@type fun(layerRoot:UnityEngine.Transform, entries:table):void
+---@param layerRoot UnityEngine.Transform @层级挂载节点
+---@param entries table @已按目标次序排好的层内条目（前部下层、后部上层）
+---=========================================================================
+function CharacterGenerationManager:_RebuildLayerOrderSequence(layerRoot, entries)
+    if not entries or #entries == 0 then return end
+    local parentName = layerRoot and layerRoot.name or ""
+    local baseline = LAYER_NODE_BASELINE[parentName] or LAYER_TYPE_BASELINE.prop
+    for i, entry in ipairs(entries) do
+        if entry.luaClass then
+            local slot = math.min(i - 1, LOCAL_SLOT_COUNT - 1)
+            entry.luaClass._SortOrder = baseline + slot * LOCAL_ORDER_STEP
+        end
+        entry.transform:SetSiblingIndex(i - 1)
+    end
+end
+
+---=========================================================================
+---@brief 在层内条目列表中定位实体位次（内部公共）
+---@type fun(entries:table, entity:MapObjectBase|CharacterBase):number|nil
+---@param entries table @层内条目列表
+---@param entity MapObjectBase|CharacterBase @目标实体
+---@return number|nil @1 基位次，未命中返回 nil
+---=========================================================================
+function CharacterGenerationManager:_FindEntityEntryIndex(entries, entity)
+    local trans = self:_ResolveEntityTransform(entity)
+    if not trans then return nil end
+    local targetId = trans.gameObject:GetInstanceID()
+    for i, entry in ipairs(entries) do
+        if entry.idKey == targetId then
+            return i
+        end
+    end
+    return nil
+end
+
+---=========================================================================
+---@brief 同层内前后移动一步（公开入口，对齐视频「更改层级」/ 编辑器上移下移）
+---@desc 仅在实体所在层内与相邻物件交换位次并回写等差档位，不跨分层契约；已在边界（最前/最后）时静默跳过。
+---@type fun(entity:MapObjectBase|CharacterBase, forward:boolean):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@param forward boolean @true=向上层移动（与后一项交换，更靠前）；false=向下层移动
+---=========================================================================
+function CharacterGenerationManager:MoveEntityInLayer(entity, forward)
+    local trans = self:_ResolveEntityTransform(entity)
+    if not trans then return end
+    local layerRoot = trans.parent
+    if not layerRoot or IsNull(layerRoot) then return end
+    local entries = self:_CollectLayerEntries(layerRoot)
+    local idx = self:_FindEntityEntryIndex(entries, entity)
+    if not idx then return end
+    local swapIdx = forward and (idx + 1) or (idx - 1)
+    if swapIdx < 1 or swapIdx > #entries then return end
+    entries[idx], entries[swapIdx] = entries[swapIdx], entries[idx]
+    self:_RebuildLayerOrderSequence(layerRoot, entries)
+end
+
+---=========================================================================
+---@brief 同层内置顶（移到本层最上层），公开入口
+---@type fun(entity:MapObjectBase|CharacterBase):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---=========================================================================
+function CharacterGenerationManager:BringEntityToFront(entity)
+    local trans = self:_ResolveEntityTransform(entity)
+    if not trans then return end
+    local layerRoot = trans.parent
+    if not layerRoot or IsNull(layerRoot) then return end
+    local entries = self:_CollectLayerEntries(layerRoot)
+    local idx = self:_FindEntityEntryIndex(entries, entity)
+    if not idx or #entries <= 1 then return end
+    local target = table.remove(entries, idx)
+    entries[#entries + 1] = target
+    self:_RebuildLayerOrderSequence(layerRoot, entries)
+end
+
+---=========================================================================
+---@brief 同层内置底（移到本层最下层），公开入口
+---@type fun(entity:MapObjectBase|CharacterBase):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---=========================================================================
+function CharacterGenerationManager:SendEntityToBack(entity)
+    local trans = self:_ResolveEntityTransform(entity)
+    if not trans then return end
+    local layerRoot = trans.parent
+    if not layerRoot or IsNull(layerRoot) then return end
+    local entries = self:_CollectLayerEntries(layerRoot)
+    local idx = self:_FindEntityEntryIndex(entries, entity)
+    if not idx or #entries <= 1 then return end
+    local target = table.remove(entries, idx)
+    table.insert(entries, 1, target)
+    self:_RebuildLayerOrderSequence(layerRoot, entries)
+end
+
+---=========================================================================
+---@brief 收集层根下直接子节点的排序条目（内部公共）
+---@desc 条目含 transform / luaClass / order / yKey / idKey；luaClass 供手动改层级回写 _SortOrder。
+---@type fun(layerRoot:UnityEngine.Transform):table
+---@param layerRoot UnityEngine.Transform @层级挂载节点
+---@return table @排序条目列表
+---=========================================================================
+function CharacterGenerationManager:_CollectLayerEntries(layerRoot)
+    local entries = {}
+    local count = layerRoot.childCount
+    for i = 0, count - 1 do
+        local child = layerRoot:GetChild(i)
+        local sortOrder, ySortEnabled, ySortOffset, idKey = self:_GetOrderingKeys(child)
+        local footY = self:_GetFootLocalY(child)
+        -- YSort 键：近处（脚底 y 小）→ -y 大 → 后绘制（上层）；关闭 YSort 时第二键恒 0
+        local yKey = ySortEnabled and (-footY + ySortOffset) or 0
+        local go = child.gameObject
+        local luaBehaviour = go:GetComponent("LuaBehaviour")
+        local luaClass = luaBehaviour and luaBehaviour.luaClass or nil
+        entries[#entries + 1] = {
+            transform = child,
+            luaClass  = luaClass,
+            order     = sortOrder,
+            yKey      = yKey,
+            idKey     = idKey,
+        }
+    end
+    return entries
+end
+
+---=========================================================================
+---@brief 重排单个层根下直接子节点的 sibling 顺序（层内遮挡）
+---@desc 排序后按顺序 SetSiblingIndex：index 0 先绘制（下层），末尾后绘制（上层）；
+---      三级键依次为 SortOrder、脚底 Y 的 YSort 键、实例 ID（同坐标等值时次序稳定不抖动）。
+---@type fun(layerRoot:UnityEngine.Transform):void
+---@param layerRoot UnityEngine.Transform @层级挂载节点
+---=========================================================================
+function CharacterGenerationManager:_SortLayerChildren(layerRoot)
+    local count = layerRoot.childCount
+    if count <= 1 then
+        return
+    end
+
+    local entries = self:_CollectLayerEntries(layerRoot)
+
+    table.sort(entries, function(a, b)
+        if a.order ~= b.order then
+            return a.order < b.order
+        end
+        if a.yKey ~= b.yKey then
+            return a.yKey < b.yKey
+        end
+        return a.idKey < b.idKey
+    end)
+
+    for i, entry in ipairs(entries) do
+        entry.transform:SetSiblingIndex(i - 1)
+    end
+end
+
+---=========================================================================
+---@brief 计算实体脚底 localY（中心 pivot 需扣除图标半高）
+---@desc 运行时模板根与图标子节点（BG / CharacterIcon）均为中心 pivot，localPosition 是中心点；
+---      YSort 遮挡以脚底为准，故脚底 Y = 中心 Y - 图标半高。半高取数优先级：
+---      ① 图标 RectTransform.sizeDelta（运行时由配置像素尺寸 / SetNativeSize 撑开）
+---      ② sizeDelta 未撑开时回退 UI Image 精灵原生像素高（sprite.rect.height）
+---      ③ 都取不到则回退中心 Y，保证不报错。半高统一乘图标自身 localScale.y。
+---@type fun(transform:UnityEngine.Transform):number
+---@param transform UnityEngine.Transform @实体根节点
+---@return number @脚底 localY（左下原点、Y 向上）
+---=========================================================================
+function CharacterGenerationManager:_GetFootLocalY(transform)
+    if not transform or IsNull(transform) then
+        return 0
+    end
+    local centerY = transform.localPosition.y
+    local icon = transform:Find("BG") or transform:Find("CharacterIcon")
+    if not icon or IsNull(icon) then
+        return centerY
+    end
+
+    local halfHeight = 0
+    local rt = icon:GetComponent(typeof(UnityEngine.RectTransform))
+    local rectHeight = rt and rt.sizeDelta.y or 0
+    if rectHeight > 0 then
+        halfHeight = rectHeight * 0.5 * icon.localScale.y
+    else
+        -- sizeDelta 未撑开（0 或缺失）时，回退 Image 精灵原生像素高
+        local image = icon:GetComponent(typeof(UnityEngine.UI.Image))
+        if image and not IsNull(image.sprite) then
+            halfHeight = image.sprite.rect.height * 0.5 * icon.localScale.y
+        end
+    end
+    return centerY - halfHeight
+end
+
+---=========================================================================
+---@brief 从实例读取遮挡排序键（角色/物件 Lua 实例挂载字段，缺省按所在层契约基线兜底）
+---@type fun(transform:UnityEngine.Transform):number,boolean,number,number
+---@param transform UnityEngine.Transform @实体节点
+---@return number @SortOrder（越大越靠前）
+---@return boolean @是否启用 YSort
+---@return number @YSort 偏移
+---@return number @稳定排序键（实例 InstanceID）
+---=========================================================================
+function CharacterGenerationManager:_GetOrderingKeys(transform)
+    local order, yEnabled, yOffset, idKey = nil, true, 0, 0
+    local go = transform.gameObject
+    local luaBehaviour = go:GetComponent("LuaBehaviour")
+    local luaClass = luaBehaviour and luaBehaviour.luaClass or nil
+    if luaClass then
+        if luaClass._SortOrder ~= nil then
+            order = tonumber(luaClass._SortOrder)
+        end
+        if luaClass._YSortEnabled ~= nil then
+            yEnabled = luaClass._YSortEnabled ~= false
+        end
+        if luaClass._YSortOffset ~= nil then
+            yOffset = tonumber(luaClass._YSortOffset) or 0
+        end
+    end
+    -- 兜底基线：字段缺失时按所在层节点名取契约基线；节点名缺失再按物件默认层(Props=20)
+    if order == nil then
+        local parentName = transform.parent and transform.parent.name or ""
+        order = LAYER_NODE_BASELINE[parentName] or LAYER_TYPE_BASELINE.prop
+    end
+    idKey = go:GetInstanceID()
+    return order, yEnabled, yOffset, idKey
 end
 
 ---=========================================================================
@@ -606,7 +1129,7 @@ end
 ---@brief 物件生成（从子表加载）
 ---@type fun(mapSectionData:table,gameMapRoot:UnityEngine.Transform,objSeq:number,objectList:table):number
 ---@param mapSectionData table @主表数据
----@param gameMapRoot UnityEngine.Transform @物件挂载节点（Objects 层）
+---@param gameMapRoot UnityEngine.Transform @CoordAdapter 根节点（按 LayerType 解析 Greenery/Road/Props/Characters/Foreground/Bubbles 层）
 ---@param objSeq number @物件全局序号
 ---@param objectList table @物件列表
 ---@return number @更新后的全局序号
@@ -652,8 +1175,8 @@ end
 ---@return MapObjectBase|nil @物件实例，数据缺失返回nil
 ---=========================================================================
 function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, resName, sectionId, objSeq)
-    -- 数据空安全：无条目/无坐标无法生成（编辑器导出字段为 GridX/GridY，非 Position）
-    if not entry or (entry.GridX == nil and entry.GridY == nil) then
+    -- 数据空安全：无条目/无坐标无法生成（兼容 GridX/GridY 旧格式与 PosX/PosY PSD 像素格式）
+    if not entry or (entry.GridX == nil and entry.GridY == nil and entry.PosX == nil and entry.PosY == nil) then
         return nil
     end
 
@@ -665,6 +1188,13 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     if not go or IsNull(go) then
         PrintError("地图物件对象池获取失败 ResName:{0}, ID:{1}", resName, tostring(entry.Id))
         return nil
+    end
+
+    -- 按显示档挂到对应层级节点（归属 LayerType 不变，物理挂载跟随独立显示层档位）
+    local effectiveLayer = self:_ResolveDisplayLayer(entry.DisplayLayer, entry.LayerType)
+    local layerRoot = self:_ResolveLayerRoot(gameMapRoot, effectiveLayer)
+    if layerRoot ~= gameMapRoot then
+        go.transform.SetParent(layerRoot, false)
     end
     ---@type Honor.Runtime.LuaBehaviour
     local luaBehaviour = go:GetComponent("LuaBehaviour")
@@ -680,6 +1210,11 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     mapObj:Clear()
     mapObj._MapData = entry
     mapObj._GameObject = go
+    -- 遮挡排序键（条目字段，缺省按所在层契约基线兜底）：与角色同口径，供同层 sibling 重排
+    ---TODO [遮挡排序] 物件路径移动到路径点后的本层重排，已由 MapObjectBase:StartPathMove 的 OnStepComplete 回调触发
+    mapObj._SortOrder = tonumber(entry.SortOrder)
+    mapObj._YSortEnabled = entry.YSortEnabled ~= false
+    mapObj._YSortOffset = tonumber(entry.YSortOffset) or 0
     mapObj:RefreshBubbleTimer()
 
     -- 物件唯一收集键（关卡ID_物件ID_全局序号，避免同关卡同 Id 多实例键冲突）
@@ -689,10 +1224,24 @@ function CharacterGenerationManager:_SpawnSingleMapObject(entry, gameMapRoot, re
     -- 携带展示信息 meta（图标名=entry.Image/是否角色=false），供收集面板列表展示
     LevelCollectManager:RegisterLevelItem(sectionId or 1, collectKey, { icon = entry.Image, isRole = false })
 
-    -- 【坐标系】同角色：挂到 CoordAdapter（左下角原点）下，直接用 Grid×gridSize
-    go.transform.localPosition = self:_GridToLocalPos(entry.GridX, entry.GridY)
+    -- 【坐标系】优先 PSD 像素坐标（左上原点 → 本地左下原点翻转）；无像素坐标回退 Grid×gridSize
+    local localPos
+    if entry.PosX ~= nil or entry.PosY ~= nil then
+        localPos = self:_PsdToLocalPos(entry.PosX, entry.PosY, entry.PixelHeight)
+    else
+        localPos = self:_GridToLocalPos(entry.GridX, entry.GridY)
+    end
+    go.transform.localPosition = localPos
 
-    -- 图标刷新（子节点 BG Image）与显示尺寸（格子数×32 像素）
+    -- 比例 / 角度变换（条目字段，缺省兜底 Scale=1、Rotation=0）
+    local objScale = tonumber(entry.Scale) or 1
+    local objRotation = tonumber(entry.Rotation) or 0
+    go.transform.localScale = UnityEngine.Vector3(objScale, objScale, 1)
+    go.transform.localRotation = UnityEngine.Quaternion.Euler(0, 0, objRotation)
+    mapObj._Scale = objScale
+    mapObj._Rotation = objRotation
+
+    -- 图标刷新（子节点 BG Image）与显示尺寸（PSD 像素尺寸优先，兼容旧格子数×32）
     self:_SetupMapObjectIconAndSize(mapObj, go, entry)
 
     -- 路径移动：PathPoints 非空即实际沿路径移动；循环语义 PatrolLoop 优先，否则取 Loop
@@ -727,15 +1276,35 @@ function CharacterGenerationManager:_SetupMapObjectIconAndSize(mapObj, go, entry
             GamePlayHelper:RefreshImageSprite(mapObj, uiImage, spriteName)
         end
     end
-    ---TODO [物件生成] 编辑器矩形像素尺寸=Width*GridSize × Height*GridSize，运行时直接把 BG 的 sizeDelta 设为该像素尺寸
+
+    local iconRect = iconTrans:GetComponent(typeof(UnityEngine.RectTransform))
+    if not iconRect then
+        return
+    end
+
+    -- PSD 像素尺寸优先：PixelWidth/PixelHeight > 0 时按图层像素宽高还原；
+    -- Stretch=false（默认）保持原图比例；Stretch=true 按配置像素尺寸铺满、不保持比例。
+    local pixelW = tonumber(entry.PixelWidth)
+    local pixelH = tonumber(entry.PixelHeight)
+    local stretch = entry.Stretch == true
+
+    if pixelW and pixelH and pixelW > 0 and pixelH > 0 then
+        iconRect.sizeDelta = UnityEngine.Vector2(pixelW, pixelH)
+        if uiImage then
+            uiImage.preserveAspect = not stretch
+            if not stretch then
+                uiImage:SetNativeSize()
+            end
+        end
+        return
+    end
+
+    -- 兼容旧格式：编辑器矩形像素尺寸 = Width*GridSize × Height*GridSize
     local gridPixel = self:_GetGridSize()
     local width = tonumber(entry.Width)
     local height = tonumber(entry.Height)
     if width and height then
-        local iconRect = iconTrans:GetComponent(typeof(UnityEngine.RectTransform))
-        if iconRect then
-            iconRect.sizeDelta = UnityEngine.Vector2(width * gridPixel, height * gridPixel)
-        end
+        iconRect.sizeDelta = UnityEngine.Vector2(width * gridPixel, height * gridPixel)
     end
 end
 

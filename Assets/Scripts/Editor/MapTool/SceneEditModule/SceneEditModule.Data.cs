@@ -39,10 +39,15 @@ namespace Honor.Editor.MapTool
                 name = obj.Name,
                 posX = obj.Position.x,
                 posY = obj.Position.y,
-                gridX = Mathf.FloorToInt(obj.Position.x / MapToolConstants.GridSize), // ---TODO 网格信息：格子坐标
-                gridY = Mathf.FloorToInt(obj.Position.y / MapToolConstants.GridSize), // ---TODO 网格信息：格子坐标
+                gridX = MapToolEditorUtils.WorldToCell(obj.Position).x, // ---TODO 网格信息：格子坐标
+                gridY = MapToolEditorUtils.WorldToCell(obj.Position).y, // ---TODO 网格信息：格子坐标
                 width = obj.Width,
                 height = obj.Height,
+                pixelWidth = obj.PixelWidth,
+                pixelHeight = obj.PixelHeight,
+                stretch = obj.Stretch,
+                layerType = obj.LayerType,
+                displayLayer = obj.DisplayLayer,
                 image = MapToolEditorUtils.GetObjectImagePath(obj.PreviewTexture, obj.Id),
                 anim = obj.AnimName,
                 animEnabled = !string.IsNullOrEmpty(obj.AnimName) && obj.AnimName != MapToolConstants.NoAnimName,
@@ -53,6 +58,8 @@ namespace Honor.Editor.MapTool
                 sortOrder = obj.SortOrder,
                 ySortEnabled = obj.YSortEnabled,
                 ySortOffset = obj.YSortOffset,
+                rotation = obj.Rotation,
+                scale = obj.Scale,
                 collisionEnabled = obj.CollisionEnabled,
                 dialogBubble = obj.DialogBubble,
                 shadowEnabled = obj.ShadowEnabled,
@@ -70,6 +77,26 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 归一绑定灯 ID 列表：去空去重；旧单值字段兜底补入；返回独立新列表
+        /// </summary>
+        /// <param name="ids">多选灯 ID 列表（可空）</param>
+        /// <param name="legacyId">旧版单值绑定灯 ID（可空）</param>
+        /// <returns>归一后的灯 ID 列表</returns>
+        private static List<string> NormalizeBoundLightIds(List<string> ids, string legacyId)
+        {
+            var result = new List<string>();
+            if (ids != null)
+            {
+                foreach (var id in ids)
+                {
+                    if (!string.IsNullOrEmpty(id) && !result.Contains(id)) result.Add(id);
+                }
+            }
+            if (!string.IsNullOrEmpty(legacyId) && !result.Contains(legacyId)) result.Add(legacyId);
+            return result;
+        }
+
+        /// <summary>
         /// 构建人物序列化数据（含可走路径集合）
         /// </summary>
         /// <param name="obj">已放置人物</param>
@@ -83,10 +110,15 @@ namespace Honor.Editor.MapTool
                 name = obj.Name,
                 posX = obj.Position.x,
                 posY = obj.Position.y,
-                gridX = Mathf.FloorToInt(obj.Position.x / MapToolConstants.GridSize), // ---TODO 网格信息：格子坐标
-                gridY = Mathf.FloorToInt(obj.Position.y / MapToolConstants.GridSize), // ---TODO 网格信息：格子坐标
+                gridX = MapToolEditorUtils.WorldToCell(obj.Position).x, // ---TODO 网格信息：格子坐标
+                gridY = MapToolEditorUtils.WorldToCell(obj.Position).y, // ---TODO 网格信息：格子坐标
                 width = obj.Width,
                 height = obj.Height,
+                pixelWidth = obj.PixelWidth,
+                pixelHeight = obj.PixelHeight,
+                stretch = obj.Stretch,
+                layerType = obj.LayerType,
+                displayLayer = obj.DisplayLayer,
                 image = MapToolEditorUtils.GetObjectImagePath(obj.PreviewTexture, obj.Id),
                 anim = obj.AnimName,
                 animEnabled = !string.IsNullOrEmpty(obj.AnimName) && obj.AnimName != MapToolConstants.NoAnimName,
@@ -100,17 +132,27 @@ namespace Honor.Editor.MapTool
                 sortOrder = obj.SortOrder,
                 ySortEnabled = obj.YSortEnabled,
                 ySortOffset = obj.YSortOffset,
+                rotation = obj.Rotation,
+                scale = obj.Scale,
                 shadowEnabled = obj.ShadowEnabled,
                 loopRestartDelay = obj.LoopRestartDelay,
                 hideWhenOffMap = obj.HideWhenOffMap,
+                // ---TODO 交通规则：载具标记、停止线与绑定灯（多选列表 + 旧单值兼容）
+                isVehicle = obj.IsVehicle,
+                trafficRole = obj.TrafficRole,
+                stopLineX = obj.StopLineX,
+                stopLineY = obj.StopLineY,
+                boundLightId = obj.BoundLightId,
+                boundLightIds = NormalizeBoundLightIds(obj.BoundLightIds, obj.BoundLightId),
+                yellowTreatAsRed = obj.YellowTreatAsRed,
             };
             foreach (var point in obj.PathPoints)
                 character.pathPoints.Add(new MapPathPointData
                 {
                     x = point.x,
                     y = point.y,
-                    gridX = Mathf.FloorToInt(point.x / MapToolConstants.GridSize), // ---TODO 网格信息：路径点格子坐标
-                    gridY = Mathf.FloorToInt(point.y / MapToolConstants.GridSize), // ---TODO 网格信息：路径点格子坐标
+                    gridX = MapToolEditorUtils.WorldToCell(new Vector2(point.x, point.y)).x, // ---TODO 网格信息：路径点格子坐标
+                    gridY = MapToolEditorUtils.WorldToCell(new Vector2(point.x, point.y)).y, // ---TODO 网格信息：路径点格子坐标
                 });
             return character;
         }
@@ -143,6 +185,24 @@ namespace Honor.Editor.MapTool
         {
             // 委托给 MapConfigRepository 读配置表，本类只负责更新字典引用
             m_LevelBgDict = MapConfigRepository.LoadLevelBgDict();
+        }
+
+        /// <summary>
+        /// 背景图尺寸兜底：当前宽高非法时，按已加载背景纹理的原始像素宽高回填；
+        /// 背景缺失时回退单关卡基准尺寸。宽高合法时保留配置坐标系（摆放物坐标口径不变），
+        /// 背景按 mapRect 拉伸铺满，网格随 mapRect 等比铺满整张背景。
+        /// </summary>
+        private void ApplyBackgroundSizeFallback()
+        {
+            Texture bg = LoadRegionBackground(m_CurrentLevelId);
+            int bgW = bg != null ? bg.width : 0;
+            int bgH = bg != null ? bg.height : 0;
+
+            if (m_MapWidth <= 0) m_MapWidth = bgW > 0 ? bgW : MapToolConstants.LevelPixelSize;
+            if (m_MapHeight <= 0) m_MapHeight = bgH > 0 ? bgH : MapToolConstants.LevelPixelSize;
+
+            m_ConfigMapWidth = m_MapWidth;
+            m_ConfigMapHeight = m_MapHeight;
         }
 
         /// <summary>
@@ -181,8 +241,9 @@ namespace Honor.Editor.MapTool
         private bool CanPlaceObject(PlacedObject obj, out string reason)
         {
             reason = null;
-            float pixelWidth = obj.Width * 32f;
-            float pixelHeight = obj.Height * 32f;
+            // 碰撞矩形优先 PSD 像素尺寸；无像素记录时回退格子数×网格尺寸
+            float pixelWidth = obj.PixelWidth > 0 ? obj.PixelWidth : obj.Width * MapToolConstants.GridSize;
+            float pixelHeight = obj.PixelHeight > 0 ? obj.PixelHeight : obj.Height * MapToolConstants.GridSize;
             Rect objRect = new Rect(obj.Position.x, obj.Position.y, pixelWidth, pixelHeight);
 
             // 1. 越界检查（左上角原点坐标系：与 JSON 数据格式一致）
@@ -203,8 +264,8 @@ namespace Honor.Editor.MapTool
                     if (obj.Type == MapObjectType.Character && exist.Type == MapObjectType.Character) continue;
                     // 只检查建筑和物件的重叠
                     if (exist.Type != obj.Type && obj.Type != MapObjectType.Character) continue;
-                    float existW = exist.Width * 32f;
-                    float existH = exist.Height * 32f;
+                    float existW = exist.PixelWidth > 0 ? exist.PixelWidth : exist.Width * MapToolConstants.GridSize;
+                    float existH = exist.PixelHeight > 0 ? exist.PixelHeight : exist.Height * MapToolConstants.GridSize;
                     Rect existRect = new Rect(exist.Position.x, exist.Position.y, existW, existH);
                     if (objRect.Overlaps(existRect))
                     {
@@ -228,9 +289,10 @@ namespace Honor.Editor.MapTool
             MapConfigData data = MapConfigRepository.LoadFromJson(m_MapSavePath);
             if (data == null) return;
 
-            // 整图宽高以 JSON 为准
+            // 整图宽高以 JSON 为准；JSON 缺失/非法时回退背景图原始像素，保证网格铺满整张背景
             if (data.width > 0) m_MapWidth = data.width;
             if (data.height > 0) m_MapHeight = data.height;
+            ApplyBackgroundSizeFallback();
 
             // 还原背景图
             if (!string.IsNullOrEmpty(data.bgName))
@@ -266,6 +328,18 @@ namespace Honor.Editor.MapTool
                 }
             }
 
+            // ---TODO 交通规则：红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格 对称回填（旧地图缺省为空集合）
+            m_TrafficLights.Clear();
+            m_Crosswalks.Clear();
+            m_Regions.Clear();
+            m_SidewalkCells.Clear();
+            m_RoadCells.Clear();
+            if (data.trafficLights != null) m_TrafficLights.AddRange(data.trafficLights);
+            if (data.crosswalks != null) m_Crosswalks.AddRange(data.crosswalks);
+            if (data.regions != null) m_Regions.AddRange(data.regions);
+            if (data.sidewalkCells != null) m_SidewalkCells.AddRange(data.sidewalkCells);
+            if (data.roadCells != null) m_RoadCells.AddRange(data.roadCells);
+
             // 加载后自动把视口定位到摆放物区域
             if (m_PlacedObjects.Count > 0 && m_GuiContainer != null)
             {
@@ -274,8 +348,10 @@ namespace Honor.Editor.MapTool
                 {
                     minX = Mathf.Min(minX, obj.Position.x);
                     minY = Mathf.Min(minY, obj.Position.y);
-                    maxX = Mathf.Max(maxX, obj.Position.x + obj.Width * MapToolConstants.GridSize);
-                    maxY = Mathf.Max(maxY, obj.Position.y + obj.Height * MapToolConstants.GridSize);
+                    float objW = obj.PixelWidth > 0 ? obj.PixelWidth : obj.Width * MapToolConstants.GridSize;
+                    float objH = obj.PixelHeight > 0 ? obj.PixelHeight : obj.Height * MapToolConstants.GridSize;
+                    maxX = Mathf.Max(maxX, obj.Position.x + objW);
+                    maxY = Mathf.Max(maxY, obj.Position.y + objH);
                 }
                 Rect view = m_GuiContainer.contentRect;
                 float boundsW = Mathf.Max(1f, maxX - minX);
@@ -312,6 +388,11 @@ namespace Honor.Editor.MapTool
                 Position = new Vector2(c.posX, c.posY),
                 Width = c.width,
                 Height = c.height,
+                PixelWidth = c.pixelWidth,
+                PixelHeight = c.pixelHeight,
+                Stretch = c.stretch,
+                LayerType = MapLayerCatalog.Normalize(c.layerType),
+                DisplayLayer = c.displayLayer,
                 PreviewTexture = LoadPreviewFromImage(c.image),
                 AnimName = c.anim,
                 Loop = c.loop,
@@ -324,10 +405,26 @@ namespace Honor.Editor.MapTool
                 SortOrder = c.sortOrder,
                 YSortEnabled = c.ySortEnabled,
                 YSortOffset = c.ySortOffset,
+                Rotation = c.rotation,
+                Scale = c.scale,
                 ShadowEnabled = c.shadowEnabled,
                 LoopRestartDelay = c.loopRestartDelay,
                 HideWhenOffMap = c.hideWhenOffMap,
+                // ---TODO 交通规则：载具字段对称回填（旧地图缺省走模型默认值；旧单值兜底进列表）
+                IsVehicle = c.isVehicle,
+                TrafficRole = string.IsNullOrEmpty(c.trafficRole) ? "pedestrian" : c.trafficRole,
+                StopLineX = c.stopLineX,
+                StopLineY = c.stopLineY,
+                BoundLightId = c.boundLightId,
+                BoundLightIds = NormalizeBoundLightIds(c.boundLightIds, c.boundLightId),
+                YellowTreatAsRed = c.yellowTreatAsRed,
             };
+            // ---TODO [存量归一] 旧 JSON 可能落盘旧 100 步长全局键（0/100/200…）或旧三档裸值；
+            // 读取时换算到新 10 步长八层基线坐标系，再钳到有效显示档区间，避免旧大值越界压层
+            p.SortOrder = MapToolEditorUtils.NormalizeLegacySortOrder(p, p.SortOrder);
+            // 交互类型/朝向归一为 code（存量 JSON 可能存中文显示名）
+            p.InteractType = TemplateInteractType.ToCode(p.InteractType);
+            p.FacingDirection = TemplateFacing.ToCode(p.FacingDirection);
             if (!string.IsNullOrEmpty(c.id)) p.Id = c.id;
             if (c.pathPoints != null)
             {
@@ -357,6 +454,11 @@ namespace Honor.Editor.MapTool
                 Position = new Vector2(o.posX, o.posY),
                 Width = o.width,
                 Height = o.height,
+                PixelWidth = o.pixelWidth,
+                PixelHeight = o.pixelHeight,
+                Stretch = o.stretch,
+                LayerType = MapLayerCatalog.Normalize(o.layerType),
+                DisplayLayer = o.displayLayer,
                 PreviewTexture = LoadPreviewFromImage(o.image),
                 AnimName = o.anim,
                 Loop = o.loop,
@@ -366,6 +468,8 @@ namespace Honor.Editor.MapTool
                 SortOrder = o.sortOrder,
                 YSortEnabled = o.ySortEnabled,
                 YSortOffset = o.ySortOffset,
+                Rotation = o.rotation,
+                Scale = o.scale,
                 CollisionEnabled = o.collisionEnabled,
                 DialogBubble = o.dialogBubble,
                 ShadowEnabled = o.shadowEnabled,
@@ -380,6 +484,17 @@ namespace Honor.Editor.MapTool
                 TeleportTargetX = o.teleportTargetX,
                 TeleportTargetY = o.teleportTargetY,
             };
+            // ---TODO [存量归类] 归属层未识别（prop 兜底）时，按模板名英文关键词推断归属层；PSD 编号名无法识别仍回退 prop
+            if (p.LayerType == MapLayerCatalog.Prop)
+            {
+                p.LayerType = MapLayerCatalog.ResolveLayerByTemplateName(p.TemplateId, p.Name);
+            }
+            // ---TODO [存量归一] 旧 JSON 的 SortOrder 为旧 100 步长全局键或旧三档裸值（10/20/30），未对齐新八层基线；
+            // 导入后换算到新 10 步长坐标系并钳到有效显示档区间，避免旧值在场景实例全局排序中压过基线更高的层
+            p.SortOrder = MapToolEditorUtils.NormalizeLegacySortOrder(p, p.SortOrder);
+            // 交互类型/朝向归一为 code（存量 JSON 可能存中文显示名）
+            p.InteractType = TemplateInteractType.ToCode(p.InteractType);
+            p.FacingDirection = TemplateFacing.ToCode(p.FacingDirection);
             if (!string.IsNullOrEmpty(o.id)) p.Id = o.id;
             return p;
         }

@@ -171,9 +171,46 @@ function CharacterBase:StartPathMove(pathPoints, speed, isLoop)
     end
     local label = "角色" .. tostring(self._CharData and self._CharData.ID or "?")
     ---TODO [代码质量] 1:1 坐标：world≡editor（去 *2+2048 反算）
-    -- 【取消分区】整图单分区：取消跨区拦行，不传 shouldBlock 谓词（C# 默认不拦截）
+    -- 【取消分区】整图单分区：取消跨区拦行；交通让行谓词仅在角色/载具绑定灯时挂载，无交通配置时不传谓词（C# 默认不拦截）
+    ---TODO [交通规则] 载具按绑定灯相位让行：红灯/黄灯(按兜底口径)拦截在停止线前；绿灯放行。
+    ---TODO [交通规则] 行人绑定灯红灯/黄灯时拦截在横道前，绿灯方可过街；被拦后需 ResumePath 续走（相位转绿自动续走轮询待接）
+    local blockPredicate = nil
+    ---TODO 交通规则：绑定灯多选；旧地图仅有单值 BoundLightId 时兜底为单元素表
+    local boundIds = self._BoundLightIds
+    if (not boundIds or #boundIds == 0) and self._BoundLightId then
+        boundIds = { self._BoundLightId }
+    end
+    local hasBound = boundIds and #boundIds > 0
+    if TrafficManager and hasBound then
+        if self._IsVehicle then
+            blockPredicate = function(_toPoint)
+                return TrafficManager:ShouldVehicleStop({
+                    BoundLightIds = boundIds,
+                    BoundLightId = self._BoundLightId,
+                    YellowTreatAsRed = self._YellowTreatAsRed,
+                })
+            end
+        elseif self._TrafficRole == "pedestrian" then
+            blockPredicate = function(_toPoint)
+                -- 任一绑定灯非绿即拦截等待
+                for i = 1, #boundIds do
+                    if TrafficManager:GetLightPhase(boundIds[i]) ~= "green" then
+                        return true
+                    end
+                end
+                return false
+            end
+        end
+    end
     self._MoveSeq = CS.GameLib.MapPathMoveUtil.BuildLocalMoveSeq(self.cs.transform, points,
-        tonumber(speed) or 1, isLoop == true, label)
+        tonumber(speed) or 1, isLoop == true, label, blockPredicate)
+    -- 每段到达路径点后重排本层遮挡：角色 Y 位置变化后，与相邻物件的前后关系需按脚底 Y 刷新
+    if self._MoveSeq ~= nil then
+        self._MoveSeq:OnStepComplete(function()
+            if self._Destroying then return end
+            GameCoreManager:RefreshObjectOrdering(self)
+        end)
+    end
 end
 
 --endregion

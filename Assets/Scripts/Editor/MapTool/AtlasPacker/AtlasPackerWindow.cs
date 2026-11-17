@@ -79,9 +79,11 @@ namespace Honor.Editor.MapTool.AtlasPacker
         private VisualElement m_PreviewImageContainer;
         private VisualElement m_SpritesList;
 
-        // 选中状态
-        private int m_SelectedIndex = AtlasConstants.NoSelectionIndex;
-        private VisualElement m_SelectedHighlightBox;
+        // 选中状态（多选：集合保存所有选中的列表索引，主选中为最后点击项，用作 Shift 范围锚点）
+        private readonly HashSet<int> m_SelectedIndices = new HashSet<int>();
+        private int m_PrimarySelectedIndex = AtlasConstants.NoSelectionIndex;
+        private readonly Dictionary<int, (VisualElement bg, VisualElement frame)> m_HighlightByIndex =
+            new Dictionary<int, (VisualElement bg, VisualElement frame)>();
         private float m_ZoomScale = AtlasConstants.DefaultZoomScale;
         private ScrollView m_PreviewScroll;
 
@@ -91,6 +93,9 @@ namespace Honor.Editor.MapTool.AtlasPacker
         // 未缩放时的图集基础尺寸（用于同步 ScrollView 布局占位，配合 scale 缩放）
         private float m_BaseAtlasW = 1;
         private float m_BaseAtlasH = 1;
+        // 适应窗口时视口尚未撑开的重试计数（每次生成预览前重置，避免异常小视口把缩放钉到下限）
+        private int m_FitRetryCount = 0;
+        private const int MaxFitRetries = 12;
 
         // 右键拖动状态
         private bool m_IsDragging = false;
@@ -447,17 +452,16 @@ namespace Honor.Editor.MapTool.AtlasPacker
             float visualW = m_BaseAtlasW * m_ZoomScale;
             float visualH = m_BaseAtlasH * m_ZoomScale;
 
-            // 缩放后内容小于视口：内容容器撑满视口并 flex 居中，图集落在预览区中间；
-            // 内容大于视口：内容按视觉尺寸占位，左上排列并允许拖动滚动。
+            // 对齐官方 TexturePackerGUI：主画布固定贴预览区左上，不随缩放居中；
+            // 内容小于视口时容器撑满视口并左上排列，内容大于视口时按视觉尺寸占位、左上排列并允许拖动滚动。
             bool fit = viewW > 1f && viewH > 1f && visualW <= viewW && visualH <= viewH;
             if (fit)
             {
                 content.style.width = viewW;
                 content.style.height = viewH;
-                content.style.alignItems = Align.Center;
-                content.style.justifyContent = Justify.Center;
-                m_PreviewImageContainer.style.transformOrigin =
-                    new TransformOrigin(Length.Percent(50f), Length.Percent(50f));
+                content.style.alignItems = Align.FlexStart;
+                content.style.justifyContent = Justify.FlexStart;
+                m_PreviewImageContainer.style.transformOrigin = new TransformOrigin(0, 0);
                 m_PreviewScroll.scrollOffset = Vector2.zero;
             }
             else
@@ -480,27 +484,30 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 用未缩放的基础图集尺寸计算目标缩放
             float atlasW = m_BaseAtlasW;
             float atlasH = m_BaseAtlasH;
-            if (atlasW <= 1 || atlasH <= 1)
-            {
-                m_PreviewScroll.schedule.Execute(FitToWindow).ExecuteLater(50);
-                return;
-            }
-
             var vp = m_PreviewScroll.contentViewport;
             float viewW = vp.resolvedStyle.width;
             float viewH = vp.resolvedStyle.height;
-            if (viewW <= 1 || viewH <= 1)
+
+            // 视口/图集尚未完成布局时，resolvedStyle 可能返回 1~几十的中间小值（而非严格 0）；
+            // 守卫阈值若只判 <=1 会漏过，导致 scale 被压到下限 0.01 并钉死。这里按 32px 判定就绪，
+            // 算出的缩放明显异常偏小时同样视为未就绪，做有限次延迟重试。
+            bool layoutReady = atlasW > 1f && atlasH > 1f && viewW > 32f && viewH > 32f;
+            float scale = layoutReady ? Mathf.Min(viewW / atlasW, viewH / atlasH) : 0f;
+            bool scaleReasonable = scale >= 0.02f;
+            if ((!layoutReady || !scaleReasonable) && m_FitRetryCount < MaxFitRetries)
             {
+                m_FitRetryCount++;
                 m_PreviewScroll.schedule.Execute(FitToWindow).ExecuteLater(50);
                 return;
             }
 
-            float scale = Mathf.Min(viewW / atlasW, viewH / atlasH);
-            SetZoom(scale);
+            m_FitRetryCount = 0;
+            float activeScale = scaleReasonable ? scale : m_ZoomScale;
+            SetZoom(activeScale);
 
             // 图集比视口小时居中显示
-            float visualW = atlasW * scale;
-            float visualH = atlasH * scale;
+            float visualW = atlasW * activeScale;
+            float visualH = atlasH * activeScale;
             if (visualW < viewW || visualH < viewH)
             {
                 m_PreviewScroll.scrollOffset = new Vector2(
@@ -612,8 +619,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             }
 
             // 重置选中状态
-            m_SelectedIndex = AtlasConstants.NoSelectionIndex;
-            DestroyHighlightBox();
+            ClearSelection();
 
             UpdateSpriteCount();
             GeneratePreviewImage();
@@ -736,8 +742,21 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
             if (!m_CliPacker.IsAvailable) return false;
 
+            // 复位上一轮的排除标记：每一轮都把全部主项重新交给 CLI 判断，
+            // 避免上一轮未装入的精灵被 !Excluded 过滤后永远不再参与排布（调大图集上限后也装不回来）。
+            foreach (var item in m_SpriteListManager.Items)
+            {
+                if (item.IsAlias) continue;
+                item.Excluded = false;
+                item.ExclusionReason = null;
+                item.PosX = 0;
+                item.PosY = 0;
+                item.Rotated = false;
+            }
+
+            // 别名跟随主项槽位，不重复提交给 CLI；主项全部参与本轮排布
             var fullPaths = m_SpriteListManager.Items
-                .Where(s => !s.Excluded)
+                .Where(s => !s.IsAlias)
                 .Select(s => AssetPathToFullPath(s.Path))
                 .Where(p => !string.IsNullOrEmpty(p) && File.Exists(p))
                 .ToList();
@@ -814,7 +833,18 @@ namespace Honor.Editor.MapTool.AtlasPacker
                     item.ExclusionReason = item.AliasOf.ExclusionReason;
                 }
 
-                return matched > 0;
+                if (matched > 0)
+                {
+                    int inputMasters = m_SpriteListManager.Items.Count(s => !s.IsAlias);
+                    var unmatched = m_SpriteListManager.Items
+                        .Where(i => !i.IsAlias && i.Excluded)
+                        .Select(i => i.Name)
+                        .ToList();
+                    string unmatchedText = unmatched.Count > 0 ? $"，未装入: {string.Join(", ", unmatched)}" : "";
+                    Debug.Log($"[AtlasPacker] 预览采用 CLI 排布：{matched}/{inputMasters} 帧，画布 {atlasWidth}×{atlasHeight}{unmatchedText}");
+                    return true;
+                }
+                return false;
             }
             catch (Exception ex)
             {
@@ -1098,7 +1128,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 // 加载图片列表
                 m_SpriteListManager.Items.Clear();
                 m_SpritesList.Clear();
-                m_SelectedIndex = -1;
+                ClearSelection();
                 if (project.sprites != null)
                 {
                     foreach (var spritePath in project.sprites)
@@ -1131,11 +1161,10 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
             m_SpriteListManager.Items.Clear();
             m_SpritesList.Clear();
-            m_SelectedIndex = -1;
+            ClearSelection();
             // 新建项目时重置输出文件名，避免沿用上一图集名导致串档
             if (m_TxtDataFilename != null) m_TxtDataFilename.value = "NewAtlas.txt";
             if (m_TxtTextureFile != null) m_TxtTextureFile.value = "NewAtlasTex.png";
-            DestroyHighlightBox();
 
             UpdateSpriteCount();
             GeneratePreviewImage();
@@ -1208,8 +1237,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             // 清空列表
             m_SpriteListManager.Clear();
-            m_SelectedIndex = AtlasConstants.NoSelectionIndex;
-            DestroyHighlightBox();
+            ClearSelection();
 
             // 确保是 Assets/ 相对路径
             string assetFolder = folderPath;
@@ -1274,7 +1302,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
                 // 点击选中效果
                 int index = i;
-                itemElement.RegisterCallback<ClickEvent>(evt => OnSpriteItemClick(index, itemElement));
+                itemElement.RegisterCallback<ClickEvent>(evt => OnSpriteItemClick(evt, index, itemElement));
 
                 // 右键菜单
                 itemElement.AddManipulator(new ContextualMenuManipulator(evt =>
@@ -1288,6 +1316,9 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
                 m_SpritesList.Add(itemElement);
             }
+
+            // 列表项重建后按选中集合恢复底色
+            RefreshListSelectionVisual();
         }
 
         /// <summary>
@@ -1339,6 +1370,10 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 清空之前的预览
             DestroyHighlightBox();
             m_PreviewImageContainer.Clear();
+
+            // 重置上一轮的缩放残留与适应重试计数，避免旧的下限缩放被带到新预览
+            m_FitRetryCount = 0;
+            m_ZoomScale = AtlasConstants.DefaultZoomScale;
 
             // 优先官方 CLI 排布回填预览坐标（与导出一致）；CLI 不可用/失败时回退自研 MaxRects。
             bool packed = false;
@@ -1421,7 +1456,11 @@ namespace Honor.Editor.MapTool.AtlasPacker
             m_PreviewImageContainer.style.width = previewWidth;
             m_PreviewImageContainer.style.height = previewHeight;
 
-            // 生成棋盘格背景纹理
+            // 容器整体为深灰纯色背景（对齐 TexturePackerGUI：主画布之外的溢出区为深灰）；棋盘格只铺主画布矩形
+            m_PreviewImageContainer.style.backgroundImage = null;
+            m_PreviewImageContainer.style.backgroundColor = new Color(0.29f, 0.29f, 0.29f);
+
+            // 生成棋盘格背景纹理（仅覆盖主画布）
             var checkerTex = new Texture2D(previewWidth, previewHeight, TextureFormat.RGBA32, false);
             checkerTex.hideFlags = HideFlags.HideAndDontSave;
             checkerTex.filterMode = FilterMode.Point;
@@ -1437,7 +1476,16 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 }
             }
             checkerTex.Apply();
-            m_PreviewImageContainer.style.backgroundImage = checkerTex;
+
+            // 主画布棋盘格底图，置于精灵下层
+            var boardBg = new Image { name = "board-bg", image = checkerTex };
+            boardBg.scaleMode = ScaleMode.StretchToFill;
+            boardBg.style.position = Position.Absolute;
+            boardBg.style.left = 0;
+            boardBg.style.top = 0;
+            boardBg.style.width = previewWidth;
+            boardBg.style.height = previewHeight;
+            m_PreviewImageContainer.Add(boardBg);
 
             // 绘制图片（位置已经在前面的 MaxRects 排布中计算好了）
             int packedCount = 0;
@@ -1461,67 +1509,76 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 img.userData = item;
 
                 // 点击选中预览区的图片
-                img.RegisterCallback<ClickEvent>(evt => OnPreviewImageClick(img));
+                img.RegisterCallback<ClickEvent>(evt => OnPreviewImageClick(evt, img));
 
                 m_PreviewImageContainer.Add(img);
                 packedCount++;
             }
 
-            // 被排除的图：画在图集矩形下方的溢出带（参照 TexturePacker，让用户看到哪些没装进去）
+            // 被排除的图：按原始完整尺寸排在主画布外侧的深灰背景区（对齐 TexturePackerGUI：
+            // 装不下的精灵不缩放、不加框，完整散落在图集矩形之外，仅随视图整体缩放）
             var excludedItems = finalSortedItems.Where(i => i.Excluded).ToList();
-            int overflowBand = 0;
+            const int overflowGapY = 24;   // 主画布与溢出区纵向间距
+            const int overflowGapX = 16;   // 溢出精灵之间横向间距
+            // 对齐官方：溢出精灵从主画布下方左侧起横向流式铺开，允许延伸到主画布右侧外；
+            // 折行宽度放宽到主画布宽度的两倍，超出后才折到下一排。
+            int overflowBandWidth = previewWidth * 2;
+            var overflowLayout = new List<(SpriteItemInfo item, int x, int y, int w, int h)>();
+            int overflowRight = previewWidth;
+            int overflowBottom = previewHeight;
+
             if (excludedItems.Count > 0)
             {
-                // 溢出带起始 Y（图集下方留 24px 空隙）
-                int bandY = previewHeight + 24;
                 int bandX = padding;
+                int bandY = previewHeight + overflowGapY;
                 int rowH = 0;
-                const float exclScale = 0.4f; // 缩略显示，避免超大图撑开
+
+                // 第一遍：计算每张溢出精灵的摆放位置与溢出区包围盒（横向流式，超 band 宽度再折行）
                 foreach (var item in excludedItems)
                 {
                     var tex = LoadItemTexture(item);
                     if (tex == null) continue;
-                    int ew = Mathf.Max(1, Mathf.RoundToInt(tex.width * exclScale));
-                    int eh = Mathf.Max(1, Mathf.RoundToInt(tex.height * exclScale));
+                    int ew = tex.width;
+                    int eh = tex.height;
 
-                    if (bandX + ew > previewWidth && bandX > padding)
+                    if (bandX > padding && bandX + ew > overflowBandWidth)
                     {
                         bandX = padding;
-                        bandY += rowH + 8;
+                        bandY += rowH + overflowGapX;
                         rowH = 0;
                     }
 
-                    var eimg = new Image();
-                    eimg.image = tex;
+                    overflowLayout.Add((item, bandX, bandY, ew, eh));
+                    bandX += ew + overflowGapX;
+                    rowH = Math.Max(rowH, eh);
+                    overflowRight = Math.Max(overflowRight, bandX - overflowGapX);
+                    overflowBottom = Math.Max(overflowBottom, bandY + eh);
+                }
+
+                // 第二遍：绘制溢出精灵（原始尺寸、无框、不透明）
+                foreach (var (item, x, y, ew, eh) in overflowLayout)
+                {
+                    var tex = LoadItemTexture(item);
+                    if (tex == null) continue;
+                    var eimg = new Image { image = tex };
                     eimg.style.position = Position.Absolute;
-                    eimg.style.left = bandX;
-                    eimg.style.top = bandY;
+                    eimg.style.left = x;
+                    eimg.style.top = y;
                     eimg.style.width = ew;
                     eimg.style.height = eh;
-                    eimg.style.opacity = 0.6f;
-                    eimg.style.borderLeftWidth = 1;
-                    eimg.style.borderRightWidth = 1;
-                    eimg.style.borderTopWidth = 1;
-                    eimg.style.borderBottomWidth = 1;
-                    eimg.style.borderLeftColor = Color.red;
-                    eimg.style.borderRightColor = Color.red;
-                    eimg.style.borderTopColor = Color.red;
-                    eimg.style.borderBottomColor = Color.red;
                     eimg.userData = item;
+                    eimg.RegisterCallback<ClickEvent>(evt => OnPreviewImageClick(evt, eimg));
                     m_PreviewImageContainer.Add(eimg);
-
-                    bandX += ew + 6;
-                    rowH = Math.Max(rowH, eh);
                 }
-                overflowBand = bandY + rowH - previewHeight + 12;
             }
 
-            // 容器总高 = 图集高 + 溢出带，更新基础尺寸供缩放用
-            if (overflowBand > 0)
-            {
-                m_BaseAtlasH = previewHeight + overflowBand;
-                m_PreviewImageContainer.style.height = m_BaseAtlasH;
-            }
+            // 容器总尺寸 = 主画布 + 溢出区包围盒，更新基础尺寸供缩放用
+            int containerW = Math.Max(previewWidth, overflowRight);
+            int containerH = overflowBottom + 12;
+            m_BaseAtlasW = containerW;
+            m_BaseAtlasH = containerH;
+            m_PreviewImageContainer.style.width = containerW;
+            m_PreviewImageContainer.style.height = containerH;
 
             // 更新状态栏（对齐真实 TexturePacker 格式）
             int memKB = previewWidth * previewHeight * 4 / 1024;
@@ -1530,20 +1587,24 @@ namespace Honor.Editor.MapTool.AtlasPacker
             if (excludedCount > 0)
             {
                 statusText = $"{excludedCount} not fitting sprites - try using multipacking. Size: {previewWidth}x{previewHeight} ({memKB}kB)";
+                // 对齐官方：溢出告警以红字显示
+                m_LblAtlasSize.style.color = new Color(1f, 0.36f, 0.30f);
             }
             else
             {
                 statusText = $"Size: {previewWidth}x{previewHeight} ({memKB}kB)";
+                m_LblAtlasSize.style.color = StyleKeyword.Initial;
             }
             m_LblAtlasSize.text = statusText;
 
             // 排布完成后自动适应窗口，让整图一屏可见
+            m_FitRetryCount = 0;
             m_PreviewImageContainer.schedule.Execute(FitToWindow).ExecuteLater(60);
 
-            // 如果有选中项，重新显示高亮框
-            if (m_SelectedIndex >= 0)
+            // 如果有选中项，按选中集合重建预览高亮框
+            if (m_SelectedIndices.Count > 0)
             {
-                ShowHighlightBoxForSelected();
+                RefreshAllHighlightBoxes();
             }
         }
 
@@ -1562,7 +1623,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         /// <summary>
         /// 点击预览区的图片
         /// </summary>
-        private void OnPreviewImageClick(VisualElement imgElement)
+        private void OnPreviewImageClick(ClickEvent evt, VisualElement imgElement)
         {
             var item = imgElement.userData as SpriteItemInfo;
             if (item == null) return;
@@ -1570,60 +1631,97 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 找到这个 item 在列表里的索引
             int index = m_SpriteListManager.Items.IndexOf(item);
             if (index < 0) return;
+            if (index >= m_SpritesList.Children().Count()) return;
 
-            // 安全检查：确保索引在有效范围内
-            int childCount = m_SpritesList.Children().Count();
-            if (index >= childCount) return;
-
-            // 取消之前的选中
-            if (m_SelectedIndex >= 0 && m_SelectedIndex < childCount)
-            {
-                var prevItem = m_SpritesList.ElementAt(m_SelectedIndex);
-                prevItem.style.backgroundColor = Color.clear;
-            }
-
-            // 设置新的选中
-            m_SelectedIndex = index;
-            var itemElement = m_SpritesList.ElementAt(index);
-            itemElement.style.backgroundColor = new Color(0.3f, 0.5f, 0.9f, 0.3f);
-
-            // 显示高亮框
-            ShowHighlightBoxForSelected();
+            ApplySelection(index, evt.modifiers);
         }
 
         /// <summary>
         /// 点击 sprite 项
         /// </summary>
-        private void OnSpriteItemClick(int index, VisualElement itemElement)
+        private void OnSpriteItemClick(ClickEvent evt, int index, VisualElement itemElement)
         {
-            // 取消之前的选中
-            if (m_SelectedIndex >= 0 && m_SelectedIndex < m_SpritesList.Children().Count())
-            {
-                var prevItem = m_SpritesList.ElementAt(m_SelectedIndex);
-                prevItem.style.backgroundColor = StyleKeyword.Null;
-            }
-
-            // 设置新的选中（TexturePacker 风格的蓝色高亮）
-            m_SelectedIndex = index;
-            itemElement.style.backgroundColor = new Color(0.2f, 0.4f, 0.8f, 0.8f);
-
-            // 在预览区显示高亮框
-            ShowHighlightBoxForSelected();
+            ApplySelection(index, evt.modifiers);
         }
 
         /// <summary>
-        /// 在预览区显示选中的高亮框
+        /// 统一选中入口：普通点击清空重选；Ctrl 点击切换追加；Shift 点击以主选中为锚点范围选择
         /// </summary>
+        private void ApplySelection(int index, EventModifiers modifiers)
+        {
+            if (index < 0 || index >= m_SpriteListManager.Items.Count) return;
+
+            bool ctrl = modifiers.HasFlag(EventModifiers.Control);
+            bool shift = modifiers.HasFlag(EventModifiers.Shift);
+
+            if (shift && m_PrimarySelectedIndex >= 0)
+            {
+                int lo = Mathf.Min(m_PrimarySelectedIndex, index);
+                int hi = Mathf.Max(m_PrimarySelectedIndex, index);
+                m_SelectedIndices.Clear();
+                for (int i = lo; i <= hi; i++) m_SelectedIndices.Add(i);
+            }
+            else if (ctrl)
+            {
+                if (m_SelectedIndices.Contains(index)) m_SelectedIndices.Remove(index);
+                else m_SelectedIndices.Add(index);
+                m_PrimarySelectedIndex = index;
+            }
+            else
+            {
+                m_SelectedIndices.Clear();
+                m_SelectedIndices.Add(index);
+                m_PrimarySelectedIndex = index;
+            }
+
+            RefreshListSelectionVisual();
+            RefreshAllHighlightBoxes();
+        }
+
         /// <summary>
-        /// 显示选中高亮框（委托给 AtlasPreviewRenderer）
+        /// 按选中集合刷新右侧列表项底色（TexturePacker 风格蓝色高亮）
         /// </summary>
-        private void ShowHighlightBoxForSelected()
+        private void RefreshListSelectionVisual()
+        {
+            int childCount = m_SpritesList.Children().Count();
+            for (int i = 0; i < childCount; i++)
+            {
+                var el = m_SpritesList.ElementAt(i);
+                el.style.backgroundColor = m_SelectedIndices.Contains(i)
+                    ? new Color(0.2f, 0.4f, 0.8f, 0.8f)
+                    : StyleKeyword.Null;
+            }
+        }
+
+        /// <summary>
+        /// 清空全部选中状态与高亮框
+        /// </summary>
+        private void ClearSelection()
+        {
+            m_SelectedIndices.Clear();
+            m_PrimarySelectedIndex = AtlasConstants.NoSelectionIndex;
+            DestroyHighlightBox();
+        }
+
+        /// <summary>
+        /// 全量重建预览区所有选中精灵的高亮（绿底垫底 + 黑色虚线框置顶）
+        /// </summary>
+        private void RefreshAllHighlightBoxes()
         {
             DestroyHighlightBox();
 
-            if (m_SelectedIndex < 0 || m_SelectedIndex >= m_SpriteListManager.Items.Count) return;
+            foreach (var index in m_SelectedIndices.ToList())
+            {
+                if (index < 0 || index >= m_SpriteListManager.Items.Count) continue;
+                AddHighlightForItem(index, m_SpriteListManager.Items[index]);
+            }
+        }
 
-            var item = m_SpriteListManager.Items[m_SelectedIndex];
+        /// <summary>
+        /// 为单个选中精灵挂绿底层与虚线框层
+        /// </summary>
+        private void AddHighlightForItem(int index, SpriteItemInfo item)
+        {
             var tex = LoadTextureFromDisk(AssetPathToFullPath(item.Path));
             if (tex == null) return;
 
@@ -1632,22 +1730,46 @@ namespace Honor.Editor.MapTool.AtlasPacker
             int boxH = item.Rotated ? tex.width : tex.height;
             int w = boxW + 2;
             int h = boxH + 2;
+            int left = item.PosX - 1;
+            int top = item.PosY - 1;
 
-            // 2022.3 UIElements 不支持虚线边框（无 border-style），用背景色短划线拼出黑色虚线框；
-            // 框内叠加半透明绿色选中背景（对齐图一选中样式）
+            // 2022.3 UIElements 不支持虚线边框（无 border-style），用背景色短划线拼出黑色虚线框。
+            // 对齐官方 TexturePacker：绿色填充层在精灵图片【下方】（仅透明区域透绿，不遮盖精灵本体），
+            // 黑色虚线框层在【最上层】。
             const int dash = 10;
-            const int gap = 8;
+            const int gap = 5;
             const int thick = 5;
             var black = Color.black;
             var selectedGreen = new Color(0.18f, 1f, 0.18f, 0.3f);
 
-            var box = new VisualElement();
-            box.style.position = Position.Absolute;
-            box.style.left = item.PosX - 1;
-            box.style.top = item.PosY - 1;
-            box.style.width = w;
-            box.style.height = h;
-            box.style.backgroundColor = selectedGreen;
+            // 绿底背景层
+            var bg = new VisualElement();
+            bg.style.position = Position.Absolute;
+            bg.style.left = left;
+            bg.style.top = top;
+            bg.style.width = w;
+            bg.style.height = h;
+            bg.style.backgroundColor = selectedGreen;
+
+            // 插到选中精灵 Image 的下方；找不到对应图片时退化为加到最底层
+            var targetImg = FindPreviewImage(item);
+            if (targetImg != null)
+            {
+                int imgIdx = m_PreviewImageContainer.IndexOf(targetImg);
+                m_PreviewImageContainer.Insert(Mathf.Max(0, imgIdx), bg);
+            }
+            else
+            {
+                m_PreviewImageContainer.Insert(0, bg);
+            }
+
+            // 虚线框层：四边短划线，置于最上层
+            var frame = new VisualElement();
+            frame.style.position = Position.Absolute;
+            frame.style.left = left;
+            frame.style.top = top;
+            frame.style.width = w;
+            frame.style.height = h;
 
             // 上、下边短划线
             for (int x = 0; x < w; x += dash + gap)
@@ -1661,7 +1783,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 topDash.style.width = segW;
                 topDash.style.height = thick;
                 topDash.style.backgroundColor = black;
-                box.Add(topDash);
+                frame.Add(topDash);
 
                 var botDash = new VisualElement();
                 botDash.style.position = Position.Absolute;
@@ -1670,7 +1792,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 botDash.style.width = segW;
                 botDash.style.height = thick;
                 botDash.style.backgroundColor = black;
-                box.Add(botDash);
+                frame.Add(botDash);
             }
 
             // 左、右边短划线
@@ -1685,7 +1807,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 leftDash.style.width = thick;
                 leftDash.style.height = segH;
                 leftDash.style.backgroundColor = black;
-                box.Add(leftDash);
+                frame.Add(leftDash);
 
                 var rightDash = new VisualElement();
                 rightDash.style.position = Position.Absolute;
@@ -1694,28 +1816,43 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 rightDash.style.width = thick;
                 rightDash.style.height = segH;
                 rightDash.style.backgroundColor = black;
-                box.Add(rightDash);
+                frame.Add(rightDash);
             }
 
-            m_SelectedHighlightBox = box;
-
-            // 插入到最上层，保证虚线边框不被精灵图片遮挡
-            m_PreviewImageContainer.Add(m_SelectedHighlightBox);
+            m_PreviewImageContainer.Add(frame);
+            m_HighlightByIndex[index] = (bg, frame);
         }
 
         /// <summary>
-        /// 移除高亮虚线框
+        /// 在预览容器中按精灵数据反查对应的图片元素
+        /// </summary>
+        private VisualElement FindPreviewImage(SpriteItemInfo item)
+        {
+            if (m_PreviewImageContainer == null || item == null) return null;
+            foreach (var child in m_PreviewImageContainer.Children())
+            {
+                if (ReferenceEquals(child.userData, item)) return child;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 移除全部选中高亮绿底与虚线框
         /// </summary>
         private void DestroyHighlightBox()
         {
-            if (m_SelectedHighlightBox != null)
+            foreach (var pair in m_HighlightByIndex)
             {
-                if (m_SelectedHighlightBox.parent == m_PreviewImageContainer)
+                if (pair.Value.bg != null && pair.Value.bg.parent == m_PreviewImageContainer)
                 {
-                    m_PreviewImageContainer.Remove(m_SelectedHighlightBox);
+                    m_PreviewImageContainer.Remove(pair.Value.bg);
                 }
-                m_SelectedHighlightBox = null;
+                if (pair.Value.frame != null && pair.Value.frame.parent == m_PreviewImageContainer)
+                {
+                    m_PreviewImageContainer.Remove(pair.Value.frame);
+                }
             }
+            m_HighlightByIndex.Clear();
         }
 
         /// <summary>

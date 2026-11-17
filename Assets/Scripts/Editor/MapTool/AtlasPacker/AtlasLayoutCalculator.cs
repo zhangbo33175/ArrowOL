@@ -35,6 +35,11 @@ namespace Honor.Editor.MapTool.AtlasPacker
         private const int SortShortSide = 3;  // 短边降序 → 面积降序 → 名称
         private const int SortWidth = 4;      // 宽度降序 → 高度降序 → 名称
         private const int SortHeight = 5;     // 高度降序 → 宽度降序 → 名称
+        // 容量紧张（单页装不下全部）时，小图优先（升序）可把有限面积留给大量小图，仅溢出少量塞不进的大图，
+        // 显著提升单页装入张数；容量充足时各排序装入数相同，选优 tie-break 仍会回到更紧凑的降序方案。
+        private const int SortAreaAsc = 6;     // 面积升序 → 长边升序 → 名称（小图优先）
+        private const int SortMaxSideAsc = 7;  // 长边升序 → 面积升序 → 名称
+        private const int SortShortSideAsc = 8; // 短边升序 → 面积升序 → 名称
 
         // 纹理加载委托（由外部传入，避免依赖具体实现）
         public Func<string, Texture2D> TextureLoader { get; set; }
@@ -396,7 +401,8 @@ namespace Honor.Editor.MapTool.AtlasPacker
         /// </summary>
         private int[] ResolveSortKeys()
         {
-            return new[] { SortMaxSide, SortArea, SortLongSide, SortShortSide, SortWidth, SortHeight };
+            return new[] { SortMaxSide, SortArea, SortLongSide, SortShortSide, SortWidth, SortHeight,
+                SortAreaAsc, SortMaxSideAsc, SortShortSideAsc };
         }
 
         /// <summary>
@@ -436,6 +442,15 @@ namespace Honor.Editor.MapTool.AtlasPacker
                         .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
                 case SortHeight:
                     return probe.OrderByDescending(p => p.H).ThenByDescending(p => p.W)
+                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                case SortAreaAsc:
+                    return probe.OrderBy(p => p.Area).ThenBy(p => p.Max)
+                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                case SortMaxSideAsc:
+                    return probe.OrderBy(p => p.Max).ThenBy(p => p.Area)
+                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                case SortShortSideAsc:
+                    return probe.OrderBy(p => p.Min).ThenBy(p => p.Area)
                         .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
                 case SortMaxSide:
                 default:

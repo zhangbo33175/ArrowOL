@@ -554,6 +554,113 @@ function GameCoreManager:CollectMapItem(itemKey)
     end
 end
 
+---=========================================================================
+---@brief 实体层级 / 位置变更后，经门面转发到生成管理器重排所在层遮挡次序
+---@desc 供角色/物件路径移动段完成、调试面板改层级后调用；只重排实体所在层，不跨层打乱八层契约顺序。
+---@type fun(entity:MapObjectBase|CharacterBase):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---=========================================================================
+function GameCoreManager:RefreshObjectOrdering(entity)
+    if not entity or self._IsGameOver then
+        return
+    end
+    if CharacterGenerationManager then
+        CharacterGenerationManager:RefreshObjectOrdering(entity)
+    end
+end
+
+---=========================================================================
+---@brief 读取实体当前遮挡排序状态（门面转发）
+---@desc 供调试面板显示层内位次与层级档位，并作为「取消」回滚快照。
+---@type fun(entity:MapObjectBase|CharacterBase):table|nil
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@return table|nil @排序状态快照，实体无效返回 nil
+---=========================================================================
+function GameCoreManager:GetEntityOrdering(entity)
+    if not entity or self._IsGameOver then
+        return nil
+    end
+    if CharacterGenerationManager then
+        return CharacterGenerationManager:GetEntityOrdering(entity)
+    end
+    return nil
+end
+
+---=========================================================================
+---@brief 设置实体层内层级档位并重排本层（门面转发）
+---@desc 仅改同层内 z-order 档位，不跨层移动节点；供调试面板层级滑条回调调用。
+---@type fun(entity:MapObjectBase|CharacterBase, sortOrder:number):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@param sortOrder number @层内层级档位（越大越靠前）
+---=========================================================================
+function GameCoreManager:SetEntitySortOrder(entity, sortOrder)
+    if not entity or self._IsGameOver then
+        return
+    end
+    if CharacterGenerationManager then
+        CharacterGenerationManager:SetEntitySortOrder(entity, sortOrder)
+    end
+end
+
+---=========================================================================
+---@brief 按快照还原实体遮挡排序状态（门面转发，供「取消」回滚）
+---@type fun(entity:MapObjectBase|CharacterBase, snapshot:table):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@param snapshot table @GetEntityOrdering 返回的状态快照
+---=========================================================================
+function GameCoreManager:RestoreEntityOrdering(entity, snapshot)
+    if not entity or self._IsGameOver then
+        return
+    end
+    if CharacterGenerationManager then
+        CharacterGenerationManager:RestoreEntityOrdering(entity, snapshot)
+    end
+end
+
+---=========================================================================
+---@brief 同层内前后移动一步（门面转发，对齐视频「更改层级」/ 编辑器上移下移）
+---@desc 仅在实体所在层内与相邻物件交换位次，不跨八层契约；边界处静默跳过。
+---@type fun(entity:MapObjectBase|CharacterBase, forward:boolean):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---@param forward boolean @true=向上层移动（更靠前）；false=向下层移动
+---=========================================================================
+function GameCoreManager:MoveEntityInLayer(entity, forward)
+    if not entity or self._IsGameOver then
+        return
+    end
+    if CharacterGenerationManager then
+        CharacterGenerationManager:MoveEntityInLayer(entity, forward)
+    end
+end
+
+---=========================================================================
+---@brief 同层内置顶（门面转发，移到本层最上层）
+---@type fun(entity:MapObjectBase|CharacterBase):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---=========================================================================
+function GameCoreManager:BringEntityToFront(entity)
+    if not entity or self._IsGameOver then
+        return
+    end
+    if CharacterGenerationManager then
+        CharacterGenerationManager:BringEntityToFront(entity)
+    end
+end
+
+---=========================================================================
+---@brief 同层内置底（门面转发，移到本层最下层）
+---@type fun(entity:MapObjectBase|CharacterBase):void
+---@param entity MapObjectBase|CharacterBase @实体 Lua 实例
+---=========================================================================
+function GameCoreManager:SendEntityToBack(entity)
+    if not entity or self._IsGameOver then
+        return
+    end
+    if CharacterGenerationManager then
+        CharacterGenerationManager:SendEntityToBack(entity)
+    end
+end
+
 --endregion
 
 --region 断线重连存档标记

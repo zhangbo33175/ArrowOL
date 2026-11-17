@@ -184,6 +184,9 @@ CharacterGenerationDataManager = require("CharacterGenerationDataManager"):Creat
 ---@type CharacterGenerationManager 角色生成管理器
 CharacterGenerationManager = require("CharacterGenerationManager"):Create()
 
+---@type TrafficManager 交通规则管理器（门面：灯相位/行人横道/载具让行判定）
+TrafficManager = require("TrafficManager"):Create()
+
 ---@type MapLoadManager 地图加载管理器（分区骨架+网格+相机）
 MapLoadManager = require("MapLoadManager"):Create()
 

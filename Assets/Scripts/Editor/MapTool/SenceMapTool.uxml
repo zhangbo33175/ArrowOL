@@ -91,13 +91,14 @@
                     <ui:Toggle text="摆放网格层" value="true" name="layer-place-grid" />
                     <ui:Toggle text="路径网格" name="layer-path-grid" />
                     <ui:Toggle text="地图层" value="true" name="layer-map" />
-                    <ui:Toggle text="背景层" value="true" name="layer-background" />
-                    <ui:Toggle text="建筑层" value="true" name="layer-building" />
-                    <ui:Toggle text="物件层" value="true" name="layer-object" />
-                    <ui:Toggle text="人物层" value="true" name="layer-character" />
-                    <ui:Toggle text="猫猫层" value="true" name="layer-cat" />
-                    <ui:Toggle text="特效层" value="true" name="layer-effects" />
-                    <ui:Toggle text="气泡层" value="true" name="layer-bubbles" />
+                    <ui:Toggle text="背景" value="true" name="layer-background" />
+                    <ui:Toggle text="绿化" value="true" name="layer-greenery" />
+                    <ui:Toggle text="道路" value="true" name="layer-road" />
+                    <ui:Toggle text="建筑" value="true" name="layer-building" />
+                    <ui:Toggle text="道具" value="true" name="layer-object" />
+                    <ui:Toggle text="角色" value="true" name="layer-character" />
+                    <ui:Toggle text="前景" value="true" name="layer-foreground" />
+                    <ui:Toggle text="气泡" value="true" name="layer-bubbles" />
                     <ui:Toggle text="包围盒" name="layer-bounding-box" />
                 </ui:VisualElement>
                 <ui:VisualElement name="map-prefab-row" style="flex-direction: row; padding: 4px 8px; margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75);">
@@ -117,10 +118,12 @@
                     <ui:Label name="status-tile-y" text="0" class="status-value-fixed" />
                     <ui:Label text="格子数:" class="status-label" style="margin-left: 16px;" />
                     <ui:Label name="status-tile-count" text="0" class="status-value-fixed" />
+                    <ui:Label text="网格:" class="status-label" style="margin-left: 16px;" />
+                    <ui:Label name="status-grid-size" text="0×0" class="status-grid-size" />
                     <ui:Label text="保存路径:" class="status-label" style="margin-left: 16px;" />
-                    <ui:Button name="status-save-path" text="Assets/GameData/MapDatas/" class="status-path-btn" style="width: 740px; flex-direction: row; justify-content: flex-start; -unity-text-align: middle-left; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
+                    <ui:Button name="status-save-path" text="Assets/GameData/MapDatas/" class="status-path-btn" style="width: 760px; flex-direction: row; justify-content: flex-start; -unity-text-align: middle-left; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;" />
                 </ui:VisualElement>
-                <ui:VisualElement class="bottom-props-area" style="height: 220px; padding: 6px; spacing: 8px; flex-direction: row; align-items: stretch; justify-content: flex-start;">
+                <ui:VisualElement class="bottom-props-area" style="padding: 6px; spacing: 8px; flex-direction: row; align-items: stretch; justify-content: flex-start;">
                     <ui:VisualElement name="VisualElement" class="prop-box" style="width: 380px; padding: 8px; spacing: 6px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px;">
                         <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
                             <ui:Button text="更新地图" class="small-btn" style="min-width: 80px; height: 22px;" />
@@ -141,12 +144,12 @@
                             <ui:Button text="刷新层级" name="btn-refresh-layer" class="small-btn" style="min-width: 80px; height: 22px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
-                            <ui:Toggle text="DrawClear:" value="true" name="Toggle" style="width: 110px;" />
-                            <ui:EnumField style="width: 140px;" />
+                            <ui:Toggle text="摆放模式:" value="true" name="placement-enabled-toggle" style="width: 110px;" />
+                            <ui:DropdownField name="draw-shape-field" choices="矩形绘制模式,菱形绘制模式" value="菱形绘制模式" style="width: 150px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row" style="spacing: 8px; align-items: center; height: 26px;">
-                            <ui:Toggle text="摆放模式:" value="true" style="width: 110px;" />
-                            <ui:EnumField style="width: 140px;" />
+                            <ui:Toggle text="DrawClear:" value="true" name="draw-clear-enabled-toggle" style="width: 110px;" />
+                            <ui:DropdownField name="region-type-field" choices="摆放区,禁区,通用区" value="摆放区" style="width: 150px;" />
                         </ui:VisualElement>
                         <ui:Label text="Ctrl：按住=绘制矩形区域    松开=绘制菱形区域" class="shortcut-text" style="font-size: 10px; margin-top: 4px;" />
                         <ui:Label text="Alt：按住=擦除格子模式   Shift：按住曲线绘制区域" class="shortcut-text" style="font-size: 10px;" />
@@ -170,53 +173,72 @@
                         </ui:VisualElement>
                         <ui:VisualElement name="anim-edit-content" class="obj-edit-content hidden" style="display: none;">
                             <ui:VisualElement class="obj-edit-info-row">
-                                <ui:Label text="动画名称：" class="detail-label" />
-                                <ui:TextField name="anim-name-field" value="Idle" class="prop-textfield flex-grow" style="width: 271px;" />
+                                <ui:Label text="动画名称：" class="detail-label" style="width: 64px;" />
+                                <ui:TextField name="anim-name-field" value="Idle" class="prop-textfield flex-grow" />
                             </ui:VisualElement>
                             <ui:VisualElement class="obj-edit-info-row">
-                                <ui:Label text="循环播放：" class="detail-label" />
+                                <ui:Label text="循环播放：" class="detail-label" style="width: 64px;" />
                                 <ui:Toggle name="anim-loop-toggle" text="循环" value="true" />
-                                <ui:Label text="速度：" class="detail-label" />
+                                <ui:Label text="速度：" class="detail-label" style="width: 40px;" />
                                 <ui:TextField name="anim-speed-field" value="1.0" class="prop-textfield" style="width: 50px;" />
                             </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement name="property-panel" class="prop-box detail-box" style="flex-grow: 1; padding: 8px; spacing: 4px; border-left-color: rgb(70, 70, 75); border-right-color: rgb(70, 70, 75); border-top-color: rgb(70, 70, 75); border-bottom-color: rgb(70, 70, 75); margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;">
                         <ui:Label text="属性" class="box-title" style="margin-bottom: 2px;" />
-                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
-                            <ui:Label text="模板ID:" class="detail-label" style="width: 60px;" />
-                            <ui:TextField name="prop-template-id" class="detail-textfield flex-grow" style="width: 111px;" />
-                            <ui:Label text="tag:" class="detail-label" style="width: 30px;" />
-                            <ui:TextField name="prop-tag" class="detail-textfield" style="width: 70px;" />
-                        </ui:VisualElement>
-                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
-                            <ui:Label text="格子坐标:" class="detail-label" style="width: 60px;" />
-                            <ui:TextField name="prop-grid-pos" class="detail-textfield flex-grow" style="width: 111px;" />
-                            <ui:Label text="层级:" class="detail-label" style="width: 30px;" />
-                            <ui:TextField name="prop-sort-order" value="0" class="detail-textfield" style="width: 40px;" />
-                        </ui:VisualElement>
-                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
-                            <ui:Label text="交互:" class="detail-label" style="width: 60px;" />
-                            <ui:VisualElement name="prop-interact-type-container" style="width: 60px;" />
-                            <ui:Label text="碰撞:" class="detail-label" style="width: 36px;" />
-                            <ui:Toggle name="prop-collision" value="true" />
-                            <ui:Label text="阴影:" class="detail-label" style="width: 36px;" />
-                            <ui:Toggle name="prop-shadow" value="true" />
-                            <ui:Label text="收集:" class="detail-label" style="width: 36px;" />
-                            <ui:Toggle name="prop-collectible" />
-                        </ui:VisualElement>
-                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
-                            <ui:Label text="气泡:" class="detail-label" style="width: 60px;" />
-                            <ui:VisualElement name="prop-dialog-bubble-container" class="flex-grow" style="width: 111px;" />
-                            <ui:Label text="气泡ID:" class="detail-label" style="width: 48px;" />
-                            <ui:VisualElement name="prop-bubble-id-container" class="flex-grow" style="width: 80px;" />
-                        </ui:VisualElement>
-                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
-                            <ui:Label text="朝向:" class="detail-label" style="width: 60px;" />
-                            <ui:VisualElement name="prop-facing-container" style="width: 111px;" />
-                            <ui:VisualElement class="flex-space" />
-                            <ui:Button text="删除" name="btn-delete-object" class="small-btn danger-btn" />
-                            <ui:Button text="发布" name="btn-publish" class="publish-btn" />
+                        <ui:VisualElement name="property-body" class="property-body">
+                            <ui:VisualElement name="property-scroll" class="property-scroll" style="flex-grow: 1; flex-direction: column;">
+                                <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                                    <ui:VisualElement style="flex-grow: 1; flex-direction: column;">
+                                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
+                                            <ui:Label text="模板ID:" class="detail-label" />
+                                            <ui:TextField name="prop-template-id" class="detail-textfield flex-grow" />
+                                            <ui:Label text="tag:" class="detail-label" style="width: 30px;" />
+                                            <ui:TextField name="prop-tag" class="detail-textfield" style="width: 52px;" />
+                                        </ui:VisualElement>
+                                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
+                                            <ui:Label text="格子坐标:" class="detail-label" />
+                                            <ui:TextField name="prop-grid-pos" class="detail-textfield flex-grow" />
+                                            <ui:Label text="层级:" class="detail-label" style="width: 30px;" />
+                                            <ui:TextField name="prop-sort-order" value="0" class="detail-textfield" style="width: 40px;" />
+                                        </ui:VisualElement>
+                                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
+                                            <ui:Label text="层级档:" class="detail-label" />
+                                            <ui:VisualElement name="prop-display-layer-container" class="flex-grow" />
+                                        </ui:VisualElement>
+                                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center; flex-wrap: wrap;">
+                                            <ui:Label text="交互:" class="detail-label" style="width: 50px;" />
+                                            <ui:VisualElement name="prop-interact-type-container" class="flex-grow" style="min-width: 52px;" />
+                                            <ui:Label text="碰撞:" class="detail-label" style="width: 32px;" />
+                                            <ui:Toggle name="prop-collision" value="true" />
+                                            <ui:Label text="阴影:" class="detail-label" style="width: 32px;" />
+                                            <ui:Toggle name="prop-shadow" value="true" />
+                                            <ui:VisualElement name="prop-collectible-group" style="flex-direction: row; align-items: center; spacing: 6px;">
+                                                <ui:Label text="收集:" class="detail-label" style="width: 32px;" />
+                                                <ui:Toggle name="prop-collectible" />
+                                            </ui:VisualElement>
+                                            <ui:VisualElement name="prop-traffic-group" style="flex-direction: row; align-items: center; spacing: 6px;">
+                                                <ui:Label text="交通:" class="detail-label" style="width: 32px;" />
+                                                <ui:Toggle name="prop-traffic-toggle" />
+                                            </ui:VisualElement>
+                                        </ui:VisualElement>
+                                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
+                                            <ui:Label text="气泡:" class="detail-label" />
+                                            <ui:VisualElement name="prop-dialog-bubble-container" class="flex-grow" />
+                                            <ui:Label text="气泡ID:" class="detail-label" style="width: 48px;" />
+                                            <ui:VisualElement name="prop-bubble-id-container" class="flex-grow" style="min-width: 56px;" />
+                                        </ui:VisualElement>
+                                        <ui:VisualElement class="detail-row" style="spacing: 6px; align-items: center;">
+                                            <ui:Label text="朝向:" class="detail-label" />
+                                            <ui:VisualElement name="prop-facing-container" class="flex-grow" />
+                                            <ui:VisualElement class="flex-space" />
+                                            <ui:Button text="删除" name="btn-delete-object" class="small-btn danger-btn" />
+                                            <ui:Button text="发布" name="btn-publish" class="publish-btn" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:ScrollView name="property-action-area" class="property-action-area" />
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
@@ -225,6 +247,7 @@
                 <ui:VisualElement class="item-top-bar">
                     <ui:Label text="物品元件编辑模式" class="mode-title" />
                     <ui:VisualElement class="flex-space" />
+                    <ui:Button text="保存" name="btn-save-item" class="tool-btn" />
                     <ui:Button text="添加元件" name="btn-add-item" class="tool-btn" />
                     <ui:Button text="导入配置" name="btn-import-config" class="tool-btn" />
                     <ui:Button text="导出配置" name="btn-export-config" class="tool-btn" />
@@ -235,106 +258,163 @@
                         <ui:VisualElement class="element-type-tabs">
                             <ui:Button text="建筑" name="item-tab-building" class="element-type-tab active" />
                             <ui:Button text="人物" name="item-tab-character" class="element-type-tab" />
-                            <ui:Button text="物件" name="item-tab-prop" class="element-type-tab" />
+                            <ui:Button text="物件" name="item-tab-prop" class="element-type-tab element-type-tab-last" />
                         </ui:VisualElement>
                         <ui:ScrollView name="item-list" class="item-list" />
                     </ui:VisualElement>
                     <ui:VisualElement class="item-properties-panel">
                         <ui:Label text="元件属性" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="ID：" class="prop-label" />
-                            <ui:TextField name="item-id-field" value="1001" class="prop-textfield" />
-                            <ui:Label text="类型：" class="prop-label" />
-                            <ui:VisualElement name="item-type-container" style="width: 120px;" />
+                        <ui:VisualElement class="prop-row" style="width: 881px;">
+                            <ui:Label text="ID：" class="prop-label" style="flex-shrink: 0;" />
+                            <ui:TextField name="item-id-field" value="1001" is-read-only="true" class="prop-textfield readonly" style="width: 70px; flex-grow: 0; flex-shrink: 0;" />
+                            <ui:Label text="类型：" class="prop-label" style="flex-shrink: 0;" />
+                            <ui:VisualElement name="item-type-container" style="width: 120px; flex-shrink: 0;" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
+                        <ui:VisualElement class="prop-row" style="width: 886px;">
                             <ui:Label text="模板名称：" class="prop-label" />
-                            <ui:TextField name="item-name-field" value="钥匙" class="prop-textfield" />
+                            <ui:TextField name="item-name-field" value="钥匙" class="prop-textfield" style="width: 680px;" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
+                        <ui:VisualElement class="prop-row" style="width: 793px;">
                             <ui:Label text="Icon：" class="prop-label" />
-                            <ui:TextField name="item-icon-field" value="item_key" class="prop-textfield" />
+                            <ui:TextField name="item-icon-field" value="item_key" is-read-only="true" class="prop-textfield readonly" style="width: 795px;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="prop-row">
                             <ui:Label text="ResName：" class="prop-label" />
-                            <ui:TextField name="item-resname-field" value="GameObject_Prop" class="prop-textfield" />
+                            <ui:VisualElement name="item-resname-container" style="width: 160px;" />
                         </ui:VisualElement>
-                        <ui:Label text="动画设置" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="默认动画：" class="prop-label" />
-                            <ui:TextField name="item-anim-field" value="Idle" class="prop-textfield" />
+                        <ui:VisualElement name="item-anim-group-header" class="group-header">
+                            <ui:Label text="动画设置" class="sub-title" />
+                            <ui:Label name="item-anim-arrow" text="▼" class="group-arrow" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="是否循环：" class="prop-label" />
-                            <ui:Toggle name="item-loop-toggle" text="循环播放" value="true" />
-                            <ui:Label text="播放速度：" class="prop-label" />
-                            <ui:TextField name="item-speed-field" value="1.0" class="prop-textfield" style="width: 60px;" />
+                        <ui:VisualElement name="item-anim-content">
+                            <ui:VisualElement class="prop-row" style="width: 882px;">
+                                <ui:Label text="默认动画：" class="prop-label" />
+                                <ui:TextField name="item-anim-field" value="Idle" class="prop-textfield" style="width: 780px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row" style="width: 885px;">
+                                <ui:Label text="是否循环：" class="prop-label" />
+                                <ui:Toggle name="item-loop-toggle" text="循环播放" value="true" />
+                                <ui:Label text="播放速度：" class="prop-label" />
+                                <ui:TextField name="item-speed-field" value="1.0" class="prop-textfield" style="width: 613px;" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:Label text="交互设置" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="是否可交互：" class="prop-label" />
-                            <ui:Toggle name="item-interactable-toggle" text="可交互" value="true" />
+                        <ui:VisualElement name="item-interactable-group-header" class="group-header">
+                            <ui:Label text="交互设置" class="sub-title" />
+                            <ui:Label name="item-interactable-arrow" text="▼" class="group-arrow" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="交互类型：" class="prop-label" />
-                            <ui:VisualElement name="item-interact-type-container" style="width: 120px;" />
+                        <ui:VisualElement name="item-interactable-content">
+                            <ui:VisualElement name="VisualElement" class="prop-row">
+                                <ui:Label text="是否可交互：" class="prop-label" />
+                                <ui:Toggle name="item-interactable-toggle" text="可交互" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="VisualElement" class="prop-row">
+                                <ui:Label text="交互类型：" class="prop-label" />
+                                <ui:VisualElement name="item-interact-type-container" style="width: 120px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row" style="width: 876px;">
+                                <ui:Label text="对话气泡：" class="prop-label" />
+                                <ui:TextField name="item-bubble-field" class="prop-textfield" style="width: 799px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row" style="width: 876px;">
+                                <ui:Label text="气泡ID：" class="prop-label" />
+                                <ui:IntegerField name="item-bubble-id-field" value="0" style="flex-grow: 1; width: 799px;" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="对话气泡：" class="prop-label" />
-                            <ui:TextField name="item-bubble-field" class="prop-textfield" />
+                        <ui:VisualElement name="item-layer-group-header" class="group-header">
+                            <ui:Label text="层级与碰撞" class="sub-title" />
+                            <ui:Label name="item-layer-arrow" text="▼" class="group-arrow" />
                         </ui:VisualElement>
-                        <ui:Label text="层级与碰撞" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="渲染层级：" class="prop-label" />
-                            <ui:TextField name="item-sort-order-field" value="0" class="prop-textfield" style="width: 60px;" />
-                            <ui:Label text="初始朝向：" class="prop-label" />
-                            <ui:VisualElement name="item-facing-container" style="width: 80px;" />
+                        <ui:VisualElement name="item-layer-content">
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="渲染层级：" class="prop-label" />
+                                <ui:TextField name="item-sort-order-field" value="0" class="prop-textfield" style="width: 60px;" />
+                                <ui:Label text="初始朝向：" class="prop-label" />
+                                <ui:VisualElement name="item-facing-container" style="width: 80px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="是否有碰撞：" class="prop-label" />
+                                <ui:Toggle name="item-collision-toggle" text="启用碰撞" value="true" />
+                                <ui:Label text="显示阴影：" class="prop-label" />
+                                <ui:Toggle name="item-shadow-toggle" text="显示阴影" value="true" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="层级档：" class="prop-label" />
+                                <ui:VisualElement name="item-layer-container" style="width: 120px;" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="是否有碰撞：" class="prop-label" />
-                            <ui:Toggle name="item-collision-toggle" text="启用碰撞" value="true" />
-                            <ui:Label text="显示阴影：" class="prop-label" />
-                            <ui:Toggle name="item-shadow-toggle" text="显示阴影" value="true" />
+                        <ui:VisualElement name="item-traffic-group-header" class="group-header">
+                            <ui:Label text="交通规则" class="sub-title" />
+                            <ui:Label name="item-traffic-arrow" text="▼" class="group-arrow" />
                         </ui:VisualElement>
-                        <ui:Label text="收集物设置" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="是否收集物：" class="prop-label" />
-                            <ui:Toggle name="item-collectible-toggle" text="可收集" />
-                            <ui:Label text="重生时间：" class="prop-label" />
-                            <ui:TextField name="item-respawn-field" value="0" class="prop-textfield" style="width: 60px;" />
-                            <ui:Label text="秒" class="prop-label" />
+                        <ui:VisualElement name="item-traffic-content">
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="交通类别：" class="prop-label" />
+                                <ui:VisualElement name="item-traffic-category-container" style="width: 120px;" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:Label text="Y坐标深度排序" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="启用YSort：" class="prop-label" />
-                            <ui:Toggle name="item-ysort-toggle" text="自动深度排序" value="true" />
-                            <ui:Label text="偏移：" class="prop-label" />
-                            <ui:TextField name="item-ysort-offset-field" value="0" class="prop-textfield" style="width: 60px;" />
+                        <ui:VisualElement name="item-collectible-group-header" class="group-header">
+                            <ui:Label text="收集物设置" class="sub-title" />
+                            <ui:Label name="item-collectible-arrow" text="▼" class="group-arrow" />
                         </ui:VisualElement>
-                        <ui:Label text="移动与循环" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="可移动：" class="prop-label" />
-                            <ui:Toggle name="item-movable-toggle" text="允许移动" />
-                            <ui:Label text="循环重启延迟：" class="prop-label" />
-                            <ui:TextField name="item-loop-restart-field" value="3" class="prop-textfield" style="width: 60px;" />
-                            <ui:Label text="秒" class="prop-label" />
+                        <ui:VisualElement name="item-collectible-content">
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="是否收集物：" class="prop-label" />
+                                <ui:Toggle name="item-collectible-toggle" text="可收集" />
+                                <ui:Label text="重生时间：" class="prop-label" />
+                                <ui:TextField name="item-respawn-field" value="0" class="prop-textfield" style="width: 60px;" />
+                                <ui:Label text="秒" class="prop-label" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="离开地图隐藏：" class="prop-label" />
-                            <ui:Toggle name="item-hide-offmap-toggle" text="自动隐藏" value="true" />
+                        <ui:VisualElement name="item-ysort-group-header" class="group-header">
+                            <ui:Label text="Y坐标深度排序" class="sub-title" />
+                            <ui:Label name="item-ysort-arrow" text="▼" class="group-arrow" />
                         </ui:VisualElement>
-                        <ui:Label text="传送门设置" class="sub-title" />
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="是否传送门：" class="prop-label" />
-                            <ui:Toggle name="item-teleport-toggle" text="启用传送门" />
-                            <ui:Label text="目标场景：" class="prop-label" />
-                            <ui:TextField name="item-teleport-scene-field" class="prop-textfield" />
+                        <ui:VisualElement name="item-ysort-content">
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="启用YSort：" class="prop-label" />
+                                <ui:Toggle name="item-ysort-toggle" text="自动深度排序" value="true" />
+                                <ui:Label text="偏移：" class="prop-label" />
+                                <ui:TextField name="item-ysort-offset-field" value="0" class="prop-textfield" style="width: 60px;" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement class="prop-row">
-                            <ui:Label text="目标X：" class="prop-label" />
-                            <ui:TextField name="item-teleport-x-field" value="0" class="prop-textfield" style="width: 60px;" />
-                            <ui:Label text="目标Y：" class="prop-label" />
-                            <ui:TextField name="item-teleport-y-field" value="0" class="prop-textfield" style="width: 60px;" />
+                        <ui:VisualElement name="item-movable-group-header" class="group-header">
+                            <ui:Label text="移动与循环" class="sub-title" />
+                            <ui:Label name="item-movable-arrow" text="▼" class="group-arrow" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="item-movable-content">
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="可移动：" class="prop-label" />
+                                <ui:Toggle name="item-movable-toggle" text="允许移动" />
+                                <ui:Label text="循环重启延迟：" class="prop-label" />
+                                <ui:TextField name="item-loop-restart-field" value="3" class="prop-textfield" style="width: 60px;" />
+                                <ui:Label text="秒" class="prop-label" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="移动动画：" class="prop-label" />
+                                <ui:TextField name="item-move-anim-field" value="walk" class="prop-textfield" style="width: 880px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="离开地图隐藏：" class="prop-label" />
+                                <ui:Toggle name="item-hide-offmap-toggle" text="自动隐藏" value="true" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="item-teleport-group-header" class="group-header">
+                            <ui:Label text="传送门设置" class="sub-title" />
+                            <ui:Label name="item-teleport-arrow" text="▼" class="group-arrow" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="item-teleport-content">
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="是否传送门：" class="prop-label" />
+                                <ui:Toggle name="item-teleport-toggle" text="启用传送门" />
+                                <ui:Label text="目标场景：" class="prop-label" />
+                                <ui:TextField name="item-teleport-scene-field" class="prop-textfield" style="width: 765px;" />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="prop-row">
+                                <ui:Label text="目标X：" class="prop-label" />
+                                <ui:TextField name="item-teleport-x-field" value="0" class="prop-textfield" style="width: 60px;" />
+                                <ui:Label text="目标Y：" class="prop-label" />
+                                <ui:TextField name="item-teleport-y-field" value="0" class="prop-textfield" style="width: 60px;" />
+                            </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
@@ -370,18 +450,13 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-
-            <!-- 资源整理面板 -->
             <ui:VisualElement name="resource-panel" class="mode-panel hidden" style="display: none; overflow: hidden;">
-                <!-- 主内容区 -->
                 <ui:VisualElement style="flex-direction: row; flex-grow: 1; overflow: hidden; padding: 8px;">
-                    <!-- 左侧：未配置资源列表 -->
                     <ui:VisualElement style="width: 300px; min-width: 300px; margin-right: 12px; background: rgb(38, 38, 38); border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75); padding: 8px;">
                         <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 6px;">
                             <ui:Label text="未配置资源" style="font-size: 12px; color: rgb(200, 200, 200); -unity-font-style: bold; flex-grow: 1;" />
                             <ui:Button text="扫描" name="btn-scan-resources" class="tool-btn" style="width: 60px; height: 22px; font-size: 10px;" />
                         </ui:VisualElement>
-                        <!-- 分类子 Tab -->
                         <ui:VisualElement style="flex-direction: row; margin-bottom: 6px;">
                             <ui:Button text="全部" name="tab-all" class="sub-tab-btn active" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
                             <ui:Button text="背景" name="tab-bg" class="sub-tab-btn" style="flex-grow: 1; height: 24px; font-size: 11px; margin-right: 2px;" />
@@ -396,37 +471,33 @@
                             </ui:VisualElement>
                         </ui:ScrollView>
                     </ui:VisualElement>
-                    <!-- 右侧：资源详情 -->
                     <ui:VisualElement style="flex-grow: 1; flex-direction: column; overflow: hidden;">
-                        <!-- 预览图 + 基本信息 -->
                         <ui:VisualElement style="flex-direction: row; margin-bottom: 8px;">
-                            <!-- 预览图 -->
                             <ui:VisualElement style="width: 100px; margin-right: 12px;">
                                 <ui:VisualElement name="resource-preview-container" style="background: rgb(42, 42, 42); height: 100px; align-items: center; justify-content: center; border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75);">
                                     <ui:Label text="（预览图）" style="color: rgb(120, 120, 120); font-size: 11px;" />
                                 </ui:VisualElement>
                                 <ui:Label text="-" name="resource-detail-size" style="color: rgb(180, 180, 180); font-size: 11px; margin-top: 4px;" />
                             </ui:VisualElement>
-                            <!-- 配置字段 -->
                             <ui:VisualElement style="flex-grow: 1; background: rgb(38, 38, 38); border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75); padding: 8px;">
                                 <ui:VisualElement style="flex-direction: row; margin-bottom: 4px;">
                                     <ui:Label text="ID" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px;" />
-                                    <ui:TextField name="field-template-id" style="width: 120px;" value="template_0001" />
+                                    <ui:TextField name="field-template-id" value="template_0001" style="width: 120px;" />
                                     <ui:Label text="ImagePath" style="width: 70px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 12px;" />
-                                    <ui:TextField name="field-image-path" style="flex-grow: 1;" value="-" />
+                                    <ui:TextField name="field-image-path" value="-" style="flex-grow: 1;" />
                                 </ui:VisualElement>
                                 <ui:VisualElement style="flex-direction: row; margin-bottom: 4px;">
                                     <ui:Label text="Name" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px;" />
-                                    <ui:TextField name="field-template-name" style="flex-grow: 1;" value="-" />
+                                    <ui:TextField name="field-template-name" value="-" style="flex-grow: 1;" />
                                     <ui:Label text="Anim" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 12px;" />
-                                    <ui:TextField name="field-anim-name" style="width: 60px;" value="Idle" />
+                                    <ui:TextField name="field-anim-name" value="Idle" style="width: 60px;" />
                                 </ui:VisualElement>
                                 <ui:VisualElement style="flex-direction: row; align-items: center;">
                                     <ui:Toggle text="Loop" name="field-loop" value="true" />
                                     <ui:Label text="Speed" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 8px;" />
-                                    <ui:FloatField name="field-speed" style="width: 40px;" value="1" />
+                                    <ui:FloatField name="field-speed" value="1" style="width: 40px;" />
                                     <ui:Label text="Order" style="width: 35px; color: rgb(180, 180, 180); font-size: 11px; margin-left: 8px;" />
-                                    <ui:IntegerField name="field-sort-order" style="width: 40px;" value="10" />
+                                    <ui:IntegerField name="field-sort-order" value="10" style="width: 40px;" />
                                     <ui:Toggle text="Shadow" name="field-shadow" value="true" style="margin-left: 8px;" />
                                     <ui:Toggle text="Collectible" name="field-collectible" value="false" style="margin-left: 8px;" />
                                     <ui:VisualElement style="flex-grow: 1;" />
@@ -434,17 +505,15 @@
                                 </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <!-- 配置表预览（Excel 样式） -->
                         <ui:VisualElement style="flex-grow: 1; background: rgb(30, 30, 30); border-radius: 4px; border-width: 1px; border-color: rgb(70, 70, 75); padding: 8px; overflow: hidden;">
                             <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 6px;">
                                 <ui:Label text="已配置资源列表" style="font-size: 12px; color: rgb(200, 200, 200); -unity-font-style: bold;" />
-                                <ui:Label text="" name="current-config-name" style="font-size: 11px; color: rgb(150, 150, 150); margin-left: 8px;" />
+                                <ui:Label name="current-config-name" style="font-size: 11px; color: rgb(150, 150, 150); margin-left: 8px;" />
                                 <ui:VisualElement style="flex-grow: 1;" />
                                 <ui:Button text="打开配置表" name="btn-open-config" class="tool-btn" style="width: 80px; height: 22px; font-size: 10px; margin-right: 4px;" />
                                 <ui:Button text="打开文件位置" name="btn-open-folder" class="tool-btn" style="width: 90px; height: 22px; font-size: 10px; margin-right: 4px;" />
                                 <ui:Button text="保存修改" name="btn-save-config" class="tool-btn" style="width: 80px; height: 22px; font-size: 10px;" />
                             </ui:VisualElement>
-                            <!-- 表头（三行：英文列名、类型、中文说明） -->
                             <ui:VisualElement style="flex-direction: row; background-color: rgb(0, 0, 0); border-top-width: 1px; border-left-width: 1px; border-right-width: 1px; border-top-color: rgb(0, 0, 0); border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); margin: 0; padding: 0;">
                                 <ui:Label text="TemplateId" style="width: 80px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="ImagePath" style="width: 140px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
@@ -458,7 +527,6 @@
                                 <ui:Label text="RespawnTime" style="width: 100px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="操作" style="width: 56px; color: white; font-size: 11px; -unity-font-style: bold; margin: 0; padding-left: 6; padding-right: 6;" />
                             </ui:VisualElement>
-                            <!-- 类型行 -->
                             <ui:VisualElement style="flex-direction: row; background-color: rgb(128, 128, 128); border-left-width: 1px; border-right-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0);">
                                 <ui:Label text="int" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="string" style="width: 140px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
@@ -470,9 +538,8 @@
                                 <ui:Label text="string" style="width: 120px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="bool" style="width: 90px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="float" style="width: 100px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
-                                <ui:Label text="" style="width: 56px; color: white; font-size: 10px; padding-left: 6; padding-right: 6;" />
+                                <ui:Label style="width: 56px; color: white; font-size: 10px; padding-left: 6; padding-right: 6;" />
                             </ui:VisualElement>
-                            <!-- 中文说明行 -->
                             <ui:VisualElement style="flex-direction: row; background-color: rgb(0, 176, 80); border-left-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);">
                                 <ui:Label text="序号" style="width: 80px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="图片名称" style="width: 140px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
@@ -484,9 +551,8 @@
                                 <ui:Label text="对话气泡内容" style="width: 120px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="是否为收集物" style="width: 90px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
                                 <ui:Label text="收集物重生时间(秒)" style="width: 100px; color: white; font-size: 10px; padding-left: 6; padding-right: 6; border-right-width: 1px; border-right-color: rgb(0, 0, 0);" />
-                                <ui:Label text="" style="width: 56px; color: white; font-size: 10px; padding-left: 6; padding-right: 6;" />
+                                <ui:Label style="width: 56px; color: white; font-size: 10px; padding-left: 6; padding-right: 6;" />
                             </ui:VisualElement>
-                            <!-- 数据列表（可滚动） -->
                             <ui:ScrollView style="flex-grow: 1; border-radius: 0 0 3px 3px;">
                                 <ui:VisualElement name="config-list-container" class="config-table">
                                     <ui:Label text="（暂无配置数据）" style="color: rgb(120, 120, 120); font-size: 11px; padding: 8px;" />

@@ -74,27 +74,29 @@ namespace Honor.Editor.MapTool
         public const string BtnClearTarget       = "btn-clear-target";
 
         // ==================== 图层开关 ====================
-        /// <summary>摆放网格图层开关</summary>
+        /// <summary>摆放网格图层开关（非层级覆盖）</summary>
         public const string LayerPlaceGrid       = "layer-place-grid";
-        /// <summary>路径网格图层开关</summary>
+        /// <summary>路径网格图层开关（非层级覆盖）</summary>
         public const string LayerPathGrid        = "layer-path-grid";
-        /// <summary>地图图层开关</summary>
+        /// <summary>地图底图开关（非层级覆盖）</summary>
         public const string LayerMap             = "layer-map";
-        /// <summary>建筑图层开关</summary>
-        public const string LayerBuilding        = "layer-building";
-        /// <summary>人物图层开关</summary>
-        public const string LayerCharacter       = "layer-character";
-        /// <summary>物件图层开关</summary>
-        public const string LayerObject          = "layer-object";
-        /// <summary>猫猫图层开关</summary>
-        public const string LayerCat             = "layer-cat";
-        /// <summary>背景图层开关</summary>
+        /// <summary>背景图层开关（background）</summary>
         public const string LayerBackground      = "layer-background";
-        /// <summary>特效图层开关</summary>
-        public const string LayerEffects         = "layer-effects";
-        /// <summary>气泡图层开关</summary>
+        /// <summary>绿化图层开关（greenery）</summary>
+        public const string LayerGreenery        = "layer-greenery";
+        /// <summary>道路市政图层开关（road）</summary>
+        public const string LayerRoad            = "layer-road";
+        /// <summary>建筑图层开关（building）</summary>
+        public const string LayerBuilding        = "layer-building";
+        /// <summary>道具图层开关（prop）</summary>
+        public const string LayerObject          = "layer-object";
+        /// <summary>角色/载具图层开关（character）</summary>
+        public const string LayerCharacter       = "layer-character";
+        /// <summary>前景近景图层开关（foreground）</summary>
+        public const string LayerForeground       = "layer-foreground";
+        /// <summary>气泡图层开关（bubble）</summary>
         public const string LayerBubbles         = "layer-bubbles";
-        /// <summary>包围盒图层开关</summary>
+        /// <summary>包围盒调试开关（非层级覆盖）</summary>
         public const string LayerBoundingBox     = "layer-bounding-box";
 
         // ==================== 状态栏 ====================
@@ -108,8 +110,10 @@ namespace Honor.Editor.MapTool
         public const string StatusTileX          = "status-tile-x";
         /// <summary>状态栏格子 Y 坐标</summary>
         public const string StatusTileY          = "status-tile-y";
-        /// <summary>状态栏格子总数</summary>
+        /// <summary>状态栏格子总数（已占用去重计数）</summary>
         public const string StatusTileCount      = "status-tile-count";
+        /// <summary>状态栏网格行列数（Cols×Rows）</summary>
+        public const string StatusGridSize       = "status-grid-size";
         /// <summary>状态栏保存路径显示</summary>
         public const string StatusSavePath       = "status-save-path";
 
@@ -118,6 +122,16 @@ namespace Honor.Editor.MapTool
         public const string MapPrefabRow         = "map-prefab-row";
         /// <summary>地图预制体选择字段</summary>
         public const string MapPrefabField       = "map-prefab-field";
+        /// <summary>基线步长输入字段（相邻显示层 SortOrder 基线间距）</summary>
+        public const string MapBaselineStepField = "map-baseline-step-field";
+        /// <summary>摆放模式启用开关（勾选启用当前形状绘制）</summary>
+        public const string PlacementEnabledToggle = "placement-enabled-toggle";
+        /// <summary>绘制形状下拉字段（矩形/菱形）</summary>
+        public const string DrawShapeField        = "draw-shape-field";
+        /// <summary>DrawClear 启用开关（勾选启用当前区域类型绘制）</summary>
+        public const string DrawClearEnabledToggle = "draw-clear-enabled-toggle";
+        /// <summary>区域类型下拉字段（摆放区/禁区/通用区）</summary>
+        public const string RegionTypeField       = "region-type-field";
         /// <summary>地图宽度输入字段</summary>
         public const string MapWidthField       = "map-width-field";
         /// <summary>地图高度输入字段</summary>
@@ -154,6 +168,10 @@ namespace Honor.Editor.MapTool
         // ==================== 属性面板（选中物体） ====================
         /// <summary>属性面板（容器）</summary>
         public const string PropertyPanel        = "property-panel";
+        /// <summary>属性面板底部常驻操作区（层级/比例/角度按钮）</summary>
+        public const string PropertyActionArea   = "property-action-area";
+        /// <summary>属性流内变换/交通区挂载容器（删除按钮行之前）</summary>
+        public const string PropActionHost       = "prop-action-host";
         /// <summary>模板 ID 显示</summary>
         public const string PropTemplateId      = "prop-template-id";
         /// <summary>标签显示</summary>
@@ -180,8 +198,16 @@ namespace Honor.Editor.MapTool
         public const string PropShadow           = "prop-shadow";
         /// <summary>可收集开关</summary>
         public const string PropCollectible      = "prop-collectible";
+        /// <summary>可收集标记分组（标签+开关）</summary>
+        public const string PropCollectibleGroup = "prop-collectible-group";
+        /// <summary>交通规则开关（紧跟收集开关）</summary>
+        public const string PropTrafficToggle     = "prop-traffic-toggle";
+        /// <summary>交通标记分组（标签+开关）</summary>
+        public const string PropTrafficGroup      = "prop-traffic-group";
         /// <summary>排序值输入</summary>
         public const string PropSortOrder        = "prop-sort-order";
+        /// <summary>显示层（渲染档位）下拉容器</summary>
+        public const string PropDisplayLayerContainer = "prop-display-layer-container";
 
         // ==================== 标签页 ====================
         /// <summary>主 Tab：场景编辑</summary>
@@ -226,6 +252,8 @@ namespace Honor.Editor.MapTool
         // ==================== 物件编辑面板（item-*） ====================
         /// <summary>添加物品元件按钮</summary>
         public const string BtnAddItem           = "btn-add-item";
+        /// <summary>保存全部元件按钮</summary>
+        public const string BtnSaveItem          = "btn-save-item";
         /// <summary>导出配置按钮</summary>
         public const string BtnExportConfig     = "btn-export-config";
         /// <summary>导入配置按钮</summary>
@@ -246,8 +274,8 @@ namespace Honor.Editor.MapTool
         public const string ItemIdField          = "item-id-field";
         /// <summary>元件名称输入字段</summary>
         public const string ItemNameField       = "item-name-field";
-        /// <summary>资源名称输入字段</summary>
-        public const string ItemResNameField    = "item-resname-field";
+        /// <summary>资源预制体下拉容器</summary>
+        public const string ItemResNameContainer = "item-resname-container";
         /// <summary>元件图标显示</summary>
         public const string ItemIconField       = "item-icon-field";
         /// <summary>元件类型容器</summary>
@@ -290,5 +318,7 @@ namespace Honor.Editor.MapTool
         public const string ItemTeleportXField  = "item-teleport-x-field";
         /// <summary>传送目标 Y 坐标输入字段</summary>
         public const string ItemTeleportYField  = "item-teleport-y-field";
+        /// <summary>交通类别下拉容器</summary>
+        public const string ItemTrafficCategoryContainer = "item-traffic-category-container";
     }
 }

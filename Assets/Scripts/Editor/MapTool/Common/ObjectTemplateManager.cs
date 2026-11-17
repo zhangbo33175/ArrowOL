@@ -50,6 +50,11 @@ namespace Honor.Editor.MapTool
         private readonly Dictionary<string, ObjectTemplate> _templates = new Dictionary<string, ObjectTemplate>();
 
         /// <summary>
+        /// 已提示过缺失的模板ID集合（同一ID仅首次未命中时打 Warning，避免场景反复同步时日志刷屏）
+        /// </summary>
+        private readonly HashSet<string> _missingReported = new HashSet<string>();
+
+        /// <summary>
         /// 默认配置文件相对路径（相对于项目根目录）
         /// </summary>
         private const string DefaultConfigRelativePath = @"Docs\Designs\Excels\Tables\AlTables\Item\TableTemplate.xlsm";
@@ -65,6 +70,7 @@ namespace Honor.Editor.MapTool
         public void Initialize()
         {
             _templates.Clear();
+            _missingReported.Clear();
 
             // 计算默认配置文件完整路径
             string defaultConfigPath = Path.Combine(Application.dataPath, "..", DefaultConfigRelativePath);
@@ -113,6 +119,7 @@ namespace Honor.Editor.MapTool
 
             // 清空旧数据，加载新数据
             _templates.Clear();
+            _missingReported.Clear();
             foreach (var template in templates)
             {
                 AddTemplate(template);
@@ -127,6 +134,7 @@ namespace Honor.Editor.MapTool
         public void LoadAllConfigTables()
         {
             _templates.Clear();
+            _missingReported.Clear();
 
             string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             string tableDir = Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir);
@@ -193,6 +201,7 @@ namespace Honor.Editor.MapTool
         {
             int removedCount = _templates.Count;
             _templates.Clear();
+            _missingReported.Clear();
             Debug.Log($"[ObjectTemplateManager] 已清空所有模板，共移除 {removedCount} 个");
         }
 
@@ -275,7 +284,12 @@ namespace Honor.Editor.MapTool
             if (_templates.TryGetValue(templateId, out template))
                 return template;
 
-            Debug.LogWarning($"[ObjectTemplateManager] 未找到模板: {templateId}");
+            // 未命中多为 PSD 图层名占位 / 尚未绑定模板的正常兜底路径；同一 ID 仅首次提示一次，
+            // 后续静默返回 null，避免场景反复同步时同一缺失 ID 重复刷 Warning
+            if (_missingReported.Add(templateId))
+            {
+                Debug.LogWarning($"[ObjectTemplateManager] 未找到模板: {templateId}");
+            }
             return null;
         }
 
@@ -349,7 +363,7 @@ namespace Honor.Editor.MapTool
                 AnimName = MapToolConstants.DefaultAnimName,
                 Loop = true,
                 Speed = 1f,
-                SortOrder = 10,
+                SortOrder = MapLayerCatalog.GetSortOrder(type),
                 ShadowEnabled = true,
                 IsCollectible = false,
                 IsBuiltIn = false,
@@ -397,6 +411,7 @@ namespace Honor.Editor.MapTool
                     return 0;
 
                 _templates.Clear();
+                _missingReported.Clear();
                 foreach (var t in wrapper.templates)
                 {
                     if (!string.IsNullOrEmpty(t.TemplateId))

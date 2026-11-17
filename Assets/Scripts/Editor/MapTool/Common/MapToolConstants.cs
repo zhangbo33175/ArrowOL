@@ -148,6 +148,11 @@ namespace Honor.Editor.MapTool
         public const string ResourceScanDir = "Assets/Res/Textures/Map";
 
         /// <summary>
+        /// 地图纹理根目录（相对 Assets）：PSD 切片按 全局共享 / 章节共享 / 关卡专属 三级存放
+        /// </summary>
+        public const string MapTextureRoot = "Assets/Res/Textures/Map";
+
+        /// <summary>
         /// 资源整理：配置表根目录（相对项目根目录）
         /// </summary>
         public const string ConfigTableRootDir = "Docs/Designs/Excels/Tables/AlTables/Item";
@@ -156,14 +161,26 @@ namespace Honor.Editor.MapTool
 
         /// <summary>背景图命名前缀</summary>
         public const string PrefixBg = "bg_";
+        /// <summary>绿化层命名前缀：草地命名前缀</summary>
+        public const string PrefixGrass = "grass_";
+        /// <summary>绿化层命名前缀：绿植/花草命名前缀</summary>
+        public const string PrefixPlant = "plant_";
+        /// <summary>道路市政层命名前缀：道路命名前缀</summary>
+        public const string PrefixRoad = "road_";
         /// <summary>建筑命名前缀</summary>
         public const string PrefixBuilding = "building_";
-        /// <summary>人物命名前缀</summary>
+        /// <summary>人物/载具命名前缀</summary>
         public const string PrefixCharacter = "char_";
         /// <summary>物件命名前缀</summary>
         public const string PrefixProp = "prop_";
-        /// <summary>猫猫命名前缀</summary>
+        /// <summary>猫猫命名前缀（猫并入角色/载具动态层，前缀保留兼容）</summary>
         public const string PrefixCat = "cat_";
+        /// <summary>前景近景/特效命名前缀</summary>
+        public const string PrefixEffect = "eff_";
+        /// <summary>前景近景层命名前缀：前景装饰命名前缀</summary>
+        public const string PrefixForeground = "fg_";
+        /// <summary>气泡命名前缀</summary>
+        public const string PrefixBubble = "bubble_";
 
         // ==================== 筛选类型枚举字符串 ====================
 
@@ -245,6 +262,108 @@ namespace Honor.Editor.MapTool
         /// 物体占位色块透明度（未加载预览图时使用）
         /// </summary>
         public const float PlaceholderAlpha = 0.5f;
+
+        /// <summary>
+        /// 基线步长配置项的 EditorPrefs 键（相邻显示层之间的基线 SortOrder 步长，可在地图配置弹窗修改）
+        /// </summary>
+        public const string LayerBaselineStepPrefsKey = "MapTool_LayerBaselineStep";
+
+        /// <summary>
+        /// 绘制形状配置项的 EditorPrefs 键（DrawShape code，可在场景编辑面板底部属性区切换）
+        /// </summary>
+        public const string DrawShapePrefsKey = "MapTool_DrawShape";
+
+        /// <summary>绘制形状默认值：菱形绘制</summary>
+        public const string DrawShapeDefault = "diamond";
+
+        /// <summary>
+        /// 区域类型配置项的 EditorPrefs 键（RegionType code，可在场景编辑面板底部属性区切换）
+        /// </summary>
+        public const string RegionTypePrefsKey = "MapTool_RegionType";
+
+        /// <summary>区域类型默认值：摆放区</summary>
+        public const string RegionTypeDefault = "place";
+
+        /// <summary>
+        /// 摆放模式启用开关的 EditorPrefs 键（勾选后启用当前形状绘制）
+        /// </summary>
+        public const string PlacementEnabledPrefsKey = "MapTool_PlacementEnabled";
+
+        /// <summary>摆放模式启用开关默认值：勾选</summary>
+        public const bool PlacementEnabledDefault = true;
+
+        /// <summary>
+        /// DrawClear 启用开关的 EditorPrefs 键（勾选后启用当前区域类型绘制）
+        /// </summary>
+        public const string DrawClearEnabledPrefsKey = "MapTool_DrawClearEnabled";
+
+        /// <summary>DrawClear 启用开关默认值：勾选</summary>
+        public const bool DrawClearEnabledDefault = true;
+
+        /// <summary>
+        /// 基线步长默认值：八层基线按 0 / 10 / 20 / 30 / 40 / 50 / 60 / 70 等差拉开
+        /// </summary>
+        public const int LayerBaselineStepDefault = 10;
+
+        /// <summary>
+        /// 基线步长允许下限（必须大于层内槽位容量，层内槽位才不会跨入相邻层基线）
+        /// </summary>
+        public const int LayerBaselineStepMin = 10;
+
+        /// <summary>
+        /// 相邻显示层之间的基线 SortOrder 步长：八层基线按 0 / Step / 2·Step / … 等差拉开，
+        /// 层间预留 LayerSlotCount 个层内槽位；取值来自配置弹窗（EditorPrefs 持久化），非法值回退默认并钳到下限以上
+        /// </summary>
+        public static int LayerBaselineStep => GetConfigInt(LayerBaselineStepPrefsKey, LayerBaselineStepDefault, LayerBaselineStepMin);
+
+        /// <summary>
+        /// 当前绘制形状 code（DrawShape.Rect/Diamond）：取值来自场景编辑面板（EditorPrefs 持久化），非法/空值回退默认菱形
+        /// </summary>
+        public static string DrawShape => GetConfigString(DrawShapePrefsKey, DrawShapeDefault);
+
+        /// <summary>
+        /// 当前区域类型 code（RegionType.Place/Forbid/Common）：取值来自场景编辑面板（EditorPrefs 持久化），非法/空值回退默认摆放区
+        /// </summary>
+        public static string RegionType => GetConfigString(RegionTypePrefsKey, RegionTypeDefault);
+
+        /// <summary>
+        /// 摆放模式启用开关：取值来自场景编辑面板（EditorPrefs 持久化），缺失回退默认勾选
+        /// </summary>
+        public static bool PlacementEnabled => GetConfigBool(PlacementEnabledPrefsKey, PlacementEnabledDefault);
+
+        /// <summary>
+        /// DrawClear 启用开关：取值来自场景编辑面板（EditorPrefs 持久化），缺失回退默认勾选
+        /// </summary>
+        public static bool DrawClearEnabled => GetConfigBool(DrawClearEnabledPrefsKey, DrawClearEnabledDefault);
+
+        /// <summary>
+        /// 同层内手动层级（SortOrder）相邻档位步长：置顶/置底与相邻交换时使用
+        /// </summary>
+        public const int LayerOrderStep = 1;
+
+        /// <summary>
+        /// 同层内次序重建等差步长：按排序序列回写 SortOrder 时，相邻物件相差的档位；
+        /// 基线按每层 LayerBaselineStep 拉开，层内步长取 1；超出档位容量的物件共享最高档、以脚底 Y 排序，不越界到相邻层
+        /// </summary>
+        public const int LayerOrderSeqStep = 1;
+
+        /// <summary>
+        /// 每层可分配的独立排序档位数量：层内 SortOrder 落在 基线+0 ~ 基线+(LayerSlotCount-1)，
+        /// 必须小于 LayerBaselineStep，确保层内槽位不跨入相邻层基线；超出部分钳到最高档同档共享
+        /// </summary>
+        public const int LayerSlotCount = 10;
+
+        /// <summary>角度单次步进（度，绕 Z 轴）</summary>
+        public const float RotationStep = 15f;
+
+        /// <summary>比例单次步进倍率（在当前 Scale 上叠加）</summary>
+        public const float ScaleStep = 0.1f;
+
+        /// <summary>缩放倍率下限</summary>
+        public const float ScaleMin = 0.2f;
+
+        /// <summary>缩放倍率上限</summary>
+        public const float ScaleMax = 3f;
 
         // ==================== 物体默认尺寸（格子数） ====================
 
@@ -366,6 +485,73 @@ namespace Honor.Editor.MapTool
         public static void SetConfigPath(string prefsKey, string value)
         {
             EditorPrefs.SetString(prefsKey, value);
+        }
+
+        /// <summary>
+        /// 读取字符串型配置（EditorPrefs 持久化）；空值回退默认值
+        /// </summary>
+        /// <param name="prefsKey">EditorPrefs 键</param>
+        /// <param name="defaultValue">默认值</param>
+        /// <returns>合法字符串值</returns>
+        public static string GetConfigString(string prefsKey, string defaultValue)
+        {
+            string saved = EditorPrefs.GetString(prefsKey, string.Empty);
+            return string.IsNullOrEmpty(saved) ? defaultValue : saved;
+        }
+
+        /// <summary>
+        /// 保存字符串型配置到 EditorPrefs（空值不写入，保留已存配置）
+        /// </summary>
+        /// <param name="prefsKey">EditorPrefs 键</param>
+        /// <param name="value">要保存的字符串值</param>
+        public static void SetConfigString(string prefsKey, string value)
+        {
+            EditorPrefs.SetString(prefsKey, value ?? string.Empty);
+        }
+
+        /// <summary>
+        /// 读取布尔型配置（EditorPrefs 持久化）；缺失回退默认值
+        /// </summary>
+        /// <param name="prefsKey">EditorPrefs 键</param>
+        /// <param name="defaultValue">默认值</param>
+        /// <returns>布尔值</returns>
+        public static bool GetConfigBool(string prefsKey, bool defaultValue)
+        {
+            return EditorPrefs.GetBool(prefsKey, defaultValue);
+        }
+
+        /// <summary>
+        /// 保存布尔型配置到 EditorPrefs
+        /// </summary>
+        /// <param name="prefsKey">EditorPrefs 键</param>
+        /// <param name="value">要保存的布尔值</param>
+        public static void SetConfigBool(string prefsKey, bool value)
+        {
+            EditorPrefs.SetBool(prefsKey, value);
+        }
+
+        /// <summary>
+        /// 读取整数型配置（EditorPrefs 持久化）；解析失败或低于下限时回退默认值并钳到下限
+        /// </summary>
+        /// <param name="prefsKey">EditorPrefs 键</param>
+        /// <param name="defaultValue">默认值</param>
+        /// <param name="minValue">允许下限</param>
+        /// <returns>合法整数值</returns>
+        public static int GetConfigInt(string prefsKey, int defaultValue, int minValue)
+        {
+            int saved = EditorPrefs.GetInt(prefsKey, defaultValue);
+            return saved < minValue ? Mathf.Max(defaultValue, minValue) : saved;
+        }
+
+        /// <summary>
+        /// 保存整数型配置到 EditorPrefs（写入前钳到下限）
+        /// </summary>
+        /// <param name="prefsKey">EditorPrefs 键</param>
+        /// <param name="value">要保存的整数值</param>
+        /// <param name="minValue">允许下限</param>
+        public static void SetConfigInt(string prefsKey, int value, int minValue)
+        {
+            EditorPrefs.SetInt(prefsKey, Mathf.Max(value, minValue));
         }
 
         /// <summary>

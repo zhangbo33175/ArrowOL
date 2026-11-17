@@ -81,6 +81,8 @@ namespace Honor.Editor.MapTool
         private GameObject m_MapPrefab;
         /// <summary>预制体选择框</summary>
         private ObjectField m_PrefabField;
+        /// <summary>基线步长输入框（相邻显示层 SortOrder 基线间距）</summary>
+        private IntegerField m_BaselineStepField;
 
         /// <summary>配置完成回调（章节ID, 预制体路径）</summary>
         public System.Action<string, string> OnConfigConfirmed;
@@ -186,6 +188,11 @@ namespace Honor.Editor.MapTool
 
             m_PrefabField = root.Q<ObjectField>(name: MapToolUiNames.MapPrefabField);
             m_PrefabField?.RegisterValueChangedCallback(OnPrefabChanged);
+
+            // 基线步长：回显当前编辑器配置（EditorPrefs 持久化值）
+            m_BaselineStepField = root.Q<IntegerField>(name: MapToolUiNames.MapBaselineStepField);
+            if (m_BaselineStepField != null)
+                m_BaselineStepField.value = MapToolConstants.LayerBaselineStep;
 
             foreach (PathConfigItem item in PathConfigItems)
                 CollectPathButton(item);
@@ -328,6 +335,16 @@ namespace Honor.Editor.MapTool
         {
             // 保存全局模板路径到 EditorPrefs
             EditorPrefs.SetString(MapToolConstants.TemplatePrefabPrefsKey, m_MapPrefabPath);
+
+            // 保存基线步长（钳到层内槽位容量以上），同步到编辑器排序常量
+            // 保存地图 JSON / 发布 Lua 时由组装与导出链路读取该值同源落盘
+            if (m_BaselineStepField != null)
+            {
+                MapToolConstants.SetConfigInt(
+                    MapToolConstants.LayerBaselineStepPrefsKey,
+                    m_BaselineStepField.value,
+                    MapToolConstants.LayerBaselineStepMin);
+            }
 
             OnConfigConfirmed?.Invoke(m_ChapterId, m_MapPrefabPath);
             Close();

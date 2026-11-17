@@ -128,6 +128,12 @@ namespace Honor.Editor.MapTool
             File.WriteAllText(pathPath, pathContent, new UTF8Encoding(false));
             generatedFiles.Add(pathPath);
 
+            // ========== 6. 交通规则子文件（红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格） ==========
+            string trafficPath = Path.Combine(dir, baseFileName + "_Traffic.lua.txt");
+            string trafficContent = BuildTrafficFile(baseFileName, data);
+            File.WriteAllText(trafficPath, trafficContent, new UTF8Encoding(false));
+            generatedFiles.Add(trafficPath);
+
             // 重写主表索引（覆盖全部章节）
             string mainTablePath = Path.Combine(levelsRoot, k_MainTableName);
             Directory.CreateDirectory(levelsRoot);
@@ -185,11 +191,22 @@ namespace Honor.Editor.MapTool
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Height        = {0},", height));
 
             int gridSize = MapToolConstants.GridSize;
-            int gridCols = width > 0 ? width / gridSize : 0;
-            int gridRows = height > 0 ? height / gridSize : 0;
+            int gridCols = MapToolEditorUtils.GridCols(width);
+            int gridRows = MapToolEditorUtils.GridRows(height);
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        GridSize      = {0},", gridSize));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        GridCols      = {0},", gridCols));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        GridRows      = {0},", gridRows));
+
+            // 基线步长：与地图 JSON 同源，缺失/非法时回退编辑器默认步长
+            int baselineStep = data.baselineStep >= MapToolConstants.LayerBaselineStepMin
+                ? data.baselineStep
+                : MapToolConstants.LayerBaselineStepDefault;
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        BaselineStep  = {0},", baselineStep));
+            // 绘制形状 / 区域类型：与地图 JSON 同源，缺失/非法时回退默认值
+            string drawShape = DrawShape.ToCode(data.drawShape);
+            sb.AppendLine("        DrawShape    = \"" + Escape(drawShape) + "\",");
+            string regionType = RegionType.ToCode(data.regionType);
+            sb.AppendLine("        RegionType   = \"" + Escape(regionType) + "\",");
             sb.AppendLine("    },");
             sb.AppendLine();
 
@@ -198,7 +215,7 @@ namespace Honor.Editor.MapTool
             sb.AppendLine("    -- 2. 全局默认配置（所有实体共享，实体自身字段优先）");
             sb.AppendLine("    -- ==========================================================================");
             sb.AppendLine("    Defaults = {");
-            sb.AppendLine("        SortOrder        = 50,");
+            sb.AppendLine("        SortOrder        = 40,");
             sb.AppendLine("        ShadowEnabled    = true,");
             sb.AppendLine("        YSortEnabled     = true,");
             sb.AppendLine("        YSortOffset      = 0.0,");
@@ -218,9 +235,13 @@ namespace Honor.Editor.MapTool
             int charCount = data.characters != null ? data.characters.Count : 0;
             int buildingCount = data.buildings != null ? data.buildings.Count : 0;
             int objCount = data.objects != null ? data.objects.Count : 0;
+            int lightCount = data.trafficLights != null ? data.trafficLights.Count : 0;
+            int crosswalkCount = data.crosswalks != null ? data.crosswalks.Count : 0;
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Characters = {0},", charCount));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Buildings  = {0},", buildingCount));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Objects    = {0},", objCount));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Lights     = {0},", lightCount));
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Crosswalks = {0},", crosswalkCount));
             sb.AppendLine("    },");
             sb.AppendLine();
 
@@ -233,11 +254,13 @@ namespace Honor.Editor.MapTool
             string buildingTable = fileName + "_Buildings";
             string objTable = fileName + "_Objects";
             string pathTable = fileName + "_Paths";
+            string trafficTable = fileName + "_Traffic";
             sb.AppendLine("    SubTables = {");
             sb.AppendLine("        Characters = \"" + charTable + "\",");
             sb.AppendLine("        Buildings  = \"" + buildingTable + "\",");
             sb.AppendLine("        Objects    = \"" + objTable + "\",");
             sb.AppendLine("        Paths      = \"" + pathTable + "\",");
+            sb.AppendLine("        Traffic    = \"" + trafficTable + "\",");
             sb.AppendLine("    },");
 
             sb.AppendLine("}");
@@ -285,15 +308,34 @@ namespace Honor.Editor.MapTool
                         "        Name        = \"{3}\",\n" +
                         "        GridX       = {4},\n" +
                         "        GridY       = {5},\n" +
-                        "        Width       = {6},\n" +
-                        "        Height      = {7},\n" +
-                        "        Image       = \"{8}\",\n" +
-                        "        Anim        = \"{9}\",\n" +
-                        "        PatrolLoop  = \"{10}\",\n" +
-                        "        Interactable = {11},\n" +
-                        "        InteractType = \"{12}\",\n" +
-                        "        DialogBubble = \"{13}\",\n" +
-                        "        PathId      = \"{14}\",\n" +
+                        "        PosX        = {6},\n" +
+                        "        PosY        = {7},\n" +
+                        "        Width       = {8},\n" +
+                        "        Height      = {9},\n" +
+                        "        PixelWidth  = {10},\n" +
+                        "        PixelHeight = {11},\n" +
+                        "        Stretch     = {12},\n" +
+                        "        LayerType   = \"{13}\",\n" +
+                        "        Image       = \"{14}\",\n" +
+                        "        Anim        = \"{15}\",\n" +
+                        "        PatrolLoop  = \"{16}\",\n" +
+                        "        Interactable = {17},\n" +
+                        "        InteractType = \"{18}\",\n" +
+                        "        DialogBubble = \"{19}\",\n" +
+                        "        SortOrder    = {21},\n" +
+                        "        YSortEnabled = {22},\n" +
+                        "        YSortOffset  = {23},\n" +
+                        "        Rotation      = {24},\n" +
+                        "        Scale         = {25},\n" +
+                        "        PathId      = \"{20}\",\n" +
+                        "        DisplayLayer = \"{26}\",\n" +
+                        "        IsVehicle     = {27},\n" +
+                        "        TrafficRole  = \"{28}\",\n" +
+                        "        StopLineX    = {29},\n" +
+                        "        StopLineY    = {30},\n" +
+                        "        BoundLightId = \"{31}\",\n" +
+                        "        BoundLightIds = {33},\n" +
+                        "        YellowTreatAsRed = {32},\n" +
                         "    }},",
                         i + 1,
                         Escape(c.id),
@@ -301,15 +343,34 @@ namespace Honor.Editor.MapTool
                         Escape(c.name),
                         c.gridX,
                         c.gridY,
+                        c.posX.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.posY.ToString("0.##", CultureInfo.InvariantCulture),
                         c.width,
                         c.height,
+                        c.pixelWidth.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.pixelHeight.ToString("0.##", CultureInfo.InvariantCulture),
+                        BoolToLua(c.stretch),
+                        Escape(c.layerType),
                         Escape(c.image),
                         Escape(c.anim),
                         Escape(c.walkMode),
                         BoolToLua(c.interactable),
                         Escape(c.interactType),
                         Escape(c.dialogBubble),
-                        Escape(pathId)));
+                        Escape(pathId),
+                        c.sortOrder,
+                        BoolToLua(c.ySortEnabled),
+                        c.ySortOffset.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.rotation.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.scale.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(c.displayLayer),
+                        BoolToLua(c.isVehicle),
+                        Escape(c.trafficRole),
+                        c.stopLineX.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.stopLineY.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(c.boundLightId),
+                        BoolToLua(c.yellowTreatAsRed),
+                        BuildLightIdArray(c.boundLightIds, c.boundLightId)));
                 }
             }
 
@@ -355,10 +416,22 @@ namespace Honor.Editor.MapTool
                         "        Name       = \"{3}\",\n" +
                         "        GridX      = {4},\n" +
                         "        GridY      = {5},\n" +
-                        "        Width      = {6},\n" +
-                        "        Height     = {7},\n" +
-                        "        Image      = \"{8}\",\n" +
-                        "        Anim       = \"{9}\",\n" +
+                        "        PosX      = {6},\n" +
+                        "        PosY      = {7},\n" +
+                        "        Width      = {8},\n" +
+                        "        Height     = {9},\n" +
+                        "        PixelWidth  = {10},\n" +
+                        "        PixelHeight = {11},\n" +
+                        "        Stretch     = {12},\n" +
+                        "        LayerType   = \"{13}\",\n" +
+                        "        DisplayLayer = \"{21}\",\n" +
+                        "        Image      = \"{14}\",\n" +
+                        "        Anim       = \"{15}\",\n" +
+                        "        SortOrder    = {16},\n" +
+                        "        YSortEnabled = {17},\n" +
+                        "        YSortOffset  = {18},\n" +
+                        "        Rotation      = {19},\n" +
+                        "        Scale         = {20},\n" +
                         "    }},",
                         i + 1,
                         Escape(o.id),
@@ -366,10 +439,22 @@ namespace Honor.Editor.MapTool
                         Escape(o.name),
                         o.gridX,
                         o.gridY,
+                        o.posX.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.posY.ToString("0.##", CultureInfo.InvariantCulture),
                         o.width,
                         o.height,
+                        o.pixelWidth.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.pixelHeight.ToString("0.##", CultureInfo.InvariantCulture),
+                        BoolToLua(o.stretch),
+                        Escape(o.layerType),
                         Escape(o.image),
-                        Escape(o.anim)));
+                        Escape(o.anim),
+                        o.sortOrder,
+                        BoolToLua(o.ySortEnabled),
+                        o.ySortOffset.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.rotation.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.scale.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(o.displayLayer)));
                 }
             }
 
@@ -382,8 +467,7 @@ namespace Honor.Editor.MapTool
         #region 4. 物件子文件生成
 
         /// <summary>
-        /// 组装物件子文件（数组压缩格式）
-        /// 格式：{ TemplateId, GridX, GridY, ImageName, CollectId }
+        /// 组装物件子文件（命名块格式，与 Buildings 条目字段对齐，便于运行时按 PSD 像素位置/尺寸/拉伸还原）
         /// </summary>
         private static string BuildObjectsFile(string baseFileName, List<MapObjectData> objects)
         {
@@ -393,10 +477,10 @@ namespace Honor.Editor.MapTool
 
             sb.AppendLine("--=====================================================================================================");
             sb.AppendLine("-- filename:  " + tableName);
-            sb.AppendLine("-- descrip:   待收集物件列表（自动生成·数组压缩格式）");
+            sb.AppendLine("-- descrip:   待收集物件列表（自动生成·命名块格式）");
             sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
             sb.AppendLine("-- @brief     关卡待收集物件列表");
-            sb.AppendLine("-- @desc      数组格式：{ TemplateId, GridX, GridY, ImageName, CollectId }");
+            sb.AppendLine("-- @desc      字段与 Buildings 对齐：GridX/GridY 兼容旧换算，PosX/PosY/PixelWidth/PixelHeight/Stretch/LayerType 按 PSD 还原");
             sb.AppendLine("--=====================================================================================================");
             sb.AppendLine();
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
@@ -412,12 +496,51 @@ namespace Honor.Editor.MapTool
                     MapObjectData o = objects[i];
                     string collectId = "collect_" + o.id;
                     sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                        "    {{ \"{0}\", {1}, {2}, \"{3}\", \"{4}\" }},",
+                        "    [{0}] = {{\n" +
+                        "        Uid        = \"{1}\",\n" +
+                        "        TemplateId = \"{2}\",\n" +
+                        "        Name       = \"{3}\",\n" +
+                        "        GridX      = {4},\n" +
+                        "        GridY      = {5},\n" +
+                        "        PosX      = {6},\n" +
+                        "        PosY      = {7},\n" +
+                        "        Width      = {8},\n" +
+                        "        Height     = {9},\n" +
+                        "        PixelWidth  = {10},\n" +
+                        "        PixelHeight = {11},\n" +
+                        "        Stretch     = {12},\n" +
+                        "        LayerType   = \"{13}\",\n" +
+                        "        DisplayLayer = \"{21}\",\n" +
+                        "        Image      = \"{14}\",\n" +
+                        "        CollectId  = \"{15}\",\n" +
+                        "        SortOrder    = {16},\n" +
+                        "        YSortEnabled = {17},\n" +
+                        "        YSortOffset  = {18},\n" +
+                        "        Rotation      = {19},\n" +
+                        "        Scale         = {20},\n" +
+                        "    }},",
+                        i + 1,
+                        Escape(o.id),
                         Escape(o.templateId),
+                        Escape(o.name),
                         o.gridX,
                         o.gridY,
+                        o.posX.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.posY.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.width,
+                        o.height,
+                        o.pixelWidth.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.pixelHeight.ToString("0.##", CultureInfo.InvariantCulture),
+                        BoolToLua(o.stretch),
+                        Escape(o.layerType),
                         Escape(o.image),
-                        Escape(collectId)));
+                        Escape(collectId),
+                        o.sortOrder,
+                        BoolToLua(o.ySortEnabled),
+                        o.ySortOffset.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.rotation.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.scale.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(o.displayLayer)));
                 }
             }
 
@@ -473,6 +596,156 @@ namespace Honor.Editor.MapTool
 
             sb.AppendLine("}");
             return sb.ToString();
+        }
+
+        #endregion
+
+        #region 6. 交通规则子文件生成
+
+        /// <summary>
+        /// 组装交通规则子文件（红绿灯 / 斑马线 / 矩形区域 / 人行道格 / 道路格）
+        /// 纯数据导出，运行时由门面 TrafficManager 消费；C# 层不写交通规则
+        /// </summary>
+        private static string BuildTrafficFile(string baseFileName, MapConfigData data)
+        {
+            StringBuilder sb = new StringBuilder();
+            string mainTableName = baseFileName.StartsWith("Table") ? baseFileName.Substring(5) : baseFileName;
+            string tableName = mainTableName + "_Traffic";
+
+            sb.AppendLine("--=====================================================================================================");
+            sb.AppendLine("-- filename:  " + tableName);
+            sb.AppendLine("-- descrip:   交通规则数据（自动生成）");
+            sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
+            sb.AppendLine("-- @brief     红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格");
+            sb.AppendLine("--=====================================================================================================");
+            sb.AppendLine();
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
+
+            // ===== 红绿灯 =====
+            sb.AppendLine("    Lights = {");
+            if (data.trafficLights != null)
+            {
+                for (int i = 0; i < data.trafficLights.Count; i++)
+                {
+                    var l = data.trafficLights[i];
+                    sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                        "        [{0}] = {{\n" +
+                        "            Uid                = \"{1}\",\n" +
+                        "            TemplateId         = \"{2}\",\n" +
+                        "            Name               = \"{3}\",\n" +
+                        "            GridX              = {4},\n" +
+                        "            GridY              = {5},\n" +
+                        "            PosX               = {6},\n" +
+                        "            PosY               = {7},\n" +
+                        "            Direction          = \"{8}\",\n" +
+                        "            Side               = \"{9}\",\n" +
+                        "            IntersectionId     = \"{10}\",\n" +
+                        "            RedDuration        = {11},\n" +
+                        "            GreenDuration       = {12},\n" +
+                        "            YellowDuration      = {13},\n" +
+                        "            OffsetPhase         = {14},\n" +
+                        "            BoundCrosswalkId   = \"{15}\",\n" +
+                        "            InitialPhase        = \"{16}\",\n" +
+                        "            Image               = \"{17}\",\n" +
+                        "            Anim                = \"{18}\",\n" +
+                        "        }},",
+                        i + 1,
+                        Escape(l.id), Escape(l.templateId), Escape(l.name),
+                        l.gridX, l.gridY,
+                        l.posX.ToString("0.##", CultureInfo.InvariantCulture),
+                        l.posY.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(l.direction), Escape(l.side), Escape(l.intersectionId),
+                        l.redDuration.ToString("0.##", CultureInfo.InvariantCulture),
+                        l.greenDuration.ToString("0.##", CultureInfo.InvariantCulture),
+                        l.yellowDuration.ToString("0.##", CultureInfo.InvariantCulture),
+                        l.offsetPhase.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(l.boundCrosswalkId), Escape(l.initialPhase),
+                        Escape(l.image), Escape(l.anim)));
+                }
+            }
+            sb.AppendLine("    },");
+
+            // ===== 斑马线 =====
+            sb.AppendLine("    Crosswalks = {");
+            if (data.crosswalks != null)
+            {
+                for (int i = 0; i < data.crosswalks.Count; i++)
+                {
+                    var cw = data.crosswalks[i];
+                    var a = cw.pointA ?? new MapPathPointData();
+                    var b = cw.pointB ?? new MapPathPointData();
+                    sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                        "        [{0}] = {{\n" +
+                        "            Uid           = \"{1}\",\n" +
+                        "            Name          = \"{2}\",\n" +
+                        "            PointA        = {{ X = {3}, Y = {4} }},\n" +
+                        "            PointB        = {{ X = {5}, Y = {6} }},\n" +
+                        "            Width         = {7},\n" +
+                        "            Direction     = \"{8}\",\n" +
+                        "            BoundLightId  = \"{9}\",\n" +
+                        "        }},",
+                        i + 1,
+                        Escape(cw.id), Escape(cw.name),
+                        a.x.ToString("0.##", CultureInfo.InvariantCulture),
+                        a.y.ToString("0.##", CultureInfo.InvariantCulture),
+                        b.x.ToString("0.##", CultureInfo.InvariantCulture),
+                        b.y.ToString("0.##", CultureInfo.InvariantCulture),
+                        cw.width.ToString("0.##", CultureInfo.InvariantCulture),
+                        Escape(cw.direction), Escape(cw.boundLightId)));
+                }
+            }
+            sb.AppendLine("    },");
+
+            // ===== 矩形区域回显 =====
+            sb.AppendLine("    Regions = {");
+            if (data.regions != null)
+            {
+                for (int i = 0; i < data.regions.Count; i++)
+                {
+                    var r = data.regions[i];
+                    sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
+                        "        [{0}] = {{\n" +
+                        "            Uid     = \"{1}\",\n" +
+                        "            Type    = \"{2}\",\n" +
+                        "            X       = {3},\n" +
+                        "            Y       = {4},\n" +
+                        "            Width   = {5},\n" +
+                        "            Height  = {6},\n" +
+                        "        }},",
+                        i + 1, Escape(r.id), Escape(r.type),
+                        r.x.ToString("0.##", CultureInfo.InvariantCulture),
+                        r.y.ToString("0.##", CultureInfo.InvariantCulture),
+                        r.width.ToString("0.##", CultureInfo.InvariantCulture),
+                        r.height.ToString("0.##", CultureInfo.InvariantCulture)));
+                }
+            }
+            sb.AppendLine("    },");
+
+            // ===== 人行道可走格 =====
+            sb.AppendLine("    SidewalkCells = {");
+            AppendCellArray(sb, data.sidewalkCells);
+            sb.AppendLine("    },");
+
+            // ===== 车辆行驶格 =====
+            sb.AppendLine("    RoadCells = {");
+            AppendCellArray(sb, data.roadCells);
+            sb.AppendLine("    },");
+
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 追加格子集合纯数组条目：{ gridX, gridY }
+        /// </summary>
+        private static void AppendCellArray(StringBuilder sb, List<MapGridCellData> cells)
+        {
+            if (cells == null) return;
+            foreach (var cell in cells)
+            {
+                if (cell == null) continue;
+                sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        {{ {0}, {1} }},", cell.x, cell.y));
+            }
         }
 
         #endregion
@@ -558,6 +831,29 @@ namespace Honor.Editor.MapTool
                 result[i] = "\"" + Escape(ids[i]) + "\"";
             }
             return result;
+        }
+
+        /// <summary>
+        /// 构造绑定灯 ID 的 Lua 数组字面量；去空去重，旧单值字段兜底补入
+        /// </summary>
+        /// <param name="ids">多选灯 ID 列表（可空）</param>
+        /// <param name="legacyId">旧版单值绑定灯 ID（可空）</param>
+        /// <returns>如 { "tl0001", "tl0002" }，空集合返回 {}</returns>
+        private static string BuildLightIdArray(List<string> ids, string legacyId)
+        {
+            var list = new List<string>();
+            if (ids != null)
+            {
+                foreach (var id in ids)
+                {
+                    if (!string.IsNullOrEmpty(id) && !list.Contains(id)) list.Add(id);
+                }
+            }
+            if (!string.IsNullOrEmpty(legacyId) && !list.Contains(legacyId)) list.Add(legacyId);
+            if (list.Count == 0) return "{}";
+            var parts = new string[list.Count];
+            for (int i = 0; i < list.Count; i++) parts[i] = "\"" + Escape(list[i]) + "\"";
+            return "{ " + string.Join(", ", parts) + " }";
         }
 
         #endregion
