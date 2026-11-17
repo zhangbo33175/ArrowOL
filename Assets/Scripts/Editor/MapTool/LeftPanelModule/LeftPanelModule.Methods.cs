@@ -45,7 +45,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnConfigClicked()
         {
-            Debug.Log("配置地图预制体");
+            MapToolLog.Info("配置地图预制体");
             // 未选中关卡时默认使用第一章第一关
             string chapterId = string.IsNullOrEmpty(SelectedChapterId) ? "1" : SelectedChapterId;
             // 获取当前关卡已配置的路径
@@ -60,7 +60,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnMapConfigConfirmed(string chapterId, string prefabPath)
         {
-            Debug.Log($"地图配置确认: 章节={chapterId}, 路径={prefabPath}");
+            MapToolLog.Info($"地图配置确认: 章节={chapterId}, 路径={prefabPath}");
             string cacheKey = $"{chapterId}_{SelectedLevelId}";
             SaveChapterMapPath(cacheKey, prefabPath);
         }
@@ -70,7 +70,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnDeleteClicked()
         {
-            Debug.Log("删除章节");
+            MapToolLog.Info("删除章节");
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnRefreshClicked()
         {
-            Debug.Log("刷新资源列表");
+            MapToolLog.Info("刷新资源列表");
             RefreshResourceList();
         }
 
@@ -91,7 +91,7 @@ namespace Honor.Editor.MapTool
 
             // 加载章节表
             m_ChapterDataList = MapToolEditorUtils.LoadTableData<TableChapterEditor>(MapToolConstants.TableChaptersPath);
-            Debug.Log($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
+            MapToolLog.Info($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
         }
 
         /// <summary>
@@ -107,9 +107,9 @@ namespace Honor.Editor.MapTool
             {
                 if (tabButtons[i] == null) continue;
                 if (i == index)
-                    tabButtons[i].AddToClassList("active");
+                    tabButtons[i].AddToClassList(MapToolUiNames.ActiveClass);
                 else
-                    tabButtons[i].RemoveFromClassList("active");
+                    tabButtons[i].RemoveFromClassList(MapToolUiNames.ActiveClass);
             }
             RefreshResourceList();
             // 通知外部：Tab 切换了（用于联动顶部图层 Toggle）
@@ -130,11 +130,11 @@ namespace Honor.Editor.MapTool
                 var levelContainer = chapterElem.Children().ElementAtOrDefault(1);
                 if (levelContainer == null) continue;
                 foreach (var levelItem in levelContainer.Children())
-                    levelItem.RemoveFromClassList("selected");
+                    levelItem.RemoveFromClassList(MapToolUiNames.SelectedClass);
             }
-            item.AddToClassList("selected");
+            item.AddToClassList(MapToolUiNames.SelectedClass);
 
-            Debug.Log($"选中关卡: 章节={chapterId}, 关卡={levelId}");
+            MapToolLog.Info($"选中关卡: 章节={chapterId}, 关卡={levelId}");
 
             // 获取该关卡配置的预制体路径，未配置时回退全局模板路径
             string cacheKey = $"{chapterId}_{levelId}";
@@ -154,11 +154,11 @@ namespace Honor.Editor.MapTool
         private VisualElement CreateResourceItem(string resourceName)
         {
             var item = new VisualElement();
-            item.AddToClassList("resource-item");
+            item.AddToClassList(MapToolUiNames.ResourceItemClass);
 
             // 资源图标 - 加载实际预览图，失败则用纯色占位
             var icon = new Image();
-            icon.AddToClassList("resource-icon");
+            icon.AddToClassList(MapToolUiNames.ResourceIconClass);
             icon.scaleMode = ScaleMode.ScaleToFit;
             // 强制固定 32x32 尺寸，防止不同大小的图片撑开行高
             icon.style.width = MapToolConstants.LeftPanelIconSize;
@@ -167,19 +167,16 @@ namespace Honor.Editor.MapTool
             icon.style.flexShrink = 0;
 
             // 通过 TemplateId 反查模板，用 ImagePath 加载图片
+            // 资源键拆分口径统一走 MapToolEditorUtils.SplitTemplateKey
             string imageFileName = null;
-            int firstUnderscore = resourceName.IndexOf('_');
-            if (firstUnderscore > 0)
+            MapToolEditorUtils.SplitTemplateKey(resourceName, out string templateId, out string templateName);
+            bool hasTemplateKey = !string.Equals(templateId, resourceName);
+            if (hasTemplateKey && int.TryParse(templateId, out _))
             {
-                string idStr = resourceName.Substring(0, firstUnderscore);
-                int tempId;
-                if (int.TryParse(idStr, out tempId))
+                var template = Honor.Editor.MapTool.ObjectTemplateManager.Instance.GetTemplateById(templateId);
+                if (template != null && !string.IsNullOrEmpty(template.ImagePath))
                 {
-                    var template = Honor.Editor.MapTool.ObjectTemplateManager.Instance.GetTemplateById(idStr);
-                    if (template != null && !string.IsNullOrEmpty(template.ImagePath))
-                    {
-                        imageFileName = template.ImagePath;
-                    }
+                    imageFileName = template.ImagePath;
                 }
             }
 
@@ -187,14 +184,9 @@ namespace Honor.Editor.MapTool
             if (string.IsNullOrEmpty(imageFileName))
             {
                 imageFileName = resourceName;
-                if (firstUnderscore > 0)
+                if (hasTemplateKey && int.TryParse(templateId, out _))
                 {
-                    string prefix = resourceName.Substring(0, firstUnderscore);
-                    int tempId;
-                    if (int.TryParse(prefix, out tempId))
-                    {
-                        imageFileName = resourceName.Substring(firstUnderscore + 1);
-                    }
+                    imageFileName = templateName;
                 }
             }
 
@@ -213,8 +205,7 @@ namespace Honor.Editor.MapTool
             item.Add(icon);
 
             // 资源名称
-            var nameLabel = new Label(resourceName);
-            nameLabel.AddToClassList("resource-name");
+            var nameLabel = MapToolUiFactory.CreateLabel(resourceName, MapToolUiNames.ResourceNameClass);
             item.Add(nameLabel);
 
             // 点击资源（闭包捕获 name，避免循环变量共享）
@@ -230,9 +221,9 @@ namespace Honor.Editor.MapTool
         {
             SelectedResourceName = resourceName;
             foreach (var resourceItem in m_ResourceItems)
-                resourceItem.RemoveFromClassList("selected");
-            item.AddToClassList("selected");
-            Debug.Log($"选中资源: {resourceName}");
+                resourceItem.RemoveFromClassList(MapToolUiNames.SelectedClass);
+            item.AddToClassList(MapToolUiNames.SelectedClass);
+            MapToolLog.Info($"选中资源: {resourceName}");
             // 根据 TemplateId 反查资源类型（人物 Tab 含 NPC + 猫猫，不能用 Tab 索引）
             string templateId = resourceName.Split('_')[0];
             var template = ObjectTemplateManager.Instance.GetTemplateById(templateId);
@@ -246,17 +237,17 @@ namespace Honor.Editor.MapTool
         private void FindElements()
         {
             // 顶部按钮
-            m_ConfigBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnConfig);
-            m_DeleteBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnDelete);
+            m_ConfigBtn = m_Root.QByName<Button>(MapToolUiNames.BtnConfig);
+            m_DeleteBtn = m_Root.QByName<Button>(MapToolUiNames.BtnDelete);
             // 章节列表
-            m_ChapterList = m_Root.Q<ScrollView>(name: MapToolUiNames.ChapterList);
+            m_ChapterList = m_Root.QByName<ScrollView>(MapToolUiNames.ChapterList);
             // 资源分类Tab按钮
-            m_BuildingTabBtn = m_Root.Q<Button>(name: MapToolUiNames.TabBuilding);
-            m_GroundTabBtn = m_Root.Q<Button>(name: MapToolUiNames.TabGround);
-            m_PropTabBtn = m_Root.Q<Button>(name: MapToolUiNames.TabProp);
-            m_RefreshBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnRefresh);
+            m_BuildingTabBtn = m_Root.QByName<Button>(MapToolUiNames.TabBuilding);
+            m_GroundTabBtn = m_Root.QByName<Button>(MapToolUiNames.TabGround);
+            m_PropTabBtn = m_Root.QByName<Button>(MapToolUiNames.TabProp);
+            m_RefreshBtn = m_Root.QByName<Button>(MapToolUiNames.BtnRefresh);
             // 资源列表
-            m_ResourceList = m_Root.Q<ScrollView>(name: MapToolUiNames.ResourceList);
+            m_ResourceList = m_Root.QByName<ScrollView>(MapToolUiNames.ResourceList);
         }
 
         /// <summary>

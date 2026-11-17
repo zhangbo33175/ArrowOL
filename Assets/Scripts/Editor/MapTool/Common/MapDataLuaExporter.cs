@@ -54,6 +54,9 @@ namespace Honor.Editor.MapTool
         /// <summary>主表索引文件名（固定，每次保存整体重写）</summary>
         private const string k_MainTableName = "TableLevelData.lua.txt";
 
+    /// <summary>主表文件名前缀（子表名要去掉该前缀，与主表命名保持一致）</summary>
+    private const string k_TablePrefix = "Table";
+
         #endregion
 
         #region 对外入口
@@ -80,7 +83,7 @@ namespace Honor.Editor.MapTool
             }
             else
             {
-                string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+                string projectRoot = MapToolPathHelper.ProjectRoot;
                 levelsRoot = Path.Combine(projectRoot, k_LevelsRoot.Replace("/", Path.DirectorySeparatorChar.ToString()));
             }
             string timeNow = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -148,6 +151,20 @@ namespace Honor.Editor.MapTool
         #region 1. 主文件生成
 
         /// <summary>
+        /// 由主表文件名推导子表名：去掉 "Table" 前缀后拼后缀（TableLevelData_1_1 → LevelData_1_1_Characters）
+        /// </summary>
+        /// <param name="baseFileName">主配置表文件名（如 TableLevelData_1_1）</param>
+        /// <param name="suffix">子表后缀（含下划线，如 "_Characters"）</param>
+        /// <returns>子表名</returns>
+        private static string BuildSubTableName(string baseFileName, string suffix)
+        {
+            string mainTableName = baseFileName.StartsWith(k_TablePrefix)
+                ? baseFileName.Substring(k_TablePrefix.Length)
+                : baseFileName;
+            return mainTableName + suffix;
+        }
+
+        /// <summary>
         /// 组装主文件（Meta + Defaults + Counts + SubTables）
         /// </summary>
         private static string BuildMainFile(string fileName, string chapterId, string chapterName,
@@ -185,7 +202,7 @@ namespace Honor.Editor.MapTool
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        LevelIndex    = {0},", levelId));
             sb.AppendLine("        MapName       = \"" + Escape(mapName) + "\",");
             sb.AppendLine("        BgName        = \"" + Escape(data.bgName) + "\",");
-            sb.AppendLine("        SavePath      = \"Assets/GameData/MapDatas/Map_" + Escape(chapterId) + "_" + Escape(levelIdStr) + ".json\",");
+            sb.AppendLine("        SavePath      = \"" + MapToolConstants.MapJsonSaveDir + "/Map_" + Escape(chapterId) + "_" + Escape(levelIdStr) + ".json\",");
             sb.AppendLine("        Time          = \"" + Escape(time) + "\",");
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Width         = {0},", width));
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "        Height        = {0},", height));
@@ -269,6 +286,42 @@ namespace Honor.Editor.MapTool
 
         #endregion
 
+        #region Lua 子文件公共头
+
+        /// <summary>数值输出格式（定点两位小数，去除无意义尾零）</summary>
+        private const string LuaNumberFormat = "0.##";
+
+        /// <summary>Lua 文件横幅（上下边框）</summary>
+        private const string LuaFileBanner = "--=====================================================================================================";
+
+        /// <summary>子文件只读声明（与运行时表头口径一致）</summary>
+        private const string LuaFileNotice = "由地图编辑器自动生成，禁止手动修改";
+
+        /// <summary>
+        /// 追加 Lua 子文件公共文件头（横幅 / 文件名 / 描述 / 只读声明 / 概述 / 可选补充说明 / 空行）
+        /// </summary>
+        /// <param name="sb">输出缓冲</param>
+        /// <param name="tableName">表名（写入 filename 行）</param>
+        /// <param name="descrip">文件用途描述</param>
+        /// <param name="brief">内容概述（@brief）</param>
+        /// <param name="descDetail">补充说明（@desc，可为空）</param>
+        private static void AppendSubFileHeader(StringBuilder sb, string tableName, string descrip, string brief, string descDetail = null)
+        {
+            sb.AppendLine(LuaFileBanner);
+            sb.AppendLine("-- filename:  " + tableName);
+            sb.AppendLine("-- descrip:   " + descrip);
+            sb.AppendLine("-- notices:   " + LuaFileNotice);
+            sb.AppendLine("-- @brief     " + brief);
+            if (descDetail != null)
+            {
+                sb.AppendLine("-- @desc      " + descDetail);
+            }
+            sb.AppendLine(LuaFileBanner);
+            sb.AppendLine();
+        }
+
+        #endregion
+
         #region 2. 角色子文件生成
 
         /// <summary>
@@ -278,16 +331,10 @@ namespace Honor.Editor.MapTool
         {
             StringBuilder sb = new StringBuilder();
             // 去掉 "Table" 前缀，和主表命名保持一致：LevelData_1_1_Characters
-            string mainTableName = baseFileName.StartsWith("Table") ? baseFileName.Substring(5) : baseFileName;
-            string tableName = mainTableName + "_Characters";
+            string tableName = BuildSubTableName(baseFileName, "_Characters");
 
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine("-- filename:  " + tableName);
-            sb.AppendLine("-- descrip:   角色列表（自动生成）");
-            sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
-            sb.AppendLine("-- @brief     关卡角色实体列表（只存差异字段）");
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine();
+            AppendSubFileHeader(sb, tableName, "角色列表（自动生成）", "关卡角色实体列表（只存差异字段）");
+
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
 
             if (characters == null || characters.Count == 0)
@@ -343,12 +390,12 @@ namespace Honor.Editor.MapTool
                         Escape(c.name),
                         c.gridX,
                         c.gridY,
-                        c.posX.ToString("0.##", CultureInfo.InvariantCulture),
-                        c.posY.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.posX.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        c.posY.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         c.width,
                         c.height,
-                        c.pixelWidth.ToString("0.##", CultureInfo.InvariantCulture),
-                        c.pixelHeight.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.pixelWidth.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        c.pixelHeight.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         BoolToLua(c.stretch),
                         Escape(c.layerType),
                         Escape(c.image),
@@ -360,14 +407,14 @@ namespace Honor.Editor.MapTool
                         Escape(pathId),
                         c.sortOrder,
                         BoolToLua(c.ySortEnabled),
-                        c.ySortOffset.ToString("0.##", CultureInfo.InvariantCulture),
-                        c.rotation.ToString("0.##", CultureInfo.InvariantCulture),
-                        c.scale.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.ySortOffset.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        c.rotation.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        c.scale.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(c.displayLayer),
                         BoolToLua(c.isVehicle),
                         Escape(c.trafficRole),
-                        c.stopLineX.ToString("0.##", CultureInfo.InvariantCulture),
-                        c.stopLineY.ToString("0.##", CultureInfo.InvariantCulture),
+                        c.stopLineX.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        c.stopLineY.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(c.boundLightId),
                         BoolToLua(c.yellowTreatAsRed),
                         BuildLightIdArray(c.boundLightIds, c.boundLightId)));
@@ -382,22 +429,48 @@ namespace Honor.Editor.MapTool
 
         #region 3. 建筑子文件生成
 
+        #region 物件条目 Lua 模板（建筑列表与物件列表共用）
+
+        /// <summary>单条物件条目的公共前缀（{0}=序号 … {14}=图片）</summary>
+        private const string ObjectEntryCommonPrefix =
+            "    [{0}] = {{\n" +
+            "        Uid        = \"{1}\",\n" +
+            "        TemplateId = \"{2}\",\n" +
+            "        Name       = \"{3}\",\n" +
+            "        GridX      = {4},\n" +
+            "        GridY      = {5},\n" +
+            "        PosX      = {6},\n" +
+            "        PosY      = {7},\n" +
+            "        Width      = {8},\n" +
+            "        Height     = {9},\n" +
+            "        PixelWidth  = {10},\n" +
+            "        PixelHeight = {11},\n" +
+            "        Stretch     = {12},\n" +
+            "        LayerType   = \"{13}\",\n" +
+            "        DisplayLayer = \"{21}\",\n" +
+            "        Image      = \"{14}\",\n";
+
+        /// <summary>单条物件条目的公共后缀（{16}=排序值 … {21}=显示层）</summary>
+        private const string ObjectEntryCommonSuffix =
+            "        SortOrder    = {16},\n" +
+            "        YSortEnabled = {17},\n" +
+            "        YSortOffset  = {18},\n" +
+            "        Rotation      = {19},\n" +
+            "        Scale         = {20},\n" +
+            "    }},";
+
+        #endregion
+
         /// <summary>
         /// 组装建筑子文件
         /// </summary>
         private static string BuildBuildingsFile(string baseFileName, List<MapObjectData> buildings)
         {
             StringBuilder sb = new StringBuilder();
-            string mainTableName = baseFileName.StartsWith("Table") ? baseFileName.Substring(5) : baseFileName;
-            string tableName = mainTableName + "_Buildings";
+            string tableName = BuildSubTableName(baseFileName, "_Buildings");
 
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine("-- filename:  " + tableName);
-            sb.AppendLine("-- descrip:   建筑列表（自动生成）");
-            sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
-            sb.AppendLine("-- @brief     关卡建筑实体列表");
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine();
+            AppendSubFileHeader(sb, tableName, "建筑列表（自动生成）", "关卡建筑实体列表");
+
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
 
             if (buildings == null || buildings.Count == 0)
@@ -410,50 +483,30 @@ namespace Honor.Editor.MapTool
                 {
                     MapObjectData o = buildings[i];
                     sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                        "    [{0}] = {{\n" +
-                        "        Uid        = \"{1}\",\n" +
-                        "        TemplateId = \"{2}\",\n" +
-                        "        Name       = \"{3}\",\n" +
-                        "        GridX      = {4},\n" +
-                        "        GridY      = {5},\n" +
-                        "        PosX      = {6},\n" +
-                        "        PosY      = {7},\n" +
-                        "        Width      = {8},\n" +
-                        "        Height     = {9},\n" +
-                        "        PixelWidth  = {10},\n" +
-                        "        PixelHeight = {11},\n" +
-                        "        Stretch     = {12},\n" +
-                        "        LayerType   = \"{13}\",\n" +
-                        "        DisplayLayer = \"{21}\",\n" +
-                        "        Image      = \"{14}\",\n" +
+                        ObjectEntryCommonPrefix +
                         "        Anim       = \"{15}\",\n" +
-                        "        SortOrder    = {16},\n" +
-                        "        YSortEnabled = {17},\n" +
-                        "        YSortOffset  = {18},\n" +
-                        "        Rotation      = {19},\n" +
-                        "        Scale         = {20},\n" +
-                        "    }},",
+                        ObjectEntryCommonSuffix,
                         i + 1,
                         Escape(o.id),
                         Escape(o.templateId),
                         Escape(o.name),
                         o.gridX,
                         o.gridY,
-                        o.posX.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.posY.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.posX.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.posY.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         o.width,
                         o.height,
-                        o.pixelWidth.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.pixelHeight.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.pixelWidth.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.pixelHeight.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         BoolToLua(o.stretch),
                         Escape(o.layerType),
                         Escape(o.image),
                         Escape(o.anim),
                         o.sortOrder,
                         BoolToLua(o.ySortEnabled),
-                        o.ySortOffset.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.rotation.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.scale.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.ySortOffset.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.rotation.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.scale.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(o.displayLayer)));
                 }
             }
@@ -472,17 +525,10 @@ namespace Honor.Editor.MapTool
         private static string BuildObjectsFile(string baseFileName, List<MapObjectData> objects)
         {
             StringBuilder sb = new StringBuilder();
-            string mainTableName = baseFileName.StartsWith("Table") ? baseFileName.Substring(5) : baseFileName;
-            string tableName = mainTableName + "_Objects";
+            string tableName = BuildSubTableName(baseFileName, "_Objects");
 
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine("-- filename:  " + tableName);
-            sb.AppendLine("-- descrip:   待收集物件列表（自动生成·命名块格式）");
-            sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
-            sb.AppendLine("-- @brief     关卡待收集物件列表");
-            sb.AppendLine("-- @desc      字段与 Buildings 对齐：GridX/GridY 兼容旧换算，PosX/PosY/PixelWidth/PixelHeight/Stretch/LayerType 按 PSD 还原");
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine();
+            AppendSubFileHeader(sb, tableName, "待收集物件列表（自动生成·命名块格式）", "关卡待收集物件列表", "字段与 Buildings 对齐：GridX/GridY 兼容旧换算，PosX/PosY/PixelWidth/PixelHeight/Stretch/LayerType 按 PSD 还原");
+
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
 
             if (objects == null || objects.Count == 0)
@@ -496,50 +542,30 @@ namespace Honor.Editor.MapTool
                     MapObjectData o = objects[i];
                     string collectId = "collect_" + o.id;
                     sb.AppendLine(string.Format(CultureInfo.InvariantCulture,
-                        "    [{0}] = {{\n" +
-                        "        Uid        = \"{1}\",\n" +
-                        "        TemplateId = \"{2}\",\n" +
-                        "        Name       = \"{3}\",\n" +
-                        "        GridX      = {4},\n" +
-                        "        GridY      = {5},\n" +
-                        "        PosX      = {6},\n" +
-                        "        PosY      = {7},\n" +
-                        "        Width      = {8},\n" +
-                        "        Height     = {9},\n" +
-                        "        PixelWidth  = {10},\n" +
-                        "        PixelHeight = {11},\n" +
-                        "        Stretch     = {12},\n" +
-                        "        LayerType   = \"{13}\",\n" +
-                        "        DisplayLayer = \"{21}\",\n" +
-                        "        Image      = \"{14}\",\n" +
+                        ObjectEntryCommonPrefix +
                         "        CollectId  = \"{15}\",\n" +
-                        "        SortOrder    = {16},\n" +
-                        "        YSortEnabled = {17},\n" +
-                        "        YSortOffset  = {18},\n" +
-                        "        Rotation      = {19},\n" +
-                        "        Scale         = {20},\n" +
-                        "    }},",
+                        ObjectEntryCommonSuffix,
                         i + 1,
                         Escape(o.id),
                         Escape(o.templateId),
                         Escape(o.name),
                         o.gridX,
                         o.gridY,
-                        o.posX.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.posY.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.posX.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.posY.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         o.width,
                         o.height,
-                        o.pixelWidth.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.pixelHeight.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.pixelWidth.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.pixelHeight.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         BoolToLua(o.stretch),
                         Escape(o.layerType),
                         Escape(o.image),
                         Escape(collectId),
                         o.sortOrder,
                         BoolToLua(o.ySortEnabled),
-                        o.ySortOffset.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.rotation.ToString("0.##", CultureInfo.InvariantCulture),
-                        o.scale.ToString("0.##", CultureInfo.InvariantCulture),
+                        o.ySortOffset.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.rotation.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        o.scale.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(o.displayLayer)));
                 }
             }
@@ -559,17 +585,10 @@ namespace Honor.Editor.MapTool
         private static string BuildPathsFile(string baseFileName, List<MapCharacterData> characters)
         {
             StringBuilder sb = new StringBuilder();
-            string mainTableName = baseFileName.StartsWith("Table") ? baseFileName.Substring(5) : baseFileName;
-            string tableName = mainTableName + "_Paths";
+            string tableName = BuildSubTableName(baseFileName, "_Paths");
 
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine("-- filename:  " + tableName);
-            sb.AppendLine("-- descrip:   路径数据（自动生成）");
-            sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
-            sb.AppendLine("-- @brief     所有角色路径点，按 PathId 索引");
-            sb.AppendLine("-- @desc      路径点格式：{ gridX, gridY } 纯数组");
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine();
+            AppendSubFileHeader(sb, tableName, "路径数据（自动生成）", "所有角色路径点，按 PathId 索引", "路径点格式：{ gridX, gridY } 纯数组");
+
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
 
             if (characters != null)
@@ -609,16 +628,10 @@ namespace Honor.Editor.MapTool
         private static string BuildTrafficFile(string baseFileName, MapConfigData data)
         {
             StringBuilder sb = new StringBuilder();
-            string mainTableName = baseFileName.StartsWith("Table") ? baseFileName.Substring(5) : baseFileName;
-            string tableName = mainTableName + "_Traffic";
+            string tableName = BuildSubTableName(baseFileName, "_Traffic");
 
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine("-- filename:  " + tableName);
-            sb.AppendLine("-- descrip:   交通规则数据（自动生成）");
-            sb.AppendLine("-- notices:   由地图编辑器自动生成，禁止手动修改");
-            sb.AppendLine("-- @brief     红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格");
-            sb.AppendLine("--=====================================================================================================");
-            sb.AppendLine();
+            AppendSubFileHeader(sb, tableName, "交通规则数据（自动生成）", "红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格");
+
             sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "Tables.{0} = {{", tableName));
 
             // ===== 红绿灯 =====
@@ -652,13 +665,13 @@ namespace Honor.Editor.MapTool
                         i + 1,
                         Escape(l.id), Escape(l.templateId), Escape(l.name),
                         l.gridX, l.gridY,
-                        l.posX.ToString("0.##", CultureInfo.InvariantCulture),
-                        l.posY.ToString("0.##", CultureInfo.InvariantCulture),
+                        l.posX.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        l.posY.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(l.direction), Escape(l.side), Escape(l.intersectionId),
-                        l.redDuration.ToString("0.##", CultureInfo.InvariantCulture),
-                        l.greenDuration.ToString("0.##", CultureInfo.InvariantCulture),
-                        l.yellowDuration.ToString("0.##", CultureInfo.InvariantCulture),
-                        l.offsetPhase.ToString("0.##", CultureInfo.InvariantCulture),
+                        l.redDuration.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        l.greenDuration.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        l.yellowDuration.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        l.offsetPhase.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(l.boundCrosswalkId), Escape(l.initialPhase),
                         Escape(l.image), Escape(l.anim)));
                 }
@@ -686,11 +699,11 @@ namespace Honor.Editor.MapTool
                         "        }},",
                         i + 1,
                         Escape(cw.id), Escape(cw.name),
-                        a.x.ToString("0.##", CultureInfo.InvariantCulture),
-                        a.y.ToString("0.##", CultureInfo.InvariantCulture),
-                        b.x.ToString("0.##", CultureInfo.InvariantCulture),
-                        b.y.ToString("0.##", CultureInfo.InvariantCulture),
-                        cw.width.ToString("0.##", CultureInfo.InvariantCulture),
+                        a.x.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        a.y.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        b.x.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        b.y.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        cw.width.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
                         Escape(cw.direction), Escape(cw.boundLightId)));
                 }
             }
@@ -713,10 +726,10 @@ namespace Honor.Editor.MapTool
                         "            Height  = {6},\n" +
                         "        }},",
                         i + 1, Escape(r.id), Escape(r.type),
-                        r.x.ToString("0.##", CultureInfo.InvariantCulture),
-                        r.y.ToString("0.##", CultureInfo.InvariantCulture),
-                        r.width.ToString("0.##", CultureInfo.InvariantCulture),
-                        r.height.ToString("0.##", CultureInfo.InvariantCulture)));
+                        r.x.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        r.y.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        r.width.ToString(LuaNumberFormat, CultureInfo.InvariantCulture),
+                        r.height.ToString(LuaNumberFormat, CultureInfo.InvariantCulture)));
                 }
             }
             sb.AppendLine("    },");

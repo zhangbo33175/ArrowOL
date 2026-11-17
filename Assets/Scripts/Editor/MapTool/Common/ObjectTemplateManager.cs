@@ -55,6 +55,16 @@ namespace Honor.Editor.MapTool
         private readonly HashSet<string> _missingReported = new HashSet<string>();
 
         /// <summary>
+        /// 清空模板缓存与缺表提示缓存
+        /// 初始化 / 替换数据 / 批量重载 / 清空 / 读 JSON 五处共用，两张表必须成对清空
+        /// </summary>
+        private void ClearCache()
+        {
+            _templates.Clear();
+            _missingReported.Clear();
+        }
+
+        /// <summary>
         /// 默认配置文件相对路径（相对于项目根目录）
         /// </summary>
         private const string DefaultConfigRelativePath = @"Docs\Designs\Excels\Tables\AlTables\Item\TableTemplate.xlsm";
@@ -69,24 +79,23 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Initialize()
         {
-            _templates.Clear();
-            _missingReported.Clear();
+            ClearCache();
 
             // 计算默认配置文件完整路径
-            string defaultConfigPath = Path.Combine(Application.dataPath, "..", DefaultConfigRelativePath);
+            string defaultConfigPath = MapToolPathHelper.ToProjectAbsolutePath(DefaultConfigRelativePath);
             defaultConfigPath = Path.GetFullPath(defaultConfigPath);
 
             // 检查文件是否存在
             if (!File.Exists(defaultConfigPath))
             {
-                Debug.LogError($"[ObjectTemplateManager] 默认配置文件不存在: {defaultConfigPath}");
+                MapToolLog.Error($"[ObjectTemplateManager] 默认配置文件不存在: {defaultConfigPath}");
                 return;
             }
 
             // 从配置文件加载
             LoadFromFile(defaultConfigPath);
 
-            Debug.Log($"[ObjectTemplateManager] 初始化完成，共加载 {_templates.Count} 个模板");
+            MapToolLog.Info($"[ObjectTemplateManager] 初始化完成，共加载 {_templates.Count} 个模板");
         }
 
         /// <summary>
@@ -98,13 +107,13 @@ namespace Honor.Editor.MapTool
             // 参数校验
             if (string.IsNullOrEmpty(filePath))
             {
-                Debug.LogWarning("[ObjectTemplateManager] 配置文件路径为空");
+                MapToolLog.Warn("[ObjectTemplateManager] 配置文件路径为空");
                 return;
             }
 
             if (!File.Exists(filePath))
             {
-                Debug.LogWarning($"[ObjectTemplateManager] 配置文件不存在: {filePath}");
+                MapToolLog.Warn($"[ObjectTemplateManager] 配置文件不存在: {filePath}");
                 return;
             }
 
@@ -113,19 +122,18 @@ namespace Honor.Editor.MapTool
 
             if (templates == null || templates.Count == 0)
             {
-                Debug.LogWarning($"[ObjectTemplateManager] 配置文件中没有读取到模板数据: {filePath}");
+                MapToolLog.Warn($"[ObjectTemplateManager] 配置文件中没有读取到模板数据: {filePath}");
                 return;
             }
 
             // 清空旧数据，加载新数据
-            _templates.Clear();
-            _missingReported.Clear();
+            ClearCache();
             foreach (var template in templates)
             {
                 AddTemplate(template);
             }
 
-            Debug.Log($"[ObjectTemplateManager] 从配置文件加载完成: {Path.GetFileName(filePath)}，共 {templates.Count} 个模板");
+            MapToolLog.Info($"[ObjectTemplateManager] 从配置文件加载完成: {Path.GetFileName(filePath)}，共 {templates.Count} 个模板");
         }
 
         /// <summary>
@@ -133,10 +141,9 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void LoadAllConfigTables()
         {
-            _templates.Clear();
-            _missingReported.Clear();
+            ClearCache();
 
-            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            string projectRoot = MapToolPathHelper.ProjectRoot;
             string tableDir = Path.Combine(projectRoot, MapToolConstants.ConfigTableRootDir);
 
             // 所有类型的配置表文件
@@ -165,7 +172,7 @@ namespace Honor.Editor.MapTool
                 }
             }
 
-            Debug.Log($"[ObjectTemplateManager] 已从所有配置表重新加载，共 {totalLoaded} 个模板");
+            MapToolLog.Info($"[ObjectTemplateManager] 已从所有配置表重新加载，共 {totalLoaded} 个模板");
         }
 
         #endregion
@@ -181,13 +188,13 @@ namespace Honor.Editor.MapTool
             // 空值校验
             if (template == null)
             {
-                Debug.LogWarning("[ObjectTemplateManager] 模板对象为空，跳过添加");
+                MapToolLog.Warn("[ObjectTemplateManager] 模板对象为空，跳过添加");
                 return;
             }
 
             if (string.IsNullOrEmpty(template.TemplateId))
             {
-                Debug.LogWarning("[ObjectTemplateManager] 模板ID不能为空，跳过添加");
+                MapToolLog.Warn("[ObjectTemplateManager] 模板ID不能为空，跳过添加");
                 return;
             }
 
@@ -200,9 +207,8 @@ namespace Honor.Editor.MapTool
         public void ClearAll()
         {
             int removedCount = _templates.Count;
-            _templates.Clear();
-            _missingReported.Clear();
-            Debug.Log($"[ObjectTemplateManager] 已清空所有模板，共移除 {removedCount} 个");
+            ClearCache();
+            MapToolLog.Info($"[ObjectTemplateManager] 已清空所有模板，共移除 {removedCount} 个");
         }
 
         /// <summary>
@@ -223,7 +229,7 @@ namespace Honor.Editor.MapTool
             // 从字典中移除旧 key
             if (!_templates.ContainsKey(oldId))
             {
-                Debug.LogWarning($"[ObjectTemplateManager] 更新ID失败，旧key不存在: '{oldId}'");
+                MapToolLog.Warn($"[ObjectTemplateManager] 更新ID失败，旧key不存在: '{oldId}'");
                 return false;
             }
 
@@ -248,21 +254,21 @@ namespace Honor.Editor.MapTool
             if (string.IsNullOrEmpty(templateId))
                 return false;
 
-            Debug.Log($"[ObjectTemplateManager] 尝试删除模板: ID='{templateId}' (长度={templateId.Length})");
-            Debug.Log($"[ObjectTemplateManager] 当前字典中的键数量: {_templates.Count}");
+            MapToolLog.Info($"[ObjectTemplateManager] 尝试删除模板: ID='{templateId}' (长度={templateId.Length})");
+            MapToolLog.Info($"[ObjectTemplateManager] 当前字典中的键数量: {_templates.Count}");
             foreach (var key in _templates.Keys)
             {
-                Debug.Log($"[ObjectTemplateManager] 字典键: '{key}' (长度={key.Length})");
+                MapToolLog.Info($"[ObjectTemplateManager] 字典键: '{key}' (长度={key.Length})");
             }
 
             if (_templates.ContainsKey(templateId))
             {
                 _templates.Remove(templateId);
-                Debug.Log($"[ObjectTemplateManager] 已删除模板: {templateId}");
+                MapToolLog.Info($"[ObjectTemplateManager] 已删除模板: {templateId}");
                 return true;
             }
 
-            Debug.LogWarning($"[ObjectTemplateManager] 未找到要删除的模板: {templateId}");
+            MapToolLog.Warn($"[ObjectTemplateManager] 未找到要删除的模板: {templateId}");
             return false;
         }
 
@@ -288,7 +294,7 @@ namespace Honor.Editor.MapTool
             // 后续静默返回 null，避免场景反复同步时同一缺失 ID 重复刷 Warning
             if (_missingReported.Add(templateId))
             {
-                Debug.LogWarning($"[ObjectTemplateManager] 未找到模板: {templateId}");
+                MapToolLog.Warn($"[ObjectTemplateManager] 未找到模板: {templateId}");
             }
             return null;
         }
@@ -318,22 +324,6 @@ namespace Honor.Editor.MapTool
         public List<ObjectTemplate> GetAllTemplates()
         {
             return new List<ObjectTemplate>(_templates.Values);
-        }
-
-        /// <summary>
-        /// 按物体类型筛选模板
-        /// </summary>
-        /// <param name="objectType">物体类型</param>
-        /// <returns>对应类型的模板列表</returns>
-        public List<ObjectTemplate> GetTemplatesByType(MapObjectType objectType)
-        {
-            List<ObjectTemplate> result = new List<ObjectTemplate>();
-            foreach (var template in _templates.Values)
-            {
-                if (template.Type == objectType)
-                    result.Add(template);
-            }
-            return result;
         }
 
         /// <summary>
@@ -385,11 +375,11 @@ namespace Honor.Editor.MapTool
                 var list = new List<ObjectTemplate>(_templates.Values);
                 string json = JsonUtility.ToJson(new TemplateListWrapper { templates = list }, true);
                 File.WriteAllText(jsonPath, json, System.Text.Encoding.UTF8);
-                Debug.Log($"[ObjectTemplateManager] JSON 保存完成: {jsonPath}，共 {list.Count} 个模板");
+                MapToolLog.Info($"[ObjectTemplateManager] JSON 保存完成: {jsonPath}，共 {list.Count} 个模板");
             }
             catch (Exception e)
             {
-                Debug.LogError($"[ObjectTemplateManager] JSON 保存失败: {e.Message}");
+                MapToolLog.Error($"[ObjectTemplateManager] JSON 保存失败: {e.Message}");
             }
         }
 
@@ -410,20 +400,19 @@ namespace Honor.Editor.MapTool
                 if (wrapper?.templates == null)
                     return 0;
 
-                _templates.Clear();
-                _missingReported.Clear();
+                ClearCache();
                 foreach (var t in wrapper.templates)
                 {
                     if (!string.IsNullOrEmpty(t.TemplateId))
                         _templates[t.TemplateId] = t;
                 }
 
-                Debug.Log($"[ObjectTemplateManager] JSON 加载完成: {jsonPath}，共 {_templates.Count} 个模板");
+                MapToolLog.Info($"[ObjectTemplateManager] JSON 加载完成: {jsonPath}，共 {_templates.Count} 个模板");
                 return _templates.Count;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[ObjectTemplateManager] JSON 加载失败: {e.Message}");
+                MapToolLog.Error($"[ObjectTemplateManager] JSON 加载失败: {e.Message}");
                 return 0;
             }
         }

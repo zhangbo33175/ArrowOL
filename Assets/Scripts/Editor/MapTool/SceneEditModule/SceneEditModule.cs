@@ -26,7 +26,7 @@ namespace Honor.Editor.MapTool
     /// <summary>
     /// 场景编辑模块 - 公有接口（初始化/保存/选择/显隐）
     /// </summary>
-    public partial class SceneEditModule
+    public partial class SceneEditModule : IMapEditModule
     {
         /// <summary>当前选中的章节ID（供PSD导入模块等外部模块读取）</summary>
         public string CurrentChapterId => m_CurrentChapterId;
@@ -59,34 +59,46 @@ namespace Honor.Editor.MapTool
             BindEvents();
         }
 
-        /// <summary>
-        /// 组装当前关卡的地图配置数据（摆放物 / 背景 / 宽高 / 网格占用 / 章节信息）
-        /// </summary>
-        /// <returns>组装好的配置数据</returns>
         private MapConfigData AssembleMapConfigData()
         {
             MapConfigData data = new MapConfigData();
+
+            ApplyMapMetaToData(data);
+            CollectPlacedObjectsIntoData(data);
+            ApplyGridMetaToData(data);
+            ApplyTrafficToData(data);
+            ApplyChapterToData(data);
+
+            return data;
+        }
+
+        /// <summary>
+        /// 落盘地图基础信息：场景标识 / 宽高 / 背景图
+        /// </summary>
+        /// <param name="data">目标配置数据</param>
+        private void ApplyMapMetaToData(MapConfigData data)
+        {
             data.sceneId = GetFieldValue(m_SceneIdField, "1");
             data.sceneName = GetFieldValue(m_SceneNameField, "关卡1");
             data.width = m_MapWidth > 0 ? m_MapWidth : ParseInt(GetFieldValue(m_WidthField, m_ConfigMapWidth.ToString()), m_ConfigMapWidth);
             data.height = m_MapHeight > 0 ? m_MapHeight : ParseInt(GetFieldValue(m_HeightField, m_ConfigMapHeight.ToString()), m_ConfigMapHeight);
 
-            // 背景图
-            string regionId = m_CurrentLevelId;
-            string bgName = "";
-            if (m_LevelBgDict != null && m_LevelBgDict.TryGetValue(regionId, out string bg))
-                bgName = bg;
-            data.bgName = bgName;
+            data.bgName = m_LevelBgDict != null && m_LevelBgDict.TryGetValue(m_CurrentLevelId, out string bg) ? bg : "";
+        }
 
+        /// <summary>
+        /// 落盘摆放物：按类型分流到 characters / buildings / objects 三张表
+        /// </summary>
+        /// <param name="data">目标配置数据</param>
+        private void CollectPlacedObjectsIntoData(MapConfigData data)
+        {
             // 所有物体直接挂到地图下（单关卡模式）
             foreach (var obj in m_PlacedObjects)
             {
                 // ---TODO 交通规则：载具/行人属于动态链路，强制归入 characters 表落盘与导出，
                 // 避免被模板初始类型（Prop）带进静态物件表导致交通字段丢失
                 if (IsTrafficRoleActive(obj) && obj.Type != MapObjectType.Building)
-                {
                     obj.Type = MapObjectType.Character;
-                }
 
                 switch (obj.Type)
                 {
@@ -101,8 +113,14 @@ namespace Honor.Editor.MapTool
                         break;
                 }
             }
+        }
 
-            // 网格信息
+        /// <summary>
+        /// 落盘网格信息：格尺寸 / 基线步长 / 绘制形状 / 区域类型 / 网格行列 / 占用格
+        /// </summary>
+        /// <param name="data">目标配置数据</param>
+        private void ApplyGridMetaToData(MapConfigData data)
+        {
             data.gridSize = MapToolConstants.GridSize;
             // 基线步长：落盘当前编辑器配置（地图数据记录自身排序契约，发布 Lua 同源导出）
             data.baselineStep = MapToolConstants.LayerBaselineStep;
@@ -111,27 +129,51 @@ namespace Honor.Editor.MapTool
             data.regionType = m_RegionType;
             data.gridCols = MapToolEditorUtils.GridCols(data.width);
             data.gridRows = MapToolEditorUtils.GridRows(data.height);
-            var occupiedKeys = MapToolEditorUtils.CollectOccupiedCells(m_PlacedObjects);
-            data.occupiedCells = new List<MapGridCellData>();
+            data.occupiedCells = BuildOccupiedCells(MapToolEditorUtils.CollectOccupiedCells(m_PlacedObjects));
+        }
+
+        /// <summary>
+        /// 占用格编码键 → 网格格子数据列表
+        /// </summary>
+        /// <param name="occupiedKeys">编码后的占用格键集合</param>
+        /// <returns>格子数据列表</returns>
+        private static List<MapGridCellData> BuildOccupiedCells(IEnumerable<long> occupiedKeys)
+        {
+            var cells = new List<MapGridCellData>();
             foreach (var key in occupiedKeys)
             {
-                data.occupiedCells.Add(new MapGridCellData { x = (int)(key % MapToolConstants.CellEncodeMultiplier), y = (int)(key / MapToolConstants.CellEncodeMultiplier) });
+                cells.Add(new MapGridCellData
+                {
+                    x = (int)(key % MapToolConstants.CellEncodeMultiplier),
+                    y = (int)(key / MapToolConstants.CellEncodeMultiplier)
+                });
             }
+            return cells;
+        }
 
-            // ---TODO 交通规则：红绿灯 / 斑马线 / 区域回显 / 人行道格 / 道路格 对称组装
+        /// <summary>
+        /// 落盘交通规则数据（红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格，对称组装）
+        /// </summary>
+        /// <param name="data">目标配置数据</param>
+        private void ApplyTrafficToData(MapConfigData data)
+        {
             data.trafficLights = new List<MapTrafficLightData>(m_TrafficLights);
             data.crosswalks = new List<MapCrosswalkData>(m_Crosswalks);
             data.regions = new List<MapRegionData>(m_Regions);
             data.sidewalkCells = new List<MapGridCellData>(m_SidewalkCells);
             data.roadCells = new List<MapGridCellData>(m_RoadCells);
+        }
 
-            // 章节信息
+        /// <summary>
+        /// 落盘章节信息（章节 ID 缺省回退场景 ID，章节名缺省回退场景名）
+        /// </summary>
+        /// <param name="data">目标配置数据</param>
+        private void ApplyChapterToData(MapConfigData data)
+        {
             data.chapterId = !string.IsNullOrEmpty(m_CurrentChapterId) ? m_CurrentChapterId : data.sceneId;
             data.chapterName = m_CurrentChapterData != null && !string.IsNullOrEmpty(m_CurrentChapterData.ChapterTitle)
                 ? m_CurrentChapterData.ChapterTitle
                 : data.sceneName;
-
-            return data;
         }
 
         /// <summary>
@@ -142,7 +184,7 @@ namespace Honor.Editor.MapTool
         {
             if (string.IsNullOrEmpty(m_CurrentLevelId))
             {
-                Debug.LogWarning("没有关卡数据，无法保存工作态配置（请先选择关卡加载地图）");
+                MapToolLog.Warn("没有关卡数据，无法保存工作态配置（请先选择关卡加载地图）");
                 return;
             }
 
@@ -152,7 +194,7 @@ namespace Honor.Editor.MapTool
             if (!MapConfigRepository.SaveToJson(data, m_MapSavePath))
                 return;
 
-            Debug.Log($"工作态地图配置已保存: {m_MapSavePath}（摆放物 {m_PlacedObjects.Count}）");
+            MapToolLog.Info($"工作态地图配置已保存: {m_MapSavePath}（摆放物 {m_PlacedObjects.Count}）");
         }
 
         /// <summary>
@@ -168,8 +210,7 @@ namespace Honor.Editor.MapTool
             {
                 m_LevelBgDict.Remove(m_CurrentLevelId);
             }
-            if (m_ObjectEditPanel != null)
-                m_ObjectEditPanel.style.display = DisplayStyle.None;
+            m_ObjectEditPanel.SetVisible(false);
         }
 
         /// <summary>
@@ -195,7 +236,7 @@ namespace Honor.Editor.MapTool
         {
             if (string.IsNullOrEmpty(m_CurrentLevelId))
             {
-                Debug.LogWarning("没有关卡数据，无法保存地图配置（请先选择关卡加载地图）");
+                MapToolLog.Warn("没有关卡数据，无法保存地图配置（请先选择关卡加载地图）");
                 return;
             }
 
@@ -229,11 +270,11 @@ namespace Honor.Editor.MapTool
                 };
                 List<string> luaFiles = MapDataLuaExporter.Export(data, exportContext, m_ChapterDataList);
                 AssetDatabase.Refresh();
-                Debug.Log($"Lua 数据已导出: 共 {luaFiles.Count} 个文件\n{string.Join("\n", luaFiles)}");
+                MapToolLog.Info($"Lua 数据已导出: 共 {luaFiles.Count} 个文件\n{string.Join("\n", luaFiles)}");
             }
             catch (System.Exception luaException)
             {
-                Debug.LogError($"Lua 数据导出失败（JSON 已保存成功，不影响）: {luaException.Message}");
+                MapToolLog.Error($"Lua 数据导出失败（JSON 已保存成功，不影响）: {luaException.Message}");
             }
         }
 
@@ -242,7 +283,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Show()
         {
-            m_Root.style.display = DisplayStyle.Flex;
+            m_Root.SetVisible(true);
         }
 
         /// <summary>
@@ -250,148 +291,50 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Hide()
         {
-            m_Root.style.display = DisplayStyle.None;
+            m_Root.SetVisible(false);
         }
 
         /// <summary>
-        /// 设置地图保存路径
-        /// </summary>
-        /// <param name="path">保存路径</param>
-        public void SetMapSavePath(string path)
-        {
-            m_MapSavePath = path;
-            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, OccupiedCellCount, GridCols, GridRows, m_MapSavePath);
-        }
-
-        /// <summary>
-        /// 获取地图保存路径
-        /// </summary>
-        public string GetMapSavePath()
-        {
-            return m_MapSavePath;
-        }
-
-        /// <summary>
-        /// 加载关卡地图（每关一张独立地图，取消分区）
+        /// 加载关卡地图：章节上下文 → 关卡预制体 → 视图状态 → 地图配置 → 场景实例化
         /// </summary>
         /// <param name="chapterId">章节ID</param>
         /// <param name="levelId">关卡ID</param>
         /// <param name="prefabPath">地图预制体路径</param>
         public void LoadLevelMap(string chapterId, string levelId, string prefabPath = "")
         {
-            Debug.Log($"加载关卡地图: 章节={chapterId}, 关卡={levelId}, 预制体路径: {prefabPath}");
-            // 加载章节配置表
-            LoadChapterConfig();
-            var chapterData = m_ChapterDataList.FirstOrDefault(c => c.ID == chapterId);
-            if (chapterData != null)
-            {
-                // 缓存当前章节上下文
-                m_CurrentChapterId = chapterId;
-                m_CurrentChapterData = chapterData;
-                // 场景名：优先用章节标题+关卡号
-                string sceneName = !string.IsNullOrEmpty(chapterData.ChapterTitle)
-                    ? $"{chapterData.ChapterTitle}-关卡{levelId}"
-                    : $"关卡{levelId}";
-                if (m_SceneNameField != null)
-                    m_SceneNameField.SetValueWithoutNotify(sceneName);
-                if (m_SceneIdField != null)
-                    m_SceneIdField.SetValueWithoutNotify(levelId);
-            }
-            else
-            {
-                m_CurrentChapterId = chapterId;
-                m_CurrentChapterData = null;
-                if (m_SceneNameField != null)
-                    m_SceneNameField.SetValueWithoutNotify($"关卡{levelId}");
-                if (m_SceneIdField != null)
-                    m_SceneIdField.SetValueWithoutNotify(levelId);
-            }
+            MapToolLog.Info($"加载关卡地图: 章节={chapterId}, 关卡={levelId}, 预制体路径: {prefabPath}");
 
-            // 记录当前关卡ID
-            m_CurrentLevelId = levelId;
+            // 加载章节配置表并应用章节/关卡上下文
+            ApplyChapterContext(chapterId, levelId);
 
             // 加载主关卡配置表（背景图）
             LoadMainLevelsConfig();
 
-            // 关卡预制体路径
-            string levelPrefabPath = $"{MapToolConstants.MapSaveDir}/Map_{chapterId}_{levelId}.prefab";
-            // 模板更新检测
-            bool needClone = false;
-            var existingLevelPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(levelPrefabPath);
-            if (existingLevelPrefab == null)
-            {
-                needClone = true;
-            }
-            else if (!string.IsNullOrEmpty(prefabPath))
-            {
-                string templateFullPath = MapToolPathHelper.ToAbsolutePath(prefabPath);
-                string levelFullPath = MapToolPathHelper.ToAbsolutePath(levelPrefabPath);
-                if (System.IO.File.Exists(templateFullPath) && System.IO.File.Exists(levelFullPath))
-                {
-                    DateTime templateTime = System.IO.File.GetLastWriteTime(templateFullPath);
-                    DateTime levelTime = System.IO.File.GetLastWriteTime(levelFullPath);
-                    if (templateTime > levelTime)
-                    {
-                        needClone = true;
-                        Debug.Log($"模板预制体已更新（模板: {templateTime:HH:mm:ss} > 关卡: {levelTime:HH:mm:ss}），重新克隆");
-                    }
-                }
-            }
-            if (needClone && !string.IsNullOrEmpty(prefabPath))
-            {
-                Debug.Log($"从模板克隆: {prefabPath} -> {levelPrefabPath}");
-                string dir = System.IO.Path.GetDirectoryName(levelPrefabPath).Replace("\\", "/");
-                if (!UnityEditor.AssetDatabase.IsValidFolder(dir))
-                {
-                    if (!UnityEditor.AssetDatabase.IsValidFolder(MapToolConstants.GameDataDir))
-                        UnityEditor.AssetDatabase.CreateFolder("Assets", "GameData");
-                    UnityEditor.AssetDatabase.CreateFolder(MapToolConstants.GameDataDir, "Maps");
-                }
-                bool copyResult = UnityEditor.AssetDatabase.CopyAsset(prefabPath, levelPrefabPath);
-                Debug.Log($"克隆结果: {copyResult}");
-                UnityEditor.AssetDatabase.Refresh();
-            }
-            // 加载关卡预制体
-            m_MapPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(levelPrefabPath);
-            Debug.Log($"加载关卡预制体: {levelPrefabPath}, 结果: {m_MapPrefab != null}");
+            // 解析（必要时从模板克隆）关卡预制体
+            string levelPrefabPath = LevelPrefabPath(chapterId, levelId);
+            m_MapPrefab = ResolveLevelPrefab(levelPrefabPath, prefabPath);
             if (m_MapPrefab != null)
             {
-                Debug.Log($"加载地图预制体成功: {m_MapPrefab.name}");
-                if (m_MapPrefabField != null)
-                {
-                    m_MapPrefabField.value = m_MapPrefab;
-                    Debug.Log($"已设置 ObjectField 值: {m_MapPrefab.name}");
-                }
+                MapToolLog.Info($"加载地图预制体成功: {m_MapPrefab.name}");
+                m_MapPrefabField.SetValueSafe(m_MapPrefab);
+                MapToolLog.Info($"已设置 ObjectField 值: {m_MapPrefab.name}");
             }
             else
             {
-                Debug.LogWarning("地图预制体加载失败，m_MapPrefab 为 null");
+                MapToolLog.Warn("地图预制体加载失败，m_MapPrefab 为 null");
             }
 
-            // 【取消分区】JSON 保存路径：按 章节_关卡 命名
-            m_MapSavePath = $"{MapToolConstants.MapJsonSaveDir}/Map_{chapterId}_{levelId}.json";
+            // 【取消分区】JSON 保存路径：按 章节m关卡 命名
+            m_MapSavePath = $"{MapToolConstants.MapJsonSaveDir}/Map_{chapterId}m{levelId}.json";
 
-            // 地图尺寸：默认 2048x2048，从 JSON 加载后会自动覆盖
-            m_MapWidth = MapToolConstants.LevelPixelSize;
-            m_MapHeight = MapToolConstants.LevelPixelSize;
-            m_ConfigMapWidth = m_MapWidth;
-            m_ConfigMapHeight = m_MapHeight;
-
-            // 重置偏移和缩放
-            m_MapOffset = Vector2.zero;
-            m_Zoom = 1.0f;
-            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, OccupiedCellCount, GridCols, GridRows, m_MapSavePath);
+            // 重置尺寸/偏移/缩放等视图状态
+            ResetMapViewState();
 
             // 加载已保存的地图配置
             LoadMapConfig();
 
             // 同步宽高到输入框显示
-            if (m_MapWidth <= 0) m_MapWidth = MapToolConstants.LevelPixelSize;
-            if (m_MapHeight <= 0) m_MapHeight = MapToolConstants.LevelPixelSize;
-            m_ConfigMapWidth = m_MapWidth;
-            m_ConfigMapHeight = m_MapHeight;
-            if (m_WidthField != null) m_WidthField.SetValueWithoutNotify(m_MapWidth.ToString());
-            if (m_HeightField != null) m_HeightField.SetValueWithoutNotify(m_MapHeight.ToString());
+            SyncSizeFields();
 
             // 实例化到场景
             if (m_MapPrefab != null)
@@ -401,87 +344,261 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 在场景中实例化 2DSceneRoot，地图预制体挂载到 SceneLauncher 下
-        /// 【取消分区】单关卡=单张地图，不再按分区排列 ZoneItem
+        /// 加载章节配置并写入章节/关卡上下文与场景名、场景ID字段
+        /// </summary>
+        /// <param name="chapterId">章节ID</param>
+        /// <param name="levelId">关卡ID</param>
+        private void ApplyChapterContext(string chapterId, string levelId)
+        {
+            LoadChapterConfig();
+            var chapterData = m_ChapterDataList.FirstOrDefault(c => c.ID == chapterId);
+
+            m_CurrentChapterId = chapterId;
+            m_CurrentChapterData = chapterData;
+
+            // 场景名：优先用章节标题+关卡号
+            string sceneName = chapterData != null && !string.IsNullOrEmpty(chapterData.ChapterTitle)
+                ? $"{chapterData.ChapterTitle}-关卡{levelId}"
+                : $"关卡{levelId}";
+            m_SceneNameField.SetValueSafe(sceneName);
+            m_SceneIdField.SetValueSafe(levelId);
+
+            // 记录当前关卡ID
+            m_CurrentLevelId = levelId;
+        }
+
+        /// <summary>
+        /// 关卡预制体的资产路径（章节m关卡 命名）
+        /// </summary>
+        /// <param name="chapterId">章节ID</param>
+        /// <param name="levelId">关卡ID</param>
+        /// <returns>资产相对路径</returns>
+        private static string LevelPrefabPath(string chapterId, string levelId)
+        {
+            return $"{MapToolConstants.MapSaveDir}/Map_{chapterId}m{levelId}.prefab";
+        }
+
+        /// <summary>
+        /// 加载关卡预制体；缺失或模板已更新时先复制模板再加载
+        /// </summary>
+        /// <param name="levelPrefabPath">关卡预制体资产路径</param>
+        /// <param name="templatePrefabPath">模板预制体资产路径（可空）</param>
+        /// <returns>关卡预制体，失败返回 null</returns>
+        private static GameObject ResolveLevelPrefab(string levelPrefabPath, string templatePrefabPath)
+        {
+            if (NeedsCloneFromTemplate(levelPrefabPath, templatePrefabPath))
+            {
+                MapToolLog.Info($"从模板克隆: {templatePrefabPath} -> {levelPrefabPath}");
+                EnsureMapsFolder(levelPrefabPath);
+                bool copyResult = UnityEditor.AssetDatabase.CopyAsset(templatePrefabPath, levelPrefabPath);
+                MapToolLog.Info($"克隆结果: {copyResult}");
+                UnityEditor.AssetDatabase.Refresh();
+            }
+
+            var levelPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(levelPrefabPath);
+            MapToolLog.Info($"加载关卡预制体: {levelPrefabPath}, 结果: {levelPrefab != null}");
+            return levelPrefab;
+        }
+
+        /// <summary>
+        /// 判断是否需要从模板克隆：关卡预制体缺失，或模板文件比关卡更新
+        /// </summary>
+        /// <param name="levelPrefabPath">关卡预制体资产路径</param>
+        /// <param name="templatePrefabPath">模板预制体资产路径（可空）</param>
+        /// <returns>需要克隆返回 true</returns>
+        private static bool NeedsCloneFromTemplate(string levelPrefabPath, string templatePrefabPath)
+        {
+            var existingLevelPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(levelPrefabPath);
+            if (existingLevelPrefab == null) return true;
+            if (string.IsNullOrEmpty(templatePrefabPath)) return false;
+
+            string templateFullPath = MapToolPathHelper.ToAbsolutePath(templatePrefabPath);
+            string levelFullPath = MapToolPathHelper.ToAbsolutePath(levelPrefabPath);
+            if (!System.IO.File.Exists(templateFullPath) || !System.IO.File.Exists(levelFullPath)) return false;
+
+            DateTime templateTime = System.IO.File.GetLastWriteTime(templateFullPath);
+            DateTime levelTime = System.IO.File.GetLastWriteTime(levelFullPath);
+            if (templateTime <= levelTime) return false;
+
+            MapToolLog.Info($"模板预制体已更新（模板: {templateTime:HH:mm:ss} > 关卡: {levelTime:HH:mm:ss}），重新克隆");
+            return true;
+        }
+
+        /// <summary>
+        /// 确保关卡预制体所在目录存在（缺 GameData/Maps 时逐级创建）
+        /// </summary>
+        /// <param name="levelPrefabPath">关卡预制体资产路径</param>
+        private static void EnsureMapsFolder(string levelPrefabPath)
+        {
+            string dir = System.IO.Path.GetDirectoryName(levelPrefabPath).Replace("\\", "/");
+            if (UnityEditor.AssetDatabase.IsValidFolder(dir)) return;
+
+            if (!UnityEditor.AssetDatabase.IsValidFolder(MapToolConstants.GameDataDir))
+                UnityEditor.AssetDatabase.CreateFolder(MapToolPathHelper.AssetsFolderName, MapToolConstants.GameDataFolderName);
+            UnityEditor.AssetDatabase.CreateFolder(MapToolConstants.GameDataDir, "Maps");
+        }
+
+        /// <summary>
+        /// 重置地图视图状态：尺寸回到默认整图像素，偏移与缩放复位，刷新状态栏
+        /// </summary>
+        private void ResetMapViewState()
+        {
+            // 地图尺寸：默认 2048x2048，从 JSON 加载后会自动覆盖
+            m_MapWidth = MapToolConstants.LevelPixelSize;
+            m_MapHeight = MapToolConstants.LevelPixelSize;
+            SyncConfigMapSize();
+
+            m_MapOffset = Vector2.zero;
+            m_Zoom = 1.0f;
+            m_StatusBar.Refresh(m_Zoom, m_MousePos, m_TileX, m_TileY, OccupiedCellCount, GridCols, GridRows, m_MapSavePath);
+        }
+
+        /// <summary>
+        /// 把地图宽高同步到输入框显示（非法值回退默认整图尺寸）
+        /// </summary>
+        private void SyncSizeFields()
+        {
+            if (m_MapWidth <= 0) m_MapWidth = MapToolConstants.LevelPixelSize;
+            if (m_MapHeight <= 0) m_MapHeight = MapToolConstants.LevelPixelSize;
+            SyncConfigMapSize();
+
+            m_WidthField.SetValueSafe(m_MapWidth.ToString());
+            m_HeightField.SetValueSafe(m_MapHeight.ToString());
+        }
+
+        /// <summary>
+        /// 在地图中实例化场景骨架：2DSceneRoot → SceneLauncher → GameMainMap → ZoneRoot/ZoneItem，
+        /// 随后同步关卡背景与摆放物。各步骤拆为独立方法，任一步失败即中止。
         /// </summary>
         private void InstantiateMapInScene()
         {
-            // 1. 清理旧实例
-            var oldSceneRoot = GameObject.Find("2DSceneRoot");
+            // 1-3. 重建场景根（清理旧实例 + 实例化 2DSceneRoot）
+            GameObject sceneRootInstance = CreateSceneRoot();
+            if (sceneRootInstance == null) return;
+
+            // 4. 查找 SceneLauncher 节点
+            Transform sceneLauncher = FindSceneLauncher(sceneRootInstance.transform);
+            if (sceneLauncher == null)
+            {
+                MapToolLog.Warn("2DSceneRoot 中未找到 SceneLauncher 节点");
+                return;
+            }
+
+            // 5-9. 实例化地图并配置 ZoneRoot / ZoneItem 层级
+            GameObject mapInstance = CreateMapInstance(sceneLauncher, out RectTransform zoneRoot);
+            if (mapInstance == null) return;
+
+            m_ZoneRootInstance = zoneRoot;
+
+            GameObject zoneItem = ConfigureZoneHierarchy(mapInstance, zoneRoot);
+            if (zoneItem == null) return;
+
+            // 10. 同步关卡背景图到 ZoneItem 的 Image 组件
+            ApplyZoneItemBackground(zoneItem, m_CurrentLevelId);
+
+            // 同步摆放物到场景（挂到 ZoneItem 的 Root 下）
+            SyncPlacedObjectsToScene(zoneRoot);
+
+            // 自动开启 GridManager 调试网格
+            EnableGridDebug(mapInstance);
+
+            MapToolLog.Info($"场景地图实例化完成: {m_MapWidth}x{m_MapHeight}（关卡 {m_CurrentLevelId}）");
+            Selection.activeGameObject = mapInstance;
+        }
+
+        /// <summary>
+        /// 清理旧场景根并实例化 2DSceneRoot.prefab 到 Launcher 下
+        /// </summary>
+        /// <returns>场景根实例，Launcher 或预制体缺失时返回 null</returns>
+        private GameObject CreateSceneRoot()
+        {
+            var oldSceneRoot = GameObject.Find(MapSceneNodeNames.SceneRoot);
             if (oldSceneRoot != null) UnityEngine.Object.DestroyImmediate(oldSceneRoot);
 
             // 场景重建时清空资源缓存，避免引用已替换/删除的旧资产
-            _templatePrefabCache.Clear();
-            _spriteCache.Clear();
-            _bgTextureCache.Clear();
+            m_Assets.ClearCaches();
 
-            // 2. 查找 Launcher 节点作为父级
-            var launcher = GameObject.Find("Launcher");
+            var launcher = GameObject.Find(MapSceneNodeNames.Launcher);
             if (launcher == null)
             {
-                Debug.LogWarning("场景中未找到 Launcher 节点，请先打开包含 GameApp/GameMain/Launcher 的场景");
-                return;
+                MapToolLog.Warn("场景中未找到 Launcher 节点，请先打开包含 GameApp/GameMain/Launcher 的场景");
+                return null;
             }
 
-            // 3. 实例化 2DSceneRoot.prefab
-            string sceneRootPath = MapToolConstants.SceneRootPrefabPath;
-            var sceneRootPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(sceneRootPath);
+            var sceneRootPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(MapToolConstants.SceneRootPrefabPath);
             if (sceneRootPrefab == null)
             {
-                Debug.LogWarning($"未找到 2DSceneRoot.prefab: {sceneRootPath}");
-                return;
+                MapToolLog.Warn($"未找到 2DSceneRoot.prefab: {MapToolConstants.SceneRootPrefabPath}");
+                return null;
             }
-            var sceneRootInstance = (GameObject)PrefabUtility.InstantiatePrefab(sceneRootPrefab, launcher.transform);
-            sceneRootInstance.name = "2DSceneRoot";
-            Undo.RegisterCreatedObjectUndo(sceneRootInstance, "Instantiate SceneRoot");
 
-            // 4. 查找 SceneLauncher 节点
-            Transform sceneLauncher = null;
-            foreach (Transform child in sceneRootInstance.transform)
+            var sceneRootInstance = (GameObject)PrefabUtility.InstantiatePrefab(sceneRootPrefab, launcher.transform);
+            sceneRootInstance.name = MapSceneNodeNames.SceneRoot;
+            Undo.RegisterCreatedObjectUndo(sceneRootInstance, "Instantiate SceneRoot");
+            return sceneRootInstance;
+        }
+
+        /// <summary>
+        /// 在场景根下查找 SceneLauncher 节点（2DSceneLayers/SceneLauncher）
+        /// </summary>
+        /// <param name="sceneRoot">场景根 Transform</param>
+        /// <returns>SceneLauncher 节点，缺失返回 null</returns>
+        private static Transform FindSceneLauncher(Transform sceneRoot)
+        {
+            foreach (Transform child in sceneRoot)
             {
-                if (child.name == "2DSceneLayers")
+                if (child.name != MapSceneNodeNames.SceneLayers) continue;
+
+                foreach (Transform layer in child)
                 {
-                    foreach (Transform layer in child)
-                    {
-                        if (layer.name == "SceneLauncher")
-                        {
-                            sceneLauncher = layer;
-                            break;
-                        }
-                    }
+                    if (layer.name == MapSceneNodeNames.SceneLauncher)
+                        return layer;
                 }
             }
-            if (sceneLauncher == null)
-            {
-                Debug.LogWarning("2DSceneRoot 中未找到 SceneLauncher 节点");
-                return;
-            }
+            return null;
+        }
 
-            // 5. 实例化地图预制体，挂载到 SceneLauncher 下
+        /// <summary>
+        /// 实例化地图预制体到 SceneLauncher 下，并定位 ZoneRoot
+        /// </summary>
+        /// <param name="sceneLauncher">地图挂载父节点</param>
+        /// <param name="zoneRoot">输出：ZoneRoot 节点</param>
+        /// <returns>地图实例，ZoneRoot 缺失时返回 null</returns>
+        private GameObject CreateMapInstance(Transform sceneLauncher, out RectTransform zoneRoot)
+        {
+            zoneRoot = null;
+
             var mapInstance = (GameObject)PrefabUtility.InstantiatePrefab(m_MapPrefab, sceneLauncher);
-            mapInstance.name = "GameMainMap";
+            mapInstance.name = MapSceneNodeNames.MapInstance;
             Undo.RegisterCreatedObjectUndo(mapInstance, "Instantiate Map");
 
-            // 6. 查找 ZoneRoot
-            RectTransform zoneRoot = null;
             var allRects = mapInstance.GetComponentsInChildren<RectTransform>(true);
             foreach (var rt in allRects)
             {
-                if (rt.name == "ZoneRoot")
+                if (rt.name == MapSceneNodeNames.ZoneRoot)
                 {
                     zoneRoot = rt;
                     break;
                 }
             }
+
             if (zoneRoot == null)
             {
-                Debug.LogWarning($"GameMainMap 中未找到 ZoneRoot 节点，现有子节点: {string.Join(", ", allRects.Select(r => r.name))}");
-                return;
+                MapToolLog.Warn($"GameMainMap 中未找到 ZoneRoot 节点，现有子节点: {string.Join(", ", allRects.Select(r => r.name))}");
+                return null;
             }
 
-            // 记录 ZoneRoot 引用
-            m_ZoneRootInstance = zoneRoot;
+            return mapInstance;
+        }
 
+        /// <summary>
+        /// 配置 ZoneRoot / ZoneItem 层级：禁用默认背景、清理旧分区、实例化 ZoneItem 并统一整图尺寸
+        /// </summary>
+        /// <param name="mapInstance">地图实例</param>
+        /// <param name="zoneRoot">ZoneRoot 节点</param>
+        /// <returns>新建的 ZoneItem 实例，预制体缺失时返回 null</returns>
+        private GameObject ConfigureZoneHierarchy(GameObject mapInstance, RectTransform zoneRoot)
+        {
             // 【取消分区】禁用 GameMainMap 自带的默认背景 Image 组件
             foreach (Transform child in mapInstance.transform)
             {
@@ -489,87 +606,101 @@ namespace Honor.Editor.MapTool
                 if (img != null)
                 {
                     img.enabled = false;
-                    Debug.Log($"[地图背景] 已禁用默认 Image: {child.name}");
+                    MapToolLog.Info($"[地图背景] 已禁用默认 Image: {child.name}");
                     break;
                 }
             }
 
-            // 7. 清理 ZoneRoot 下旧实例
+            // 清理 ZoneRoot 下旧实例
             for (int i = zoneRoot.childCount - 1; i >= 0; i--)
             {
                 var child = zoneRoot.GetChild(i);
-                if (child.name.StartsWith("ZoneItem"))
+                if (child.name.StartsWith(MapSceneNodeNames.ZoneItemPrefix))
                 {
                     UnityEngine.Object.DestroyImmediate(child.gameObject);
                 }
             }
 
-            // 8. 加载并实例化 ZoneItem.prefab（单张地图）
-            string zoneItemPath = MapToolConstants.ZoneItemPrefabPath;
-            var zoneItemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(zoneItemPath);
+            // 加载并实例化 ZoneItem.prefab（单张地图）
+            var zoneItemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(MapToolConstants.ZoneItemPrefabPath);
             if (zoneItemPrefab == null)
             {
-                Debug.LogWarning($"未找到 ZoneItem.prefab: {zoneItemPath}");
-                return;
+                MapToolLog.Warn($"未找到 ZoneItem.prefab: {MapToolConstants.ZoneItemPrefabPath}");
+                return null;
             }
-            string levelId = m_CurrentLevelId;
-            var zoneItem = (GameObject)PrefabUtility.InstantiatePrefab(zoneItemPrefab, zoneRoot);
-            zoneItem.name = $"ZoneItem_{levelId}";
 
-            // ZoneItem 尺寸 = 整图尺寸
+            var zoneItem = (GameObject)PrefabUtility.InstantiatePrefab(zoneItemPrefab, zoneRoot);
+            zoneItem.name = $"{MapSceneNodeNames.ZoneItemInstancePrefix}{m_CurrentLevelId}";
+
+            // ZoneItem / ZoneRoot 尺寸 = 整图尺寸；分区布局基线同步
+            ZoneItemSizes(zoneItem, zoneRoot);
+
+            return zoneItem;
+        }
+
+        /// <summary>
+        /// 应用 ZoneItem / ZoneRoot 的整图尺寸与 GridLayout 基线
+        /// </summary>
+        /// <param name="zoneItem">ZoneItem 实例</param>
+        /// <param name="zoneRoot">ZoneRoot 节点</param>
+        private void ZoneItemSizes(GameObject zoneItem, RectTransform zoneRoot)
+        {
             var zrt = zoneItem.GetComponent<RectTransform>();
             if (zrt != null)
                 zrt.sizeDelta = new Vector2(m_MapWidth, m_MapHeight);
 
-            // 9. 设置 ZoneRoot 尺寸 = 整图尺寸
             zoneRoot.sizeDelta = new Vector2(m_MapWidth, m_MapHeight);
             var gridLayout = zoneRoot.GetComponent<UnityEngine.UI.GridLayoutGroup>();
             if (gridLayout != null)
                 gridLayout.cellSize = new Vector2(m_MapWidth, m_MapHeight);
+        }
 
-            // 10. 同步关卡背景图到 ZoneItem 的 Image 组件
+        /// <summary>
+        /// 同步关卡背景图到 ZoneItem 的 Image 组件（Texture2D 现造 Sprite）
+        /// </summary>
+        /// <param name="zoneItem">ZoneItem 实例</param>
+        /// <param name="levelId">关卡ID</param>
+        private void ApplyZoneItemBackground(GameObject zoneItem, string levelId)
+        {
             Texture bgTex = LoadRegionBackground(levelId);
-            if (bgTex != null)
-            {
-                var img = zoneItem.GetComponentInChildren<UnityEngine.UI.Image>();
-                if (img != null)
-                {
-                    Texture2D tex2d = bgTex as Texture2D;
-                    if (tex2d != null)
-                    {
-                        img.sprite = Sprite.Create(tex2d, new Rect(0, 0, tex2d.width, tex2d.height), new Vector2(0.5f, 0.5f));
-                        img.enabled = true;
-                        Debug.Log($"[关卡背景] {levelId} 赋值成功: {bgTex.name}");
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning($"[关卡背景] {levelId} 找到纹理但 ZoneItem 内无 Image 组件");
-                }
-            }
-            else
+            if (bgTex == null)
             {
                 string bgName = m_LevelBgDict.TryGetValue(levelId, out string bn) ? bn : "<未配置>";
-                Debug.LogWarning($"[关卡背景] {levelId} 加载失败 bgName={bgName}");
+                MapToolLog.Warn($"[关卡背景] {levelId} 加载失败 bgName={bgName}");
+                return;
             }
 
-            // 同步摆放物到场景（挂到 ZoneItem 的 Root 下）
-            SyncPlacedObjectsToScene(zoneRoot);
+            var img = zoneItem.GetComponentInChildren<UnityEngine.UI.Image>();
+            if (img == null)
+            {
+                MapToolLog.Warn($"[关卡背景] {levelId} 找到纹理但 ZoneItem 内无 Image 组件");
+                return;
+            }
 
-            // 自动开启 GridManager 调试网格
+            if (bgTex is Texture2D tex2d)
+            {
+                img.sprite = MapAssetLoader.CreateSpriteFromTexture(tex2d);
+                img.enabled = true;
+                MapToolLog.Info($"[关卡背景] {levelId} 赋值成功: {bgTex.name}");
+            }
+        }
+
+        /// <summary>
+        /// 开启地图实例上 GridManager 的调试网格
+        /// </summary>
+        /// <param name="mapInstance">地图实例</param>
+        private static void EnableGridDebug(GameObject mapInstance)
+        {
             var gridMgr = mapInstance.GetComponentInChildren<Honor.Runtime.GridManager>(true);
             if (gridMgr != null)
             {
                 gridMgr.DrawDebugGrid = true;
-                Debug.Log($"[网格] GridManager 已开启，挂载在: {gridMgr.gameObject.name}");
+                MapToolLog.Info($"[网格] GridManager 已开启，挂载在: {gridMgr.gameObject.name}");
             }
             else
             {
-                Debug.LogWarning("[网格] 未在地图实例中找到 GridManager 组件");
+                MapToolLog.Warn("[网格] 未在地图实例中找到 GridManager 组件");
             }
-
-            Debug.Log($"场景地图实例化完成: {m_MapWidth}x{m_MapHeight}（关卡 {levelId}）");
-            Selection.activeGameObject = mapInstance;
         }
 
         /// <summary>递归查找子节点</summary>
@@ -586,130 +717,80 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 按类型取基础模板预制体（带缓存，避免每次场景同步重复加载）
+        /// 在 ZoneRoot 下取第一个 ZoneItem 实例节点
         /// </summary>
-        /// <param name="type">物件类型</param>
-        /// <returns>基础模板预制体，缺失返回 null</returns>
-        private GameObject GetCachedTemplatePrefab(MapObjectType type)
+        /// <param name="zoneRoot">ZoneRoot 节点</param>
+        /// <returns>ZoneItem 节点，缺失返回 null</returns>
+        private static Transform FindZoneItem(Transform zoneRoot)
         {
-            if (_templatePrefabCache.TryGetValue(type, out var cached)) return cached;
-
-            string path = type switch
+            if (zoneRoot == null) return null;
+            for (int i = 0; i < zoneRoot.childCount; i++)
             {
-                MapObjectType.Building => "Assets/Res/Prefabs/Model/Building_BaseTemplate.prefab",
-                MapObjectType.Character => "Assets/Res/Prefabs/Model/Character_BaseTemplate.prefab",
-                _ => "Assets/Res/Prefabs/Model/Prop_BaseTemplate.prefab",
-            };
-            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            _templatePrefabCache[type] = prefab;
-            return prefab;
-        }
-
-        /// <summary>
-        /// 按资产路径加载 Sprite（带缓存，同一张图多次同步不重复走 AssetDatabase）
-        /// </summary>
-        /// <param name="assetPath">Assets 相对路径</param>
-        /// <returns>Sprite，缺失返回 null</returns>
-        private UnityEngine.Sprite LoadCachedSprite(string assetPath)
-        {
-            if (string.IsNullOrEmpty(assetPath)) return null;
-            if (_spriteCache.TryGetValue(assetPath, out var cached)) return cached;
-
-            var sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(assetPath);
-            _spriteCache[assetPath] = sprite;
-            return sprite;
-        }
-
-        /// <summary>
-        /// 按资产路径加载 Texture2D（带缓存，背景图每帧绘制不重复 IO）
-        /// </summary>
-        /// <param name="assetPath">Assets 相对路径</param>
-        /// <returns>Texture2D，缺失返回 null</returns>
-        private Texture2D LoadCachedTexture2D(string assetPath)
-        {
-            if (string.IsNullOrEmpty(assetPath)) return null;
-            if (_bgTextureCache.TryGetValue(assetPath, out var cached)) return cached;
-
-            var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
-            _bgTextureCache[assetPath] = tex;
-            return tex;
-        }
-
-        /// <summary>
-        /// 按图片名在 Map 资源目录下查找 PNG（三级：关卡专属 → 章节公共 → 全局公共），并兼容旧单数目录名
-        /// </summary>
-        /// <param name="imageName">图片文件名（不含扩展名）</param>
-        /// <param name="layerType">分层类型键（见 MapLayerCatalog）</param>
-        /// <returns>Assets 相对路径，未找到返回 null</returns>
-        private string FindMapTextureByLayer(string imageName, string layerType)
-        {
-            if (string.IsNullOrEmpty(imageName)) return null;
-
-            string layerDir = MapLayerCatalog.GetLayerDir(layerType);
-            var candidates = new List<string>();
-
-            // 第1级：当前关卡专属目录
-            if (!string.IsNullOrEmpty(m_CurrentChapterId) && !string.IsNullOrEmpty(m_CurrentLevelId))
-                candidates.Add(MapLayerCatalog.GetLevelDir(m_CurrentChapterId, m_CurrentLevelId, layerType));
-
-            // 第2级：章节公共目录（同章节跨关卡复用）
-            if (!string.IsNullOrEmpty(m_CurrentChapterId))
-                candidates.Add(MapLayerCatalog.GetChapterSharedDir(m_CurrentChapterId, layerType));
-
-            // 第3级：全局公共目录（跨章节复用）
-            candidates.Add(MapLayerCatalog.GetGlobalSharedDir(layerType));
-
-            foreach (var dir in candidates)
-            {
-                string assetPath = $"{dir}/{imageName}.png";
-                if (UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath) != null)
-                    return assetPath;
-            }
-
-            // 兼容旧版单数目录名（Building/Character/Prop/Cat）
-            string legacyDir = layerDir switch
-            {
-                "Buildings" => "Building",
-                "Characters" => "Character",
-                "Props" => "Prop",
-                _ => layerDir,
-            };
-            if (!string.IsNullOrEmpty(m_CurrentChapterId))
-            {
-                string chapterLegacy = $"{MapToolConstants.MapTextureRoot}/Chapter{m_CurrentChapterId}/{legacyDir}/{imageName}.png";
-                if (UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(chapterLegacy) != null)
-                    return chapterLegacy;
-            }
-            string sharedLegacy = $"{MapToolConstants.MapTextureRoot}/Shared/{legacyDir}/{imageName}.png";
-            if (UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(sharedLegacy) != null)
-                return sharedLegacy;
-
-            return null;
-        }
-
-        /// <summary>
-        /// 自动在 Background 三级目录中查找背景图（bg_*.png）：关卡 → 章节公共 → 全局公共
-        /// </summary>
-        /// <returns>Assets 相对路径，未找到返回 null</returns>
-        private string FindBackgroundImageByChapter()
-        {
-            var bgDirs = new List<string>();
-            if (!string.IsNullOrEmpty(m_CurrentChapterId) && !string.IsNullOrEmpty(m_CurrentLevelId))
-                bgDirs.Add(MapLayerCatalog.GetLevelDir(m_CurrentChapterId, m_CurrentLevelId, MapLayerCatalog.Background));
-            if (!string.IsNullOrEmpty(m_CurrentChapterId))
-                bgDirs.Add(MapLayerCatalog.GetChapterSharedDir(m_CurrentChapterId, MapLayerCatalog.Background));
-            bgDirs.Add(MapLayerCatalog.GetGlobalSharedDir(MapLayerCatalog.Background));
-
-            foreach (string bgDir in bgDirs)
-            {
-                string fullPath = MapToolPathHelper.ToAbsolutePath(bgDir);
-                if (!Directory.Exists(fullPath)) continue;
-
-                string[] bgFiles = Directory.GetFiles(fullPath, "bg_*.png");
-                if (bgFiles.Length > 0)
-                    return bgFiles[0].Replace('\\', '/');
+                Transform child = zoneRoot.GetChild(i);
+                if (child.name.StartsWith(MapSceneNodeNames.ZoneItemInstancePrefix))
+                    return child;
             }
             return null;
+        }
+
+        /// <summary>
+        /// 确保 Background 节点下存在铺满父级的 BG 图片节点（缺失时按统一锚点口径创建）
+        /// </summary>
+        /// <param name="backgroundNode">Background 层节点</param>
+        /// <returns>BG 图片节点</returns>
+        private Transform EnsureBackgroundImageNode(Transform backgroundNode)
+        {
+            Transform bgNode = FindChildRecursive(backgroundNode, MapSceneNodeNames.BackgroundImage);
+            if (bgNode != null) return bgNode;
+
+            bgNode = new GameObject(MapSceneNodeNames.BackgroundImage, typeof(RectTransform), typeof(UnityEngine.UI.Image)).transform;
+            bgNode.SetParent(backgroundNode, false);
+            var bgRt = bgNode as RectTransform;
+            bgRt.anchorMin = Vector2.zero;
+            bgRt.anchorMax = Vector2.one;
+            bgRt.offsetMin = Vector2.zero;
+            bgRt.offsetMax = Vector2.zero;
+            return bgNode;
+        }
+
+        /// <summary>
+        /// 应用关卡背景图：PSD 导入记录路径 → 章节三级目录自动查找（含 Texture2D 现造 Sprite 回退）
+        /// </summary>
+        /// <param name="bgImage">背景 Image 组件</param>
+        /// <returns>是否成功设置背景</returns>
+        private bool ApplyLevelBackground(UnityEngine.UI.Image bgImage)
+        {
+            if (bgImage == null) return false;
+
+            // 第1级：从 m_LevelBgDict 取 PSD 导入时记录的路径
+            if (m_LevelBgDict.TryGetValue(m_CurrentLevelId, out string bgPath) && !string.IsNullOrEmpty(bgPath))
+            {
+                var sprite = m_Assets.LoadSpriteOrCreate(bgPath);
+                if (sprite != null)
+                {
+                    bgImage.sprite = sprite;
+                    bgImage.color = Color.white;
+                    MapToolLog.Info($"[SyncPlacedObjects] 背景图设置成功: {bgPath}");
+                    return true;
+                }
+                MapToolLog.Warn($"[SyncPlacedObjects] 背景图路径无效，尝试自动查找: {bgPath}");
+            }
+
+            // 第2级：自动从当前章节 Background 三级目录查找 bg_*.png
+            string foundBg = m_Assets.FindBackgroundImageByChapter(m_CurrentChapterId, m_CurrentLevelId);
+            if (string.IsNullOrEmpty(foundBg)) return false;
+
+            var foundSprite = m_Assets.LoadSpriteOrCreate(foundBg);
+            if (foundSprite == null)
+            {
+                MapToolLog.Warn($"[SyncPlacedObjects] 背景图加载失败: {foundBg}");
+                return false;
+            }
+
+            bgImage.sprite = foundSprite;
+            bgImage.color = Color.white;
+            MapToolLog.Info($"[SyncPlacedObjects] 自动查找背景图成功: {foundBg}");
+            return true;
         }
 
         /// <summary>
@@ -721,336 +802,342 @@ namespace Honor.Editor.MapTool
             if (zoneRoot == null) return;
 
             // 收集第一个 ZoneItem
-            Transform zoneItem = null;
-            for (int i = 0; i < zoneRoot.childCount; i++)
-            {
-                var child = zoneRoot.GetChild(i);
-                if (child.name.StartsWith("ZoneItem_"))
-                {
-                    zoneItem = child;
-                    break;
-                }
-            }
+            Transform zoneItem = FindZoneItem(zoneRoot);
             if (zoneItem == null) return;
 
-            // 清理旧摆放物：递归清理 ZoneItem 下所有 Obj_/Char_/Path_/PathLine_ 节点
-            // 层级链 ZoneItem > Root > CoordAdapter > 层节点 > 物件，仅清直接子物体会残留旧实例，多次刷新后叠加干扰层级排序
+            // 清理旧摆放物
+            ClearStaleSceneObjects(zoneItem);
+
+            if (m_PlacedObjects == null || m_PlacedObjects.Count == 0) return;
+
+            // 找到各个层级节点（ZoneItem > Root > CoordAdapter > 层节点）
+            Transform coordAdapter = FindChildRecursive(zoneItem, MapSceneNodeNames.CoordAdapter);
+
+            // 背景图 + 层级节点坐标系/尺寸标准化
+            ApplySceneBackground(coordAdapter);
+            StretchCoordAdapterLayers(coordAdapter);
+
+            // 按显示档挂载摆放物实例
+            InstantiatePlacedObjects(zoneItem, coordAdapter);
+
+            // 调整层级节点顺序并按 YSort 校准层内渲染次序
+            SortSceneLayers(zoneRoot, coordAdapter, MapLayerCatalog.GetLayerNodeNames());
+
+            MapToolLog.Info($"已同步 {m_PlacedObjects.Count} 个摆放物到场景，已按 YSort 调整渲染顺序");
+            SyncPathPointsToScene(zoneRoot);
+        }
+
+        /// <summary>
+        /// 清理 ZoneItem 下所有旧摆放物节点（Obj_/Char_/Path_/PathLine_）
+        /// 层级链为 ZoneItem > Root > CoordAdapter > 层节点 > 物件，仅清直接子物体会残留旧实例，多次刷新后叠加干扰层级排序。
+        /// </summary>
+        /// <param name="zoneItem">ZoneItem 节点</param>
+        private static void ClearStaleSceneObjects(Transform zoneItem)
+        {
             var staleObjects = zoneItem.GetComponentsInChildren<Transform>(true)
-                .Where(t => t != zoneItem.transform
-                    && (t.name.StartsWith("Obj_") || t.name.StartsWith("Char_")
-                        || t.name.StartsWith("Path_") || t.name.StartsWith("PathLine_")))
+                .Where(t => t != zoneItem
+                    && (t.name.StartsWith(MapSceneNodeNames.ObjectPrefix)
+                        || t.name.StartsWith(MapSceneNodeNames.CharacterPrefix)
+                        || t.name.StartsWith(MapSceneNodeNames.PathPointPrefix)
+                        || t.name.StartsWith(MapSceneNodeNames.PathLinePrefix)))
                 .ToList();
+
             foreach (var stale in staleObjects)
             {
                 if (stale != null) UnityEngine.Object.DestroyImmediate(stale.gameObject);
             }
+        }
 
-            if (m_PlacedObjects == null || m_PlacedObjects.Count == 0) return;
+        /// <summary>
+        /// 把当前关卡背景图同步到 CoordAdapter/Background 下的 BG 子节点
+        /// </summary>
+        /// <param name="coordAdapter">坐标适配节点（可空，空则跳过）</param>
+        private void ApplySceneBackground(Transform coordAdapter)
+        {
+            if (coordAdapter == null) return;
 
+            var backgroundNode = FindChildRecursive(coordAdapter, MapSceneNodeNames.BackgroundNode);
+            if (backgroundNode == null) return;
+
+            Transform bgNode = EnsureBackgroundImageNode(backgroundNode);
+            var bgImage = bgNode.GetComponent<UnityEngine.UI.Image>();
+            if (bgImage == null) bgImage = bgNode.gameObject.AddComponent<UnityEngine.UI.Image>();
+
+            if (!ApplyLevelBackground(bgImage))
+            {
+                MapToolLog.Warn($"[SyncPlacedObjects] 未找到背景图（章节: {m_CurrentChapterId}），BG 节点已创建但图片为空");
+            }
+        }
+
+        /// <summary>
+        /// 标准化 CoordAdapter 与各层级节点的锚点/轴心/偏移（铺满整图，左上角为原点）
+        /// </summary>
+        /// <param name="coordAdapter">坐标适配节点（可空，空则跳过）</param>
+        private void StretchCoordAdapterLayers(Transform coordAdapter)
+        {
+            if (coordAdapter == null) return;
+
+            var caRt = coordAdapter as RectTransform;
+            if (caRt != null)
+            {
+                ApplyTopLeftFill(caRt);
+            }
+
+            // Background/Greenery/Road/Buildings/Props/Characters/Foreground/Bubbles
+            foreach (var name in MapLayerCatalog.GetLayerNodeNames())
+            {
+                var layer = FindChildRecursive(coordAdapter, name) as RectTransform;
+                if (layer != null)
+                {
+                    ApplyTopLeftFill(layer);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设置「左上角为原点、铺满父级」的锚点与偏移
+        /// </summary>
+        /// <param name="rect">目标 RectTransform</param>
+        private static void ApplyTopLeftFill(RectTransform rect)
+        {
+            rect.anchorMin = new Vector2(0, 1);
+            rect.anchorMax = new Vector2(1, 0);
+            rect.pivot = new Vector2(0, 1);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        /// <summary>
+        /// 批量实例化摆放物并应用视觉属性
+        /// </summary>
+        /// <param name="zoneItem">ZoneItem 节点（层级节点缺失时的兜底父级）</param>
+        /// <param name="coordAdapter">坐标适配节点（可空）</param>
+        private void InstantiatePlacedObjects(Transform zoneItem, Transform coordAdapter)
+        {
             float gridSize = MapToolConstants.GridSize;
-
-            // 加载模板预制体（按类型，走缓存避免重复 IO）
-            var buildingTemplate = GetCachedTemplatePrefab(MapObjectType.Building);
-            var characterTemplate = GetCachedTemplatePrefab(MapObjectType.Character);
-            var propTemplate = GetCachedTemplatePrefab(MapObjectType.Prop);
-
-            // 找到各个层级节点
-            Transform coordAdapter = FindChildRecursive(zoneItem, "CoordAdapter");
-
-            // 设置背景图到 Background 节点下的 BG 子节点
-            if (coordAdapter != null)
-            {
-                var backgroundNode = FindChildRecursive(coordAdapter, "Background");
-                if (backgroundNode != null)
-                {
-                    // 查找 BG 子节点，没有就创建
-                    var bgNode = FindChildRecursive(backgroundNode, "BG");
-                    if (bgNode == null)
-                    {
-                        bgNode = new GameObject("BG", typeof(RectTransform), typeof(UnityEngine.UI.Image)).transform;
-                        bgNode.SetParent(backgroundNode, false);
-                        var bgRt = bgNode as RectTransform;
-                        bgRt.anchorMin = Vector2.zero;
-                        bgRt.anchorMax = Vector2.one;
-                        bgRt.offsetMin = Vector2.zero;
-                        bgRt.offsetMax = Vector2.zero;
-                    }
-
-                    var bgImage = bgNode.GetComponent<UnityEngine.UI.Image>();
-                    if (bgImage == null) bgImage = bgNode.gameObject.AddComponent<UnityEngine.UI.Image>();
-
-                    bool bgLoaded = false;
-
-                    // 第1级：从 m_LevelBgDict 取 PSD 导入时记录的路径
-                    if (m_LevelBgDict.TryGetValue(m_CurrentLevelId, out string bgPath) && !string.IsNullOrEmpty(bgPath))
-                    {
-                        var sprite = LoadCachedSprite(bgPath);
-                        if (sprite != null)
-                        {
-                            bgImage.sprite = sprite;
-                            bgImage.color = Color.white;
-                            bgLoaded = true;
-                            Debug.Log($"[SyncPlacedObjects] 背景图设置成功: {bgPath}");
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"[SyncPlacedObjects] 背景图路径无效，尝试自动查找: {bgPath}");
-                        }
-                    }
-
-                    // 第2级：自动从当前章节 Background 目录查找 bg_*.png
-                    if (!bgLoaded)
-                    {
-                        string foundBg = FindBackgroundImageByChapter();
-                        if (!string.IsNullOrEmpty(foundBg))
-                        {
-                            var sprite = LoadCachedSprite(foundBg);
-                            if (sprite != null)
-                            {
-                                bgImage.sprite = sprite;
-                                bgImage.color = Color.white;
-                                bgLoaded = true;
-                                Debug.Log($"[SyncPlacedObjects] 自动查找背景图成功: {foundBg}");
-                            }
-                            else
-                            {
-                                // 不是 Sprite 类型，用 Texture2D 创建 Sprite
-                                var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(foundBg);
-                                if (tex != null)
-                                {
-                                    var bgSprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, tex.width, tex.height), new UnityEngine.Vector2(0.5f, 0.5f));
-                                    bgImage.sprite = bgSprite;
-                                    bgImage.color = Color.white;
-                                    bgLoaded = true;
-                                    Debug.Log($"[SyncPlacedObjects] 自动查找背景图(Texture2D模式): {foundBg}");
-                                }
-                            }
-                        }
-                    }
-
-                    if (!bgLoaded)
-                    {
-                        Debug.LogWarning($"[SyncPlacedObjects] 未找到背景图（章节: {m_CurrentChapterId}），BG 节点已创建但图片为空");
-                    }
-                }
-            }
-
-            // 给层级节点设置正确的尺寸和坐标系（铺满整个地图，左上角原点）
-            if (coordAdapter != null)
-            {
-                // CoordAdapter 铺满整个 ZoneItem
-                var caRt = coordAdapter as RectTransform;
-                if (caRt != null)
-                {
-                    caRt.anchorMin = new Vector2(0, 1); // 左上角
-                    caRt.anchorMax = new Vector2(1, 0); // 右下角
-                    caRt.pivot = new Vector2(0, 1); // 自身左上角
-                    caRt.offsetMin = Vector2.zero;
-                    caRt.offsetMax = Vector2.zero;
-                }
-
-                // 给各层级节点设置正确尺寸（Background/Greenery/Road/Buildings/Props/Characters/Foreground/Bubbles）
-                string[] layerNames = MapLayerCatalog.AllLayerTypes
-                    .Select(MapLayerCatalog.GetLayerDir)
-                    .ToArray();
-                foreach (var name in layerNames)
-                {
-                    var layer = FindChildRecursive(coordAdapter, name) as RectTransform;
-                    if (layer != null)
-                    {
-                        layer.anchorMin = new Vector2(0, 1); // 左上角
-                        layer.anchorMax = new Vector2(1, 0); // 右下角
-                        layer.pivot = new Vector2(0, 1); // 自身左上角
-                        layer.offsetMin = Vector2.zero;
-                        layer.offsetMax = Vector2.zero;
-                    }
-                }
-            }
-
-            // 按显示档解析父节点：归属层 LayerType 不变（素材/分类保留），物理挂载节点跟随独立显示层档位
-            Transform GetParentNode(PlacedObject obj)
-            {
-                if (coordAdapter == null) return zoneItem;
-                string ownerLayer = obj != null ? obj.LayerType : MapLayerCatalog.Prop;
-                string effectiveLayer = MapLayerCatalog.ResolveDisplayLayer(ownerLayer, obj != null ? obj.DisplayLayer : null);
-                string nodeName = MapLayerCatalog.GetLayerDir(effectiveLayer);
-                Transform node = FindChildRecursive(coordAdapter, nodeName);
-                return node != null ? node : zoneItem;
-            }
 
             foreach (var obj in m_PlacedObjects)
             {
-                // 按类型选择模板预制体
-                GameObject templatePrefab = obj.Type switch
-                {
-                    MapObjectType.Building => buildingTemplate,
-                    MapObjectType.Character => characterTemplate,
-                    MapObjectType.Prop => propTemplate,
-                    MapObjectType.Cat => propTemplate,
-                    _ => propTemplate
-                };
+                if (obj == null) continue;
 
-                GameObject go;
-                var parentNode = GetParentNode(obj);
+                Transform parentNode = ResolveObjectParentNode(obj, coordAdapter, zoneItem);
+                GameObject go = InstantiateObjectNode(obj, parentNode, gridSize);
+                if (go == null) continue;
 
-                if (templatePrefab != null)
+                ApplyObjectVisual(go, obj);
+            }
+        }
+
+        /// <summary>
+        /// 解析摆放物的物理挂载节点：归属层 LayerType 不变，挂载点跟随独立显示层档位
+        /// </summary>
+        /// <param name="obj">摆放物</param>
+        /// <param name="coordAdapter">坐标适配节点（可空）</param>
+        /// <param name="fallback">兜底父级</param>
+        /// <returns>父节点 Transform</returns>
+        private Transform ResolveObjectParentNode(PlacedObject obj, Transform coordAdapter, Transform fallback)
+        {
+            if (coordAdapter == null) return fallback;
+
+            string ownerLayer = obj != null ? obj.LayerType : MapLayerCatalog.Prop;
+            string effectiveLayer = MapLayerCatalog.ResolveDisplayLayer(ownerLayer, obj != null ? obj.DisplayLayer : null);
+            Transform node = FindChildRecursive(coordAdapter, MapLayerCatalog.GetLayerDir(effectiveLayer));
+            return node != null ? node : fallback;
+        }
+
+        /// <summary>
+        /// 实例化物件节点：按类型取模板预制体，缺失时回退空物体 + SpriteRenderer，
+        /// 并写入节点名、位置、尺寸、比例与角度（RectTransform 左上原点，Y 向下）。
+        /// </summary>
+        /// <param name="obj">摆放物数据</param>
+        /// <param name="parentNode">挂载父节点（层节点 / ZoneItem 兜底）</param>
+        /// <param name="gridSize">网格尺寸（无像素尺寸时的兜底换算）</param>
+        /// <returns>场景节点实例</returns>
+        private GameObject InstantiateObjectNode(PlacedObject obj, Transform parentNode, float gridSize)
+        {
+            GameObject templatePrefab = obj.Type switch
+            {
+                MapObjectType.Building => m_Assets.LoadTemplatePrefab(MapObjectType.Building),
+                MapObjectType.Character => m_Assets.LoadTemplatePrefab(MapObjectType.Character),
+                _ => m_Assets.LoadTemplatePrefab(MapObjectType.Prop),
+            };
+
+            GameObject go;
+            if (templatePrefab != null)
+            {
+                // 实例化模板预制体
+                go = UnityEngine.Object.Instantiate(templatePrefab);
+                go.transform.SetParent(parentNode, false);
+            }
+            else
+            {
+                // 模板不存在时，回退到创建空物体 + SpriteRenderer
+                go = new GameObject();
+                go.transform.SetParent(parentNode, false);
+                go.AddComponent<SpriteRenderer>();
+            }
+
+            go.name = obj.Type == MapObjectType.Character
+                ? $"{MapSceneNodeNames.CharacterPrefix}{obj.Name}"
+                : $"{MapSceneNodeNames.ObjectPrefix}{obj.Name}";
+
+            // 设置位置（RectTransform 坐标系：左上角原点，Y 向下，与 PSD 图层位置 1:1 对应）
+            var rt = go.GetComponent<RectTransform>();
+            if (rt == null) rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 1);
+            rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y);
+            // 尺寸：优先 PSD 像素宽高；无像素记录时回退格子数×网格尺寸
+            float pixelW = obj.PixelWidth > 0 ? obj.PixelWidth : obj.Width * gridSize;
+            float pixelH = obj.PixelHeight > 0 ? obj.PixelHeight : obj.Height * gridSize;
+            rt.sizeDelta = new Vector2(pixelW, pixelH);
+            // 比例 / 角度变换（锚点沿用当前左上 pivot；---TODO 后续统一为中心锚点，与 IMGUI 预览对齐）
+            rt.localScale = new Vector3(obj.Scale, obj.Scale, 1f);
+            rt.localRotation = Quaternion.Euler(0f, 0f, obj.Rotation);
+            return go;
+        }
+
+        /// <summary>
+        /// 写入物件视觉表现：有 Spine 资源走 Spine 动画，否则走静态图片（UI Image）分支
+        /// </summary>
+        /// <param name="go">物件节点</param>
+        /// <param name="obj">摆放物数据</param>
+        private void ApplyObjectVisual(GameObject go, PlacedObject obj)
+        {
+            if (go == null) return;
+
+            string animName = obj.AnimName;
+
+            if (!string.IsNullOrEmpty(obj.SpineAssetPath))
+            {
+                var spineAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(obj.SpineAssetPath);
+                if (spineAsset != null)
                 {
-                    // 实例化模板预制体
-                    go = UnityEngine.Object.Instantiate(templatePrefab);
-                    go.transform.SetParent(parentNode, false);
+                    // 移除模板上的 SpriteRenderer（如果有）
+                    var existingSr = go.GetComponent<SpriteRenderer>();
+                    if (existingSr != null) UnityEngine.Object.DestroyImmediate(existingSr);
+
+                    var skeletonAnimation = go.AddComponent<Spine.Unity.SkeletonAnimation>();
+                    skeletonAnimation.skeletonDataAsset = spineAsset;
+                    skeletonAnimation.Initialize(false);
+                    skeletonAnimation.AnimationName = animName;
+                    skeletonAnimation.state.SetAnimation(0, animName, obj.Loop);
+                    return;
                 }
-                else
+
+                // Spine 加载失败：回退静态 Sprite（从模板获取 ImagePath）
+                var sr = go.GetComponent<SpriteRenderer>();
+                if (sr == null) sr = go.AddComponent<SpriteRenderer>();
+                var spineFallbackTemplate = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
+                if (spineFallbackTemplate != null && !string.IsNullOrEmpty(spineFallbackTemplate.ImagePath))
                 {
-                    // 模板不存在时，回退到创建空物体 + SpriteRenderer
-                    go = new GameObject();
-                    go.transform.SetParent(parentNode, false);
-                    go.AddComponent<SpriteRenderer>();
+                    sr.sprite = m_Assets.LoadSprite(spineFallbackTemplate.ImagePath);
                 }
+                sr.color = Color.white;
+                return;
+            }
 
-                go.name = obj.Type == MapObjectType.Character ? $"Char_{obj.Name}" : $"Obj_{obj.Name}";
+            ApplyStaticSprite(go, obj);
+        }
 
-                // 设置位置（RectTransform 坐标系：左上角原点，Y 向下，与 PSD 图层位置 1:1 对应）
-                var rt = go.GetComponent<RectTransform>();
-                if (rt == null) rt = go.AddComponent<RectTransform>();
-                rt.anchorMin = rt.anchorMax = new Vector2(0, 1);
-                rt.pivot = new Vector2(0, 1);
-                rt.anchoredPosition = new Vector2(obj.Position.x, -obj.Position.y);
-                // 尺寸：优先 PSD 像素宽高；无像素记录时回退格子数×网格尺寸
-                float pixelW = obj.PixelWidth > 0 ? obj.PixelWidth : obj.Width * gridSize;
-                float pixelH = obj.PixelHeight > 0 ? obj.PixelHeight : obj.Height * gridSize;
-                rt.sizeDelta = new Vector2(pixelW, pixelH);
-                // 比例 / 角度变换（锚点沿用当前左上 pivot；---TODO 后续统一为中心锚点，与 IMGUI 预览对齐）
-                rt.localScale = new Vector3(obj.Scale, obj.Scale, 1f);
-                rt.localRotation = Quaternion.Euler(0f, 0f, obj.Rotation);
+        /// <summary>
+        /// 静态图片分支：清除模板自带 SpriteRenderer，改用 UI Image，
+        /// 按「模板 ImagePath → PreviewTexture → 目录名查找」三级回退取图，并写入全局排序键。
+        /// </summary>
+        /// <param name="go">物件节点</param>
+        /// <param name="obj">摆放物数据</param>
+        private void ApplyStaticSprite(GameObject go, PlacedObject obj)
+        {
+            // 模板自带 SpriteRenderer 属于世界 2D 渲染，UI 模式下移除，避免 Image 与 SpriteRenderer 双渲染并存、遮挡口径混乱
+            var legacySr = go.GetComponent<UnityEngine.SpriteRenderer>();
+            if (legacySr != null) UnityEngine.Object.DestroyImmediate(legacySr);
 
-                // 如果有 Spine 资源，就用 Spine 动画；否则用静态图片
-                if (!string.IsNullOrEmpty(obj.SpineAssetPath))
+            var img = go.GetComponent<UnityEngine.UI.Image>();
+            if (img == null) img = go.AddComponent<UnityEngine.UI.Image>();
+            img.raycastTarget = false;
+
+            bool spriteLoaded = LoadObjectSprite(img, obj);
+
+            if (!spriteLoaded)
+            {
+                MapToolLog.Warn($"[SyncPlacedObjects] 无法加载图片: {obj.Name} (类型: {obj.Type})");
+            }
+
+            img.color = Color.white;
+            // 层级排序：独立 overrideSorting Canvas 按 sortingOrder 全局比较，
+            // 必须使用跨层可比的全局键（层基线 + 层内槽位），不能直接用层内小值/旧三档值，
+            // 否则跨层时数值大的低层物件会压过数值小的高层物件，违背八层契约。
+            var canvas = img.GetComponent<UnityEngine.Canvas>();
+            if (canvas == null) canvas = img.gameObject.AddComponent<UnityEngine.Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = MapToolEditorUtils.GetGlobalSortOrder(obj);
+            // 拉伸标志：false=保持原图比例（原生尺寸）；true=按 PSD 像素尺寸铺满，不保持比例
+            img.preserveAspect = !obj.Stretch;
+            if (!obj.Stretch) img.SetNativeSize();
+        }
+
+        /// <summary>
+        /// 三级回退加载物件图片：模板 ImagePath → PreviewTexture 资产路径 → Map 目录按名查找
+        /// </summary>
+        /// <param name="img">目标 Image</param>
+        /// <param name="obj">摆放物数据</param>
+        /// <returns>是否成功设置 Sprite</returns>
+        private bool LoadObjectSprite(UnityEngine.UI.Image img, PlacedObject obj)
+        {
+            // 第1级：优先从配置表模板加载 Sprite
+            var template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
+            if (template != null && !string.IsNullOrEmpty(template.ImagePath))
+            {
+                var sprite = m_Assets.LoadSprite(template.ImagePath);
+                if (sprite != null)
                 {
-                    var spineAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Spine.Unity.SkeletonDataAsset>(obj.SpineAssetPath);
-                    if (spineAsset != null)
-                    {
-                        // 移除模板上的 SpriteRenderer（如果有）
-                        var existingSr = go.GetComponent<SpriteRenderer>();
-                        if (existingSr != null) UnityEngine.Object.DestroyImmediate(existingSr);
-
-                        var skeletonAnimation = go.AddComponent<Spine.Unity.SkeletonAnimation>();
-                        skeletonAnimation.skeletonDataAsset = spineAsset;
-                        skeletonAnimation.Initialize(false);
-                        skeletonAnimation.AnimationName = obj.AnimName;
-                        skeletonAnimation.state.SetAnimation(0, obj.AnimName, obj.Loop);
-                    }
-                    else
-                    {
-                        // 加载失败，设置静态 Sprite（从模板获取 ImagePath）
-                        var sr = go.GetComponent<SpriteRenderer>();
-                        if (sr == null) sr = go.AddComponent<SpriteRenderer>();
-                        var template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
-                        if (template != null && !string.IsNullOrEmpty(template.ImagePath))
-                        {
-                            sr.sprite = LoadCachedSprite(template.ImagePath);
-                        }
-                        sr.color = Color.white;
-                    }
-                }
-                else
-                {
-                    // 静态图片：使用 Image 组件（UI 模式）
-                    // 模板自带 SpriteRenderer 属于世界 2D 渲染，UI 模式下移除，避免 Image 与 SpriteRenderer 双渲染并存、遮挡口径混乱
-                    var legacySr = go.GetComponent<UnityEngine.SpriteRenderer>();
-                    if (legacySr != null) UnityEngine.Object.DestroyImmediate(legacySr);
-                    var img = go.GetComponent<UnityEngine.UI.Image>();
-                    if (img == null) img = go.AddComponent<UnityEngine.UI.Image>();
-                    img.raycastTarget = false;
-
-                    bool spriteLoaded = false;
-
-                    // 第1级：优先从配置表模板加载 Sprite
-                    var template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
-                    if (template != null && !string.IsNullOrEmpty(template.ImagePath))
-                    {
-                        var sprite = LoadCachedSprite(template.ImagePath);
-                        if (sprite != null)
-                        {
-                            img.sprite = sprite;
-                            spriteLoaded = true;
-                            Debug.Log($"[SyncPlacedObjects] 从模板加载 Sprite 成功: {obj.Name}, 路径: {template.ImagePath}");
-                        }
-                    }
-
-                    // 第2级：从 PreviewTexture 反查资产路径
-                    if (!spriteLoaded && obj.PreviewTexture != null)
-                    {
-                        string assetPath = UnityEditor.AssetDatabase.GetAssetPath(obj.PreviewTexture);
-                        if (!string.IsNullOrEmpty(assetPath))
-                        {
-                            var sprite = LoadCachedSprite(assetPath);
-                            if (sprite == null)
-                            {
-                                var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(assetPath);
-                                if (tex != null)
-                                {
-                                    sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, tex.width, tex.height), new UnityEngine.Vector2(0.5f, 0.5f));
-                                }
-                            }
-
-                            if (sprite != null)
-                            {
-                                img.sprite = sprite;
-                                spriteLoaded = true;
-                            }
-                        }
-                    }
-
-                    // 第3级：按图片名在 Map 目录下查找（Shared → Chapter）
-                    // 解决 PSD导入后资源还未添加到配置表的情况
-                    if (!spriteLoaded)
-                    {
-                        string foundPath = FindMapTextureByLayer(obj.Name, obj.LayerType);
-                        if (!string.IsNullOrEmpty(foundPath))
-                        {
-                            var sprite = LoadCachedSprite(foundPath);
-                            if (sprite == null)
-                            {
-                                var tex = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Texture2D>(foundPath);
-                                if (tex != null)
-                                {
-                                    sprite = UnityEngine.Sprite.Create(tex, new UnityEngine.Rect(0, 0, tex.width, tex.height), new UnityEngine.Vector2(0.5f, 0.5f));
-                                }
-                            }
-                            if (sprite != null)
-                            {
-                                img.sprite = sprite;
-                                spriteLoaded = true;
-                                Debug.Log($"[SyncPlacedObjects] 按文件名查找 Sprite 成功: {obj.Name}, 路径: {foundPath}");
-                            }
-                        }
-                    }
-
-                    if (!spriteLoaded)
-                    {
-                        Debug.LogWarning($"[SyncPlacedObjects] 无法加载图片: {obj.Name} (类型: {obj.Type})");
-                    }
-
-                    img.color = Color.white;
-                    // 层级排序：按八层基线 SortOrder（背景0/绿化10/道路20/建筑30/道具40/角色50/前景60/气泡70）+ 层内槽位
-                    // uGUI 排序值挂在 Canvas 上（Image/CanvasRenderer 均无 sortingOrder）；嵌套 Canvas 需开启 overrideSorting
-                    // 不再以 SortOrder>0 作为挂 Canvas 条件：同层基线可能为 0，置底/基线物件同样需要独立排序通道
-                    // 层级排序：独立 overrideSorting Canvas 按 sortingOrder 全局比较，
-                    // 必须使用跨层可比的全局键（层基线 + 层内槽位），不能直接用层内小值/旧三档值，
-                    // 否则跨层时数值大的低层物件会压过数值小的高层物件，违背八层契约。
-                    var canvas = img.GetComponent<UnityEngine.Canvas>();
-                    if (canvas == null) canvas = img.gameObject.AddComponent<UnityEngine.Canvas>();
-                    canvas.overrideSorting = true;
-                    canvas.sortingOrder = MapToolEditorUtils.GetGlobalSortOrder(obj);
-                    // 拉伸标志：false=保持原图比例（原生尺寸）；true=按 PSD 像素尺寸铺满，不保持比例
-                    img.preserveAspect = !obj.Stretch;
-                    if (!obj.Stretch) img.SetNativeSize();
+                    img.sprite = sprite;
+                    MapToolLog.Info($"[SyncPlacedObjects] 从模板加载 Sprite 成功: {obj.Name}, 路径: {template.ImagePath}");
+                    return true;
                 }
             }
-            // 调整层级节点顺序：Background → Greenery → Road → Buildings → Props → Characters → Foreground → Bubbles（最上层）
-            string[] layerOrder = MapLayerCatalog.AllLayerTypes
-                .Select(MapLayerCatalog.GetLayerDir)
-                .ToArray();
+
+            // 第2级：从 PreviewTexture 反查资产路径（Sprite 缺失时按 Texture2D 现造）
+            if (obj.PreviewTexture != null)
+            {
+                string assetPath = UnityEditor.AssetDatabase.GetAssetPath(obj.PreviewTexture);
+                if (!string.IsNullOrEmpty(assetPath))
+                {
+                    var sprite = m_Assets.LoadSpriteOrCreate(assetPath);
+                    if (sprite != null)
+                    {
+                        img.sprite = sprite;
+                        return true;
+                    }
+                }
+            }
+
+            // 第3级：按图片名在 Map 目录下查找（关卡 → 章节 → 全局）
+            // 解决 PSD 导入后资源还未添加到配置表的情况
+            string foundPath = m_Assets.FindMapTextureByLayer(obj.Name, obj.LayerType, m_CurrentChapterId, m_CurrentLevelId);
+            if (!string.IsNullOrEmpty(foundPath))
+            {
+                var sprite = m_Assets.LoadSpriteOrCreate(foundPath);
+                if (sprite != null)
+                {
+                    img.sprite = sprite;
+                    MapToolLog.Info($"[SyncPlacedObjects] 按文件名查找 Sprite 成功: {obj.Name}, 路径: {foundPath}");
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 校准层节点兄弟次序与层内渲染次序：
+        /// 层节点按八层契约顺序排布；层内对象按「全局排序键 → 脚底 Y」排序（与 IMGUI 口径一致）。
+        /// </summary>
+        /// <param name="zoneRoot">ZoneRoot 节点</param>
+        /// <param name="coordAdapter">坐标适配器节点</param>
+        /// <param name="layerOrder">层节点名数组</param>
+        private void SortSceneLayers(Transform zoneRoot, Transform coordAdapter, string[] layerOrder)
+        {
             if (coordAdapter != null)
             {
                 for (int i = 0; i < layerOrder.Length; i++)
@@ -1063,7 +1150,6 @@ namespace Honor.Editor.MapTool
                 }
             }
 
-            // 每个层级节点内部按 SortOrder + 左上角 Y 排序（与编辑器 IMGUI 绘制口径一致）
             foreach (var layerName in layerOrder)
             {
                 Transform layer = FindChildRecursive(zoneRoot, layerName);
@@ -1084,8 +1170,7 @@ namespace Honor.Editor.MapTool
                         // 第二键：脚底 Y（与 IMGUI GetObjectBottomY 口径一致：Position.y + 高度）
                         // 场景锚点 pivot(0,1)：anchoredPosition.y = -Position.y，sizeDelta.y = 高度
                         // 脚底 Y = -anchoredPosition.y + sizeDelta.y，越大越靠下、渲染越靠前
-                        float bottomY = -rt.anchoredPosition.y + rt.sizeDelta.y;
-                        return bottomY;
+                        return -rt.anchoredPosition.y + rt.sizeDelta.y;
                     })
                     .ToList();
 
@@ -1094,9 +1179,6 @@ namespace Honor.Editor.MapTool
                     objects[i].transform.SetSiblingIndex(i);
                 }
             }
-
-            Debug.Log($"已同步 {m_PlacedObjects.Count} 个摆放物到场景，已按 YSort 调整渲染顺序");
-            SyncPathPointsToScene(zoneRoot);
         }
 
         /// <summary>
@@ -1105,30 +1187,21 @@ namespace Honor.Editor.MapTool
         private void SyncPathPointsToScene(RectTransform zoneRoot)
         {
             // 收集第一个 ZoneItem
-            Transform zoneItem = null;
-            for (int i = 0; i < zoneRoot.childCount; i++)
-            {
-                var child = zoneRoot.GetChild(i);
-                if (child.name.StartsWith("ZoneItem_"))
-                {
-                    zoneItem = child;
-                    break;
-                }
-            }
+            Transform zoneItem = FindZoneItem(zoneRoot);
             if (zoneItem == null) return;
 
             // 清理旧路径点标记（清理 ZoneItem 及其 Root 下的路径点）
             for (int i = zoneItem.childCount - 1; i >= 0; i--)
             {
                 var c = zoneItem.GetChild(i);
-                if (c.name.StartsWith("Path_") || c.name.StartsWith("PathLine_"))
+                if (c.name.StartsWith(MapSceneNodeNames.PathPointPrefix) || c.name.StartsWith(MapSceneNodeNames.PathLinePrefix))
                     UnityEngine.Object.DestroyImmediate(c.gameObject);
-                if (c.name == "Root")
+                if (c.name == MapSceneNodeNames.Root)
                 {
                     for (int k = c.childCount - 1; k >= 0; k--)
                     {
                         var cc = c.GetChild(k);
-                        if (cc.name.StartsWith("Path_") || cc.name.StartsWith("PathLine_"))
+                        if (cc.name.StartsWith(MapSceneNodeNames.PathPointPrefix) || cc.name.StartsWith(MapSceneNodeNames.PathLinePrefix))
                             UnityEngine.Object.DestroyImmediate(cc.gameObject);
                     }
                 }
@@ -1138,7 +1211,7 @@ namespace Honor.Editor.MapTool
             RectTransform GetZoneRootAt(Vector2 globalPos, out Vector2 localPos)
             {
                 localPos = globalPos;
-                Transform rootNode = FindChildRecursive(zoneItem, "Root");
+                Transform rootNode = FindChildRecursive(zoneItem, MapSceneNodeNames.Root);
                 return rootNode != null ? rootNode as RectTransform : zoneItem as RectTransform;
             }
 
@@ -1150,13 +1223,13 @@ namespace Honor.Editor.MapTool
                 foreach (var p in obj.PathPoints)
                 {
                     var parent = GetZoneRootAt(p, out Vector2 lp);
-                    CreatePathMarker(parent, lp, $"Path_{obj.Name}_{obj.PathPoints.IndexOf(p)}");
+                    CreatePathMarker(parent, lp, $"{MapSceneNodeNames.PathPointPrefix}{obj.Name}m{obj.PathPoints.IndexOf(p)}");
                 }
                 for (int i = 0; i < obj.PathPoints.Count - 1; i++)
                 {
                     var parent = GetZoneRootAt(obj.PathPoints[i], out Vector2 lp1);
                     GetZoneRootAt(obj.PathPoints[i + 1], out Vector2 lp2);
-                    CreatePathLine(parent, lp1, lp2, $"PathLine_{lineIndex++}");
+                    CreatePathLine(parent, lp1, lp2, $"{MapSceneNodeNames.PathLinePrefix}{lineIndex++}");
                 }
             }
 
@@ -1166,13 +1239,13 @@ namespace Honor.Editor.MapTool
                 for (int i = 0; i < m_PathPoints.Count; i++)
                 {
                     var parent = GetZoneRootAt(m_PathPoints[i], out Vector2 lp);
-                    CreatePathMarker(parent, lp, $"Path_Global_{i}");
+                    CreatePathMarker(parent, lp, $"{MapSceneNodeNames.PathPointPrefix}Globalm{i}");
                 }
                 for (int i = 0; i < m_PathPoints.Count - 1; i++)
                 {
                     var parent = GetZoneRootAt(m_PathPoints[i], out Vector2 lp1);
                     GetZoneRootAt(m_PathPoints[i + 1], out Vector2 lp2);
-                    CreatePathLine(parent, lp1, lp2, $"PathLine_G_{i}");
+                    CreatePathLine(parent, lp1, lp2, $"{MapSceneNodeNames.PathLinePrefix}Gm{i}");
                 }
             }
         }
@@ -1245,7 +1318,7 @@ namespace Honor.Editor.MapTool
             // 刷新当前选中物件的右栏回填（收集/交通标记随新模板条件显隐）
             if (m_EditTarget != null)
                 SelectEditTarget(m_EditTarget);
-            Debug.Log($"[SceneEditModule] 已按最新模板同步 {synced}/{m_PlacedObjects.Count} 个场景物件");
+            MapToolLog.Info($"[SceneEditModule] 已按最新模板同步 {synced}/{m_PlacedObjects.Count} 个场景物件");
         }
 
         /// <summary>
@@ -1273,7 +1346,7 @@ namespace Honor.Editor.MapTool
                     count++;
             }
 
-            Debug.Log($"[SceneEditModule] 已把 {count} 个场景物件的共享属性回写对应模板");
+            MapToolLog.Info($"[SceneEditModule] 已把 {count} 个场景物件的共享属性回写对应模板");
         }
 
         /// <summary>
@@ -1336,9 +1409,9 @@ namespace Honor.Editor.MapTool
             template.RespawnTime = obj.RespawnTime;
 
             // 交通类别：仅实例明确为载具/行人时回写；role==none 可能对应静态设施，保留模板原静态类别
-            if (obj.IsVehicle || obj.TrafficRole == "vehicle")
+            if (obj.IsVehicle || obj.TrafficRole == TemplateTrafficCategory.Vehicle)
                 template.TrafficCategory = TemplateTrafficCategory.Vehicle;
-            else if (obj.TrafficRole == "pedestrian")
+            else if (obj.TrafficRole == TemplateTrafficCategory.Pedestrian)
                 template.TrafficCategory = TemplateTrafficCategory.Pedestrian;
         }
 
@@ -1365,7 +1438,7 @@ namespace Honor.Editor.MapTool
             if (!string.IsNullOrEmpty(result.BackgroundPath) && !string.IsNullOrEmpty(m_CurrentLevelId))
             {
                 m_LevelBgDict[m_CurrentLevelId] = result.BackgroundPath; // 存完整 Assets 路径
-                Debug.Log($"背景图已设置: {result.BackgroundPath}");
+                MapToolLog.Info($"背景图已设置: {result.BackgroundPath}");
             }
 
             // 2. 设置地图宽高
@@ -1412,15 +1485,6 @@ namespace Honor.Editor.MapTool
             m_SelectedObjectType = objectType;
             // 图层显示开关独立控制，不随放置类型联动切换
             // 用户可通过顶部图层开关自由控制各层级的显示/隐藏
-        }
-
-        /// <summary>
-        /// 设置 Toggle 值但不触发回调（避免联动时循环触发）
-        /// </summary>
-        private static void SetToggleWithoutNotify(Toggle toggle, bool value)
-        {
-            if (toggle == null) return;
-            toggle.SetValueWithoutNotify(value);
         }
 
         /// <summary>
@@ -1493,34 +1557,7 @@ namespace Honor.Editor.MapTool
                     ShowEditPanelWithName(objectName);
                 }
             }
-            Debug.Log($"选中物体: {objectName} ({objectId}), 类型: {type}");
-        }
-
-        /// <summary>
-        /// 设置地图尺寸
-        /// </summary>
-        /// <param name="width">地图宽度</param>
-        /// <param name="height">地图高度</param>
-        public void SetMapSize(int width, int height)
-        {
-            m_MapWidth = width;
-            m_MapHeight = height;
-        }
-
-        /// <summary>
-        /// 获取地图宽度
-        /// </summary>
-        public int GetMapWidth()
-        {
-            return m_MapWidth;
-        }
-
-        /// <summary>
-        /// 获取地图高度
-        /// </summary>
-        public int GetMapHeight()
-        {
-            return m_MapHeight;
+            MapToolLog.Info($"选中物体: {objectName} ({objectId}), 类型: {type}");
         }
 
         /// <summary>
@@ -1530,118 +1567,122 @@ namespace Honor.Editor.MapTool
         public void SelectEditTarget(PlacedObject obj)
         {
             if (obj == null) return;
+
             m_EditTarget = obj;
             m_SelectedPathPointIndex = -1;
-
-            // 只有人物才进入路径绘制模式
-            bool isCharacter = obj.Type == MapObjectType.Character;
-            m_IsPathDrawing = isCharacter;
-
-            // 显示对象编辑面板
-            if (m_ObjectEditPanel != null)
-            {
-                m_ObjectEditPanel.style.display = DisplayStyle.Flex;
-                // 人物默认切到"可编辑路径"，其他类型切到"编辑动画"
-                SetActiveObjectTab(isCharacter ? 0 : 1);
-            }
-
-            // 路径绘制按钮只在人物时显示
-            if (m_BtnPathDraw != null)
-            {
-                m_BtnPathDraw.style.display = isCharacter ? DisplayStyle.Flex : DisplayStyle.None;
-                m_BtnPathDraw.text = "停止绘制路径";
-            }
 
             // 从配置表查找模板配置（如果有配置，优先使用配置表中的属性）
             ObjectTemplate template = ObjectTemplateManager.Instance.GetTemplateById(obj.TemplateId);
 
-            // 填充动画切页字段（实例属性优先，无配置时用默认值）
-            string animName = !string.IsNullOrEmpty(obj.AnimName) ? obj.AnimName : (template?.AnimName ?? "Idle");
-            bool loop = obj.Loop;
-            float speed = obj.Speed;
-            if (m_AnimNameField != null)
-                m_AnimNameField.SetValueWithoutNotify(animName);
-            if (m_AnimLoopToggle != null)
-                m_AnimLoopToggle.SetValueWithoutNotify(loop);
-            if (m_AnimSpeedField != null)
-                m_AnimSpeedField.SetValueWithoutNotify(speed.ToString("F1"));
+            EnterEditMode(obj);
+            FillAnimTabFields(obj, template);
+            FillOverviewFields(obj, template);
+            FillPropertyFields(obj, template);
 
-            // 更新底部属性面板字段
-            if (m_TemplateIdField != null)
-                m_TemplateIdField.SetValueWithoutNotify(obj.TemplateId);
-            if (m_TagField != null)
-            {
-                // 标签类型优先模板原始类型；载具单独标 Vehicle，避免被角色链路归并误显示为 Character
-                MapObjectType displayType = template != null ? template.Type : obj.Type;
-                m_TagField.SetValueWithoutNotify(obj.IsVehicle ? "Vehicle" : displayType.ToString());
-            }
-            if (m_GridPosField != null)
-            {
-                Vector2Int cell = MapToolEditorUtils.WorldToCell(obj.Position);
-                m_GridPosField.SetValueWithoutNotify($"{cell.x}/{cell.y}");
-            }
-            if (m_BuildingTemplateField != null)
-                m_BuildingTemplateField.SetValueWithoutNotify($"{obj.Id}#{MapToolEditorUtils.WorldToCell(obj.Position).x}");
-            if (m_GridPrefixField != null)
-                m_GridPrefixField.SetValueWithoutNotify("前缀");
-            if (m_InteractStateField != null)
-                m_InteractStateField.SetValueWithoutNotify(obj.Interactable ? "点击&移动" : "不可交互");
-
-            // 填充新增属性面板字段（实例属性优先，无配置时用模板默认值）
-            int sortOrder = obj.SortOrder > 0 ? obj.SortOrder : (template?.SortOrder ?? 0);
-            string interactType = !string.IsNullOrEmpty(obj.InteractType) ? obj.InteractType : (template?.InteractType ?? "none");
-            bool collision = obj.CollisionEnabled;
-            string dialogBubble = !string.IsNullOrEmpty(obj.DialogBubble) ? obj.DialogBubble : (template?.DialogBubble ?? string.Empty);
-            string facing = !string.IsNullOrEmpty(obj.FacingDirection) ? obj.FacingDirection : (template?.FacingDirection ?? "down");
-            bool shadow = obj.ShadowEnabled;
-            bool collectible = obj.IsCollectible;
-            int bubbleId = obj.bubbleId;
-
-            if (m_SortOrderField != null)
-                m_SortOrderField.SetValueWithoutNotify(sortOrder.ToString());
-            if (m_InteractTypeField != null)
-                m_InteractTypeField.SetValueWithoutNotify(TemplateInteractType.ToDisplay(interactType));
-            if (m_CollisionToggle != null)
-                m_CollisionToggle.SetValueWithoutNotify(collision);
-            if (m_DialogBubbleField != null)
-                m_DialogBubbleField.SetValueWithoutNotify(dialogBubble);
-            if (m_FacingField != null)
-                m_FacingField.SetValueWithoutNotify(TemplateFacing.ToDisplay(facing));
-            if (m_DisplayLayerField != null)
-            {
-                string effectiveLayer = MapLayerCatalog.ResolveDisplayLayer(obj.LayerType, obj.DisplayLayer);
-                m_DisplayLayerField.SetValueWithoutNotify(MapLayerCatalog.GetLayerDisplayName(effectiveLayer));
-            }
-            if (m_ShadowToggle != null)
-                m_ShadowToggle.SetValueWithoutNotify(shadow);
-            if (m_CollectibleToggle != null)
-                m_CollectibleToggle.SetValueWithoutNotify(collectible);
-            // 变换区跟随收集勾选；右栏卡片按收集/交通可见性刷新显隐，空内容不留空框
-            SetCollectibleActionVisible(collectible);
-            // 收集/交通摘要标记按条件显隐：未设置对应属性时整组（标签+开关）隐藏
-            if (m_CollectibleGroup != null)
-                m_CollectibleGroup.style.display = collectible ? DisplayStyle.Flex : DisplayStyle.None;
-            bool trafficActive = IsTrafficRoleActive(obj);
-            if (m_TrafficGroup != null)
-                m_TrafficGroup.style.display = trafficActive ? DisplayStyle.Flex : DisplayStyle.None;
-            // ---TODO 气泡配置表通用化：回显气泡ID（引用 Tables.Bubble）
-            if (m_BubbleIdField != null)
-                m_BubbleIdField.SetValueWithoutNotify(bubbleId);
-
-            // 显示底部属性面板
-            if (m_PropertyPanel != null)
-                m_PropertyPanel.style.display = DisplayStyle.Flex;
-
-            // 刷新比例 / 角度回显
+            // 显示底部属性面板并刷新联动区域
+            m_PropertyPanel.SetVisible(true);
             UpdateTransformLabels();
-
             // ---TODO 交通规则：回填载具/行人交通属性并刷新灯绑定与校验
             RefreshTrafficPanel();
             RefreshActionAreaVisibility();
 
             UpdateEditTargetUI();
             string templateInfo = template != null ? $"（配置表: {template.TemplateName}）" : "（无配置表）";
-            Debug.Log($"选中编辑对象: {obj.Name}（类型: {MapToolEditorUtils.FormatObjectTypeName(ResolveDisplayType(obj), obj.IsVehicle)}，路径点数: {obj.PathPoints.Count}）{templateInfo}");
+            MapToolLog.Info($"选中编辑对象: {obj.Name}（类型: {MapToolEditorUtils.FormatObjectTypeName(ResolveDisplayType(obj), obj.IsVehicle)}，路径点数: {obj.PathPoints.Count}）{templateInfo}");
+        }
+
+        /// <summary>
+        /// 进入编辑态：切到对象编辑面板，路径绘制仅对人物开放
+        /// </summary>
+        /// <param name="obj">目标物体</param>
+        private void EnterEditMode(PlacedObject obj)
+        {
+            bool isCharacter = obj.Type == MapObjectType.Character;
+            m_IsPathDrawing = isCharacter;
+
+            m_ObjectEditPanel.SetVisible(true);
+            // 人物默认切到"可编辑路径"，其他类型切到"编辑动画"
+            SetActiveObjectTab(isCharacter ? 0 : 1);
+
+            // 路径绘制按钮只在人物时显示（按钮文案复位为「停止绘制路径」）
+            m_BtnPathDraw.SetVisible(isCharacter);
+            if (m_BtnPathDraw != null)
+                m_BtnPathDraw.text = MapToolConstants.PathDrawStopText;
+        }
+
+        /// <summary>
+        /// 回填"编辑动画"切页字段（实例属性优先，无实例值时用模板默认值）
+        /// </summary>
+        /// <param name="obj">目标物体</param>
+        /// <param name="template">模板配置，可为空</param>
+        private void FillAnimTabFields(PlacedObject obj, ObjectTemplate template)
+        {
+            string animName = !string.IsNullOrEmpty(obj.AnimName) ? obj.AnimName : (template?.AnimName ?? MapToolConstants.DefaultAnimName);
+            bool loop = obj.Loop;
+            float speed = obj.Speed;
+
+            m_AnimNameField.SetValueSafe(animName);
+            m_AnimLoopToggle.SetValueSafe(loop);
+            m_AnimSpeedField.SetValueSafe(speed.ToString("F1"));
+        }
+
+        /// <summary>
+        /// 回填对象标识区字段（模板ID / 类型标签 / 格子坐标 / 交互态）
+        /// </summary>
+        /// <param name="obj">目标物体</param>
+        /// <param name="template">模板配置，可为空</param>
+        private void FillOverviewFields(PlacedObject obj, ObjectTemplate template)
+        {
+            m_TemplateIdField.SetValueSafe(obj.TemplateId);
+
+            if (m_TagField != null)
+            {
+                // 标签类型优先模板原始类型；载具单独标 Vehicle，避免被角色链路归并误显示为 Character
+                MapObjectType displayType = template != null ? template.Type : obj.Type;
+                m_TagField.SetValueWithoutNotify(obj.IsVehicle ? MapToolConstants.VehicleTagDisplay : displayType.ToString());
+            }
+
+            Vector2Int cell = MapToolEditorUtils.WorldToCell(obj.Position);
+            m_GridPosField.SetValueSafe($"{cell.x}/{cell.y}");
+            m_BuildingTemplateField.SetValueSafe($"{obj.Id}#{cell.x}");
+            m_GridPrefixField.SetValueSafe(MapToolConstants.PrefixPlaceholder);
+            m_InteractStateField.SetValueSafe(obj.Interactable ? MapToolConstants.InteractStateOnDisplay : MapToolConstants.InteractStateOffDisplay);
+        }
+
+        /// <summary>
+        /// 回填属性区字段（排序/交互类型/碰撞/气泡/朝向/显示层/阴影/收集/交通）
+        /// </summary>
+        /// <param name="obj">目标物体</param>
+        /// <param name="template">模板配置，可为空</param>
+        private void FillPropertyFields(PlacedObject obj, ObjectTemplate template)
+        {
+            int sortOrder = obj.SortOrder > 0 ? obj.SortOrder : (template?.SortOrder ?? 0);
+            string interactType = !string.IsNullOrEmpty(obj.InteractType) ? obj.InteractType : (template?.InteractType ?? TemplateInteractType.None);
+            string dialogBubble = !string.IsNullOrEmpty(obj.DialogBubble) ? obj.DialogBubble : (template?.DialogBubble ?? string.Empty);
+            string facing = !string.IsNullOrEmpty(obj.FacingDirection) ? obj.FacingDirection : (template?.FacingDirection ?? TemplateFacing.Down);
+            bool collectible = obj.IsCollectible;
+
+            m_SortOrderField.SetValueSafe(sortOrder.ToString());
+            m_InteractTypeField.SetValueSafe(TemplateInteractType.ToDisplay(interactType));
+            m_CollisionToggle.SetValueSafe(obj.CollisionEnabled);
+            m_DialogBubbleField.SetValueSafe(dialogBubble);
+            m_FacingField.SetValueSafe(TemplateFacing.ToDisplay(facing));
+            if (m_DisplayLayerField != null)
+            {
+                string effectiveLayer = MapLayerCatalog.ResolveDisplayLayer(obj.LayerType, obj.DisplayLayer);
+                m_DisplayLayerField.SetValueWithoutNotify(MapLayerCatalog.GetLayerDisplayName(effectiveLayer));
+            }
+            m_ShadowToggle.SetValueSafe(obj.ShadowEnabled);
+            m_CollectibleToggle.SetValueSafe(collectible);
+
+            // 变换区跟随收集勾选；右栏卡片按收集/交通可见性刷新显隐，空内容不留空框
+            SetCollectibleActionVisible(collectible);
+            // 收集/交通摘要标记按条件显隐：未设置对应属性时整组（标签+开关）隐藏
+            m_CollectibleGroup.SetVisible(collectible);
+            m_TrafficGroup.SetVisible(IsTrafficRoleActive(obj));
+
+            // ---TODO 气泡配置表通用化：回显气泡ID（引用 Tables.Bubble）
+            m_BubbleIdField.SetValueSafe(obj.bubbleId);
         }
 
         /// <summary>
@@ -1652,29 +1693,17 @@ namespace Honor.Editor.MapTool
             m_EditTarget = null;
             m_SelectedPathPointIndex = -1;
             m_IsPathDrawing = false;
-            if (m_ObjectEditPanel != null)
-                m_ObjectEditPanel.style.display = DisplayStyle.None;
+            m_ObjectEditPanel.SetVisible(false);
             // 隐藏底部属性面板
-            if (m_PropertyPanel != null)
-                m_PropertyPanel.style.display = DisplayStyle.None;
+            m_PropertyPanel.SetVisible(false);
             // 同步隐藏收集/交通摘要标记分组
-            if (m_CollectibleGroup != null)
-                m_CollectibleGroup.style.display = DisplayStyle.None;
-            if (m_TrafficGroup != null)
-                m_TrafficGroup.style.display = DisplayStyle.None;
+            m_CollectibleGroup.SetVisible(false);
+            m_TrafficGroup.SetVisible(false);
             // 同步隐藏变换/交通区容器
             SetActionHostVisible(false);
             // ---TODO 交通规则：清空选中后同步清空交通属性回填
             RefreshTrafficPanel();
-            Debug.Log("取消选中编辑对象");
-        }
-
-        /// <summary>
-        /// 获取当前编辑目标
-        /// </summary>
-        public PlacedObject GetEditTarget()
-        {
-            return m_EditTarget;
+            MapToolLog.Info("取消选中编辑对象");
         }
 
     }

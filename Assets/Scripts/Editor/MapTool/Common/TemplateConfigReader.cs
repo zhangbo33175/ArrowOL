@@ -13,6 +13,7 @@ using System.Data;
 using System.IO;
 using UnityEngine;
 using Honor.Editor;
+using static Honor.Editor.MapTool.MapTemplateColumns;
 
 namespace Honor.Editor.MapTool
 {
@@ -28,37 +29,9 @@ namespace Honor.Editor.MapTool
     /// </summary>
     public static class TemplateConfigReader
     {
-        #region 列名常量
+        #region 行索引常量
 
-        private const string ColumnTemplateId = "TemplateId";
-        private const string ColumnTemplateName = "TemplateName";
-        private const string ColumnResName = "ResName";
-        private const string ColumnImagePath = "ImagePath";
-        private const string ColumnAnimName = "AnimName";
-        private const string ColumnIsLoop = "Loop";
-        private const string ColumnSpeed = "Speed";
-        private const string ColumnIsInteractable = "Interactable";
-        private const string ColumnInteractType = "InteractType";
-        private const string ColumnSortOrder = "SortOrder";
-        private const string ColumnDisplayLayer = "DisplayLayer";
-        private const string ColumnHasCollision = "CollisionEnabled";
-        private const string ColumnDialogBubble = "DialogBubble";
-        private const string ColumnBubbleId = "BubbleId";
-        private const string ColumnFacingDirection = "FacingDirection";
-        private const string ColumnHasShadow = "ShadowEnabled";
-        private const string ColumnIsCollectible = "IsCollectible";
-        private const string ColumnRespawnTime = "RespawnTime";
-        private const string ColumnTrafficCategory = "TrafficCategory";
-        private const string ColumnYSortEnabled = "YSortEnabled";
-        private const string ColumnYSortOffset = "YSortOffset";
-        private const string ColumnIsMovable = "IsMovable";
-        private const string ColumnMoveAnimName = "MoveAnimName";
-        private const string ColumnLoopRestartDelay = "LoopRestartDelay";
-        private const string ColumnHideWhenOffMap = "HideWhenOffMap";
-        private const string ColumnIsTeleport = "IsTeleport";
-        private const string ColumnTeleportTargetScene = "TeleportTargetScene";
-        private const string ColumnTeleportTargetX = "TeleportTargetX";
-        private const string ColumnTeleportTargetY = "TeleportTargetY";
+        // 列名常量由 MapTemplateColumns 提供；字段读取由 MapTemplateColumnSchema 驱动（与写表同源）
 
         /// <summary>
         /// 列名行索引（第2行）
@@ -86,13 +59,13 @@ namespace Honor.Editor.MapTool
             // 参数校验
             if (string.IsNullOrEmpty(excelFilePath))
             {
-                Debug.LogWarning("[TemplateConfigReader] Excel文件路径为空");
+                MapToolLog.Warn("[TemplateConfigReader] Excel文件路径为空");
                 return templates;
             }
 
             if (!File.Exists(excelFilePath))
             {
-                Debug.LogWarning($"[TemplateConfigReader] Excel文件不存在: {excelFilePath}");
+                MapToolLog.Warn($"[TemplateConfigReader] Excel文件不存在: {excelFilePath}");
                 return templates;
             }
 
@@ -103,7 +76,7 @@ namespace Honor.Editor.MapTool
 
                 if (dataSet == null || dataSet.Tables.Count == 0)
                 {
-                    Debug.LogWarning($"[TemplateConfigReader] Excel读取失败或没有数据: {Path.GetFileName(excelFilePath)}");
+                    MapToolLog.Warn($"[TemplateConfigReader] Excel读取失败或没有数据: {Path.GetFileName(excelFilePath)}");
                     return templates;
                 }
 
@@ -130,11 +103,11 @@ namespace Honor.Editor.MapTool
                     }
                 }
 
-                Debug.Log($"[TemplateConfigReader] 读取完成: {Path.GetFileName(excelFilePath)}，共 {templates.Count} 个模板");
+                MapToolLog.Info($"[TemplateConfigReader] 读取完成: {Path.GetFileName(excelFilePath)}，共 {templates.Count} 个模板");
             }
             catch (Exception e)
             {
-                Debug.LogError($"[TemplateConfigReader] 读取Excel异常: {e.Message}\n{e.StackTrace}");
+                MapToolLog.Error($"[TemplateConfigReader] 读取Excel异常: {e.Message}\n{e.StackTrace}");
             }
 
             return templates;
@@ -153,7 +126,7 @@ namespace Honor.Editor.MapTool
 
             if (dataTable.Rows.Count <= HeaderRowIndex)
             {
-                Debug.LogWarning("[TemplateConfigReader] Excel行数不足，找不到列名行");
+                MapToolLog.Warn("[TemplateConfigReader] Excel行数不足，找不到列名行");
                 return columnIndexMap;
             }
 
@@ -167,7 +140,7 @@ namespace Honor.Editor.MapTool
                     continue;
 
                 columnIndexMap[columnName] = columnIndex;
-                Debug.Log($"[TemplateConfigReader] 列映射: {columnName} -> 索引{columnIndex}");
+                MapToolLog.Info($"[TemplateConfigReader] 列映射: {columnName} -> 索引{columnIndex}");
             }
 
             return columnIndexMap;
@@ -193,80 +166,70 @@ namespace Honor.Editor.MapTool
             return string.IsNullOrEmpty(idValue);
         }
 
-        /// <summary>
-        /// 解析一行数据为模板对象
-        /// </summary>
         private static ObjectTemplate ParseDataRow(DataRow dataRow, Dictionary<string, int> columnIndexMap)
         {
             try
             {
-                var template = new ObjectTemplate
-                {
-                    TemplateId = GetStringValue(dataRow, columnIndexMap, ColumnTemplateId),
-                    TemplateName = GetStringValue(dataRow, columnIndexMap, ColumnTemplateName),
-                    ImagePath = GetStringValue(dataRow, columnIndexMap, ColumnImagePath),
-                    AnimName = GetStringValue(dataRow, columnIndexMap, ColumnAnimName),
-                    Loop = GetBoolValue(dataRow, columnIndexMap, ColumnIsLoop),
-                    Speed = GetFloatValue(dataRow, columnIndexMap, ColumnSpeed),
-                    Interactable = GetBoolValue(dataRow, columnIndexMap, ColumnIsInteractable),
-                    InteractType = GetStringValue(dataRow, columnIndexMap, ColumnInteractType),
-                    SortOrder = GetIntValue(dataRow, columnIndexMap, ColumnSortOrder),
-                    DisplayLayer = GetStringValue(dataRow, columnIndexMap, ColumnDisplayLayer),
-                    CollisionEnabled = GetBoolValue(dataRow, columnIndexMap, ColumnHasCollision),
-                    DialogBubble = GetStringValue(dataRow, columnIndexMap, ColumnDialogBubble),
-                    BubbleId = GetIntValue(dataRow, columnIndexMap, ColumnBubbleId),
-                    FacingDirection = GetStringValue(dataRow, columnIndexMap, ColumnFacingDirection),
-                    ShadowEnabled = GetBoolValue(dataRow, columnIndexMap, ColumnHasShadow),
-                    IsCollectible = GetBoolValue(dataRow, columnIndexMap, ColumnIsCollectible),
-                    RespawnTime = GetFloatValue(dataRow, columnIndexMap, ColumnRespawnTime),
-                    TrafficCategory = GetStringValue(dataRow, columnIndexMap, ColumnTrafficCategory),
-                    YSortEnabled = GetBoolValue(dataRow, columnIndexMap, ColumnYSortEnabled),
-                    YSortOffset = GetFloatValue(dataRow, columnIndexMap, ColumnYSortOffset),
-                    IsMovable = GetBoolValue(dataRow, columnIndexMap, ColumnIsMovable),
-                    MoveAnimName = GetStringValue(dataRow, columnIndexMap, ColumnMoveAnimName),
-                    LoopRestartDelay = GetFloatValue(dataRow, columnIndexMap, ColumnLoopRestartDelay),
-                    HideWhenOffMap = GetBoolValue(dataRow, columnIndexMap, ColumnHideWhenOffMap),
-                    IsTeleport = GetBoolValue(dataRow, columnIndexMap, ColumnIsTeleport),
-                    TeleportTargetScene = GetStringValue(dataRow, columnIndexMap, ColumnTeleportTargetScene),
-                    TeleportTargetX = GetFloatValue(dataRow, columnIndexMap, ColumnTeleportTargetX),
-                    TeleportTargetY = GetFloatValue(dataRow, columnIndexMap, ColumnTeleportTargetY),
-                };
-
-                // 根据资源名判断物体类型
-                string resName = GetStringValue(dataRow, columnIndexMap, ColumnResName);
-                template.ResName = resName;
-                template.Type = DetermineObjectType(resName);
-
-                // 交通类别空值/中文显示名归一为类别键
-                template.TrafficCategory = TemplateTrafficCategory.Normalize(
-                    GetStringValue(dataRow, columnIndexMap, ColumnTrafficCategory));
-
-                // 交互类型/朝向归一为 code（存量表可能存中文显示名）
-                template.InteractType = TemplateInteractType.ToCode(template.InteractType);
-                template.FacingDirection = TemplateFacing.ToCode(template.FacingDirection);
-
-                // 移动动画缺省回落模型默认 walk
-                if (string.IsNullOrEmpty(template.MoveAnimName))
-                {
-                    template.MoveAnimName = "walk";
-                }
-
-                // 层级档非空归一为八层键；空值保留，加载时跟随类型归属层
-                if (!string.IsNullOrWhiteSpace(template.DisplayLayer))
-                {
-                    template.DisplayLayer = MapLayerCatalog.Normalize(template.DisplayLayer);
-                }
-
-                // 渲染层级归一到类型所属八层基线区间（旧三档/裸值按层内槽位叠基线）
-                template.SortOrder = MapToolEditorUtils.NormalizeTemplateSortOrder(template, template.SortOrder);
-
+                var template = ReadRawFields(dataRow, columnIndexMap);
+                NormalizeParsedTemplate(template, dataRow, columnIndexMap);
                 return template;
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[TemplateConfigReader] 解析行数据失败，跳过该行: {e.Message}");
+                MapToolLog.Warn($"[TemplateConfigReader] 解析行数据失败，跳过该行: {e.Message}");
                 return null;
             }
+        }
+
+        /// <summary>
+        /// 按列名读取原始字段值（不做任何归一，归一统一由 NormalizeParsedTemplate 处理）
+        /// </summary>
+        /// <param name="dataRow">数据行</param>
+        /// <param name="columnIndexMap">列名 → 列索引</param>
+        /// <returns>原始模板对象</returns>
+        private static ObjectTemplate ReadRawFields(DataRow dataRow, Dictionary<string, int> columnIndexMap)
+        {
+            var template = new ObjectTemplate();
+
+            // 列清单与解析口径统一来自 MapTemplateColumnSchema（与写表同源）
+            foreach (var def in MapTemplateColumnSchema.All)
+            {
+                def.Assign(template, GetStringValue(dataRow, columnIndexMap, def.Name));
+            }
+
+            return template;
+        }
+
+        /// <summary>
+        /// 原始值归一：类型判定 / 交通类别 / 交互类型 / 朝向 / 移动动画缺省 / 显示层 / 排序档位
+        /// </summary>
+        /// <param name="template">待归一模板</param>
+        /// <param name="dataRow">数据行</param>
+        /// <param name="columnIndexMap">列名 → 列索引</param>
+        private static void NormalizeParsedTemplate(ObjectTemplate template, DataRow dataRow, Dictionary<string, int> columnIndexMap)
+        {
+            // 根据资源名判断物体类型
+            template.ResName = GetStringValue(dataRow, columnIndexMap, ColumnResName);
+            template.Type = DetermineObjectType(template.ResName);
+
+            // 交通类别空值/中文显示名归一为类别键
+            template.TrafficCategory = TemplateTrafficCategory.Normalize(
+                GetStringValue(dataRow, columnIndexMap, ColumnTrafficCategory));
+
+            // 交互类型/朝向归一为 code（存量表可能存中文显示名）
+            template.InteractType = TemplateInteractType.ToCode(template.InteractType);
+            template.FacingDirection = TemplateFacing.ToCode(template.FacingDirection);
+
+            // 移动动画缺省回落模型默认 walk
+            if (string.IsNullOrEmpty(template.MoveAnimName))
+                template.MoveAnimName = "walk";
+
+            // 层级档非空归一为八层键；空值保留，加载时跟随类型归属层
+            if (!string.IsNullOrWhiteSpace(template.DisplayLayer))
+                template.DisplayLayer = MapLayerCatalog.Normalize(template.DisplayLayer);
+
+            // 渲染层级归一到类型所属八层基线区间（旧三档/裸值按层内槽位叠基线）
+            template.SortOrder = MapToolEditorUtils.NormalizeTemplateSortOrder(template, template.SortOrder);
         }
 
         /// <summary>
@@ -277,10 +240,10 @@ namespace Honor.Editor.MapTool
             if (string.IsNullOrEmpty(resName))
                 return MapObjectType.Prop;
 
-            if (resName.Contains("Building", StringComparison.OrdinalIgnoreCase))
+            if (resName.Contains(MapToolConstants.ResNameKeywordBuilding, StringComparison.OrdinalIgnoreCase))
                 return MapObjectType.Building;
 
-            if (resName.Contains("Character", StringComparison.OrdinalIgnoreCase))
+            if (resName.Contains(MapToolConstants.ResNameKeywordCharacter, StringComparison.OrdinalIgnoreCase))
                 return MapObjectType.Character;
 
             return MapObjectType.Prop;
@@ -304,53 +267,6 @@ namespace Honor.Editor.MapTool
 
             object cellValue = dataRow[columnIndex];
             return cellValue?.ToString().Trim() ?? string.Empty;
-        }
-
-        /// <summary>
-        /// 安全获取布尔值
-        /// </summary>
-        private static bool GetBoolValue(DataRow dataRow, Dictionary<string, int> columnIndexMap, string columnName)
-        {
-            string stringValue = GetStringValue(dataRow, columnIndexMap, columnName);
-
-            bool boolValue;
-            if (bool.TryParse(stringValue, out boolValue))
-                return boolValue;
-
-            // 支持数字格式：1=true, 0=false
-            int intValue;
-            if (int.TryParse(stringValue, out intValue))
-                return intValue != 0;
-
-            return false;
-        }
-
-        /// <summary>
-        /// 安全获取整数值
-        /// </summary>
-        private static int GetIntValue(DataRow dataRow, Dictionary<string, int> columnIndexMap, string columnName)
-        {
-            string stringValue = GetStringValue(dataRow, columnIndexMap, columnName);
-
-            int intValue;
-            if (int.TryParse(stringValue, out intValue))
-                return intValue;
-
-            return 0;
-        }
-
-        /// <summary>
-        /// 安全获取浮点数值
-        /// </summary>
-        private static float GetFloatValue(DataRow dataRow, Dictionary<string, int> columnIndexMap, string columnName)
-        {
-            string stringValue = GetStringValue(dataRow, columnIndexMap, columnName);
-
-            float floatValue;
-            if (float.TryParse(stringValue, out floatValue))
-                return floatValue;
-
-            return 0f;
         }
 
         #endregion

@@ -24,37 +24,7 @@ namespace Honor.Editor.MapTool
     /// </summary>
     public static class TemplateConfigWriter
     {
-        // ==================== 列名常量（与 Reader 保持一致） ====================
-
-        private const string ColumnTemplateId = "TemplateId";
-        private const string ColumnTemplateName = "TemplateName";
-        private const string ColumnResName = "ResName";
-        private const string ColumnImagePath = "ImagePath";
-        private const string ColumnAnimName = "AnimName";
-        private const string ColumnIsLoop = "Loop";
-        private const string ColumnSpeed = "Speed";
-        private const string ColumnSortOrder = "SortOrder";
-        private const string ColumnDisplayLayer = "DisplayLayer";
-        private const string ColumnDialogBubble = "DialogBubble";
-        private const string ColumnBubbleId = "BubbleId";
-        private const string ColumnShadowEnabled = "ShadowEnabled";
-        private const string ColumnIsCollectible = "IsCollectible";
-        private const string ColumnRespawnTime = "RespawnTime";
-        private const string ColumnTrafficCategory = "TrafficCategory";
-        private const string ColumnIsInteractable = "Interactable";
-        private const string ColumnInteractType = "InteractType";
-        private const string ColumnHasCollision = "CollisionEnabled";
-        private const string ColumnFacingDirection = "FacingDirection";
-        private const string ColumnYSortEnabled = "YSortEnabled";
-        private const string ColumnYSortOffset = "YSortOffset";
-        private const string ColumnIsMovable = "IsMovable";
-        private const string ColumnMoveAnimName = "MoveAnimName";
-        private const string ColumnLoopRestartDelay = "LoopRestartDelay";
-        private const string ColumnHideWhenOffMap = "HideWhenOffMap";
-        private const string ColumnIsTeleport = "IsTeleport";
-        private const string ColumnTeleportTargetScene = "TeleportTargetScene";
-        private const string ColumnTeleportTargetX = "TeleportTargetX";
-        private const string ColumnTeleportTargetY = "TeleportTargetY";
+        // 列名与取值口径统一由 MapTemplateColumns / MapTemplateColumnSchema 提供（与 Reader 同源）
 
         /// <summary>
         /// 数据起始行（第5行，1-based）
@@ -73,13 +43,13 @@ namespace Honor.Editor.MapTool
         {
             if (string.IsNullOrEmpty(excelPath))
             {
-                Debug.LogWarning("[TemplateConfigWriter] Excel 路径为空");
+                MapToolLog.Warn("[TemplateConfigWriter] Excel 路径为空");
                 return false;
             }
 
             if (templates == null)
             {
-                Debug.LogWarning("[TemplateConfigWriter] 模板列表为空");
+                MapToolLog.Warn("[TemplateConfigWriter] 模板列表为空");
                 return false;
             }
 
@@ -91,7 +61,7 @@ namespace Honor.Editor.MapTool
                 // 检查文件是否被占用
                 if (IsFileLocked(excelPath))
                 {
-                    Debug.LogError($"[TemplateConfigWriter] 文件被占用，请先关闭 Excel: {excelPath}");
+                    MapToolLog.Error($"[TemplateConfigWriter] 文件被占用，请先关闭 Excel: {excelPath}");
                     return false;
                 }
 
@@ -100,80 +70,88 @@ namespace Honor.Editor.MapTool
                 {
                     if (package.Workbook.Worksheets.Count == 0)
                     {
-                        Debug.LogError("[TemplateConfigWriter] Excel 中没有工作表");
+                        MapToolLog.Error("[TemplateConfigWriter] Excel 中没有工作表");
                         return false;
                     }
 
                     var worksheet = package.Workbook.Worksheets[0];
 
-                    // 1. 构建列名到列索引的映射（从第2行读取列名）
+                    // 1. 构建列名到列索引的映射，并补齐模型全集所需列
                     var columnMap = BuildColumnMap(worksheet);
-
-                    // 1.1 补齐模型全集所需列：表头缺失时在表尾自动新建列（列名行/类型行）
                     EnsureRequiredColumns(worksheet, columnMap);
 
-                    // 2. 清除旧数据行（从数据起始行开始）
-                    int oldDataRows = worksheet.Dimension?.Rows ?? 0;
-                    if (oldDataRows >= DataStartRow)
-                    {
-                        int deleteCount = oldDataRows - DataStartRow + 1;
-                        worksheet.DeleteRow(DataStartRow, deleteCount);
-                    }
+                    // 2. 清除旧数据行
+                    ClearDataRows(worksheet);
 
-                    // 3. 按 TemplateId 数值升序排序，保证写入顺序正确
-                    var sortedTemplates = templates.OrderBy(t => {
-                        int id;
-                        return int.TryParse(t.TemplateId, out id) ? id : int.MaxValue;
-                    }).ToList();
+                    // 3. 逐行写入新数据（按 TemplateId 数值升序）
+                    WriteTemplateRows(worksheet, columnMap, SortByTemplateId(templates));
 
-                    // 4. 逐行写入新数据
-                    for (int i = 0; i < sortedTemplates.Count; i++)
-                    {
-                        var t = sortedTemplates[i];
-                        int row = DataStartRow + i;
-
-                        WriteCell(worksheet, columnMap, ColumnTemplateId, row, t.TemplateId);
-                        WriteCell(worksheet, columnMap, ColumnImagePath, row, t.ImagePath);
-                        WriteCell(worksheet, columnMap, ColumnResName, row, string.IsNullOrEmpty(t.ResName) ? "GameObject_" + t.Type.ToString() : t.ResName);
-                        WriteCell(worksheet, columnMap, ColumnTemplateName, row, t.TemplateName);
-                        WriteCell(worksheet, columnMap, ColumnAnimName, row, t.AnimName);
-                        WriteCell(worksheet, columnMap, ColumnIsLoop, row, t.Loop ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnSpeed, row, t.Speed);
-                        WriteCell(worksheet, columnMap, ColumnSortOrder, row, t.SortOrder);
-                        WriteCell(worksheet, columnMap, ColumnDisplayLayer, row, t.DisplayLayer);
-                        WriteCell(worksheet, columnMap, ColumnDialogBubble, row, t.DialogBubble);
-                        WriteCell(worksheet, columnMap, ColumnBubbleId, row, t.BubbleId);
-                        WriteCell(worksheet, columnMap, ColumnShadowEnabled, row, t.ShadowEnabled ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnIsCollectible, row, t.IsCollectible ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnRespawnTime, row, t.RespawnTime);
-                        WriteCell(worksheet, columnMap, ColumnTrafficCategory, row, t.TrafficCategory);
-                        WriteCell(worksheet, columnMap, ColumnIsInteractable, row, t.Interactable ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnInteractType, row, t.InteractType);
-                        WriteCell(worksheet, columnMap, ColumnHasCollision, row, t.CollisionEnabled ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnFacingDirection, row, t.FacingDirection);
-                        WriteCell(worksheet, columnMap, ColumnYSortEnabled, row, t.YSortEnabled ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnYSortOffset, row, t.YSortOffset);
-                        WriteCell(worksheet, columnMap, ColumnIsMovable, row, t.IsMovable ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnMoveAnimName, row, t.MoveAnimName);
-                        WriteCell(worksheet, columnMap, ColumnLoopRestartDelay, row, t.LoopRestartDelay);
-                        WriteCell(worksheet, columnMap, ColumnHideWhenOffMap, row, t.HideWhenOffMap ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnIsTeleport, row, t.IsTeleport ? 1 : 0);
-                        WriteCell(worksheet, columnMap, ColumnTeleportTargetScene, row, t.TeleportTargetScene);
-                        WriteCell(worksheet, columnMap, ColumnTeleportTargetX, row, t.TeleportTargetX);
-                        WriteCell(worksheet, columnMap, ColumnTeleportTargetY, row, t.TeleportTargetY);
-                    }
-
-                    // 5. 保存文件
+                    // 4. 保存文件
                     package.Save();
                 }
 
-                Debug.Log($"[TemplateConfigWriter] 写入成功: {Path.GetFileName(excelPath)}，共 {templates.Count} 行数据");
+                MapToolLog.Info($"[TemplateConfigWriter] 写入成功: {Path.GetFileName(excelPath)}，共 {templates.Count} 行数据");
                 return true;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[TemplateConfigWriter] 写入 Excel 异常: {e.Message}\n{e.StackTrace}");
+                MapToolLog.Error($"[TemplateConfigWriter] 写入 Excel 异常: {e.Message}\n{e.StackTrace}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// 按 TemplateId 数值升序排序（非数字 ID 排到末尾）
+        /// </summary>
+        /// <param name="templates">模板列表</param>
+        /// <returns>排序后的新列表</returns>
+        private static List<ObjectTemplate> SortByTemplateId(List<ObjectTemplate> templates)
+        {
+            return templates
+                .OrderBy(t => int.TryParse(t.TemplateId, out int id) ? id : int.MaxValue)
+                .ToList();
+        }
+
+        /// <summary>
+        /// 清除数据起始行之后的旧数据
+        /// </summary>
+        /// <param name="worksheet">目标工作表</param>
+        private static void ClearDataRows(ExcelWorksheet worksheet)
+        {
+            int oldDataRows = worksheet.Dimension?.Rows ?? 0;
+            if (oldDataRows < DataStartRow) return;
+
+            worksheet.DeleteRow(DataStartRow, oldDataRows - DataStartRow + 1);
+        }
+
+        /// <summary>
+        /// 批量写入模板行
+        /// </summary>
+        /// <param name="worksheet">目标工作表</param>
+        /// <param name="columnMap">列名 → 列索引映射</param>
+        /// <param name="sortedTemplates">已排序的模板列表</param>
+        private static void WriteTemplateRows(ExcelWorksheet worksheet, Dictionary<string, int> columnMap,
+            List<ObjectTemplate> sortedTemplates)
+        {
+            for (int i = 0; i < sortedTemplates.Count; i++)
+            {
+                WriteTemplateRow(worksheet, columnMap, DataStartRow + i, sortedTemplates[i]);
+            }
+        }
+
+        /// <summary>
+        /// 写入单个模板行（列取值口径与读表逻辑一一对应）
+        /// </summary>
+        /// <param name="worksheet">目标工作表</param>
+        /// <param name="columnMap">列名 → 列索引映射</param>
+        /// <param name="row">目标行号（1-based）</param>
+        /// <param name="t">模板</param>
+        private static void WriteTemplateRow(ExcelWorksheet worksheet, Dictionary<string, int> columnMap, int row, ObjectTemplate t)
+        {
+            // 列清单与取值口径统一来自 MapTemplateColumnSchema（与读表同源）
+            foreach (var def in MapTemplateColumnSchema.All)
+            {
+                WriteCell(worksheet, columnMap, def.Name, row, def.Read(t));
             }
         }
 
@@ -204,35 +182,17 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private static void EnsureRequiredColumns(ExcelWorksheet worksheet, Dictionary<string, int> columnMap)
         {
-            var required = new (string Name, string TypeHint)[]
-            {
-                (ColumnIsInteractable, "bool"),
-                (ColumnInteractType, "string"),
-                (ColumnBubbleId, "int"),
-                (ColumnHasCollision, "bool"),
-                (ColumnFacingDirection, "string"),
-                (ColumnDisplayLayer, "string"),
-                (ColumnYSortEnabled, "bool"),
-                (ColumnYSortOffset, "float"),
-                (ColumnIsMovable, "bool"),
-                (ColumnMoveAnimName, "string"),
-                (ColumnLoopRestartDelay, "float"),
-                (ColumnHideWhenOffMap, "bool"),
-                (ColumnIsTeleport, "bool"),
-                (ColumnTeleportTargetScene, "string"),
-                (ColumnTeleportTargetX, "float"),
-                (ColumnTeleportTargetY, "float"),
-            };
-
             int nextCol = (worksheet.Dimension?.Columns ?? 0) + 1;
-            foreach (var col in required)
+            foreach (var def in MapTemplateColumnSchema.All)
             {
-                int existing;
-                if (columnMap.TryGetValue(col.Name, out existing)) continue;
+                if (!def.EnsureWhenMissing) continue;
 
-                worksheet.Cells[2, nextCol].Value = col.Name;
-                worksheet.Cells[3, nextCol].Value = col.TypeHint;
-                columnMap[col.Name] = nextCol;
+                int existing;
+                if (columnMap.TryGetValue(def.Name, out existing)) continue;
+
+                worksheet.Cells[2, nextCol].Value = def.Name;
+                worksheet.Cells[3, nextCol].Value = def.TypeHint;
+                columnMap[def.Name] = nextCol;
                 nextCol++;
             }
         }

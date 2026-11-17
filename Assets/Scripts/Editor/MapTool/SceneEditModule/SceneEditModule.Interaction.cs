@@ -26,254 +26,265 @@ namespace Honor.Editor.MapTool
     public partial class SceneEditModule
     {
         /// <summary>
-        /// 鼠标按下事件
+        /// 处理鼠标事件：位置回写 → Esc 取消 → 滚轮缩放 → Ctrl 路径编辑 → 左键（交通/放置/选中） → 拖动/平移
         /// </summary>
-        private void OnMouseDown(MouseDownEvent evt)
-        {
-            if (evt.button == (int)MouseButton.LeftMouse)
-            {
-                m_IsDragging = true;
-                m_DragStartPos = evt.mousePosition;
-                m_DragStartOffset = m_MapOffset;
-            }
-        }
-
-        /// <summary>
-        /// 鼠标移动事件
-        /// </summary>
-        private void OnMouseMove(MouseMoveEvent evt)
-        {
-            if (m_IsDragging)
-            {
-                Rect rect = m_GuiContainer.contentRect;
-                Vector2 localPos = m_GuiContainer.WorldToLocal(evt.mousePosition);
-                m_MapOffset = m_DragStartOffset + (localPos - m_GuiContainer.WorldToLocal(m_DragStartPos));
-                // 限制边界
-                float mapWidthScaled = m_MapWidth * m_Zoom;
-                float mapHeightScaled = m_MapHeight * m_Zoom;
-                m_MapOffset.x = Mathf.Clamp(m_MapOffset.x, -mapWidthScaled + 100, rect.width - 100);
-                m_MapOffset.y = Mathf.Clamp(m_MapOffset.y, -mapHeightScaled + 100, rect.height - 100);
-                // 手动触发 IMGUI 重绘
-                m_GuiContainer.MarkDirtyRepaint();
-                evt.StopPropagation();
-            }
-        }
-
-        /// <summary>
-        /// 鼠标抬起事件
-        /// </summary>
-        private void OnMouseUp(MouseUpEvent evt)
-        {
-            if (evt.button == (int)MouseButton.LeftMouse)
-            {
-                m_IsDragging = false;
-            }
-        }
-
-        /// <summary>
-        /// 处理鼠标事件
-        /// </summary>
+        /// <param name="e">IMGUI 事件</param>
         private void HandleMouseEvent(Event e)
         {
             Rect rect = m_GuiContainer.contentRect;
-            // 判断鼠标是否在地图显示区域内
             bool isMouseInRect = rect.Contains(e.mousePosition);
+
+            UpdateMousePosition(e.mousePosition, isMouseInRect);
+
+            // Escape 键取消选中资源（不依赖鼠标是否在区域内）
+            if (HandleEscapeCancel(e))
+                return;
+
+            // 鼠标滚轮缩放
+            if (e.type == EventType.ScrollWheel && isMouseInRect)
+                OnScrollZoom(e);
+
+            // 路径编辑：Ctrl+左键添加路径点 / Ctrl+右键删除路径点
+            if (isMouseInRect && e.type == EventType.MouseDown && e.control)
+                OnCtrlPathEditing(e);
+
+            // 鼠标左键：交通工具 > 放置物体 > 选中并准备拖动
+            if (isMouseInRect && e.type == EventType.MouseDown && e.button == 0)
+            {
+                if (HandlePrimaryMouseDown(e))
+                    return;
+            }
+
             if (isMouseInRect)
             {
-                m_MousePos = e.mousePosition;
-                // 网格坐标统一走公共换算（借鉴 Tilemap GridLayout 口径）
-                Vector2 mouseWorld = new Vector2(
-                    (e.mousePosition.x - m_MapOffset.x) / m_Zoom,
-                    (e.mousePosition.y - m_MapOffset.y) / m_Zoom);
-                Vector2Int mouseCell = MapToolEditorUtils.WorldToCell(mouseWorld);
-                m_TileX = mouseCell.x;
-                m_TileY = mouseCell.y;
-
-                // 更新待放置预览位置
-                if (m_PendingPlace != null)
-                {
-                    // 吸附到最近格子（公共网格吸附口径）
-                    m_PendingPlace.Position = MapToolEditorUtils.SnapToGrid(mouseWorld);
-                    // 检查是否可以放置
-                    m_PreviewValid = CanPlaceObject(m_PendingPlace, out m_PreviewReason);
-                    GUI.changed = true;
-                }
+                // 左键拖动物体（抬起时按移动阈值判定拖动/单击选中）
+                HandleObjectDrag(e);
+                // 鼠标右键：拖动地图
+                HandleMapPan(e, rect);
             }
-            else
+
+            // 消费事件，防止冒泡（只对鼠标事件类型调用 Use，Repaint/Layout 不能调）
+            if (m_IsDragging && e.type != EventType.Repaint && e.type != EventType.Layout)
+                e.Use();
+        }
+
+        /// <summary>
+        /// 回写鼠标位置与命中格子；鼠标离开显示区域时清空坐标，并刷新待放置预览
+        /// </summary>
+        /// <param name="mousePosition">鼠标屏幕坐标</param>
+        /// <param name="isMouseInRect">鼠标是否在地图显示区域内</param>
+        private void UpdateMousePosition(Vector2 mousePosition, bool isMouseInRect)
+        {
+            if (!isMouseInRect)
             {
                 // 鼠标不在区域内，清空坐标
                 m_MousePos = Vector2.zero;
                 m_TileX = -1;
                 m_TileY = -1;
+                return;
             }
-            // Escape 键取消选中资源
-            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+
+            m_MousePos = mousePosition;
+            // 网格坐标统一走公共换算（借鉴 Tilemap GridLayout 口径）
+            Vector2 mouseWorld = ScreenToWorld(mousePosition);
+            Vector2Int mouseCell = MapToolEditorUtils.WorldToCell(mouseWorld);
+            m_TileX = mouseCell.x;
+            m_TileY = mouseCell.y;
+
+            // 更新待放置预览位置
+            if (m_PendingPlace != null)
             {
-                if (m_PendingPlace != null)
-                {
-                    m_PendingPlace = null;
-                    m_SelectedObjectId = null;
-                    Debug.Log("取消选中资源");
-                    e.Use();
-                    return;
-                }
+                // 吸附到最近格子（公共网格吸附口径）
+                m_PendingPlace.Position = MapToolEditorUtils.SnapToGrid(mouseWorld);
+                // 检查是否可以放置
+                m_PreviewValid = CanPlaceObject(m_PendingPlace, out m_PreviewReason);
+                GUI.changed = true;
             }
+        }
 
-            // 鼠标滚轮缩放
-            if (e.type == EventType.ScrollWheel && isMouseInRect)
+        /// <summary>
+        /// Escape 键取消当前选中的待放置资源
+        /// </summary>
+        /// <param name="e">IMGUI 事件</param>
+        /// <returns>是否已消费该事件</returns>
+        private bool HandleEscapeCancel(Event e)
+        {
+            if (e.type != EventType.KeyDown || e.keyCode != KeyCode.Escape || m_PendingPlace == null)
+                return false;
+
+            m_PendingPlace = null;
+            m_SelectedObjectId = null;
+            MapToolLog.Info("取消选中资源");
+            e.Use();
+            return true;
+        }
+
+        /// <summary>
+        /// 左键按下处理：交通工具优先，其次放置预览物体，最后命中物体开始拖动
+        /// </summary>
+        /// <param name="e">IMGUI 事件</param>
+        /// <returns>是否已消费该事件</returns>
+        private bool HandlePrimaryMouseDown(Event e)
+        {
+            // ---TODO 交通规则：交通工具模式（刷格 / 画横道 / 放灯）优先于放置与选中
+            if (m_TrafficTool != TrafficTool.None)
             {
-                OnScrollZoom(e);
-            }
-            // 路径编辑：Ctrl+左键添加路径点 / Ctrl+右键删除路径点
-            if (isMouseInRect && e.type == EventType.MouseDown && e.control)
-            {
-                OnCtrlPathEditing(e);
-            }
-            // 鼠标右键：拖动地图（已取消右键删除，改为选中后点删除按钮）
-            // 鼠标左键：放置物体、拖动物体 或 切换分区解锁
-            if (isMouseInRect && e.type == EventType.MouseDown && e.button == 0)
-            {
-                // ---TODO 交通规则：交通工具模式（刷格 / 画横道 / 放灯）优先于放置与选中
-                if (m_TrafficTool != TrafficTool.None)
-                {
-                    OnTrafficToolClick(e);
-                    e.Use();
-                    return;
-                }
-
-                // 如果有待放置预览，就放置物体
-                if (m_PendingPlace != null)
-                {
-                    // 检查是否可以放置
-                    if (!m_PreviewValid)
-                    {
-                        Debug.LogWarning($"无法放置: {m_PreviewReason}");
-                        m_StatusBar.ShowMessage(m_PreviewReason);
-                        e.Use();
-                        return;
-                    }
-
-                    // 创建新物体（复制预览对象的所有属性）
-                    PlacedObject newObj = new PlacedObject
-                    {
-                        Id = m_PendingPlace.Id,
-                        TemplateId = m_PendingPlace.TemplateId,
-                        Name = m_PendingPlace.Name,
-                        Type = m_PendingPlace.Type,
-                        LayerType = m_PendingPlace.LayerType,
-                        Position = m_PendingPlace.Position,
-                        Width = m_PendingPlace.Width,
-                        Height = m_PendingPlace.Height,
-                        PixelWidth = m_PendingPlace.PixelWidth,
-                        PixelHeight = m_PendingPlace.PixelHeight,
-                        Stretch = m_PendingPlace.Stretch,
-                        PreviewTexture = m_PendingPlace.PreviewTexture,
-                        // 复制模板属性
-                        AnimName = m_PendingPlace.AnimName,
-                        Loop = m_PendingPlace.Loop,
-                        Speed = m_PendingPlace.Speed,
-                        Interactable = m_PendingPlace.Interactable,
-                        InteractType = m_PendingPlace.InteractType,
-                        SortOrder = m_PendingPlace.SortOrder,
-                        CollisionEnabled = m_PendingPlace.CollisionEnabled,
-                        DialogBubble = m_PendingPlace.DialogBubble,
-                        FacingDirection = m_PendingPlace.FacingDirection,
-                        ShadowEnabled = m_PendingPlace.ShadowEnabled,
-                        IsCollectible = m_PendingPlace.IsCollectible,
-                        RespawnTime = m_PendingPlace.RespawnTime,
-                        // 复制交通默认分类（模板类别继承而来，实例右栏可再调整）
-                        TrafficRole = m_PendingPlace.TrafficRole,
-                        IsVehicle = m_PendingPlace.IsVehicle,
-                    };
-
-                    m_PlacedObjects.Add(newObj);
-                    Debug.Log($"放置物体: {newObj.Name} 位置: ({newObj.Position.x}, {newObj.Position.y})");
-                    RefreshSceneObjects(); // 同步到场景
-
-                    // 放置人物后自动选中为编辑目标
-                    if (newObj.Type == MapObjectType.Character)
-                    {
-                        SelectEditTarget(newObj);
-                    }
-
-                    // 放置后保持预览（可以连续放置）
-                    // m_PendingPlace = null;
-
-                    e.Use();
-                    return;
-                }
-                // 检查是否点击了某个物体，开始拖动（并记录潜在点击目标，抬起时若未拖动则选中）
-                PlacedObject clickedObj = GetObjectAtPosition(e.mousePosition);
-                if (clickedObj != null)
-                {
-                    m_DraggingObject = clickedObj;
-                    m_PotentialClickObject = clickedObj;
-                    m_HasMoved = false;
-                    m_MouseDownPos = e.mousePosition;
-                    float worldX = (e.mousePosition.x - m_MapOffset.x) / m_Zoom;
-                    float worldY = (e.mousePosition.y - m_MapOffset.y) / m_Zoom;
-                    m_DragOffset = new Vector2(worldX - clickedObj.Position.x, worldY - clickedObj.Position.y);
-                    e.Use();
-                    return;
-                }
-            }
-            // 左键拖动物体
-            if (isMouseInRect && m_DraggingObject != null)
-            {
-                if (e.type == EventType.MouseDrag && e.button == 0)
-                {
-                    // 移动超过阈值视为拖动（不是点击选中）
-                    if (!m_HasMoved && Vector2.Distance(e.mousePosition, m_MouseDownPos) > MapToolConstants.DragThreshold)
-                        m_HasMoved = true;
-                    float worldX = (e.mousePosition.x - m_MapOffset.x) / m_Zoom - m_DragOffset.x;
-                    float worldY = (e.mousePosition.y - m_MapOffset.y) / m_Zoom - m_DragOffset.y;
-                    m_DraggingObject.Position = new Vector2(worldX, worldY);
-                    GUI.changed = true;
-                    e.Use();
-                }
-                else if (e.type == EventType.MouseUp && e.button == 0)
-                {
-                    if (m_HasMoved) RefreshSceneObjects(); // 拖动结束后同步位置到场景
-                    m_DraggingObject = null;
-                    // 未发生拖动 → 视为单击选中，成为路径编辑目标
-                    if (!m_HasMoved && m_PotentialClickObject != null)
-                    {
-                        SelectEditTarget(m_PotentialClickObject);
-                    }
-                    m_PotentialClickObject = null;
-                    e.Use();
-                }
-            }
-            // 鼠标右键：拖动地图
-            if (isMouseInRect)
-            {
-                if (e.type == EventType.MouseDown && e.button == 1)
-                {
-                    m_IsDragging = true;
-                    m_DragStartPos = e.mousePosition;
-                    m_DragStartOffset = m_MapOffset;
-                    e.Use();
-                }
-                else if (e.type == EventType.MouseDrag && m_IsDragging && e.button == 1)
-                {
-                    m_MapOffset = m_DragStartOffset + (e.mousePosition - m_DragStartPos);
-                    // 限制边界
-                    float mapWidthScaled = m_MapWidth * m_Zoom;
-                    float mapHeightScaled = m_MapHeight * m_Zoom;
-                    m_MapOffset.x = Mathf.Clamp(m_MapOffset.x, -mapWidthScaled + 100, rect.width - 100);
-                    m_MapOffset.y = Mathf.Clamp(m_MapOffset.y, -mapHeightScaled + 100, rect.height - 100);
-                    GUI.changed = true;
-                    e.Use();
-                }
-                else if (e.type == EventType.MouseUp && e.button == 1)
-                {
-                    m_IsDragging = false;
-                    e.Use();
-                }
-            }
-            // 消费事件，防止冒泡（只对鼠标事件类型调用 Use，Repaint/Layout 不能调）
-            if (m_IsDragging && e.type != EventType.Repaint && e.type != EventType.Layout)
+                OnTrafficToolClick(e);
                 e.Use();
+                return true;
+            }
+
+            // 如果有待放置预览，就放置物体
+            if (m_PendingPlace != null)
+            {
+                if (!m_PreviewValid)
+                {
+                    MapToolLog.Warn($"无法放置: {m_PreviewReason}");
+                    m_StatusBar.ShowMessage(m_PreviewReason);
+                    e.Use();
+                    return true;
+                }
+
+                PlacedObject newObj = CreatePlacedObjectFromPreview(m_PendingPlace);
+                m_PlacedObjects.Add(newObj);
+                MapToolLog.Info($"放置物体: {newObj.Name} 位置: ({newObj.Position.x}, {newObj.Position.y})");
+                RefreshSceneObjects(); // 同步到场景
+
+                // 放置人物后自动选中为编辑目标
+                if (newObj.Type == MapObjectType.Character)
+                {
+                    SelectEditTarget(newObj);
+                }
+
+                // 放置后保持预览（可以连续放置）
+                e.Use();
+                return true;
+            }
+
+            // 检查是否点击了某个物体，开始拖动（并记录潜在点击目标，抬起时若未拖动则选中）
+            PlacedObject clickedObj = GetObjectAtPosition(e.mousePosition);
+            if (clickedObj != null)
+            {
+                m_DraggingObject = clickedObj;
+                m_PotentialClickObject = clickedObj;
+                m_HasMoved = false;
+                m_MouseDownPos = e.mousePosition;
+                Vector2 worldPos = ScreenToWorld(e.mousePosition);
+                m_DragOffset = new Vector2(worldPos.x - clickedObj.Position.x, worldPos.y - clickedObj.Position.y);
+                e.Use();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 由预览对象生成待入库的摆放物（模板属性一并继承）
+        /// </summary>
+        /// <param name="preview">预览对象</param>
+        /// <returns>新的摆放物实例</returns>
+        private static PlacedObject CreatePlacedObjectFromPreview(PlacedObject preview)
+        {
+            return new PlacedObject
+            {
+                Id = preview.Id,
+                TemplateId = preview.TemplateId,
+                Name = preview.Name,
+                Type = preview.Type,
+                LayerType = preview.LayerType,
+                Position = preview.Position,
+                Width = preview.Width,
+                Height = preview.Height,
+                PixelWidth = preview.PixelWidth,
+                PixelHeight = preview.PixelHeight,
+                Stretch = preview.Stretch,
+                PreviewTexture = preview.PreviewTexture,
+                // 复制模板属性
+                AnimName = preview.AnimName,
+                Loop = preview.Loop,
+                Speed = preview.Speed,
+                Interactable = preview.Interactable,
+                InteractType = preview.InteractType,
+                SortOrder = preview.SortOrder,
+                CollisionEnabled = preview.CollisionEnabled,
+                DialogBubble = preview.DialogBubble,
+                FacingDirection = preview.FacingDirection,
+                ShadowEnabled = preview.ShadowEnabled,
+                IsCollectible = preview.IsCollectible,
+                RespawnTime = preview.RespawnTime,
+                // 复制交通默认分类（模板类别继承而来，实例右栏可再调整）
+                TrafficRole = preview.TrafficRole,
+                IsVehicle = preview.IsVehicle,
+            };
+        }
+
+        /// <summary>
+        /// 左键拖动已命中物体：按下超过阈值才算拖动，抬起未移动则视为单击选中
+        /// </summary>
+        /// <param name="e">IMGUI 事件</param>
+        private void HandleObjectDrag(Event e)
+        {
+            if (m_DraggingObject == null) return;
+
+            if (e.type == EventType.MouseDrag && e.button == 0)
+            {
+                // 移动超过阈值视为拖动（不是点击选中）
+                if (!m_HasMoved && Vector2.Distance(e.mousePosition, m_MouseDownPos) > MapToolConstants.DragThreshold)
+                    m_HasMoved = true;
+
+                Vector2 worldPos = ScreenToWorld(e.mousePosition);
+                m_DraggingObject.Position = new Vector2(worldPos.x - m_DragOffset.x, worldPos.y - m_DragOffset.y);
+                GUI.changed = true;
+                e.Use();
+            }
+            else if (e.type == EventType.MouseUp && e.button == 0)
+            {
+                if (m_HasMoved) RefreshSceneObjects(); // 拖动结束后同步位置到场景
+                m_DraggingObject = null;
+                // 未发生拖动 → 视为单击选中，成为路径编辑目标
+                if (!m_HasMoved && m_PotentialClickObject != null)
+                {
+                    SelectEditTarget(m_PotentialClickObject);
+                }
+                m_PotentialClickObject = null;
+                e.Use();
+            }
+        }
+
+        /// <summary>
+        /// 右键拖动地图并限制边界
+        /// </summary>
+        /// <param name="e">IMGUI 事件</param>
+        /// <param name="rect">可视区域</param>
+        private void HandleMapPan(Event e, Rect rect)
+        {
+            if (e.type == EventType.MouseDown && e.button == 1)
+            {
+                m_IsDragging = true;
+                m_DragStartPos = e.mousePosition;
+                m_DragStartOffset = m_MapOffset;
+                e.Use();
+                return;
+            }
+
+            if (e.type == EventType.MouseDrag && m_IsDragging && e.button == 1)
+            {
+                m_MapOffset = m_DragStartOffset + (e.mousePosition - m_DragStartPos);
+                // 限制边界
+                float mapWidthScaled = m_MapWidth * m_Zoom;
+                float mapHeightScaled = m_MapHeight * m_Zoom;
+                m_MapOffset.x = Mathf.Clamp(m_MapOffset.x, -mapWidthScaled + 100, rect.width - 100);
+                m_MapOffset.y = Mathf.Clamp(m_MapOffset.y, -mapHeightScaled + 100, rect.height - 100);
+                GUI.changed = true;
+                e.Use();
+                return;
+            }
+
+            if (e.type == EventType.MouseUp && e.button == 1)
+            {
+                m_IsDragging = false;
+                e.Use();
+            }
         }
 
         /// <summary>
@@ -315,14 +326,14 @@ namespace Honor.Editor.MapTool
                 if (m_EditTarget != null && m_IsPathDrawing)
                 {
                     m_EditTarget.PathPoints.Add(worldPos);
-                    Debug.Log($"为 {m_EditTarget.Name} 添加路径点: {worldPos}, 总数: {m_EditTarget.PathPoints.Count}");
+                    MapToolLog.Info($"为 {m_EditTarget.Name} 添加路径点: {worldPos}, 总数: {m_EditTarget.PathPoints.Count}");
                     RefreshPathPointList();
                     RefreshSceneObjects();
                 }
                 else
                 {
                     m_PathPoints.Add(worldPos);
-                    Debug.Log($"添加全局路径点: {worldPos}, 总数: {m_PathPoints.Count}");
+                    MapToolLog.Info($"添加全局路径点: {worldPos}, 总数: {m_PathPoints.Count}");
                     RefreshSceneObjects();
                 }
             }
@@ -331,14 +342,14 @@ namespace Honor.Editor.MapTool
                 if (m_EditTarget != null && m_IsPathDrawing && m_EditTarget.PathPoints.Count > 0)
                 {
                     m_EditTarget.PathPoints.RemoveAt(m_EditTarget.PathPoints.Count - 1);
-                    Debug.Log($"删除 {m_EditTarget.Name} 最后路径点, 剩余: {m_EditTarget.PathPoints.Count}");
+                    MapToolLog.Info($"删除 {m_EditTarget.Name} 最后路径点, 剩余: {m_EditTarget.PathPoints.Count}");
                     RefreshPathPointList();
                     RefreshSceneObjects();
                 }
                 else if (m_PathPoints.Count > 0)
                 {
                     m_PathPoints.RemoveAt(m_PathPoints.Count - 1);
-                    Debug.Log($"删除最后一个全局路径点, 剩余: {m_PathPoints.Count}");
+                    MapToolLog.Info($"删除最后一个全局路径点, 剩余: {m_PathPoints.Count}");
                     RefreshSceneObjects();
                 }
             }

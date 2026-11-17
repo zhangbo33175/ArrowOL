@@ -63,6 +63,40 @@ namespace Honor.Editor.MapTool
     {
         
         /// <summary>
+        /// PNG 文件名前缀 → 导入规则（类型 / 层级 / 是否背景）
+        /// 新增前缀只需在本表加一行，无需再写一段 else-if。
+        /// </summary>
+        private sealed class PrefixRule
+        {
+            /// <summary>文件名前缀（含下划线）</summary>
+            public string Prefix;
+            /// <summary>归类后的物件类型</summary>
+            public MapObjectType Type;
+            /// <summary>地图层级（由 LayerType 区分渲染层）</summary>
+            public string LayerType;
+            /// <summary>是否作为背景图处理（只取第一个）</summary>
+            public bool IsBackground;
+        }
+
+        /// <summary>
+        /// 前缀规则表（背景 → 道路 → 绿化 → 建筑 → 人物 → 物件 → 猫 → 前景 → 气泡）
+        /// </summary>
+        private static readonly PrefixRule[] PrefixRules =
+        {
+            new PrefixRule { Prefix = "bg_",       Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Background, IsBackground = true },
+            new PrefixRule { Prefix = "road_",     Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Road },
+            new PrefixRule { Prefix = "grass_",    Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Greenery },
+            new PrefixRule { Prefix = "plant_",    Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Greenery },
+            new PrefixRule { Prefix = "building_", Type = MapObjectType.Building,  LayerType = MapLayerCatalog.Building },
+            new PrefixRule { Prefix = "char_",     Type = MapObjectType.Character, LayerType = MapLayerCatalog.Character },
+            new PrefixRule { Prefix = "prop_",     Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Prop },
+            new PrefixRule { Prefix = "cat_",      Type = MapObjectType.Cat,       LayerType = MapLayerCatalog.Character },
+            new PrefixRule { Prefix = "eff_",      Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Foreground },
+            new PrefixRule { Prefix = "fg_",       Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Foreground },
+            new PrefixRule { Prefix = "bubble_",   Type = MapObjectType.Prop,      LayerType = MapLayerCatalog.Bubble },
+        };
+
+        /// <summary>
         /// 从指定目录导入 PNG 序列
         /// </summary>
         /// <param name="assetDir">Assets 相对目录（如 Assets/Res/Textures/Map/ImportTemp/Map001）</param>
@@ -73,155 +107,115 @@ namespace Honor.Editor.MapTool
             string fullDir = MapToolPathHelper.ToAbsolutePath(assetDir);
             if (!Directory.Exists(fullDir))
             {
-                Debug.LogWarning($"导入目录不存在: {assetDir}");
+                MapToolLog.Warn($"导入目录不存在: {assetDir}");
+                return null;
+            }
+
+            string[] pngFiles = Directory.GetFiles(fullDir, "*.png", SearchOption.TopDirectoryOnly);
+            if (pngFiles.Length == 0)
+            {
+                MapToolLog.Warn($"目录下无 PNG 文件: {assetDir}");
                 return null;
             }
 
             var result = new MapImageImportResult();
-            string[] pngFiles = Directory.GetFiles(fullDir, "*.png", SearchOption.TopDirectoryOnly);
-            if (pngFiles.Length == 0)
-            {
-                Debug.LogWarning($"目录下无 PNG 文件: {assetDir}");
-                return null;
-            }
-
             foreach (string fullPath in pngFiles)
             {
-                string fileName = Path.GetFileNameWithoutExtension(fullPath);
-                string assetPath = MapToolPathHelper.ToAssetRelative(fullPath);
+                ImportSingleFile(result, fullPath);
+            }
 
-                // 按前缀分类
-                if (fileName.StartsWith("bg_"))
+            MapToolLog.Info($"PNG 序列导入完成: 背景={result.BackgroundName}, 物件={result.Objects.Count}, 尺寸={result.MapWidth}x{result.MapHeight}");
+            return result;
+        }
+
+        /// <summary>
+        /// 按文件名前缀分发导入一个 PNG（无前缀时默认作为背景图）
+        /// </summary>
+        /// <param name="result">导入结果累加器</param>
+        /// <param name="fullPath">PNG 磁盘全路径</param>
+        private static void ImportSingleFile(MapImageImportResult result, string fullPath)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(fullPath);
+            string assetPath = MapToolPathHelper.ToAssetRelative(fullPath);
+
+            PrefixRule rule = FindPrefixRule(fileName);
+            if (rule != null)
+            {
+                string objectName = fileName.Substring(rule.Prefix.Length);
+                if (rule.IsBackground)
                 {
-                    // 背景图（只取第一个）
-                    if (string.IsNullOrEmpty(result.BackgroundPath))
-                    {
-                        result.BackgroundPath = assetPath;
-                        result.BackgroundName = fileName.Substring(3);
-                        // 读取背景图尺寸作为地图宽高
-                        Texture2D bgTex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
-                        if (bgTex != null)
-                        {
-                            result.MapWidth = bgTex.width;
-                            result.MapHeight = bgTex.height;
-                        }
-                    }
-                }
-                else if (fileName.StartsWith("road_"))
-                {
-                    // 道路市政：人行道/车道/斑马线/路灯/路牌，挂 Road 层（枚举归并 Prop，层级由 LayerType 区分）
-                    string roadName = fileName.Substring(5);
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = roadName,
-                        ObjectName = roadName,
-                        Type = MapObjectType.Prop,
-                        LayerType = MapLayerCatalog.Road,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("grass_") || fileName.StartsWith("plant_"))
-                {
-                    // 绿化：乔木/灌木/绿篱/花丛，挂 Greenery 层（枚举归并 Prop，层级由 LayerType 区分）
-                    string greenPrefix = fileName.StartsWith("grass_") ? "grass_" : "plant_";
-                    string greenName = fileName.Substring(greenPrefix.Length);
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = greenName,
-                        ObjectName = greenName,
-                        Type = MapObjectType.Prop,
-                        LayerType = MapLayerCatalog.Greenery,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("building_"))
-                {
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = fileName.Substring(9),
-                        ObjectName = fileName.Substring(9),
-                        Type = MapObjectType.Building,
-                        LayerType = MapLayerCatalog.Building,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("char_"))
-                {
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = fileName.Substring(5),
-                        ObjectName = fileName.Substring(5),
-                        Type = MapObjectType.Character,
-                        LayerType = MapLayerCatalog.Character,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("prop_"))
-                {
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = fileName.Substring(5),
-                        ObjectName = fileName.Substring(5),
-                        Type = MapObjectType.Prop,
-                        LayerType = MapLayerCatalog.Prop,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("cat_"))
-                {
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = fileName.Substring(4),
-                        ObjectName = fileName.Substring(4),
-                        Type = MapObjectType.Cat,
-                        LayerType = MapLayerCatalog.Character,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("eff_") || fileName.StartsWith("fg_"))
-                {
-                    string fgPrefix = fileName.StartsWith("eff_") ? "eff_" : "fg_";
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = fileName.Substring(fgPrefix.Length),
-                        ObjectName = fileName.Substring(fgPrefix.Length),
-                        Type = MapObjectType.Prop,
-                        LayerType = MapLayerCatalog.Foreground,
-                        PreviewPath = assetPath,
-                    });
-                }
-                else if (fileName.StartsWith("bubble_"))
-                {
-                    result.Objects.Add(new ImportedObjectInfo
-                    {
-                        ObjectId = fileName.Substring(7),
-                        ObjectName = fileName.Substring(7),
-                        Type = MapObjectType.Prop,
-                        LayerType = MapLayerCatalog.Bubble,
-                        PreviewPath = assetPath,
-                    });
+                    SetBackgroundIfEmpty(result, assetPath, objectName);
                 }
                 else
                 {
-                    // 没有前缀的文件 → 默认当作背景图（只取第一个）
-                    if (string.IsNullOrEmpty(result.BackgroundPath))
-                    {
-                        result.BackgroundPath = assetPath;
-                        result.BackgroundName = fileName;
-                        // 读取背景图尺寸作为地图宽高
-                        Texture2D bgTex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
-                        if (bgTex != null)
-                        {
-                            result.MapWidth = bgTex.width;
-                            result.MapHeight = bgTex.height;
-                        }
-                        Debug.Log($"[MapImageImporter] 无前缀文件默认作为背景图: {fileName}");
-                    }
+                    result.Objects.Add(CreateObjectInfo(objectName, rule.Type, rule.LayerType, assetPath));
                 }
+                return;
             }
 
-            Debug.Log($"PNG 序列导入完成: 背景={result.BackgroundName}, 物件={result.Objects.Count}, 尺寸={result.MapWidth}x{result.MapHeight}");
-            return result;
+            // 没有前缀的文件 → 默认当作背景图（只取第一个）
+            if (SetBackgroundIfEmpty(result, assetPath, fileName))
+            {
+                MapToolLog.Info($"[MapImageImporter] 无前缀文件默认作为背景图: {fileName}");
+            }
+        }
+
+        /// <summary>
+        /// 匹配文件名前缀规则（未命中返回 null）
+        /// </summary>
+        /// <param name="fileName">文件名（不含扩展名）</param>
+        /// <returns>命中的规则</returns>
+        private static PrefixRule FindPrefixRule(string fileName)
+        {
+            foreach (var rule in PrefixRules)
+            {
+                if (fileName.StartsWith(rule.Prefix)) return rule;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 尚未设置背景时写入背景路径/名称，并读取纹理尺寸作为地图宽高
+        /// </summary>
+        /// <param name="result">导入结果累加器</param>
+        /// <param name="assetPath">背景图资产路径</param>
+        /// <param name="backgroundName">背景名称</param>
+        /// <returns>实际写入返回 true</returns>
+        private static bool SetBackgroundIfEmpty(MapImageImportResult result, string assetPath, string backgroundName)
+        {
+            if (!string.IsNullOrEmpty(result.BackgroundPath)) return false;
+
+            result.BackgroundPath = assetPath;
+            result.BackgroundName = backgroundName;
+
+            // 读取背景图尺寸作为地图宽高
+            Texture2D bgTex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+            if (bgTex != null)
+            {
+                result.MapWidth = bgTex.width;
+                result.MapHeight = bgTex.height;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 构建单个导入物件信息
+        /// </summary>
+        /// <param name="objectName">去掉前缀后的物件名</param>
+        /// <param name="type">物件类型</param>
+        /// <param name="layerType">地图层级</param>
+        /// <param name="assetPath">预览图资产路径</param>
+        /// <returns>导入物件信息</returns>
+        private static ImportedObjectInfo CreateObjectInfo(string objectName, MapObjectType type, string layerType, string assetPath)
+        {
+            return new ImportedObjectInfo
+            {
+                ObjectId = objectName,
+                ObjectName = objectName,
+                Type = type,
+                LayerType = layerType,
+                PreviewPath = assetPath,
+            };
         }
     }
 }

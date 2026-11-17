@@ -43,6 +43,27 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// <summary>操作列宽</summary>
         public const float ColWidthAction = 56f;
 
+        /// <summary>偶数行背景色（交替行样式）</summary>
+        private static readonly Color s_EvenRowColor = new Color(0.95f, 0.95f, 0.95f);
+
+        // ==================== 列标识（控件 name，保存时按标识回读） ====================
+        /// <summary>图片路径列</summary>
+        public const string ColKeyImagePath   = "cfg-col-image-path";
+        /// <summary>模板名称列</summary>
+        public const string ColKeyName        = "cfg-col-name";
+        /// <summary>移动速度列</summary>
+        public const string ColKeySpeed       = "cfg-col-speed";
+        /// <summary>排序值列</summary>
+        public const string ColKeySortOrder   = "cfg-col-sort-order";
+        /// <summary>对话气泡列</summary>
+        public const string ColKeyDialog      = "cfg-col-dialog";
+        /// <summary>重生时间列</summary>
+        public const string ColKeyRespawn     = "cfg-col-respawn";
+        /// <summary>循环开关列</summary>
+        public const string ColKeyLoop        = "cfg-col-loop";
+        /// <summary>可收集开关列</summary>
+        public const string ColKeyCollectible = "cfg-col-collectible";
+
         // ==================== 单元格样式常量 ====================
 
         private static readonly Color s_DefaultTextColor = Color.black;
@@ -57,18 +78,19 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// <param name="text">初始文本</param>
         /// <param name="width">列宽</param>
         /// <param name="editable">是否可编辑</param>
-        public static void AddEditableCell(VisualElement parent, string text, float width, bool editable)
+        /// <param name="columnKey">列标识（写入控件 name，保存时按标识取回，避免依赖子控件顺序）</param>
+        public static void AddEditableCell(VisualElement parent, string text, float width, bool editable, string columnKey = null)
         {
             if (!editable)
             {
                 var label = CreateLabel(text, width);
                 parent.Add(label);
+                return;
             }
-            else
-            {
-                var field = CreateTextField(text, width);
-                parent.Add(field);
-            }
+
+            var field = CreateTextField(text, width);
+            if (!string.IsNullOrEmpty(columnKey)) field.name = columnKey;
+            parent.Add(field);
         }
 
         /// <summary>
@@ -77,7 +99,8 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         /// <param name="parent">父容器</param>
         /// <param name="value">初始值</param>
         /// <param name="width">列宽</param>
-        public static void AddToggleCell(VisualElement parent, bool value, float width)
+        /// <param name="columnKey">列标识（写入控件 name，保存时按标识取回，避免依赖子控件顺序）</param>
+        public static void AddToggleCell(VisualElement parent, bool value, float width, string columnKey = null)
         {
             var toggle = new Toggle
             {
@@ -95,6 +118,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                     backgroundColor = Color.clear
                 }
             };
+            if (!string.IsNullOrEmpty(columnKey)) toggle.name = columnKey;
             parent.Add(toggle);
         }
 
@@ -107,7 +131,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
         {
             var btn = new Button(() => onClick?.Invoke())
             {
-                text = "删除",
+                text = MapToolConstants.DeleteButtonText,
                 style =
                 {
                     width = ColWidthAction,
@@ -118,6 +142,58 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 }
             };
             parent.Add(btn);
+        }
+
+        /// <summary>
+        /// 创建一行模板数据（列顺序与表头一致，唯一维护点；可编辑列带列标识，保存时按标识回读）
+        /// </summary>
+        /// <param name="template">模板数据</param>
+        /// <param name="rowIndex">行序号（用于交替背景色）</param>
+        /// <param name="onDelete">删除回调</param>
+        /// <returns>表格行容器</returns>
+        public static VisualElement CreateTemplateRow(ObjectTemplate template, int rowIndex, System.Action onDelete)
+        {
+            var row = CreateRowContainer(rowIndex % 2 == 0);
+            row.userData = template; // 保存模板引用，供保存时回读
+
+            AddEditableCell(row, template.TemplateId, ColWidthId, false); // ID 只读
+            AddEditableCell(row, template.ImagePath, ColWidthImagePath, true, ColKeyImagePath);
+            AddEditableCell(row, MapToolConstants.ResNamePrefix + template.Type, ColWidthResName, false); // ResName（固定格式）
+            AddEditableCell(row, template.TemplateName, ColWidthName, true, ColKeyName);
+            AddToggleCell(row, template.Loop, ColWidthLoop, ColKeyLoop);
+            AddEditableCell(row, template.Speed.ToString("0.#"), ColWidthSpeed, true, ColKeySpeed);
+            AddEditableCell(row, template.SortOrder.ToString(), ColWidthSortOrder, true, ColKeySortOrder);
+            AddEditableCell(row, template.DialogBubble, ColWidthDialog, true, ColKeyDialog);
+            AddToggleCell(row, template.IsCollectible, ColWidthCollectible, ColKeyCollectible);
+            AddEditableCell(row, template.RespawnTime.ToString("0.#"), ColWidthRespawn, true, ColKeyRespawn);
+
+            AddDeleteButton(row, onDelete);
+            return row;
+        }
+
+        /// <summary>
+        /// 创建数据行容器（横向布局 + 边框 + 交替背景色）
+        /// </summary>
+        /// <param name="evenRow">是否为偶数行（决定浅灰/白背景）</param>
+        /// <returns>行容器</returns>
+        private static VisualElement CreateRowContainer(bool evenRow)
+        {
+            var row = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    borderBottomWidth = 1,
+                    borderBottomColor = Color.black,
+                    borderLeftWidth = 1,
+                    borderRightWidth = 1,
+                    borderLeftColor = Color.black,
+                    borderRightColor = Color.black,
+                    backgroundColor = evenRow ? s_EvenRowColor : Color.white
+                }
+            };
+            return row;
         }
 
         // ==================== 私有辅助方法 ====================
@@ -171,7 +247,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
             };
 
             // 清除内部输入框的默认样式
-            var innerInput = field.Q("unity-text-input");
+            var innerInput = field.Q(MapToolUiNames.InnerTextInput);
             if (innerInput != null)
             {
                 innerInput.style.backgroundColor = Color.clear;

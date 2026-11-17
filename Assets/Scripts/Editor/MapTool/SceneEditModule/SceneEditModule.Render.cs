@@ -525,14 +525,14 @@ namespace Honor.Editor.MapTool
                 return null;
 
             // 如果已经是完整路径（以 Assets/ 开头），直接加载
-            if (bgPath.StartsWith("Assets/"))
+            if (bgPath.StartsWith(MapToolPathHelper.AssetsPrefix))
             {
-                return LoadCachedTexture2D(bgPath);
+                return m_Assets.LoadTexture(bgPath);
             }
 
             // 否则按旧方式拼接路径
-            string fullPath = $"{MapToolConstants.LevelBackgroundDir}/{bgPath}.png";
-            return LoadCachedTexture2D(fullPath);
+            string fullPath = $"{MapToolConstants.LevelBackgroundDir}/{bgPath}{MapToolConstants.ExtPng}";
+            return m_Assets.LoadTexture(fullPath);
         }
 
         /// <summary>

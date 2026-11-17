@@ -53,14 +53,14 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void FindElements(VisualElement root)
         {
-            m_ZoomLabel = root.Q<Label>(name: MapToolUiNames.StatusZoom);
-            m_MouseXLabel = root.Q<Label>(name: MapToolUiNames.StatusMouseX);
-            m_MouseYLabel = root.Q<Label>(name: MapToolUiNames.StatusMouseY);
-            m_TileXLabel = root.Q<Label>(name: MapToolUiNames.StatusTileX);
-            m_TileYLabel = root.Q<Label>(name: MapToolUiNames.StatusTileY);
-            m_TileCountLabel = root.Q<Label>(name: MapToolUiNames.StatusTileCount);
-            m_GridSizeLabel = root.Q<Label>(name: MapToolUiNames.StatusGridSize);
-            m_SavePathBtn = root.Q<Button>(name: MapToolUiNames.StatusSavePath);
+            m_ZoomLabel = root.QByName<Label>(MapToolUiNames.StatusZoom);
+            m_MouseXLabel = root.QByName<Label>(MapToolUiNames.StatusMouseX);
+            m_MouseYLabel = root.QByName<Label>(MapToolUiNames.StatusMouseY);
+            m_TileXLabel = root.QByName<Label>(MapToolUiNames.StatusTileX);
+            m_TileYLabel = root.QByName<Label>(MapToolUiNames.StatusTileY);
+            m_TileCountLabel = root.QByName<Label>(MapToolUiNames.StatusTileCount);
+            m_GridSizeLabel = root.QByName<Label>(MapToolUiNames.StatusGridSize);
+            m_SavePathBtn = root.QByName<Button>(MapToolUiNames.StatusSavePath);
         }
 
         /// <summary>

@@ -25,12 +25,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
     /// </summary>
     internal class AtlasCliOptions
     {
-        public string dataFormat = "Unity3D";
+        public string dataFormat = AtlasConstants.TokenUnity3D;
         public int maxWidth = 4096;
         public int maxHeight = 4096;
         public int fixedWidth = 0;
         public int fixedHeight = 0;
-        public string sizeConstraints = "POT";
+        public string sizeConstraints = AtlasConstants.TokenPot;
 
         public int borderPadding = 2;
         public int shapePadding = 2;
@@ -38,21 +38,21 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public int extrude = 0;
 
         public bool allowRotation = true;
-        public string trimMode = "Trim";
+        public string trimMode = AtlasConstants.TrimModeTrim;
         public int trimThreshold = 1;
 
-        public string algorithm = "MaxRects";
-        public string heuristics = "Best";
+        public string algorithm = AtlasConstants.TokenMaxRects;
+        public string heuristics = AtlasConstants.TokenBest;
 
         public float scale = 1f;
-        public string scaleMode = "Smooth";
+        public string scaleMode = AtlasConstants.TokenSmooth;
         public bool premultiplyAlpha = false;
         public bool reduceBorderArtifacts = false;
         public bool heuristicMask = false;
         public bool trimSpriteNames = false;
         public string texturePath = "";
-        public string imageFormat = "RGBA8888";
-        public string dithering = "NearestNeighbour";
+        public string imageFormat = AtlasConstants.TokenRgba8888;
+        public string dithering = AtlasConstants.TokenNearestNeighbour;
         public int dpi = 72;
         public bool autoAlias = true;
     }
@@ -165,14 +165,14 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // Trim 模式
             switch (o.trimMode)
             {
-                case "None": args.Add("--no-trim"); break;
+                case AtlasConstants.TrimModeNone: args.Add("--no-trim"); break;
                 case "Crop": args.Add("--crop"); break;
                 default: args.Add("--trim"); break;
             }
 
             // 算法与启发式
             args.Add("--algorithm"); args.Add(o.algorithm);
-            if (string.Equals(o.algorithm, "MaxRects", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(o.algorithm, AtlasConstants.TokenMaxRects, StringComparison.OrdinalIgnoreCase))
             {
                 args.Add("--maxrects-heuristics");
                 args.Add(MapHeuristics(o.heuristics));

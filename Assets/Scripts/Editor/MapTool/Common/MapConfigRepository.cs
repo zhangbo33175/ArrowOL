@@ -39,7 +39,7 @@ namespace Honor.Editor.MapTool
             string fullPath = MapToolPathHelper.ToAbsolutePath(mapSavePath);
             if (!File.Exists(fullPath))
             {
-                Debug.LogWarning($"地图配置文件不存在: {mapSavePath}");
+                MapToolLog.Warn($"地图配置文件不存在: {mapSavePath}");
                 return null;
             }
             string json = File.ReadAllText(fullPath, Encoding.UTF8);
@@ -50,7 +50,7 @@ namespace Honor.Editor.MapTool
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"地图配置 JSON 解析失败: {mapSavePath}\n{e.Message}");
+                MapToolLog.Error($"地图配置 JSON 解析失败: {mapSavePath}\n{e.Message}");
                 return null;
             }
         }
@@ -65,12 +65,12 @@ namespace Honor.Editor.MapTool
         {
             if (data == null)
             {
-                Debug.LogWarning("SaveToJson: data 为 null");
+                MapToolLog.Warn("SaveToJson: data 为 null");
                 return false;
             }
             if (string.IsNullOrEmpty(mapSavePath))
             {
-                Debug.LogWarning("SaveToJson: mapSavePath 为空");
+                MapToolLog.Warn("SaveToJson: mapSavePath 为空");
                 return false;
             }
             string relativePath = MapToolPathHelper.NormalizeToAssetRelative(mapSavePath);
@@ -83,12 +83,12 @@ namespace Honor.Editor.MapTool
                 string json = JsonUtility.ToJson(data, true);
                 File.WriteAllText(fullPath, json, new UTF8Encoding(false));
                 AssetDatabase.Refresh();
-                Debug.Log($"关卡地图已保存: {relativePath}（建筑 {data.buildings.Count}，物件 {data.objects.Count}，人物 {data.characters.Count}）");
+                MapToolLog.Info($"关卡地图已保存: {relativePath}（建筑 {data.buildings.Count}，物件 {data.objects.Count}，人物 {data.characters.Count}）");
                 return true;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"地图配置写入失败: {fullPath}\n{e.Message}");
+                MapToolLog.Error($"地图配置写入失败: {fullPath}\n{e.Message}");
                 return false;
             }
         }
@@ -106,7 +106,7 @@ namespace Honor.Editor.MapTool
                 if (!string.IsNullOrEmpty(data.ID) && !string.IsNullOrEmpty(data.Level_bg))
                     dict[data.ID] = data.Level_bg;
             }
-            Debug.Log($"关卡配置表加载完成，共 {dict.Count} 条");
+            MapToolLog.Info($"关卡配置表加载完成，共 {dict.Count} 条");
             return dict;
         }
     }

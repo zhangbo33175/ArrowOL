@@ -50,28 +50,32 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void CreateAllTemplates()
         {
-            string savePath = "Assets/Res/Prefabs/Model/";
+            EnsureModelPrefabDir();
 
-            // 创建文件夹
-            if (!AssetDatabase.IsValidFolder(savePath))
-            {
-                AssetDatabase.CreateFolder("Assets/Res/Prefabs", "Model");
-            }
-
-            // 1. 物件模板
-            CreateTemplatePrefab(savePath + "Prop_BaseTemplate.prefab", "物件模板", MapObjectType.Prop, 10, false);
-
-            // 2. 建筑模板
-            CreateTemplatePrefab(savePath + "Building_BaseTemplate.prefab", "建筑模板", MapObjectType.Building, 5, true);
-
-            // 3. 人物模板
-            CreateTemplatePrefab(savePath + "Character_BaseTemplate.prefab", "人物模板", MapObjectType.Character, 50, true);
+            // 基础模板预制体路径统一取自 MapToolConstants（与场景同步的兜底模板同源）
+            CreateTemplatePrefab(MapToolConstants.PropBaseTemplatePrefab, "物件模板", MapObjectType.Prop, 10, false);
+            CreateTemplatePrefab(MapToolConstants.BuildingBaseTemplatePrefab, "建筑模板", MapObjectType.Building, 5, true);
+            CreateTemplatePrefab(MapToolConstants.CharacterBaseTemplatePrefab, "人物模板", MapObjectType.Character, 50, true);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log("[MapTemplatePrefabCreator] 所有模板预制体生成完成！");
-            EditorUtility.DisplayDialog("成功", "模板预制体已生成到 Assets/Res/Prefabs/Model/ 目录！", "确定");
+            MapToolLog.Info("[MapTemplatePrefabCreator] 所有模板预制体生成完成！");
+            MapToolDialog.Success($"模板预制体已生成到 {MapToolConstants.ModelPrefabDir}/ 目录！");
+        }
+
+        /// <summary>
+        /// 确保基础模板预制体目录存在
+        /// </summary>
+        private static void EnsureModelPrefabDir()
+        {
+            if (AssetDatabase.IsValidFolder(MapToolConstants.ModelPrefabDir)) return;
+
+            // 目录名取自常量，父目录按最后一个分隔符切分，避免再写一份路径字面量
+            int lastSlash = MapToolConstants.ModelPrefabDir.LastIndexOf('/');
+            string parentDir = MapToolConstants.ModelPrefabDir.Substring(0, lastSlash);
+            string folderName = MapToolConstants.ModelPrefabDir.Substring(lastSlash + 1);
+            AssetDatabase.CreateFolder(parentDir, folderName);
         }
 
         /// <summary>
@@ -101,7 +105,7 @@ namespace Honor.Editor.MapTool
             // 删除临时GameObject
             DestroyImmediate(go);
 
-            Debug.Log($"[MapTemplatePrefabCreator] 生成: {path} (2D世界模式)");
+            MapToolLog.Info($"[MapTemplatePrefabCreator] 生成: {path} (2D世界模式)");
         }
     }
 }

@@ -99,65 +99,104 @@ namespace Honor.Editor.MapTool
         private void BuildTrafficPanel()
         {
             // 交通规则配置面板挂到右栏操作卡片；卡片缺失时回退属性流 host，再回退属性面板本体
-            var actionHost = m_PropertyActionArea != null ? m_PropertyActionArea : (m_PropertyActionHost != null ? m_PropertyActionHost : m_PropertyPanel);
+            var actionHost = ResolveTrafficPanelHost();
 
-            // 交通规则开关：优先复用交互行（收集开关后面）的 UXML Toggle；缺失时兜底在右栏新建一行
-            m_TrafficVisibleToggle = m_Root.Q<Toggle>(name: MapToolUiNames.PropTrafficToggle);
-            if (m_TrafficVisibleToggle == null)
-            {
-                var trafficToggleRow = new VisualElement();
-                trafficToggleRow.AddToClassList("traffic-toggle-row");
-                var trafficToggleLabel = new Label("交通规则");
-                trafficToggleLabel.AddToClassList("traffic-toggle-label");
-                m_TrafficVisibleToggle = new Toggle();
-                m_TrafficVisibleToggle.AddToClassList("traffic-toggle");
-                trafficToggleRow.Add(trafficToggleLabel);
-                trafficToggleRow.Add(m_TrafficVisibleToggle);
-                actionHost?.Add(trafficToggleRow);
-            }
-            m_TrafficVisibleToggle.value = m_TrafficPanelVisible;
-            m_TrafficVisibleToggle.RegisterValueChangedCallback(evt => SetTrafficPanelVisible(evt.newValue));
+            EnsureTrafficVisibleToggle(actionHost);
 
             m_TrafficPanel = new VisualElement();
-            m_TrafficPanel.name = "traffic-panel";
-            m_TrafficPanel.AddToClassList("traffic-panel");
-            m_TrafficPanel.style.display = m_TrafficPanelVisible ? DisplayStyle.Flex : DisplayStyle.None;
+            m_TrafficPanel.name = MapToolUiNames.PropTrafficPanel;
+            m_TrafficPanel.AddToClassList(MapToolStyleClasses.TrafficPanel);
+            m_TrafficPanel.SetVisible(m_TrafficPanelVisible);
 
-            // ===== 工具切换行 =====
+            BuildTrafficToolRow();
+            BuildVehicleRow();
+            BuildTrafficRoleRows();
+            BuildLightBindRows();
+            BuildYellowRedRow();
+
+            // 地图级要素清单（灯/横道/区域）与一致性校验结果不属于单个选中物件，不在物件属性面板显示，避免冗余渲染。
+
+            actionHost?.Add(m_TrafficPanel);
+            RefreshTrafficToolButtons();
+        }
+
+        /// <summary>
+        /// 解析交通面板的挂载父级：操作卡片 → 属性流 host → 属性面板
+        /// </summary>
+        /// <returns>挂载父级容器</returns>
+        private VisualElement ResolveTrafficPanelHost()
+        {
+            if (m_PropertyActionArea != null) return m_PropertyActionArea;
+            if (m_PropertyActionHost != null) return m_PropertyActionHost;
+            return m_PropertyPanel;
+        }
+
+        /// <summary>
+        /// 确保「交通规则」显隐开关存在：优先复用 UXML 中的交互行开关，缺失时兜底新建一行
+        /// </summary>
+        /// <param name="actionHost">挂载父级容器</param>
+        private void EnsureTrafficVisibleToggle(VisualElement actionHost)
+        {
+            m_TrafficVisibleToggle = m_Root.QByName<Toggle>(MapToolUiNames.PropTrafficToggle);
+            if (m_TrafficVisibleToggle == null)
+            {
+                m_TrafficVisibleToggle = new Toggle();
+                AddTrafficToggleRow(actionHost, "交通规则", m_TrafficVisibleToggle);
+            }
+
+            m_TrafficVisibleToggle.value = m_TrafficPanelVisible;
+            m_TrafficVisibleToggle.RegisterValueChangedCallback(evt => SetTrafficPanelVisible(evt.newValue));
+        }
+
+        /// <summary>
+        /// 构建交通工具切换行（人行道刷格 / 道路刷格 / 画横道 / 放红绿灯）
+        /// </summary>
+        private void BuildTrafficToolRow()
+        {
             var toolRow = new VisualElement();
-            toolRow.AddToClassList("traffic-tool-row");
+            toolRow.AddToClassList(MapToolStyleClasses.TrafficToolRow);
             AddTrafficToolButton(toolRow, "人行道刷格", TrafficTool.SidewalkBrush);
             AddTrafficToolButton(toolRow, "道路刷格", TrafficTool.RoadBrush);
             AddTrafficToolButton(toolRow, "画横道", TrafficTool.Crosswalk);
             AddTrafficToolButton(toolRow, "放红绿灯", TrafficTool.Light);
             m_TrafficPanel.Add(toolRow);
+        }
 
-            // ===== 载具 / 行人属性（选中角色时回填） =====
-            var vehicleRow = new VisualElement();
-            vehicleRow.AddToClassList("traffic-toggle-row");
-            var vehicleLabel = new Label("是否载具");
-            vehicleLabel.AddToClassList("traffic-toggle-label");
+        /// <summary>
+        /// 构建「是否载具」开关行（勾选后交通角色同步切换为载具/行人）
+        /// </summary>
+        private void BuildVehicleRow()
+        {
             m_TrafficVehicleToggle = new Toggle();
-            m_TrafficVehicleToggle.AddToClassList("traffic-toggle");
+            AddTrafficToggleRow(m_TrafficPanel, "是否载具", m_TrafficVehicleToggle);
+
             m_TrafficVehicleToggle.RegisterValueChangedCallback(evt =>
             {
                 if (m_EditTarget == null) return;
                 m_EditTarget.IsVehicle = evt.newValue;
-                m_EditTarget.TrafficRole = evt.newValue ? "vehicle" : "pedestrian";
+                m_EditTarget.TrafficRole = evt.newValue ? TemplateTrafficCategory.Vehicle : TemplateTrafficCategory.Pedestrian;
                 ApplyTrafficLinkage(m_EditTarget);
                 RefreshTrafficRoleChoices();
             });
-            vehicleRow.Add(vehicleLabel);
-            vehicleRow.Add(m_TrafficVehicleToggle);
-            m_TrafficPanel.Add(vehicleRow);
+        }
 
+        /// <summary>
+        /// 构建交通角色下拉与停止线输入行
+        /// </summary>
+        private void BuildTrafficRoleRows()
+        {
             m_TrafficRoleField = new DropdownField();
-            m_TrafficRoleField.choices = new List<string> { "行人", "载具", "不参与" };
+            m_TrafficRoleField.choices = new List<string>
+            {
+                MapToolConstants.TrafficRolePedestrianDisplay,
+                MapToolConstants.TrafficRoleVehicleDisplay,
+                MapToolConstants.TrafficRoleInactiveDisplay
+            };
             m_TrafficRoleField.RegisterValueChangedCallback(evt =>
             {
                 if (m_EditTarget == null) return;
                 m_EditTarget.TrafficRole = TrafficRoleToCode(evt.newValue);
-                m_EditTarget.IsVehicle = m_EditTarget.TrafficRole == "vehicle";
+                m_EditTarget.IsVehicle = m_EditTarget.TrafficRole == TemplateTrafficCategory.Vehicle;
                 ApplyTrafficLinkage(m_EditTarget);
             });
             m_TrafficPanel.Add(AddTrafficFieldRow("交通角色", m_TrafficRoleField));
@@ -171,47 +210,71 @@ namespace Honor.Editor.MapTool
                 m_EditTarget.StopLineY = sy;
             });
             m_TrafficPanel.Add(AddTrafficFieldRow("停止线(X,Y)", m_TrafficStopLineField));
+        }
 
-            // 绑定红绿灯：全选行 + 逐灯勾选列表（多选，选项来自当前地图已放置灯）
+        /// <summary>
+        /// 构建「绑定红绿灯」全选行与逐灯勾选列表（选项来自当前地图已放置灯）
+        /// </summary>
+        private void BuildLightBindRows()
+        {
             var lightRow = new VisualElement();
-            lightRow.AddToClassList("traffic-field-row");
-            var lightLabel = new Label("绑定红绿灯");
-            lightLabel.AddToClassList("traffic-field-label");
-            m_TrafficSelectAllLightsToggle = new Toggle();
-            m_TrafficSelectAllLightsToggle.AddToClassList("traffic-toggle");
-            var selectAllLabel = new Label("全选");
-            selectAllLabel.AddToClassList("traffic-toggle-label");
-            selectAllLabel.AddToClassList("traffic-select-all");
-            m_TrafficSelectAllLightsToggle.RegisterValueChangedCallback(OnSelectAllLightsChanged);
+            lightRow.AddToClassList(MapToolStyleClasses.TrafficFieldRow);
+
+            var lightLabel = MapToolUiFactory.CreateLabel("绑定红绿灯", MapToolStyleClasses.TrafficFieldLabel);
             lightRow.Add(lightLabel);
+
+            m_TrafficSelectAllLightsToggle = new Toggle();
+            m_TrafficSelectAllLightsToggle.AddToClassList(MapToolStyleClasses.TrafficToggle);
+            m_TrafficSelectAllLightsToggle.RegisterValueChangedCallback(OnSelectAllLightsChanged);
             lightRow.Add(m_TrafficSelectAllLightsToggle);
+
+            var selectAllLabel = MapToolUiFactory.CreateLabel("全选", MapToolStyleClasses.TrafficToggleLabel);
+            selectAllLabel.AddToClassList(MapToolStyleClasses.TrafficSelectAll);
             lightRow.Add(selectAllLabel);
+
             m_TrafficPanel.Add(lightRow);
 
             var lightScroll = new ScrollView();
-            lightScroll.AddToClassList("traffic-light-bind-list");
+            lightScroll.AddToClassList(MapToolStyleClasses.TrafficLightBindList);
             m_TrafficLightBindContainer = lightScroll.contentContainer;
             m_TrafficPanel.Add(lightScroll);
+        }
 
-            var yellowRow = new VisualElement();
-            yellowRow.AddToClassList("traffic-toggle-row");
-            var yellowLabel = new Label("黄灯按红灯处理（仅车辆）");
-            yellowLabel.AddToClassList("traffic-toggle-label");
+        /// <summary>
+        /// 构建「黄灯按红灯处理（仅车辆）」开关行
+        /// </summary>
+        private void BuildYellowRedRow()
+        {
             m_TrafficYellowRedToggle = new Toggle();
-            m_TrafficYellowRedToggle.AddToClassList("traffic-toggle");
+            AddTrafficToggleRow(m_TrafficPanel, "黄灯按红灯处理（仅车辆）", m_TrafficYellowRedToggle);
+
             m_TrafficYellowRedToggle.RegisterValueChangedCallback(evt =>
             {
                 if (m_EditTarget == null) return;
                 m_EditTarget.YellowTreatAsRed = evt.newValue;
             });
-            yellowRow.Add(yellowLabel);
-            yellowRow.Add(m_TrafficYellowRedToggle);
-            m_TrafficPanel.Add(yellowRow);
+        }
 
-            // 地图级要素清单（灯/横道/区域）与一致性校验结果不属于单个选中物件，不在物件属性面板显示，避免冗余渲染。
+        /// <summary>
+        /// 构建「标签 + 开关」行并挂到父容器
+        /// </summary>
+        /// <param name="parent">父容器</param>
+        /// <param name="label">标签文本</param>
+        /// <param name="toggle">开关控件（由调用方创建后传入，便于保留字段引用）</param>
+        /// <returns>行容器</returns>
+        private static VisualElement AddTrafficToggleRow(VisualElement parent, string label, Toggle toggle)
+        {
+            var row = new VisualElement();
+            row.AddToClassList(MapToolStyleClasses.TrafficToggleRow);
 
-            actionHost?.Add(m_TrafficPanel);
-            RefreshTrafficToolButtons();
+            var lbl = MapToolUiFactory.CreateLabel(label, MapToolStyleClasses.TrafficToggleLabel);
+
+            toggle.AddToClassList(MapToolStyleClasses.TrafficToggle);
+
+            row.Add(lbl);
+            row.Add(toggle);
+            parent?.Add(row);
+            return row;
         }
 
         /// <summary>
@@ -222,11 +285,10 @@ namespace Honor.Editor.MapTool
         /// <returns>字段行容器</returns>
         private VisualElement AddTrafficFieldRow(string label, VisualElement control)
         {
-            control.AddToClassList("traffic-input");
+            control.AddToClassList(MapToolStyleClasses.TrafficInput);
             var row = new VisualElement();
-            row.AddToClassList("traffic-field-row");
-            var lbl = new Label(label);
-            lbl.AddToClassList("traffic-field-label");
+            row.AddToClassList(MapToolStyleClasses.TrafficFieldRow);
+            var lbl = MapToolUiFactory.CreateLabel(label, MapToolStyleClasses.TrafficFieldLabel);
             row.Add(lbl);
             row.Add(control);
             return row;
@@ -253,7 +315,7 @@ namespace Honor.Editor.MapTool
         {
             var btn = new Button(() => SetTrafficTool(m_TrafficTool == tool ? TrafficTool.None : tool));
             btn.text = text;
-            btn.AddToClassList("traffic-tool-btn");
+            btn.AddToClassList(MapToolStyleClasses.TrafficToolBtn);
             m_TrafficToolButtons[tool] = btn;
             parent.Add(btn);
         }
@@ -275,7 +337,7 @@ namespace Honor.Editor.MapTool
             m_TrafficTool = tool;
             m_TrafficAnchor = null;
             RefreshTrafficToolButtons();
-            Debug.Log($"交通工具切换: {tool}");
+            MapToolLog.Info($"交通工具切换: {tool}");
             if (m_GuiContainer != null) m_GuiContainer.MarkDirtyRepaint();
         }
 
@@ -292,22 +354,18 @@ namespace Honor.Editor.MapTool
                 return;
             }
 
-            if (m_TrafficVehicleToggle != null)
-                m_TrafficVehicleToggle.SetValueWithoutNotify(m_EditTarget.IsVehicle);
-            if (m_TrafficRoleField != null)
-                m_TrafficRoleField.SetValueWithoutNotify(TrafficRoleToDisplay(m_EditTarget.TrafficRole));
-            if (m_TrafficStopLineField != null)
-                m_TrafficStopLineField.SetValueWithoutNotify($"{m_EditTarget.StopLineX:0.#}, {m_EditTarget.StopLineY:0.#}");
+            m_TrafficVehicleToggle.SetValueSafe(m_EditTarget.IsVehicle);
+            m_TrafficRoleField.SetValueSafe(TrafficRoleToDisplay(m_EditTarget.TrafficRole));
+            m_TrafficStopLineField.SetValueSafe($"{m_EditTarget.StopLineX:0.#}, {m_EditTarget.StopLineY:0.#}");
             RefreshLightBindChoices();
-            if (m_TrafficYellowRedToggle != null)
-                m_TrafficYellowRedToggle.SetValueWithoutNotify(m_EditTarget.YellowTreatAsRed);
+            m_TrafficYellowRedToggle.SetValueSafe(m_EditTarget.YellowTreatAsRed);
         }
 
         /// <summary>刷新交通角色下拉选中态（随载具标记联动）</summary>
         private void RefreshTrafficRoleChoices()
         {
             if (m_TrafficRoleField == null) return;
-            string role = m_EditTarget != null ? m_EditTarget.TrafficRole : "pedestrian";
+            string role = m_EditTarget != null ? m_EditTarget.TrafficRole : TemplateTrafficCategory.Pedestrian;
             m_TrafficRoleField.SetValueWithoutNotify(TrafficRoleToDisplay(role));
         }
 
@@ -320,7 +378,7 @@ namespace Honor.Editor.MapTool
         {
             if (obj == null) return false;
             if (obj.IsVehicle) return true;
-            return obj.TrafficRole == "vehicle" || obj.TrafficRole == "pedestrian";
+            return obj.TrafficRole == TemplateTrafficCategory.Vehicle || obj.TrafficRole == TemplateTrafficCategory.Pedestrian;
         }
 
         /// <summary>
@@ -360,8 +418,7 @@ namespace Honor.Editor.MapTool
 
             if (m_TrafficLights.Count == 0)
             {
-                var empty = new Label("（当前地图无红绿灯）");
-                empty.AddToClassList("traffic-item-empty");
+                var empty = MapToolUiFactory.CreateLabel("（当前地图无红绿灯）", MapToolStyleClasses.TrafficItemEmpty);
                 m_TrafficLightBindContainer.Add(empty);
                 SetSelectAllLightsState(false, false);
                 return;
@@ -370,7 +427,7 @@ namespace Honor.Editor.MapTool
             foreach (var light in m_TrafficLights)
             {
                 var toggle = new Toggle(LightIdToChoice(light.id));
-                toggle.AddToClassList("traffic-light-item");
+                toggle.AddToClassList(MapToolStyleClasses.TrafficLightItem);
                 toggle.SetValueWithoutNotify(selected.Contains(light.id));
                 string lightId = light.id;
                 toggle.RegisterValueChangedCallback(evt => OnSingleLightChanged(lightId, evt.newValue));
@@ -473,7 +530,7 @@ namespace Honor.Editor.MapTool
             if (!m_TrafficAnchor.HasValue)
             {
                 m_TrafficAnchor = worldPos;
-                Debug.Log($"{(sidewalk ? "人行道" : "道路")}刷格：第一角已记录，再点第二角成矩形");
+                MapToolLog.Info($"{(sidewalk ? "人行道" : "道路")}刷格：第一角已记录，再点第二角成矩形");
                 return;
             }
 
@@ -493,7 +550,7 @@ namespace Honor.Editor.MapTool
             };
             m_Regions.Add(region);
             m_TrafficAnchor = null;
-            Debug.Log($"{(sidewalk ? "人行道" : "道路")}{(diamond ? "菱形" : "矩形")}区域已录入，格子 {target.Count}");
+            MapToolLog.Info($"{(sidewalk ? "人行道" : "道路")}{(diamond ? "菱形" : "矩形")}区域已录入，格子 {target.Count}");
         }
 
         /// <summary>画横道：两段式两点，自动按走向判定方向并绑定最近横道对应的灯（后置可在面板改绑）</summary>
@@ -502,7 +559,7 @@ namespace Honor.Editor.MapTool
             if (!m_TrafficAnchor.HasValue)
             {
                 m_TrafficAnchor = worldPos;
-                Debug.Log("横道：起点已记录，再点终点");
+                MapToolLog.Info("横道：起点已记录，再点终点");
                 return;
             }
 
@@ -515,11 +572,11 @@ namespace Honor.Editor.MapTool
                 pointA = new MapPathPointData(a.x, a.y),
                 pointB = new MapPathPointData(worldPos.x, worldPos.y),
                 width = MapToolConstants.GridSize,
-                direction = horizontal ? "horizontal" : "vertical"
+                direction = horizontal ? MapToolConstants.TrafficDirectionHorizontal : MapToolConstants.TrafficDirectionVertical
             };
             m_Crosswalks.Add(cw);
             m_TrafficAnchor = null;
-            Debug.Log($"横道已录入: {cw.id} 方向 {cw.direction}");
+            MapToolLog.Info($"横道已录入: {cw.id} 方向 {cw.direction}");
         }
 
         /// <summary>放灯：单点放置，自动绑定距离最近的横道</summary>
@@ -534,7 +591,7 @@ namespace Honor.Editor.MapTool
                 posY = worldPos.y,
                 gridX = MapToolEditorUtils.WorldToCell(worldPos).x,
                 gridY = MapToolEditorUtils.WorldToCell(worldPos).y,
-                direction = nearest != null ? nearest.direction : "horizontal",
+                direction = nearest != null ? nearest.direction : MapToolConstants.TrafficDirectionHorizontal,
                 side = "north",
                 boundCrosswalkId = nearest != null ? nearest.id : string.Empty,
                 initialPhase = "red"
@@ -544,7 +601,7 @@ namespace Honor.Editor.MapTool
             {
                 nearest.boundLightId = light.id;
             }
-            Debug.Log($"红绿灯已放置: {light.id} 绑定横道 {light.boundCrosswalkId}");
+            MapToolLog.Info($"红绿灯已放置: {light.id} 绑定横道 {light.boundCrosswalkId}");
         }
 
         /// <summary>把矩形展开为格子集合（吸附网格、去重），写入目标集合</summary>
@@ -630,16 +687,26 @@ namespace Honor.Editor.MapTool
 
         #region 一致性校验
 
-        /// <summary>
-        /// 校验交通引用完整性与基本几何合法性；返回问题描述列表（空=通过）
-        /// </summary>
         private List<string> ValidateTraffic()
         {
             var issues = new List<string>();
             var lightIds = new HashSet<string>(m_TrafficLights.Select(l => l.id));
             var crosswalkIds = new HashSet<string>(m_Crosswalks.Select(c => c.id));
 
-            // 灯 → 横道引用
+            ValidateTrafficLightReferences(issues, crosswalkIds);
+            ValidateCrosswalkReferences(issues, lightIds);
+            ValidateTrafficPlacedObjects(issues, lightIds);
+
+            return issues;
+        }
+
+        /// <summary>
+        /// 校验红绿灯 → 横道引用
+        /// </summary>
+        /// <param name="issues">问题收集列表</param>
+        /// <param name="crosswalkIds">现存横道 ID 集合</param>
+        private void ValidateTrafficLightReferences(List<string> issues, HashSet<string> crosswalkIds)
+        {
             foreach (var light in m_TrafficLights)
             {
                 if (string.IsNullOrEmpty(light.boundCrosswalkId))
@@ -651,23 +718,24 @@ namespace Honor.Editor.MapTool
                     issues.Add($"灯 {light.name}（{light.id}）绑定的横道 {light.boundCrosswalkId} 不存在。");
                 }
             }
+        }
 
-            // 横道 → 灯引用 + 几何
+        /// <summary>
+        /// 校验横道 → 灯引用 + 端点几何 + 人行道衔接
+        /// </summary>
+        /// <param name="issues">问题收集列表</param>
+        /// <param name="lightIds">现存红绿灯 ID 集合</param>
+        private void ValidateCrosswalkReferences(List<string> issues, HashSet<string> lightIds)
+        {
             foreach (var cw in m_Crosswalks)
             {
                 if (!string.IsNullOrEmpty(cw.boundLightId) && !lightIds.Contains(cw.boundLightId))
                 {
                     issues.Add($"横道 {cw.name}（{cw.id}）绑定的灯 {cw.boundLightId} 不存在。");
                 }
-                if (cw.pointA == null || cw.pointB == null)
-                {
-                    issues.Add($"横道 {cw.name}（{cw.id}）缺少端点。");
-                    continue;
-                }
-                if (Vector2.Distance(new Vector2(cw.pointA.x, cw.pointA.y), new Vector2(cw.pointB.x, cw.pointB.y)) < MapToolConstants.GridSize)
-                {
-                    issues.Add($"横道 {cw.name}（{cw.id}）两端距离过短。");
-                }
+
+                if (!ValidateCrosswalkGeometry(issues, cw)) continue;
+
                 // 横道两端应落在人行道格内（缺失人行道格时仅提示）
                 if (m_SidewalkCells.Count > 0 && !PointInSidewalk(cw.pointA, out _))
                 {
@@ -678,39 +746,83 @@ namespace Honor.Editor.MapTool
                     issues.Add($"横道 {cw.name}（{cw.id}）终点未接人行道。");
                 }
             }
+        }
 
-            // 交通条目 → 归属链路 + 载具灯引用 / 停止线落路面
+        /// <summary>
+        /// 校验横道端点存在且两端距离足够
+        /// </summary>
+        /// <param name="issues">问题收集列表</param>
+        /// <param name="cw">横道数据</param>
+        /// <returns>端点有效（可继续做衔接检查）返回 true</returns>
+        private static bool ValidateCrosswalkGeometry(List<string> issues, MapCrosswalkData cw)
+        {
+            if (cw.pointA == null || cw.pointB == null)
+            {
+                issues.Add($"横道 {cw.name}（{cw.id}）缺少端点。");
+                return false;
+            }
+
+            var pointA = new Vector2(cw.pointA.x, cw.pointA.y);
+            var pointB = new Vector2(cw.pointB.x, cw.pointB.y);
+            if (Vector2.Distance(pointA, pointB) < MapToolConstants.GridSize)
+                issues.Add($"横道 {cw.name}（{cw.id}）两端距离过短。");
+
+            return true;
+        }
+
+        /// <summary>
+        /// 校验参与交通的摆放物：归属链路 + 载具灯引用 + 停止线落路面
+        /// </summary>
+        /// <param name="issues">问题收集列表</param>
+        /// <param name="lightIds">现存红绿灯 ID 集合</param>
+        private void ValidateTrafficPlacedObjects(List<string> issues, HashSet<string> lightIds)
+        {
             foreach (var obj in m_PlacedObjects)
             {
                 if (!IsTrafficRoleActive(obj)) continue;
+
                 // 参与交通的条目必须归入角色动态链路，否则交通字段不进角色表、运行时不消费
                 if (obj.Type != MapObjectType.Character)
                 {
                     issues.Add($"交通条目 {obj.Name}（{obj.Id}）未归入角色动态链路，交通属性不会生效。");
                 }
+
                 if (!obj.IsVehicle) continue;
-                // ---TODO 交通规则：绑定灯多选校验，旧单值兜底一并检查
-                var boundLightSet = new List<string>();
-                if (obj.BoundLightIds != null)
-                {
-                    foreach (var id in obj.BoundLightIds)
-                    {
-                        if (!string.IsNullOrEmpty(id) && !boundLightSet.Contains(id)) boundLightSet.Add(id);
-                    }
-                }
-                if (!string.IsNullOrEmpty(obj.BoundLightId) && !boundLightSet.Contains(obj.BoundLightId))
-                    boundLightSet.Add(obj.BoundLightId);
-                foreach (var lightId in boundLightSet)
+
+                foreach (var lightId in CollectBoundLightIds(obj))
                 {
                     if (!lightIds.Contains(lightId))
                         issues.Add($"载具 {obj.Name}（{obj.Id}）绑定的灯 {lightId} 不存在。");
                 }
+
                 if (m_RoadCells.Count > 0 && !PointInRoad(obj.Position))
                 {
                     issues.Add($"载具 {obj.Name}（{obj.Id}）不在道路格上。");
                 }
             }
-            return issues;
+        }
+
+        /// <summary>
+        /// 收集摆放物绑定的灯 ID（多选为主，旧单值兜底，去重保序）
+        /// </summary>
+        /// <param name="obj">摆放物</param>
+        /// <returns>绑定的灯 ID 列表</returns>
+        private static List<string> CollectBoundLightIds(PlacedObject obj)
+        {
+            var boundLightIds = new List<string>();
+
+            if (obj.BoundLightIds != null)
+            {
+                foreach (var id in obj.BoundLightIds)
+                {
+                    if (!string.IsNullOrEmpty(id) && !boundLightIds.Contains(id)) boundLightIds.Add(id);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(obj.BoundLightId) && !boundLightIds.Contains(obj.BoundLightId))
+                boundLightIds.Add(obj.BoundLightId);
+
+            return boundLightIds;
         }
 
         /// <summary>判断世界坐标是否落在人行道格集合内</summary>
@@ -794,9 +906,9 @@ namespace Honor.Editor.MapTool
         {
             switch (code)
             {
-                case "vehicle": return "载具";
-                case "none": return "不参与";
-                default: return "行人";
+                case TemplateTrafficCategory.Vehicle: return MapToolConstants.TrafficRoleVehicleDisplay;
+                case TemplateTrafficCategory.None: return MapToolConstants.TrafficRoleInactiveDisplay;
+                default: return MapToolConstants.TrafficRolePedestrianDisplay;
             }
         }
 
@@ -805,16 +917,16 @@ namespace Honor.Editor.MapTool
         {
             switch (display)
             {
-                case "载具": return "vehicle";
-                case "不参与": return "none";
-                default: return "pedestrian";
+                case MapToolConstants.TrafficRoleVehicleDisplay: return TemplateTrafficCategory.Vehicle;
+                case MapToolConstants.TrafficRoleInactiveDisplay: return TemplateTrafficCategory.None;
+                default: return TemplateTrafficCategory.Pedestrian;
             }
         }
 
         /// <summary>灯实例 ID → 选项文案（空=无绑定）</summary>
         private string LightIdToChoice(string id)
         {
-            if (string.IsNullOrEmpty(id)) return "无绑定";
+            if (string.IsNullOrEmpty(id)) return MapToolConstants.TrafficLightUnboundDisplay;
             var light = m_TrafficLights.FirstOrDefault(l => l.id == id);
             return light != null ? $"{light.name}（{light.id}）" : id;
         }

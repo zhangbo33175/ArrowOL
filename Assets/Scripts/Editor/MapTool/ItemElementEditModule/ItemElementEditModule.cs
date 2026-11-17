@@ -17,7 +17,7 @@ namespace Honor.Editor.MapTool
     /// <summary>
     /// 物品元件编辑模块 - 公有接口
     /// </summary>
-    public partial class ItemElementEditModule
+    public partial class ItemElementEditModule : IMapEditModule
     {
         /// <summary>
         /// 初始化模块
@@ -56,7 +56,7 @@ namespace Honor.Editor.MapTool
                 filteredCount++;
             }
 
-            Debug.Log($"[ItemElementEditModule] 刷新元件列表，类型={m_CurrentTypeTab}，共加载 {filteredCount} 个模板");
+            MapToolLog.Info($"[ItemElementEditModule] 刷新元件列表，类型={m_CurrentTypeTab}，共加载 {filteredCount} 个模板");
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Show()
         {
-            m_Root.style.display = DisplayStyle.Flex;
+            m_Root.SetVisible(true);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Hide()
         {
-            m_Root.style.display = DisplayStyle.None;
+            m_Root.SetVisible(false);
         }
 
     }

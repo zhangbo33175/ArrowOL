@@ -8,6 +8,7 @@
  * descrip:   地图编辑器全局常量定义（配置表路径/资源路径/尺寸常量/EditorPrefs键）
  ***************************************************************/
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -70,6 +71,16 @@ namespace Honor.Editor.MapTool
         // ==================== 资源目录（相对 Assets） ====================
 
         /// <summary>
+        /// 预制体资源根目录（各预制体子目录的公共前缀）
+        /// </summary>
+        public const string PrefabRoot = "Assets/Res/Prefabs";
+
+        /// <summary>
+        /// 纹理资源根目录（各纹理子目录的公共前缀）
+        /// </summary>
+        public const string TextureRoot = "Assets/Res/Textures";
+
+        /// <summary>
         /// 物体预览图目录一的 EditorPrefs 键
         /// </summary>
         public const string ObjectPreviewPrefabsDirPrefsKey = "MapTool_Path_ObjectPreviewPrefabs";
@@ -77,7 +88,7 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 物体预览图目录一默认值（Prefabs 下）
         /// </summary>
-        private const string k_ObjectPreviewPrefabsDirDefault = "Assets/Res/Prefabs/Map/Objects";
+        private const string k_ObjectPreviewPrefabsDirDefault = PrefabRoot + "/Map/Objects";
 
         /// <summary>
         /// 物体预览图目录一（可在地图配置弹窗中修改，EditorPrefs 持久化）
@@ -92,7 +103,7 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 物体预览图目录二默认值（Textures 下）
         /// </summary>
-        private const string k_ObjectPreviewTexturesDirDefault = "Assets/Res/Textures/Map/Objects";
+        private const string k_ObjectPreviewTexturesDirDefault = TextureRoot + "/Map/Objects";
 
         /// <summary>
         /// 物体预览图目录二（可在地图配置弹窗中修改，EditorPrefs 持久化）
@@ -107,7 +118,7 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 分区背景图目录默认值（拼接 {bgName}.png）
         /// </summary>
-        private const string k_LevelBackgroundDirDefault = "Assets/Res/Textures/Map/LevelBackground";
+        private const string k_LevelBackgroundDirDefault = TextureRoot + "/Map/LevelBackground";
 
         /// <summary>
         /// 分区背景图目录（可在地图配置弹窗中修改，EditorPrefs 持久化）
@@ -122,7 +133,7 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 章节地图保存目录默认值（拼接 Map_{chapterId}.json / .prefab）
         /// </summary>
-        private const string k_MapSaveDirDefault = "Assets/GameData/Maps";
+        private const string k_MapSaveDirDefault = GameDataDir + "/Maps";
 
         /// <summary>
         /// 章节地图保存目录（可在地图配置弹窗中修改，EditorPrefs 持久化）
@@ -133,24 +144,45 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 章节地图 JSON 保存目录（Map_{chapterId}.json 落此目录；Lua 同源导出）
         /// </summary>
-        public const string MapJsonSaveDir = "Assets/GameData/MapDatas";
+        public const string MapJsonSaveDir = GameDataDir + "/MapDatas";
 
         /// <summary>
         /// 地图保存目录的父目录（用于按需创建目录结构）
         /// </summary>
         public const string GameDataDir = "Assets/GameData";
 
-        // ==================== 资源整理模块常量 ====================
+        /// <summary>GameData 目录名（不带 Assets 前缀，用于 AssetDatabase.CreateFolder 场景）</summary>
+        public const string GameDataFolderName = "GameData";
 
-        /// <summary>
-        /// 资源整理：未配置资源扫描目录（相对 Assets）
-        /// </summary>
-        public const string ResourceScanDir = "Assets/Res/Textures/Map";
+        // ==================== 资源整理模块常量 ====================
 
         /// <summary>
         /// 地图纹理根目录（相对 Assets）：PSD 切片按 全局共享 / 章节共享 / 关卡专属 三级存放
         /// </summary>
-        public const string MapTextureRoot = "Assets/Res/Textures/Map";
+        public const string MapTextureRoot = TextureRoot + "/Map";
+
+        /// <summary>
+        /// 资源整理：未配置资源扫描目录（相对 Assets，与地图纹理根目录同源）
+        /// </summary>
+        public const string ResourceScanDir = MapTextureRoot;
+
+        /// <summary>PSD 导入：地图纹理根目录（相对 Assets，供 Python 侧使用；与 MapTextureRoot 同目录）</summary>
+        public const string PsdMapTextureRootDir = "Res/Textures/Map";
+
+        /// <summary>PSD 导入：跨章节公共资源目录名</summary>
+        public const string PsdSharedDirName = "Shared";
+
+        /// <summary>PSD 导入：章节目录名前缀（拼接章节 ID）</summary>
+        public const string ChapterDirPrefix = "Chapter";
+
+        /// <summary>PSD 导入：解析脚本路径（相对 Assets）</summary>
+        public const string PsdImportScriptPath = "Scripts/Editor/MapTool/Common/psd_import.py";
+
+        /// <summary>PSD 导入：Python 解析结果文件名</summary>
+        public const string PsdImportResultFileName = "import_result.json";
+
+        /// <summary>运行时章节表 Lua 路径（相对 Assets；Excel 配置缺失时的兜底数据源）</summary>
+        public const string RuntimeChaptersLuaPath = "LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt";
 
         /// <summary>
         /// 资源整理：配置表根目录（相对项目根目录）
@@ -158,6 +190,15 @@ namespace Honor.Editor.MapTool
         public const string ConfigTableRootDir = "Docs/Designs/Excels/Tables/AlTables/Item";
 
         // ==================== 美术命名前缀 ====================
+
+        /// <summary>资源名（ResName）统一前缀：占位资源名 = 前缀 + 类型关键字</summary>
+        public const string ResNamePrefix = "GameObject_";
+        /// <summary>建筑类资源名关键字（预制体目录匹配用）</summary>
+        public const string ResNameKeywordBuilding = "Building";
+        /// <summary>人物类资源名关键字（预制体目录匹配用）</summary>
+        public const string ResNameKeywordCharacter = "Character";
+        /// <summary>物件类资源名关键字（预制体目录匹配用）</summary>
+        public const string ResNameKeywordProp = "Prop";
 
         /// <summary>背景图命名前缀</summary>
         public const string PrefixBg = "bg_";
@@ -182,6 +223,32 @@ namespace Honor.Editor.MapTool
         /// <summary>气泡命名前缀</summary>
         public const string PrefixBubble = "bubble_";
 
+        /// <summary>
+        /// 美术资源命名前缀全集（导出切片筛选、资源归类共用）
+        /// </summary>
+        public static readonly string[] ArtPrefixes =
+        {
+            PrefixBg, PrefixGrass, PrefixPlant, PrefixRoad,
+            PrefixBuilding, PrefixCharacter, PrefixProp, PrefixCat,
+            PrefixEffect, PrefixBubble,
+        };
+
+        /// <summary>
+        /// 判断物件名是否带美术命名前缀（大小写不敏感）
+        /// </summary>
+        /// <param name="name">物件名</param>
+        /// <returns>带前缀返回 true</returns>
+        public static bool HasArtPrefix(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            string lowerName = name.ToLowerInvariant();
+            foreach (string prefix in ArtPrefixes)
+            {
+                if (lowerName.StartsWith(prefix)) return true;
+            }
+            return false;
+        }
+
         // ==================== 筛选类型枚举字符串 ====================
 
         /// <summary>筛选类型：全部</summary>
@@ -196,6 +263,12 @@ namespace Honor.Editor.MapTool
         public const string FilterProp = "prop";
         /// <summary>筛选类型：猫猫</summary>
         public const string FilterCat = "cat";
+
+        /// <summary>交通方向 code：横向车道（写入配置表 direction 列）</summary>
+        public const string TrafficDirectionHorizontal = "horizontal";
+
+        /// <summary>交通方向 code：纵向车道（写入配置表 direction 列）</summary>
+        public const string TrafficDirectionVertical = "vertical";
 
         // ==================== 配置表文件名 ====================
 
@@ -273,7 +346,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public const string DrawShapePrefsKey = "MapTool_DrawShape";
 
-        /// <summary>绘制形状默认值：菱形绘制</summary>
+        /// <summary>绘制形状默认值：菱形绘制（code 口径见 <see cref="DrawShape"/> 的 Diamond 常量）</summary>
         public const string DrawShapeDefault = "diamond";
 
         /// <summary>
@@ -281,7 +354,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public const string RegionTypePrefsKey = "MapTool_RegionType";
 
-        /// <summary>区域类型默认值：摆放区</summary>
+        /// <summary>区域类型默认值：摆放区（code 口径见 <see cref="RegionType"/> 的 Place 常量）</summary>
         public const string RegionTypeDefault = "place";
 
         /// <summary>
@@ -387,12 +460,32 @@ namespace Honor.Editor.MapTool
         /// <summary>
         /// 场景根节点预制体路径
         /// </summary>
-        public const string SceneRootPrefabPath = "Assets/Res/Prefabs/SceneRoot/2DSceneRoot.prefab";
+        public const string SceneRootPrefabPath = PrefabRoot + "/SceneRoot/2DSceneRoot.prefab";
 
         /// <summary>
         /// 区域项（ZoneItem）预制体路径
         /// </summary>
-        public const string ZoneItemPrefabPath = "Assets/Res/Prefabs/Map/ZoneItem.prefab";
+        public const string ZoneItemPrefabPath = PrefabRoot + "/Map/ZoneItem.prefab";
+
+        /// <summary>
+        /// 物件基础模板预制体目录（场景同步按类型取模板的兜底预制体）
+        /// </summary>
+        public const string ModelPrefabDir = PrefabRoot + "/Model";
+
+        /// <summary>
+        /// 建筑基础模板预制体路径
+        /// </summary>
+        public const string BuildingBaseTemplatePrefab = ModelPrefabDir + "/Building_BaseTemplate.prefab";
+
+        /// <summary>
+        /// 人物基础模板预制体路径
+        /// </summary>
+        public const string CharacterBaseTemplatePrefab = ModelPrefabDir + "/Character_BaseTemplate.prefab";
+
+        /// <summary>
+        /// 物件基础模板预制体路径（物件/猫猫共用）
+        /// </summary>
+        public const string PropBaseTemplatePrefab = ModelPrefabDir + "/Prop_BaseTemplate.prefab";
 
         // ==================== UI 尺寸常量 ====================
 
@@ -433,6 +526,70 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public const string NoAnimName = "none";
 
+        // ==================== 对象标识显示文案 ====================
+
+        /// <summary>载具对象的类型标签显示名（避免被角色链路归并显示为 Character）</summary>
+        public const string VehicleTagDisplay = "Vehicle";
+        /// <summary>对象标识区：前缀占位文案</summary>
+        public const string PrefixPlaceholder = "前缀";
+        /// <summary>对象标识区：可交互状态文案</summary>
+        public const string InteractStateOnDisplay = "点击&移动";
+        /// <summary>对象标识区：不可交互状态文案</summary>
+        public const string InteractStateOffDisplay = "不可交互";
+
+        // ==================== 交通角色显示文案 ====================
+
+        /// <summary>交通角色：载具（实例级 role=vehicle）</summary>
+        public const string TrafficRoleVehicleDisplay = "载具";
+        /// <summary>交通角色：行人（实例级 role=pedestrian）</summary>
+        public const string TrafficRolePedestrianDisplay = "行人";
+        /// <summary>交通角色：不参与（实例级 role=none）</summary>
+        public const string TrafficRoleInactiveDisplay = "不参与";
+        /// <summary>交通面板：交通灯未绑定时的选项文案</summary>
+        public const string TrafficLightUnboundDisplay = "无绑定";
+
+        // ==================== 章节/关卡兜底标识 ====================
+
+        /// <summary>
+        /// 章节ID缺省值（未选章节时导出/保存使用的兜底标识）
+        /// </summary>
+        public const string DefaultChapterId = "DefaultChapter";
+
+        /// <summary>
+        /// 关卡ID缺省值（未选关卡时导出/保存使用的兜底标识）
+        /// </summary>
+        public const string DefaultLevelId = "DefaultLevel";
+
+        /// <summary>
+        /// 显示层「跟随类型」下拉选项显示名（对应 DisplayLayer 为空）
+        /// </summary>
+        public const string LayerFollowTypeDisplay = "跟随类型";
+
+        // ==================== 编辑器文案 / 资源查询 ====================
+
+        /// <summary>路径绘制按钮：开始绘制</summary>
+        public const string PathDrawStartText = "开始绘制路径";
+
+        /// <summary>路径绘制按钮：停止绘制</summary>
+        public const string PathDrawStopText = "停止绘制路径";
+
+        /// <summary>折叠状态箭头（章节/分组可展开）</summary>
+        public const string ExpandArrowDownText = "▼";
+
+        /// <summary>展开状态箭头（已展开可收起）</summary>
+        public const string ExpandArrowRightText = "▶";
+
+        /// <summary>通用删除按钮文案</summary>
+        public const string DeleteButtonText = "删除";
+
+        /// <summary>路径点列表删除图标文案</summary>
+        public const string RemoveIconText = "×";
+
+        /// <summary>
+        /// AssetDatabase 纹理资源查询过滤串（t:Texture2D）
+        /// </summary>
+        public const string TextureAssetFilter = "t:Texture2D";
+
         // ==================== 文件扩展名 ====================
 
         /// <summary>
@@ -449,6 +606,26 @@ namespace Honor.Editor.MapTool
         /// PNG 图片文件扩展名
         /// </summary>
         public const string ExtPng = ".png";
+
+        /// <summary>
+        /// JPG 图片文件扩展名
+        /// </summary>
+        public const string ExtJpg = ".jpg";
+
+        /// <summary>
+        /// JPEG 图片文件扩展名
+        /// </summary>
+        public const string ExtJpeg = ".jpeg";
+
+        /// <summary>
+        /// PSD 图片文件扩展名
+        /// </summary>
+        public const string ExtPsd = ".psd";
+
+        /// <summary>
+        /// 图集可识别的图片扩展名集合（扫目录与磁盘读取共用同一口径）
+        /// </summary>
+        public static readonly string[] ImageExtensions = { ExtPng, ExtJpg, ExtJpeg, ExtPsd };
 
         /// <summary>
         /// Unity 预制体文件扩展名
@@ -555,18 +732,27 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 获取路径配置的默认值（按 EditorPrefs 键映射）
+        /// 可配置路径默认值表（EditorPrefs 键 → 默认路径）
+        /// 新增可配置路径时只需在此登记，读取入口与配置弹窗自动同步，不再维护 if 链
+        /// </summary>
+        private static readonly Dictionary<string, string> PathDefaults = new Dictionary<string, string>
+        {
+            { TableChaptersPathPrefsKey, k_TableChaptersPathDefault },
+            { TableMainLevelsPathPrefsKey, k_TableMainLevelsPathDefault },
+            { ObjectPreviewPrefabsDirPrefsKey, k_ObjectPreviewPrefabsDirDefault },
+            { ObjectPreviewTexturesDirPrefsKey, k_ObjectPreviewTexturesDirDefault },
+            { LevelBackgroundDirPrefsKey, k_LevelBackgroundDirDefault },
+            { MapSaveDirPrefsKey, k_MapSaveDirDefault },
+        };
+
+        /// <summary>
+        /// 获取路径配置的默认值（按 EditorPrefs 键查默认值表，未登记返回空串）
         /// </summary>
         /// <param name="prefsKey">EditorPrefs 键</param>
         public static string GetConfigPathDefault(string prefsKey)
         {
-            if (prefsKey == TableChaptersPathPrefsKey) return k_TableChaptersPathDefault;
-            if (prefsKey == TableMainLevelsPathPrefsKey) return k_TableMainLevelsPathDefault;
-            if (prefsKey == ObjectPreviewPrefabsDirPrefsKey) return k_ObjectPreviewPrefabsDirDefault;
-            if (prefsKey == ObjectPreviewTexturesDirPrefsKey) return k_ObjectPreviewTexturesDirDefault;
-            if (prefsKey == LevelBackgroundDirPrefsKey) return k_LevelBackgroundDirDefault;
-            if (prefsKey == MapSaveDirPrefsKey) return k_MapSaveDirDefault;
-            return "";
+            if (string.IsNullOrEmpty(prefsKey)) return string.Empty;
+            return PathDefaults.TryGetValue(prefsKey, out string defaultValue) ? defaultValue : string.Empty;
         }
     }
 }

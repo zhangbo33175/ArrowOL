@@ -17,7 +17,7 @@ namespace Honor.Editor.MapTool
     /// <summary>
     /// 迷雾编辑模块 - 公有接口
     /// </summary>
-    public partial class FogEditModule
+    public partial class FogEditModule : IMapEditModule
     {
         /// <summary>
         /// 初始化模块
@@ -35,7 +35,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Show()
         {
-            m_Root.style.display = DisplayStyle.Flex;
+            m_Root.SetVisible(true);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public void Hide()
         {
-            m_Root.style.display = DisplayStyle.None;
+            m_Root.SetVisible(false);
         }
 
     }

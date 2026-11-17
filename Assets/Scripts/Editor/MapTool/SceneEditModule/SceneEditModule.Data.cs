@@ -32,6 +32,7 @@ namespace Honor.Editor.MapTool
         /// <returns>JSON 数据对象</returns>
         private MapObjectData BuildMapObjectData(PlacedObject obj)
         {
+            var cell = MapToolEditorUtils.WorldToCell(obj.Position); // ---TODO 网格信息：格子坐标（一次计算，供 gridX/gridY 共用）
             return new MapObjectData
             {
                 id = obj.Id,
@@ -39,8 +40,8 @@ namespace Honor.Editor.MapTool
                 name = obj.Name,
                 posX = obj.Position.x,
                 posY = obj.Position.y,
-                gridX = MapToolEditorUtils.WorldToCell(obj.Position).x, // ---TODO 网格信息：格子坐标
-                gridY = MapToolEditorUtils.WorldToCell(obj.Position).y, // ---TODO 网格信息：格子坐标
+                gridX = cell.x, // ---TODO 网格信息：格子坐标
+                gridY = cell.y, // ---TODO 网格信息：格子坐标
                 width = obj.Width,
                 height = obj.Height,
                 pixelWidth = obj.PixelWidth,
@@ -50,7 +51,7 @@ namespace Honor.Editor.MapTool
                 displayLayer = obj.DisplayLayer,
                 image = MapToolEditorUtils.GetObjectImagePath(obj.PreviewTexture, obj.Id),
                 anim = obj.AnimName,
-                animEnabled = !string.IsNullOrEmpty(obj.AnimName) && obj.AnimName != MapToolConstants.NoAnimName,
+                animEnabled = MapToolEditorUtils.IsAnimEnabled(obj),
                 loop = obj.Loop,
                 speed = obj.Speed,
                 interactable = obj.Interactable,
@@ -103,6 +104,7 @@ namespace Honor.Editor.MapTool
         /// <returns>JSON 数据对象</returns>
         private MapCharacterData BuildMapCharacterData(PlacedObject obj)
         {
+            var cell = MapToolEditorUtils.WorldToCell(obj.Position); // ---TODO 网格信息：格子坐标（一次计算，供 gridX/gridY 共用）
             MapCharacterData character = new MapCharacterData
             {
                 id = obj.Id,
@@ -110,8 +112,8 @@ namespace Honor.Editor.MapTool
                 name = obj.Name,
                 posX = obj.Position.x,
                 posY = obj.Position.y,
-                gridX = MapToolEditorUtils.WorldToCell(obj.Position).x, // ---TODO 网格信息：格子坐标
-                gridY = MapToolEditorUtils.WorldToCell(obj.Position).y, // ---TODO 网格信息：格子坐标
+                gridX = cell.x, // ---TODO 网格信息：格子坐标
+                gridY = cell.y, // ---TODO 网格信息：格子坐标
                 width = obj.Width,
                 height = obj.Height,
                 pixelWidth = obj.PixelWidth,
@@ -121,7 +123,7 @@ namespace Honor.Editor.MapTool
                 displayLayer = obj.DisplayLayer,
                 image = MapToolEditorUtils.GetObjectImagePath(obj.PreviewTexture, obj.Id),
                 anim = obj.AnimName,
-                animEnabled = !string.IsNullOrEmpty(obj.AnimName) && obj.AnimName != MapToolConstants.NoAnimName,
+                animEnabled = MapToolEditorUtils.IsAnimEnabled(obj),
                 loop = obj.Loop,
                 speed = obj.Speed,
                 interactable = obj.Interactable,
@@ -169,12 +171,12 @@ namespace Honor.Editor.MapTool
             if (fromExcel.Count > 0)
             {
                 m_ChapterDataList.AddRange(fromExcel);
-                Debug.Log($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
+                MapToolLog.Info($"加载章节配置表成功，共 {m_ChapterDataList.Count} 个章节");
             }
             else
             {
                 m_ChapterDataList.AddRange(MapToolEditorUtils.LoadChaptersFromRuntimeLua());
-                Debug.Log($"章节配置表 Excel 缺失，回退运行时 Lua 表，共 {m_ChapterDataList.Count} 个章节");
+                MapToolLog.Info($"章节配置表 Excel 缺失，回退运行时 Lua 表，共 {m_ChapterDataList.Count} 个章节");
             }
         }
 
@@ -201,8 +203,7 @@ namespace Honor.Editor.MapTool
             if (m_MapWidth <= 0) m_MapWidth = bgW > 0 ? bgW : MapToolConstants.LevelPixelSize;
             if (m_MapHeight <= 0) m_MapHeight = bgH > 0 ? bgH : MapToolConstants.LevelPixelSize;
 
-            m_ConfigMapWidth = m_MapWidth;
-            m_ConfigMapHeight = m_MapHeight;
+            SyncConfigMapSize();
         }
 
         /// <summary>
@@ -279,97 +280,115 @@ namespace Honor.Editor.MapTool
         }
 
         // ---TODO 编辑器加载还原：有已保存 JSON 地图配置时优先还原摆放物/背景（SaveMapConfig 反向）
-        /// <summary>
-        /// 从已保存的 JSON 地图配置还原摆放物 / 背景图
-        /// 【取消分区】单关卡=单张地图，直接还原整图数据
-        /// </summary>
         private void LoadMapConfig()
         {
             // 委托给 MapConfigRepository 读 JSON，本类只负责把数据还原到 UI 状态
             MapConfigData data = MapConfigRepository.LoadFromJson(m_MapSavePath);
             if (data == null) return;
 
-            // 整图宽高以 JSON 为准；JSON 缺失/非法时回退背景图原始像素，保证网格铺满整张背景
-            if (data.width > 0) m_MapWidth = data.width;
-            if (data.height > 0) m_MapHeight = data.height;
-            ApplyBackgroundSizeFallback();
-
-            // 还原背景图
-            if (!string.IsNullOrEmpty(data.bgName))
-            {
-                string regionId = m_CurrentLevelId;
-                m_LevelBgDict[regionId] = data.bgName;
-            }
-
-            // 还原摆放物（人物 / 建筑 / 物件）
-            m_PlacedObjects.Clear();
-            if (data.characters != null)
-            {
-                foreach (var c in data.characters)
-                {
-                    var p = PlacedObjectFromCharacter(c);
-                    if (p != null) m_PlacedObjects.Add(p);
-                }
-            }
-            if (data.buildings != null)
-            {
-                foreach (var b in data.buildings)
-                {
-                    var p = PlacedObjectFromMapObject(b, MapObjectType.Building);
-                    if (p != null) m_PlacedObjects.Add(p);
-                }
-            }
-            if (data.objects != null)
-            {
-                foreach (var o in data.objects)
-                {
-                    var p = PlacedObjectFromMapObject(o, MapObjectType.Prop);
-                    if (p != null) m_PlacedObjects.Add(p);
-                }
-            }
-
-            // ---TODO 交通规则：红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格 对称回填（旧地图缺省为空集合）
-            m_TrafficLights.Clear();
-            m_Crosswalks.Clear();
-            m_Regions.Clear();
-            m_SidewalkCells.Clear();
-            m_RoadCells.Clear();
-            if (data.trafficLights != null) m_TrafficLights.AddRange(data.trafficLights);
-            if (data.crosswalks != null) m_Crosswalks.AddRange(data.crosswalks);
-            if (data.regions != null) m_Regions.AddRange(data.regions);
-            if (data.sidewalkCells != null) m_SidewalkCells.AddRange(data.sidewalkCells);
-            if (data.roadCells != null) m_RoadCells.AddRange(data.roadCells);
-
-            // 加载后自动把视口定位到摆放物区域
-            if (m_PlacedObjects.Count > 0 && m_GuiContainer != null)
-            {
-                float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
-                foreach (var obj in m_PlacedObjects)
-                {
-                    minX = Mathf.Min(minX, obj.Position.x);
-                    minY = Mathf.Min(minY, obj.Position.y);
-                    float objW = obj.PixelWidth > 0 ? obj.PixelWidth : obj.Width * MapToolConstants.GridSize;
-                    float objH = obj.PixelHeight > 0 ? obj.PixelHeight : obj.Height * MapToolConstants.GridSize;
-                    maxX = Mathf.Max(maxX, obj.Position.x + objW);
-                    maxY = Mathf.Max(maxY, obj.Position.y + objH);
-                }
-                Rect view = m_GuiContainer.contentRect;
-                float boundsW = Mathf.Max(1f, maxX - minX);
-                float boundsH = Mathf.Max(1f, maxY - minY);
-                if (view.width > 0 && view.height > 0)
-                {
-                    m_Zoom = Mathf.Clamp(Mathf.Min(view.width / boundsW, view.height / boundsH), MapToolConstants.MinZoom, MapToolConstants.AutoFitMaxZoom);
-                    m_MapOffset = new Vector2(
-                        view.width / 2 - (minX + maxX) / 2 * m_Zoom,
-                        view.height / 2 - (minY + maxY) / 2 * m_Zoom);
-                }
-            }
+            ApplyLoadedMapMeta(data);
+            RestorePlacedObjects(data);
+            RestoreTrafficData(data);
+            FocusViewportOnPlacedObjects();
 
             // 触发场景重绘
             if (m_GuiContainer != null)
                 m_GuiContainer.MarkDirtyRepaint();
 
-            Debug.Log($"已加载关卡地图配置: {m_MapSavePath}（摆放物 {m_PlacedObjects.Count}）");
+            MapToolLog.Info($"已加载关卡地图配置: {m_MapSavePath}（摆放物 {m_PlacedObjects.Count}）");
+        }
+
+        /// <summary>
+        /// 还原整图宽高与背景图名（宽高以 JSON 为准，缺失时回退背景图像素）
+        /// </summary>
+        /// <param name="data">地图配置数据</param>
+        private void ApplyLoadedMapMeta(MapConfigData data)
+        {
+            if (data.width > 0) m_MapWidth = data.width;
+            if (data.height > 0) m_MapHeight = data.height;
+            ApplyBackgroundSizeFallback();
+
+            if (!string.IsNullOrEmpty(data.bgName))
+                m_LevelBgDict[m_CurrentLevelId] = data.bgName;
+        }
+
+        /// <summary>
+        /// 还原摆放物（人物 / 建筑 / 物件）
+        /// </summary>
+        /// <param name="data">地图配置数据</param>
+        private void RestorePlacedObjects(MapConfigData data)
+        {
+            m_PlacedObjects.Clear();
+
+            AddRestoredPlacedObjects(data.characters, c => PlacedObjectFromCharacter(c));
+            AddRestoredPlacedObjects(data.buildings, b => PlacedObjectFromMapObject(b, MapObjectType.Building));
+            AddRestoredPlacedObjects(data.objects, o => PlacedObjectFromMapObject(o, MapObjectType.Prop));
+        }
+
+        /// <summary>
+        /// 批量还原一类摆放物（源集合为空时跳过，单条转换失败时忽略）
+        /// </summary>
+        /// <typeparam name="TSource">源数据类型</typeparam>
+        /// <param name="source">源数据集合</param>
+        /// <param name="converter">单条转换函数（失败返回 null）</param>
+        private void AddRestoredPlacedObjects<TSource>(List<TSource> source, System.Func<TSource, PlacedObject> converter)
+        {
+            if (source == null) return;
+
+            foreach (var item in source)
+            {
+                var placed = converter(item);
+                if (placed != null) m_PlacedObjects.Add(placed);
+            }
+        }
+
+        /// <summary>
+        /// 还原交通规则数据（红绿灯 / 斑马线 / 区域 / 人行道格 / 道路格，旧地图缺省为空集合）
+        /// </summary>
+        /// <param name="data">地图配置数据</param>
+        private void RestoreTrafficData(MapConfigData data)
+        {
+            m_TrafficLights.Clear();
+            m_Crosswalks.Clear();
+            m_Regions.Clear();
+            m_SidewalkCells.Clear();
+            m_RoadCells.Clear();
+
+            if (data.trafficLights != null) m_TrafficLights.AddRange(data.trafficLights);
+            if (data.crosswalks != null) m_Crosswalks.AddRange(data.crosswalks);
+            if (data.regions != null) m_Regions.AddRange(data.regions);
+            if (data.sidewalkCells != null) m_SidewalkCells.AddRange(data.sidewalkCells);
+            if (data.roadCells != null) m_RoadCells.AddRange(data.roadCells);
+        }
+
+        /// <summary>
+        /// 把视口缩放与偏移定位到摆放物包围盒
+        /// </summary>
+        private void FocusViewportOnPlacedObjects()
+        {
+            if (m_PlacedObjects.Count == 0 || m_GuiContainer == null) return;
+
+            float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+            foreach (var obj in m_PlacedObjects)
+            {
+                minX = Mathf.Min(minX, obj.Position.x);
+                minY = Mathf.Min(minY, obj.Position.y);
+                float objW = obj.PixelWidth > 0 ? obj.PixelWidth : obj.Width * MapToolConstants.GridSize;
+                float objH = obj.PixelHeight > 0 ? obj.PixelHeight : obj.Height * MapToolConstants.GridSize;
+                maxX = Mathf.Max(maxX, obj.Position.x + objW);
+                maxY = Mathf.Max(maxY, obj.Position.y + objH);
+            }
+
+            Rect view = m_GuiContainer.contentRect;
+            if (view.width <= 0 || view.height <= 0) return;
+
+            float boundsW = Mathf.Max(1f, maxX - minX);
+            float boundsH = Mathf.Max(1f, maxY - minY);
+            m_Zoom = Mathf.Clamp(Mathf.Min(view.width / boundsW, view.height / boundsH),
+                MapToolConstants.MinZoom, MapToolConstants.AutoFitMaxZoom);
+            m_MapOffset = new Vector2(
+                view.width / 2 - (minX + maxX) / 2 * m_Zoom,
+                view.height / 2 - (minY + maxY) / 2 * m_Zoom);
         }
 
         /// <summary>
@@ -412,7 +431,7 @@ namespace Honor.Editor.MapTool
                 HideWhenOffMap = c.hideWhenOffMap,
                 // ---TODO 交通规则：载具字段对称回填（旧地图缺省走模型默认值；旧单值兜底进列表）
                 IsVehicle = c.isVehicle,
-                TrafficRole = string.IsNullOrEmpty(c.trafficRole) ? "pedestrian" : c.trafficRole,
+                TrafficRole = string.IsNullOrEmpty(c.trafficRole) ? TemplateTrafficCategory.Pedestrian : c.trafficRole,
                 StopLineX = c.stopLineX,
                 StopLineY = c.stopLineY,
                 BoundLightId = c.boundLightId,

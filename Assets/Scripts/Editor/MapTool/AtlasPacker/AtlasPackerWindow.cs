@@ -68,11 +68,10 @@ namespace Honor.Editor.MapTool.AtlasPacker
         private Button m_BtnDataBrowse;
         private Button m_BtnTexBrowse;
         // 上次发布/选择的输出目录（Assets 相对路径），用于"定位"时优先查找、发布时默认目录
-        private string m_LastOutputDir = "Assets/Res/Atlas";
+        private string m_LastOutputDir = AtlasConstants.DefaultOutputDir;
         private Label m_LblSpriteCount;
         private Label m_LblAtlasSize;
         private Label m_LblPreviewEmpty;
-        private Label m_LblZoom;
         private Slider m_ZoomSlider;
         private FloatField m_ZoomField;
         private Image m_ImgPreview;
@@ -108,12 +107,8 @@ namespace Honor.Editor.MapTool.AtlasPacker
         // ===== 独立功能模块 =====
         private TextureLoader m_TextureLoader = new TextureLoader();
         private AtlasLayoutCalculator m_LayoutCalculator = new AtlasLayoutCalculator();
-        private AtlasProjectIO m_ProjectIO = new AtlasProjectIO();
         private AtlasExporter m_Exporter = new AtlasExporter();
         private SpriteListManager m_SpriteListManager = new SpriteListManager();
-        private AtlasPreviewRenderer m_PreviewRenderer = new AtlasPreviewRenderer();
-        private AtlasProjectManager m_ProjectManager = new AtlasProjectManager();
-        private AtlasPublisher m_Publisher = new AtlasPublisher();
         private AtlasCliPacker m_CliPacker = new AtlasCliPacker();
 
         [MenuItem(AtlasConstants.MenuItemPath)]
@@ -125,7 +120,6 @@ namespace Honor.Editor.MapTool.AtlasPacker
             window.minSize = new Vector2(AtlasConstants.WindowMinWidth, AtlasConstants.WindowMinHeight);
             window.Show();
         }
-
 
         /// <summary>
         /// 创建 GUI（UI Toolkit 方式）
@@ -232,9 +226,9 @@ namespace Honor.Editor.MapTool.AtlasPacker
             m_PopupTrimMode = rootVisualElement.Q<DropdownField>(AtlasConstants.PopTrimMode);
             m_PopupScaleMode = rootVisualElement.Q<DropdownField>(AtlasConstants.PopScaleMode);
             // DropdownField 在 UXML 中 value 先于 choices 应用，非首项默认值会被回退到首项，这里显式兜底（对齐原版 Trim 默认）
-            if (m_PopupTrimMode != null && m_PopupTrimMode.choices != null && m_PopupTrimMode.choices.Contains("Trim"))
+            if (m_PopupTrimMode != null && m_PopupTrimMode.choices != null && m_PopupTrimMode.choices.Contains(AtlasConstants.TrimModeTrim))
             {
-                m_PopupTrimMode.value = "Trim";
+                m_PopupTrimMode.value = AtlasConstants.TrimModeTrim;
             }
 
             m_TxtDataFilename = rootVisualElement.Q<TextField>(AtlasConstants.TxtDataFilename);
@@ -258,9 +252,20 @@ namespace Honor.Editor.MapTool.AtlasPacker
         }
 
         /// <summary>
-        /// 绑定事件
+        /// 绑定事件（按职责拆分为工具栏 / 参数刷新 / 预览交互 / 缩放四组）
         /// </summary>
         private void BindEvents()
+        {
+            BindToolbarEvents();
+            BindParameterReloadEvents();
+            BindPreviewInteractionEvents();
+            BindZoomEvents();
+        }
+
+        /// <summary>
+        /// 工具栏按钮与输出文件「定位」按钮
+        /// </summary>
+        private void BindToolbarEvents()
         {
             // 工具栏按钮
             rootVisualElement.Q<Button>(AtlasConstants.BtnAddFolder).clicked += OnAddFolder;
@@ -274,7 +279,13 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 输出文件名：定位 / 替换
             if (m_BtnDataBrowse != null) m_BtnDataBrowse.clicked += () => BrowseOutputFile(m_TxtDataFilename, "txt");
             if (m_BtnTexBrowse != null) m_BtnTexBrowse.clicked += () => BrowseOutputFile(m_TxtTextureFile, "png");
+        }
 
+        /// <summary>
+        /// 尺寸与排布参数变更后自动刷新预览
+        /// </summary>
+        private void BindParameterReloadEvents()
+        {
             // 监听尺寸变化，自动刷新预览
             m_PopupMaxWidth.RegisterValueChangedCallback(_ => GeneratePreviewImage());
             m_PopupMaxHeight.RegisterValueChangedCallback(_ => GeneratePreviewImage());
@@ -298,31 +309,40 @@ namespace Honor.Editor.MapTool.AtlasPacker
             RegisterReloadCallback(m_ToggleAutoAlias);
             RegisterReloadCallback(m_PopupTrimMode);
             RegisterReloadCallback(m_IntTrimThreshold);
+        }
 
-            // 鼠标滚轮缩放
-            var previewScroll = rootVisualElement.Q<ScrollView>("preview-scroll");
+        /// <summary>
+        /// 预览区滚动视图：滚轮缩放与右键拖动
+        /// </summary>
+        private void BindPreviewInteractionEvents()
+        {
+            var previewScroll = rootVisualElement.Q<ScrollView>(MapToolUiNames.AtlasPreviewScroll);
             m_PreviewScroll = previewScroll;
-            if (previewScroll != null)
-            {
-                // 隐藏滚动条
-                previewScroll.showHorizontal = false;
-                previewScroll.showVertical = false;
+            if (previewScroll == null) return;
 
-                // 让图集在预览区居中显示（用 USS flex 居中，不用 margin auto 避免挤压）
-                // preview-area 在 USS 中已设 align-items:center; justify-content:center;
+            // 隐藏滚动条
+            previewScroll.showHorizontal = false;
+            previewScroll.showVertical = false;
 
-                previewScroll.RegisterCallback<WheelEvent>(OnPreviewWheel);
-                // 右键拖动
-                previewScroll.RegisterCallback<MouseDownEvent>(OnPreviewMouseDown);
-                previewScroll.RegisterCallback<MouseMoveEvent>(OnPreviewMouseMove);
-                previewScroll.RegisterCallback<MouseUpEvent>(OnPreviewMouseUp);
-            }
+            // 让图集在预览区居中显示（用 USS flex 居中，不用 margin auto 避免挤压）
+            // preview-area 在 USS 中已设 align-items:center; justify-content:center;
 
-            // 缩放按钮
+            previewScroll.RegisterCallback<WheelEvent>(OnPreviewWheel);
+            // 右键拖动
+            previewScroll.RegisterCallback<MouseDownEvent>(OnPreviewMouseDown);
+            previewScroll.RegisterCallback<MouseMoveEvent>(OnPreviewMouseMove);
+            previewScroll.RegisterCallback<MouseUpEvent>(OnPreviewMouseUp);
+        }
+
+        /// <summary>
+        /// 缩放按钮、缩放滑块与数字框
+        /// </summary>
+        private void BindZoomEvents()
+        {
             rootVisualElement.Q<Button>(AtlasConstants.BtnZoomIn).clicked += () => SetZoom(m_ZoomScale + 0.1f);
             rootVisualElement.Q<Button>(AtlasConstants.BtnZoomOut).clicked += () => SetZoom(m_ZoomScale - 0.1f);
             rootVisualElement.Q<Button>(AtlasConstants.BtnZoomFit).clicked += FitToWindow;
-            rootVisualElement.Q<Button>("btnZoomReset").clicked += () => SetZoom(1.0f);
+            rootVisualElement.Q<Button>(AtlasConstants.BtnZoomReset).clicked += () => SetZoom(1.0f);
 
             // 缩放滑块和数字框
             if (m_ZoomSlider != null)
@@ -331,98 +351,155 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 m_ZoomField.RegisterValueChangedCallback(evt => SetZoom(evt.newValue));
         }
 
+        /// <summary>工具栏按钮最小宽度（px）</summary>
+        private const int ToolbarButtonMinWidth = 52;
+
+        /// <summary>工具栏图标尺寸（px）</summary>
+        private const int ToolbarIconSize = 20;
+
+        /// <summary>缩放栏按钮宽/高（px）</summary>
+        private const int ZoomButtonWidth = 24;
+
+        /// <summary>缩放栏按钮高（px）</summary>
+        private const int ZoomButtonHeight = 22;
+
+        /// <summary>缩放栏图标尺寸（px）</summary>
+        private const int ZoomIconSize = 16;
+
+        /// <summary>工具栏图标绑定表：按钮名 → 图标文件名</summary>
+        private static readonly (string buttonName, string fileName)[] ToolbarIconBindings =
+        {
+            (AtlasConstants.BtnNew, "icon_012_32x32.png"),
+            (AtlasConstants.BtnOpen, "icon_020_32x32.png"),
+            (AtlasConstants.BtnSave, "icon_003_32x32.png"),
+            (AtlasConstants.BtnSaveDefaults, "icon_023_32x32.png"),
+            (AtlasConstants.BtnAddSprites, "icon_015_32x32.png"),
+            (AtlasConstants.BtnAddFolder, "icon_002_32x32.png"),
+            (AtlasConstants.BtnDelete, "icon_009_32x32.png"),
+            (AtlasConstants.BtnPublish, "icon_022_32x32.png"),
+            (AtlasConstants.BtnPvr, "icon_005_32x32.png"),
+        };
+
+        /// <summary>缩放栏图标绑定表：按钮名 → 图标文件名</summary>
+        private static readonly (string buttonName, string fileName)[] ZoomIconBindings =
+        {
+            (AtlasConstants.BtnZoomReset, "icon_001_16x16.png"),
+            (AtlasConstants.BtnZoomOut, "icon_014_16x16.png"),
+            (AtlasConstants.BtnZoomIn, "icon_011_16x16.png"),
+            (AtlasConstants.BtnZoomFit, "icon_019_16x16.png"),
+        };
+
         /// <summary>
-        /// 给工具栏和缩放栏按钮加载图标
+        /// 给工具栏和缩放栏按钮加载图标（数据驱动：绑定表 + 统一样式）
         /// </summary>
         private void LoadToolbarIcons()
         {
-            void SetIcon(string buttonName, string fileName)
-            {
-                var btn = rootVisualElement.Q<Button>(buttonName);
-                if (btn == null) return;
-                // 直接用 Application.dataPath 拼接，避免路径转换问题
-                string fullPath = System.IO.Path.Combine(
-                    UnityEngine.Application.dataPath,
-                    "Scripts/Editor/MapTool/AtlasPacker/Icons",
-                    fileName);
-                if (!System.IO.File.Exists(fullPath)) return;
-                byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
-                var tex = new Texture2D(2, 2);
-                tex.LoadImage(bytes);
-                tex.filterMode = FilterMode.Bilinear;
+            foreach (var binding in ToolbarIconBindings)
+                SetToolbarIcon(binding.buttonName, binding.fileName);
 
-                // 保存按钮文字，清空 text（否则文字居中与图标重叠）
-                string label = btn.text;
-                btn.text = string.Empty;
+            foreach (var binding in ZoomIconBindings)
+                SetZoomIcon(binding.buttonName, binding.fileName);
+        }
 
-                btn.Clear();
-                btn.style.flexDirection = FlexDirection.Column;
-                btn.style.alignItems = Align.Center;
-                btn.style.justifyContent = Justify.Center;
-                btn.style.paddingTop = 2;
-                btn.style.paddingBottom = 2;
-                btn.style.minWidth = 52;
+        /// <summary>
+        /// 工具栏按钮加载图标：保留原文字作为图标下方标签，竖排居中
+        /// </summary>
+        /// <param name="buttonName">按钮元素名</param>
+        /// <param name="fileName">图标文件名</param>
+        private void SetToolbarIcon(string buttonName, string fileName)
+        {
+            var btn = rootVisualElement.Q<Button>(buttonName);
+            if (btn == null) return;
+            var tex = LoadToolbarIcon(fileName);
+            if (tex == null) return;
 
-                var icon = new Image { image = tex };
-                icon.style.width = 20;
-                icon.style.height = 20;
-                icon.style.marginBottom = 1;
-                icon.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
-                btn.Add(icon);
+            // 保存按钮文字，清空 text（否则文字居中与图标重叠）
+            string label = btn.text;
+            btn.text = string.Empty;
 
-                var textLabel = new Label(label);
-                textLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-                textLabel.style.fontSize = 10;
-                btn.Add(textLabel);
-            }
+            btn.Clear();
+            btn.style.flexDirection = FlexDirection.Column;
+            btn.style.alignItems = Align.Center;
+            btn.style.justifyContent = Justify.Center;
+            btn.style.paddingTop = 2;
+            btn.style.paddingBottom = 2;
+            btn.style.minWidth = ToolbarButtonMinWidth;
 
-            // 工具栏
-            SetIcon(AtlasConstants.BtnNew, "icon_012_32x32.png");
-            SetIcon(AtlasConstants.BtnOpen, "icon_020_32x32.png");
-            SetIcon(AtlasConstants.BtnSave, "icon_003_32x32.png");
-            SetIcon(AtlasConstants.BtnSaveDefaults, "icon_023_32x32.png");
-            SetIcon(AtlasConstants.BtnAddSprites, "icon_015_32x32.png");
-            SetIcon(AtlasConstants.BtnAddFolder, "icon_002_32x32.png");
-            SetIcon(AtlasConstants.BtnDelete, "icon_009_32x32.png");
-            SetIcon(AtlasConstants.BtnPublish, "icon_022_32x32.png");
-            SetIcon(AtlasConstants.BtnPvr, "icon_005_32x32.png");
+            btn.Add(CreateIconImage(tex, ToolbarIconSize, 1));
+            btn.Add(CreateIconLabel(label));
+        }
 
-            // 缩放栏按钮：只加图标，不加文字
-            void SetZoomIcon(string buttonName, string fileName)
-            {
-                var btn = rootVisualElement.Q<Button>(buttonName);
-                if (btn == null) return;
-                string fullPath = System.IO.Path.Combine(
-                    UnityEngine.Application.dataPath,
-                    "Scripts/Editor/MapTool/AtlasPacker/Icons",
-                    fileName);
-                if (!System.IO.File.Exists(fullPath)) return;
-                byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
-                var tex = new Texture2D(2, 2);
-                tex.LoadImage(bytes);
-                tex.filterMode = FilterMode.Bilinear;
+        /// <summary>
+        /// 缩放栏按钮加载图标（只加图标，不加文字）
+        /// </summary>
+        /// <param name="buttonName">按钮元素名</param>
+        /// <param name="fileName">图标文件名</param>
+        private void SetZoomIcon(string buttonName, string fileName)
+        {
+            var btn = rootVisualElement.Q<Button>(buttonName);
+            if (btn == null) return;
+            var tex = LoadToolbarIcon(fileName);
+            if (tex == null) return;
 
-                btn.text = string.Empty;
-                btn.Clear();
-                btn.style.flexDirection = FlexDirection.Row;
-                btn.style.alignItems = Align.Center;
-                btn.style.justifyContent = Justify.Center;
-                btn.style.width = 24;
-                btn.style.height = 22;
-                btn.style.minWidth = 24;
-                btn.style.minHeight = 22;
+            btn.text = string.Empty;
+            btn.Clear();
+            btn.style.flexDirection = FlexDirection.Row;
+            btn.style.alignItems = Align.Center;
+            btn.style.justifyContent = Justify.Center;
+            btn.style.width = ZoomButtonWidth;
+            btn.style.height = ZoomButtonHeight;
+            btn.style.minWidth = ZoomButtonWidth;
+            btn.style.minHeight = ZoomButtonHeight;
 
-                var icon = new Image { image = tex };
-                icon.style.width = 16;
-                icon.style.height = 16;
-                icon.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
-                btn.Add(icon);
-            }
+            btn.Add(CreateIconImage(tex, ZoomIconSize, 0));
+        }
 
-            SetZoomIcon("btnZoomReset", "icon_001_16x16.png");
-            SetZoomIcon(AtlasConstants.BtnZoomOut, "icon_014_16x16.png");
-            SetZoomIcon(AtlasConstants.BtnZoomIn, "icon_011_16x16.png");
-            SetZoomIcon(AtlasConstants.BtnZoomFit, "icon_019_16x16.png");
+        /// <summary>
+        /// 从图标目录加载 PNG 为运行时纹理
+        /// </summary>
+        /// <param name="fileName">图标文件名</param>
+        /// <returns>纹理；文件不存在返回 null</returns>
+        private static Texture2D LoadToolbarIcon(string fileName)
+        {
+            // 图标目录统一取 AtlasConstants.IconDir，避免此处再写一份路径字面量
+            string fullPath = System.IO.Path.Combine(MapToolPathHelper.ToAbsolutePath(AtlasConstants.IconDir), fileName);
+            if (!System.IO.File.Exists(fullPath)) return null;
+
+            byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
+            var tex = new Texture2D(2, 2);
+            tex.LoadImage(bytes);
+            tex.filterMode = FilterMode.Bilinear;
+            return tex;
+        }
+
+        /// <summary>
+        /// 创建按钮图标（等比缩放填充，可选底部留白）
+        /// </summary>
+        /// <param name="tex">图标纹理</param>
+        /// <param name="size">图标边长</param>
+        /// <param name="marginBottom">底部留白</param>
+        /// <returns>图标元素</returns>
+        private static Image CreateIconImage(Texture2D tex, int size, int marginBottom)
+        {
+            var icon = new Image { image = tex };
+            icon.style.width = size;
+            icon.style.height = size;
+            icon.style.marginBottom = marginBottom;
+            icon.style.unityBackgroundScaleMode = ScaleMode.ScaleToFit;
+            return icon;
+        }
+
+        /// <summary>
+        /// 创建图标下方的小号文字标签
+        /// </summary>
+        /// <param name="text">标签文字</param>
+        /// <returns>标签元素</returns>
+        private static Label CreateIconLabel(string text)
+        {
+            var label = MapToolUiFactory.CreateLabel(text);
+            label.style.unityTextAlign = TextAnchor.MiddleCenter;
+            label.style.fontSize = 10;
+            return label;
         }
 
         /// <summary>
@@ -573,10 +650,10 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
         private void OnAddFolder()
         {
-            string path = EditorUtility.OpenFolderPanel("选择图片文件夹", "Assets", "");
+            string path = EditorUtility.OpenFolderPanel("选择图片文件夹", MapToolPathHelper.AssetsFolderName, "");
             if (!string.IsNullOrEmpty(path))
             {
-                m_CurrentFolder = PathToAssetPath(path);
+                m_CurrentFolder = FullPathToAssetPath(path);
                 LoadSpritesFromFolder(m_CurrentFolder);
             }
         }
@@ -586,10 +663,9 @@ namespace Honor.Editor.MapTool.AtlasPacker
             string path = EditorUtility.OpenFilePanelWithFilters("选择图片", "", new[] { "Images", "png,jpg,jpeg" });
             if (!string.IsNullOrEmpty(path))
             {
-                string assetPath = PathToAssetPath(path);
+                string assetPath = FullPathToAssetPath(path);
                 AddSpriteItem(assetPath);
-                UpdateSpriteCount();
-                GeneratePreviewImage();
+                RefreshSpriteListViews();
             }
         }
 
@@ -598,8 +674,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 清除所有 sprite
             m_SpriteListManager.Items.Clear();
             m_SpritesList.Clear();
-            UpdateSpriteCount();
-            GeneratePreviewImage();
+            RefreshSpriteListViews();
         }
 
         /// <summary>
@@ -621,8 +696,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 重置选中状态
             ClearSelection();
 
-            UpdateSpriteCount();
-            GeneratePreviewImage();
+            RefreshSpriteListViews();
         }
 
         /// <summary>
@@ -637,7 +711,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             if (m_SpriteListManager.Items.Count == 0)
             {
-                EditorUtility.DisplayDialog("提示", AtlasConstants.PleaseAddImagesFirst, "确定");
+                MapToolDialog.Info(AtlasConstants.PleaseAddImagesFirst);
                 return;
             }
 
@@ -658,8 +732,8 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             int maxW = int.Parse(m_PopupMaxWidth.value);
             int maxH = int.Parse(m_PopupMaxHeight.value);
-            string dataFilename = string.IsNullOrEmpty(m_TxtDataFilename.value) ? "NewAtlas.txt" : m_TxtDataFilename.value;
-            string textureFilename = string.IsNullOrEmpty(m_TxtTextureFile.value) ? "NewAtlasTex.png" : m_TxtTextureFile.value;
+            string dataFilename = string.IsNullOrEmpty(m_TxtDataFilename.value) ? AtlasConstants.DefaultDataFilename : m_TxtDataFilename.value;
+            string textureFilename = string.IsNullOrEmpty(m_TxtTextureFile.value) ? AtlasConstants.DefaultTextureFilename : m_TxtTextureFile.value;
             string pngPath = Path.Combine(outputDir, textureFilename);
             string jsonPath = Path.Combine(outputDir, dataFilename);
 
@@ -677,21 +751,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 var atlasTex = GenerateAtlasTexture(maxW, maxH);
                 if (atlasTex == null)
                 {
-                    EditorUtility.DisplayDialog("错误", "生成图集纹理失败", "确定");
+                    MapToolDialog.Error("生成图集纹理失败");
                     return;
                 }
 
-                // 保存 PNG 文件：优先自建优化编码器（level 9 + 逐行滤镜选优）；失败兜底内置 EncodeToPNG
-                byte[] pngBytes;
-                try
-                {
-                    pngBytes = PngAtlasEncoder.Encode(atlasTex);
-                }
-                catch (Exception encoderEx)
-                {
-                    Debug.LogWarning($"[AtlasPacker] 自建 PNG 编码器失败，回退 EncodeToPNG：{encoderEx.Message}");
-                    pngBytes = atlasTex.EncodeToPNG();
-                }
+                // 保存 PNG 文件：统一走 PngAtlasEncoder.EncodeWithFallback（内部已含内置编码器兜底）
+                byte[] pngBytes = PngAtlasEncoder.EncodeWithFallback(atlasTex);
                 File.WriteAllBytes(pngPath, pngBytes);
 
                 // 生成 JSON 描述文件（用实际大小）
@@ -705,11 +770,9 @@ namespace Honor.Editor.MapTool.AtlasPacker
             int packedCount = m_SpriteListManager.Items.Count - m_LayoutCalculator.ExcludedNames.Count;
             string backend = cliOk ? "TexturePacker CLI" : "自研后端";
             string fallbackNote = cliOk ? "" : $"\n（未使用 CLI：{cliLog}）";
-            EditorUtility.DisplayDialog("打包完成",
-                $"图集导出完成！\n后端: {backend}\n\nPNG: {textureFilename}\nJSON: {dataFilename}\n图片数: {packedCount}" +
+            MapToolDialog.Info("打包完成", $"图集导出完成！\n后端: {backend}\n\nPNG: {textureFilename}\nJSON: {dataFilename}\n图片数: {packedCount}" +
                 (m_LayoutCalculator.ExcludedNames.Count > 0 ? $"\n跳过超尺寸: {m_LayoutCalculator.ExcludedNames.Count} 张" : "") +
-                $"\n路径: {outputAssetDir}{fallbackNote}",
-                "确定");
+                $"\n路径: {outputAssetDir}{fallbackNote}");
         }
 
         /// <summary>
@@ -747,11 +810,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             foreach (var item in m_SpriteListManager.Items)
             {
                 if (item.IsAlias) continue;
-                item.Excluded = false;
-                item.ExclusionReason = null;
-                item.PosX = 0;
-                item.PosY = 0;
-                item.Rotated = false;
+                item.MarkIncluded();
             }
 
             // 别名跟随主项槽位，不重复提交给 CLI；主项全部参与本轮排布
@@ -772,7 +831,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 var opts = CollectCliOptions();
                 if (!m_CliPacker.Pack(opts, fullPaths, pngFull, dataFull, out string cliLog))
                 {
-                    Debug.LogWarning($"[AtlasPacker] 预览 CLI 排布失败，回退自研：{cliLog}");
+                    MapToolLog.Warn($"[AtlasPacker] 预览 CLI 排布失败，回退自研：{cliLog}");
                     return false;
                 }
 
@@ -809,17 +868,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
                         item.PosX = f.x;
                         item.PosY = f.y;
                         item.Rotated = f.rot;
-                        item.Excluded = false;
-                        item.ExclusionReason = null;
+                        item.ClearExclusion();
                         matched++;
                     }
                     else
                     {
-                        item.Excluded = true;
-                        item.ExclusionReason = "CLI 排布未匹配到帧";
-                        item.PosX = 0;
-                        item.PosY = 0;
-                        item.Rotated = false;
+                        item.MarkExcluded("CLI 排布未匹配到帧");
                     }
                 }
 
@@ -841,14 +895,14 @@ namespace Honor.Editor.MapTool.AtlasPacker
                         .Select(i => i.Name)
                         .ToList();
                     string unmatchedText = unmatched.Count > 0 ? $"，未装入: {string.Join(", ", unmatched)}" : "";
-                    Debug.Log($"[AtlasPacker] 预览采用 CLI 排布：{matched}/{inputMasters} 帧，画布 {atlasWidth}×{atlasHeight}{unmatchedText}");
+                    MapToolLog.Info($"[AtlasPacker] 预览采用 CLI 排布：{matched}/{inputMasters} 帧，画布 {atlasWidth}×{atlasHeight}{unmatchedText}");
                     return true;
                 }
                 return false;
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[AtlasPacker] 预览 CLI 排布异常，回退自研：{ex.Message}");
+                MapToolLog.Warn($"[AtlasPacker] 预览 CLI 排布异常，回退自研：{ex.Message}");
                 return false;
             }
             finally
@@ -862,12 +916,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             return new AtlasCliOptions
             {
-                dataFormat = m_PopupDataFormat?.value ?? "Unity3D",
+                dataFormat = m_PopupDataFormat?.value ?? AtlasConstants.TokenUnity3D,
                 maxWidth = ParseDropdownInt(m_PopupMaxWidth, 4096),
                 maxHeight = ParseDropdownInt(m_PopupMaxHeight, 4096),
                 fixedWidth = ParseDropdownInt(m_PopupFixedWidth, 0),
                 fixedHeight = ParseDropdownInt(m_PopupFixedHeight, 0),
-                sizeConstraints = m_PopupSizeConstraints?.value ?? "POT",
+                sizeConstraints = m_PopupSizeConstraints?.value ?? AtlasConstants.TokenPot,
 
                 borderPadding = m_IntBorderPadding.value,
                 shapePadding = m_IntShapePadding.value,
@@ -875,21 +929,21 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 extrude = m_IntExtrude != null ? m_IntExtrude.value : 0,
 
                 allowRotation = m_ToggleAllowRotation != null && m_ToggleAllowRotation.value,
-                trimMode = m_PopupTrimMode?.value ?? "Trim",
+                trimMode = m_PopupTrimMode?.value ?? AtlasConstants.TrimModeTrim,
                 trimThreshold = m_IntTrimThreshold != null ? m_IntTrimThreshold.value : 1,
 
-                algorithm = m_PopupAlgorithm?.value ?? "MaxRects",
-                heuristics = m_PopupHeuristics?.value ?? "Best",
+                algorithm = m_PopupAlgorithm?.value ?? AtlasConstants.TokenMaxRects,
+                heuristics = m_PopupHeuristics?.value ?? AtlasConstants.TokenBest,
 
                 scale = m_FloatScale != null ? m_FloatScale.value : 1f,
-                scaleMode = m_PopupScaleMode?.value ?? "Smooth",
+                scaleMode = m_PopupScaleMode?.value ?? AtlasConstants.TokenSmooth,
                 premultiplyAlpha = m_TogglePremultiply != null && m_TogglePremultiply.value,
                 reduceBorderArtifacts = m_ToggleReduceBorder != null && m_ToggleReduceBorder.value,
                 heuristicMask = m_ToggleHeuristicMask != null && m_ToggleHeuristicMask.value,
                 trimSpriteNames = m_ToggleTrimNames != null && m_ToggleTrimNames.value,
                 texturePath = m_TxtTexturePath?.value ?? "",
-                imageFormat = m_PopupImageFormat?.value ?? "RGBA8888",
-                dithering = m_PopupDithering?.value ?? "NearestNeighbour",
+                imageFormat = m_PopupImageFormat?.value ?? AtlasConstants.TokenRgba8888,
+                dithering = m_PopupDithering?.value ?? AtlasConstants.TokenNearestNeighbour,
                 dpi = m_IntDpi != null ? m_IntDpi.value : 72,
                 autoAlias = m_ToggleAutoAlias == null || m_ToggleAutoAlias.value,
             };
@@ -987,7 +1041,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             sb.AppendLine($"\t\"app\": \"http://www.codeandweb.com/texturepacker \",");
             sb.AppendLine($"\t\"version\": \"1.0\",");
             sb.AppendLine($"\t\"image\": \"{textureFilename}\",");
-            string imageFormat = m_PopupImageFormat?.value ?? "RGBA8888";
+            string imageFormat = m_PopupImageFormat?.value ?? AtlasConstants.TokenRgba8888;
             sb.AppendLine($"\t\"format\": \"{imageFormat}\",");
             sb.AppendLine($"\t\"size\": {{\"w\":{width},\"h\":{height}}},");
             float atlasScale = m_FloatScale != null ? m_FloatScale.value : 1f;
@@ -1002,38 +1056,38 @@ namespace Honor.Editor.MapTool.AtlasPacker
         private void OnSave()
         {
             // 选择保存路径
-            string path = EditorUtility.SaveFilePanel("保存项目", "Assets/Res/Atlas", "NewAtlas", "atlasproj");
+            string path = EditorUtility.SaveFilePanel("保存项目", AtlasConstants.DefaultOutputDir, AtlasConstants.DefaultProjectFileName, "atlasproj");
             if (string.IsNullOrEmpty(path)) return;
 
             // 构建项目数据（用可序列化的类）
             var project = new AtlasProject
             {
                 // 输出设置
-                dataFormat = m_PopupDataFormat?.value ?? "Unity3D",
+                dataFormat = m_PopupDataFormat?.value ?? AtlasConstants.TokenUnity3D,
                 dataFilename = m_TxtDataFilename.value,
-                textureFormat = m_PopupTextureFormat?.value ?? "PNG",
+                textureFormat = m_PopupTextureFormat?.value ?? AtlasConstants.TokenPng,
                 textureFile = m_TxtTextureFile.value,
                 texturePath = m_TxtTexturePath?.value,
                 pngOptLevel = m_SliderPngOpt != null ? (int)m_SliderPngOpt.value : 2,
                 dpi = m_IntDpi != null ? m_IntDpi.value : 72,
                 premultiplyAlpha = m_TogglePremultiply != null && m_TogglePremultiply.value,
-                imageFormat = m_PopupImageFormat?.value ?? "RGBA8888",
-                ditheringAlgorithm = m_PopupDithering?.value ?? "NearestNeighbour",
+                imageFormat = m_PopupImageFormat?.value ?? AtlasConstants.TokenRgba8888,
+                ditheringAlgorithm = m_PopupDithering?.value ?? AtlasConstants.TokenNearestNeighbour,
 
                 // 尺寸设置
                 maxWidth = m_PopupMaxWidth.value,
                 maxHeight = m_PopupMaxHeight.value,
                 fixedWidth = ParseDropdownInt(m_PopupFixedWidth, 0),
                 fixedHeight = ParseDropdownInt(m_PopupFixedHeight, 0),
-                sizeConstraints = m_PopupSizeConstraints?.value ?? "POT",
+                sizeConstraints = m_PopupSizeConstraints?.value ?? AtlasConstants.TokenPot,
                 forceSquare = m_ToggleForceSquare != null && m_ToggleForceSquare.value,
                 scale = m_FloatScale != null ? m_FloatScale.value : 1f,
-                scaleMode = m_PopupScaleMode?.value ?? "Smooth",
+                scaleMode = m_PopupScaleMode?.value ?? AtlasConstants.TokenSmooth,
 
                 // 布局设置
-                layoutAlgorithm = m_PopupAlgorithm?.value ?? "MaxRects",
-                heuristicStrategy = m_PopupHeuristics?.value ?? "Best",
-                packMode = m_PopupPack?.value ?? "Best",
+                layoutAlgorithm = m_PopupAlgorithm?.value ?? AtlasConstants.TokenMaxRects,
+                heuristicStrategy = m_PopupHeuristics?.value ?? AtlasConstants.TokenBest,
+                packMode = m_PopupPack?.value ?? AtlasConstants.TokenBest,
                 borderPadding = m_IntBorderPadding.value,
                 shapePadding = m_IntShapePadding.value,
                 innerPadding = m_IntInnerPadding != null ? m_IntInnerPadding.value : 0,
@@ -1042,7 +1096,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 divisorY = m_IntDivisorY != null && m_IntDivisorY.value > 0 ? m_IntDivisorY.value : 1,
                 allowRotation = m_ToggleAllowRotation != null && m_ToggleAllowRotation.value,
                 autoAlias = m_ToggleAutoAlias == null || m_ToggleAutoAlias.value,
-                trimMode = m_PopupTrimMode?.value ?? "None",
+                trimMode = m_PopupTrimMode?.value ?? AtlasConstants.TrimModeNone,
                 trimThreshold = m_IntTrimThreshold != null ? m_IntTrimThreshold.value : 1,
                 multipack = m_ToggleMultipack != null && m_ToggleMultipack.value,
                 reduceBorderArtifacts = m_ToggleReduceBorder != null && m_ToggleReduceBorder.value,
@@ -1059,12 +1113,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
             File.WriteAllText(path, json);
 
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("成功", $"项目已保存到:\n{path}", "确定");
+            MapToolDialog.Success($"项目已保存到:\n{path}");
         }
 
         private void OnOpen()
         {
-            string path = EditorUtility.OpenFilePanel("打开项目", "Assets/Res/Atlas", "atlasproj");
+            string path = EditorUtility.OpenFilePanel("打开项目", AtlasConstants.DefaultOutputDir, "atlasproj");
             if (string.IsNullOrEmpty(path)) return;
 
             LoadProjectFromPath(path);
@@ -1082,72 +1136,82 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
                 if (project == null)
                 {
-                    EditorUtility.DisplayDialog("错误", "项目文件格式无效", "确定");
+                    MapToolDialog.Error("项目文件格式无效");
                     return;
                 }
 
-                // 恢复配置（带空值保护）
-                if (m_PopupDataFormat != null) m_PopupDataFormat.value = project.dataFormat ?? "Unity3D";
-                m_TxtDataFilename.value = project.dataFilename ?? "NewAtlas.txt";
-                if (m_PopupTextureFormat != null) m_PopupTextureFormat.value = project.textureFormat ?? "PNG";
-                if (m_PopupImageFormat != null) m_PopupImageFormat.value = project.imageFormat ?? "RGBA8888";
-                if (m_PopupDithering != null) m_PopupDithering.value = project.ditheringAlgorithm ?? "NearestNeighbour";
-                m_TxtTextureFile.value = project.textureFile ?? "NewAtlasTex.png";
-                if (m_TxtTexturePath != null) m_TxtTexturePath.value = project.texturePath;
-                if (m_SliderPngOpt != null) m_SliderPngOpt.value = project.pngOptLevel;
-                if (m_IntDpi != null) m_IntDpi.value = project.dpi;
-                if (m_TogglePremultiply != null) m_TogglePremultiply.value = project.premultiplyAlpha;
-                m_PopupMaxWidth.value = project.maxWidth ?? "1024";
-                m_PopupMaxHeight.value = project.maxHeight ?? "1024";
-                if (m_PopupFixedWidth != null) m_PopupFixedWidth.value = project.fixedWidth.ToString();
-                if (m_PopupFixedHeight != null) m_PopupFixedHeight.value = project.fixedHeight.ToString();
-                if (m_PopupSizeConstraints != null) m_PopupSizeConstraints.value = project.sizeConstraints ?? "POT";
-                if (m_ToggleForceSquare != null) m_ToggleForceSquare.value = project.forceSquare;
-                if (m_FloatScale != null) m_FloatScale.value = project.scale;
-                if (m_PopupScaleMode != null) m_PopupScaleMode.value = project.scaleMode ?? "Smooth";
-                m_IntBorderPadding.value = project.borderPadding;
-                m_IntShapePadding.value = project.shapePadding;
-                if (m_IntInnerPadding != null) m_IntInnerPadding.value = project.innerPadding;
-                if (m_IntExtrude != null) m_IntExtrude.value = project.extrude;
-                if (m_IntDivisorX != null) m_IntDivisorX.value = project.divisorX;
-                if (m_IntDivisorY != null) m_IntDivisorY.value = project.divisorY;
-                if (m_PopupAlgorithm != null) m_PopupAlgorithm.value = project.layoutAlgorithm ?? "MaxRects";
-                if (m_PopupHeuristics != null) m_PopupHeuristics.value = project.heuristicStrategy ?? "Best";
-                if (m_PopupPack != null) m_PopupPack.value = project.packMode ?? "Best";
-                if (m_ToggleAllowRotation != null) m_ToggleAllowRotation.value = project.allowRotation;
-                if (m_ToggleAutoAlias != null) m_ToggleAutoAlias.value = project.autoAlias;
-                if (m_PopupTrimMode != null) m_PopupTrimMode.value = project.trimMode ?? "Trim";
-                if (m_IntTrimThreshold != null) m_IntTrimThreshold.value = project.trimThreshold;
-                if (m_ToggleMultipack != null) m_ToggleMultipack.value = project.multipack;
-                if (m_ToggleReduceBorder != null) m_ToggleReduceBorder.value = project.reduceBorderArtifacts;
-                if (m_ToggleShapeOutlines != null) m_ToggleShapeOutlines.value = project.shapeOutlines;
-                if (m_ToggleHeuristicMask != null) m_ToggleHeuristicMask.value = project.heuristicMask;
-                if (m_ToggleForceWord != null) m_ToggleForceWord.value = project.forceWordAligned;
-                if (m_ToggleTrimNames != null) m_ToggleTrimNames.value = project.trimSpriteNames;
+                ApplyProjectToControls(project);
 
-                // 加载图片列表
-                m_SpriteListManager.Items.Clear();
-                m_SpritesList.Clear();
-                ClearSelection();
-                if (project.sprites != null)
-                {
-                    foreach (var spritePath in project.sprites)
-                    {
-                        if (!string.IsNullOrEmpty(spritePath))
-                        {
-                            AddSpriteItem(spritePath);
-                        }
-                    }
-                }
+                LoadProjectSprites(project.sprites);
+                RefreshSpriteListViews();
 
-                UpdateSpriteCount();
-                GeneratePreviewImage();
-
-                EditorUtility.DisplayDialog("成功", $"项目已加载，共 {m_SpriteListManager.Items.Count} 张图片", "确定");
+                MapToolDialog.Success($"项目已加载，共 {m_SpriteListManager.Items.Count} 张图片");
             }
             catch (System.Exception e)
             {
-                EditorUtility.DisplayDialog("错误", $"加载项目失败: {e.Message}\n{e.StackTrace}", "确定");
+                MapToolDialog.Error($"加载项目失败: {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// 把工程配置回填到右侧属性面板各控件（空值按默认口径兜底）
+        /// </summary>
+        /// <param name="project">已反序列化的工程配置</param>
+        private void ApplyProjectToControls(AtlasProject project)
+        {
+            m_PopupDataFormat.SetValue(project.dataFormat ?? AtlasConstants.TokenUnity3D);
+            m_TxtDataFilename.SetValue(project.dataFilename ?? AtlasConstants.DefaultDataFilename);
+            m_PopupTextureFormat.SetValue(project.textureFormat ?? AtlasConstants.TokenPng);
+            m_PopupImageFormat.SetValue(project.imageFormat ?? AtlasConstants.TokenRgba8888);
+            m_PopupDithering.SetValue(project.ditheringAlgorithm ?? AtlasConstants.TokenNearestNeighbour);
+            m_TxtTextureFile.SetValue(project.textureFile ?? AtlasConstants.DefaultTextureFilename);
+            m_TxtTexturePath.SetValue(project.texturePath);
+            m_SliderPngOpt.SetValue(project.pngOptLevel);
+            m_IntDpi.SetValue(project.dpi);
+            m_TogglePremultiply.SetValue(project.premultiplyAlpha);
+            m_PopupMaxWidth.SetValue(project.maxWidth ?? AtlasConstants.DefaultMaxSizeOption);
+            m_PopupMaxHeight.SetValue(project.maxHeight ?? AtlasConstants.DefaultMaxSizeOption);
+            m_PopupFixedWidth.SetValue(project.fixedWidth.ToString());
+            m_PopupFixedHeight.SetValue(project.fixedHeight.ToString());
+            m_PopupSizeConstraints.SetValue(project.sizeConstraints ?? AtlasConstants.TokenPot);
+            m_ToggleForceSquare.SetValue(project.forceSquare);
+            m_FloatScale.SetValue(project.scale);
+            m_PopupScaleMode.SetValue(project.scaleMode ?? AtlasConstants.TokenSmooth);
+            m_IntBorderPadding.SetValue(project.borderPadding);
+            m_IntShapePadding.SetValue(project.shapePadding);
+            m_IntInnerPadding.SetValue(project.innerPadding);
+            m_IntExtrude.SetValue(project.extrude);
+            m_IntDivisorX.SetValue(project.divisorX);
+            m_IntDivisorY.SetValue(project.divisorY);
+            m_PopupAlgorithm.SetValue(project.layoutAlgorithm ?? AtlasConstants.TokenMaxRects);
+            m_PopupHeuristics.SetValue(project.heuristicStrategy ?? AtlasConstants.TokenBest);
+            m_PopupPack.SetValue(project.packMode ?? AtlasConstants.TokenBest);
+            m_ToggleAllowRotation.SetValue(project.allowRotation);
+            m_ToggleAutoAlias.SetValue(project.autoAlias);
+            m_PopupTrimMode.SetValue(project.trimMode ?? AtlasConstants.TrimModeTrim);
+            m_IntTrimThreshold.SetValue(project.trimThreshold);
+            m_ToggleMultipack.SetValue(project.multipack);
+            m_ToggleReduceBorder.SetValue(project.reduceBorderArtifacts);
+            m_ToggleShapeOutlines.SetValue(project.shapeOutlines);
+            m_ToggleHeuristicMask.SetValue(project.heuristicMask);
+            m_ToggleForceWord.SetValue(project.forceWordAligned);
+            m_ToggleTrimNames.SetValue(project.trimSpriteNames);
+        }
+
+        /// <summary>
+        /// 按工程存档里的图片路径列表重建精灵列表（清空旧数据与选中态后逐张加入）
+        /// </summary>
+        /// <param name="spritePaths">图片资源路径列表（可空）</param>
+        private void LoadProjectSprites(string[] spritePaths)
+        {
+            m_SpriteListManager.Items.Clear();
+            m_SpritesList.Clear();
+            ClearSelection();
+
+            if (spritePaths == null) return;
+            foreach (var spritePath in spritePaths)
+            {
+                if (!string.IsNullOrEmpty(spritePath)) AddSpriteItem(spritePath);
             }
         }
 
@@ -1155,7 +1219,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             if (m_SpriteListManager.Items.Count > 0)
             {
-                if (!EditorUtility.DisplayDialog("确认", "确定要新建项目吗？当前内容将被清空。", "确定", "取消"))
+                if (!MapToolDialog.Confirm("确认", "确定要新建项目吗？当前内容将被清空。"))
                     return;
             }
 
@@ -1163,11 +1227,10 @@ namespace Honor.Editor.MapTool.AtlasPacker
             m_SpritesList.Clear();
             ClearSelection();
             // 新建项目时重置输出文件名，避免沿用上一图集名导致串档
-            if (m_TxtDataFilename != null) m_TxtDataFilename.value = "NewAtlas.txt";
-            if (m_TxtTextureFile != null) m_TxtTextureFile.value = "NewAtlasTex.png";
+            m_TxtDataFilename.SetValue(AtlasConstants.DefaultDataFilename);
+            m_TxtTextureFile.SetValue(AtlasConstants.DefaultTextureFilename);
 
-            UpdateSpriteCount();
-            GeneratePreviewImage();
+            RefreshSpriteListViews();
         }
 
         /// <summary>
@@ -1180,15 +1243,15 @@ namespace Honor.Editor.MapTool.AtlasPacker
             public string version = "1.0";
 
             // 输出设置
-            public string dataFormat = "Unity3D";
+            public string dataFormat = AtlasConstants.TokenUnity3D;
             public string dataFilename;
-            public string textureFormat = "PNG";
+            public string textureFormat = AtlasConstants.TokenPng;
             public string textureFile;
             public int pngOptLevel = 2;
             public int dpi = 72;
             public bool premultiplyAlpha = false;
-            public string imageFormat = "RGBA8888";
-            public string ditheringAlgorithm = "NearestNeighbour";
+            public string imageFormat = AtlasConstants.TokenRgba8888;
+            public string ditheringAlgorithm = AtlasConstants.TokenNearestNeighbour;
             public string texturePath;
 
             // 尺寸设置
@@ -1196,15 +1259,15 @@ namespace Honor.Editor.MapTool.AtlasPacker
             public string maxHeight;
             public int fixedWidth = 0;
             public int fixedHeight = 0;
-            public string sizeConstraints = "POT";
+            public string sizeConstraints = AtlasConstants.TokenPot;
             public bool forceSquare = false;
             public float scale = 1f;
-            public string scaleMode = "Smooth";
+            public string scaleMode = AtlasConstants.TokenSmooth;
 
             // 布局设置
-            public string layoutAlgorithm = "MaxRects";
-            public string heuristicStrategy = "Best";
-            public string packMode = "Best";
+            public string layoutAlgorithm = AtlasConstants.TokenMaxRects;
+            public string heuristicStrategy = AtlasConstants.TokenBest;
+            public string packMode = AtlasConstants.TokenBest;
             public int borderPadding = 2;
             public int shapePadding = 2;
             public int innerPadding = 0;
@@ -1213,7 +1276,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             public int divisorY = 1;
             public bool allowRotation = true;
             public bool autoAlias = true;
-            public string trimMode = "Trim";
+            public string trimMode = AtlasConstants.TrimModeTrim;
             public int trimThreshold = 1;
             public bool multipack = false;
             public bool reduceBorderArtifacts = false;
@@ -1241,7 +1304,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
             // 确保是 Assets/ 相对路径
             string assetFolder = folderPath;
-            if (!assetFolder.StartsWith("Assets/"))
+            if (!assetFolder.StartsWith(MapToolPathHelper.AssetsPrefix))
             {
                 assetFolder = FullPathToAssetPath(folderPath.Replace('\\', '/'));
             }
@@ -1254,11 +1317,10 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
             if (m_SpriteListManager.Items.Count == 0)
             {
-                EditorUtility.DisplayDialog("提示", $"文件夹里没有找到图片:\n{assetFolder}", "确定");
+                MapToolDialog.Info($"文件夹里没有找到图片:\n{assetFolder}");
             }
 
-            UpdateSpriteCount();
-            GeneratePreviewImage();
+            RefreshSpriteListViews();
         }
 
         /// <summary>
@@ -1277,24 +1339,22 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
                 // 创建 UI 项
                 var itemElement = new VisualElement();
-                itemElement.AddToClassList("sprite-item");
+                itemElement.AddToClassList(MapToolStyleClasses.SpriteItem);
 
                 // 缩略图
                 var img = new Image();
-                img.AddToClassList("sprite-item-image");
+                img.AddToClassList(MapToolStyleClasses.SpriteItemImage);
                 var tex = LoadTextureFromDisk(fullPath);
                 if (tex != null) img.image = tex;
 
                 // 信息
                 var info = new VisualElement();
-                info.AddToClassList("sprite-item-info");
+                info.AddToClassList(MapToolStyleClasses.SpriteItemInfo);
 
-                var nameLabel = new Label(item.Name);
-                nameLabel.AddToClassList("sprite-item-name");
+                var nameLabel = MapToolUiFactory.CreateLabel(item.Name, MapToolStyleClasses.SpriteItemName);
                 info.Add(nameLabel);
 
-                var sizeLabel = new Label(item.Size);
-                sizeLabel.AddToClassList("sprite-item-size");
+                var sizeLabel = MapToolUiFactory.CreateLabel(item.Size, MapToolStyleClasses.SpriteItemSize);
                 info.Add(sizeLabel);
 
                 itemElement.Add(img);
@@ -1326,7 +1386,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         /// </summary>
         private string FullPathToAssetPath(string fullPath)
         {
-            return AtlasPathUtils.FullToAssetPath(fullPath);
+            return MapToolPathHelper.ToAssetRelative(fullPath);
         }
 
         /// <summary>
@@ -1340,7 +1400,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"GeneratePreviewImage error: {e.Message}\n{e.StackTrace}");
+                MapToolLog.Error($"GeneratePreviewImage error: {e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -1478,7 +1538,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             checkerTex.Apply();
 
             // 主画布棋盘格底图，置于精灵下层
-            var boardBg = new Image { name = "board-bg", image = checkerTex };
+            var boardBg = new Image { name = MapToolUiNames.AtlasBoardBackground, image = checkerTex };
             boardBg.scaleMode = ScaleMode.StretchToFill;
             boardBg.style.position = Position.Absolute;
             boardBg.style.left = 0;
@@ -1717,15 +1777,29 @@ namespace Honor.Editor.MapTool.AtlasPacker
             }
         }
 
+        /// <summary>预览选中高亮：虚线短划长度（px）</summary>
+        private const int HighlightDashLength = 10;
+
+        /// <summary>预览选中高亮：短划间隔（px）</summary>
+        private const int HighlightDashGap = 5;
+
+        /// <summary>预览选中高亮：虚线厚度（px）</summary>
+        private const int HighlightThickness = 5;
+
+        /// <summary>预览选中高亮：绿色填充色（半透明，仅透明区域透绿）</summary>
+        private static readonly Color HighlightBackgroundColor = new Color(0.18f, 1f, 0.18f, 0.3f);
+
         /// <summary>
         /// 为单个选中精灵挂绿底层与虚线框层
         /// </summary>
+        /// <param name="index">精灵在列表中的下标（高亮缓存键）</param>
+        /// <param name="item">精灵数据</param>
         private void AddHighlightForItem(int index, SpriteItemInfo item)
         {
             var tex = LoadTextureFromDisk(AssetPathToFullPath(item.Path));
             if (tex == null) return;
 
-            // 旋转 90° 时占位宽高互换
+            // 旋转 90° 时占位宽高互换；+2 为虚线框留边
             int boxW = item.Rotated ? tex.height : tex.width;
             int boxH = item.Rotated ? tex.width : tex.height;
             int w = boxW + 2;
@@ -1733,25 +1807,41 @@ namespace Honor.Editor.MapTool.AtlasPacker
             int left = item.PosX - 1;
             int top = item.PosY - 1;
 
-            // 2022.3 UIElements 不支持虚线边框（无 border-style），用背景色短划线拼出黑色虚线框。
-            // 对齐官方 TexturePacker：绿色填充层在精灵图片【下方】（仅透明区域透绿，不遮盖精灵本体），
-            // 黑色虚线框层在【最上层】。
-            const int dash = 10;
-            const int gap = 5;
-            const int thick = 5;
-            var black = Color.black;
-            var selectedGreen = new Color(0.18f, 1f, 0.18f, 0.3f);
+            var bg = CreateHighlightBackground(left, top, w, h);
+            InsertHighlightBackground(bg, item);
 
-            // 绿底背景层
+            var frame = CreateHighlightFrame(left, top, w, h);
+            m_PreviewImageContainer.Add(frame);
+            m_HighlightByIndex[index] = (bg, frame);
+        }
+
+        /// <summary>
+        /// 创建选中高亮的绿色填充层（位于精灵图片下方，不遮盖精灵本体）
+        /// </summary>
+        /// <param name="left">左偏移</param>
+        /// <param name="top">上偏移</param>
+        /// <param name="w">宽度</param>
+        /// <param name="h">高度</param>
+        /// <returns>填充层元素</returns>
+        private VisualElement CreateHighlightBackground(int left, int top, int w, int h)
+        {
             var bg = new VisualElement();
             bg.style.position = Position.Absolute;
             bg.style.left = left;
             bg.style.top = top;
             bg.style.width = w;
             bg.style.height = h;
-            bg.style.backgroundColor = selectedGreen;
+            bg.style.backgroundColor = HighlightBackgroundColor;
+            return bg;
+        }
 
-            // 插到选中精灵 Image 的下方；找不到对应图片时退化为加到最底层
+        /// <summary>
+        /// 绿色填充层插到选中精灵 Image 的下方；找不到对应图片时退化为加到最底层
+        /// </summary>
+        /// <param name="bg">绿色填充层</param>
+        /// <param name="item">精灵数据（用于反查预览图片元素）</param>
+        private void InsertHighlightBackground(VisualElement bg, SpriteItemInfo item)
+        {
             var targetImg = FindPreviewImage(item);
             if (targetImg != null)
             {
@@ -1762,8 +1852,18 @@ namespace Honor.Editor.MapTool.AtlasPacker
             {
                 m_PreviewImageContainer.Insert(0, bg);
             }
+        }
 
-            // 虚线框层：四边短划线，置于最上层
+        /// <summary>
+        /// 创建黑色虚线框层（2022.3 UIElements 不支持 border-style，用短划线拼出）
+        /// </summary>
+        /// <param name="left">左偏移</param>
+        /// <param name="top">上偏移</param>
+        /// <param name="w">宽度</param>
+        /// <param name="h">高度</param>
+        /// <returns>虚线框层元素</returns>
+        private static VisualElement CreateHighlightFrame(int left, int top, int w, int h)
+        {
             var frame = new VisualElement();
             frame.style.position = Position.Absolute;
             frame.style.left = left;
@@ -1772,55 +1872,43 @@ namespace Honor.Editor.MapTool.AtlasPacker
             frame.style.height = h;
 
             // 上、下边短划线
-            for (int x = 0; x < w; x += dash + gap)
+            for (int x = 0; x < w; x += HighlightDashLength + HighlightDashGap)
             {
-                int segW = Mathf.Min(dash, w - x);
-
-                var topDash = new VisualElement();
-                topDash.style.position = Position.Absolute;
-                topDash.style.left = x;
-                topDash.style.top = 0;
-                topDash.style.width = segW;
-                topDash.style.height = thick;
-                topDash.style.backgroundColor = black;
-                frame.Add(topDash);
-
-                var botDash = new VisualElement();
-                botDash.style.position = Position.Absolute;
-                botDash.style.left = x;
-                botDash.style.top = h - thick;
-                botDash.style.width = segW;
-                botDash.style.height = thick;
-                botDash.style.backgroundColor = black;
-                frame.Add(botDash);
+                int segW = Mathf.Min(HighlightDashLength, w - x);
+                frame.Add(CreateDash(x, 0, segW, HighlightThickness, Color.black));
+                frame.Add(CreateDash(x, h - HighlightThickness, segW, HighlightThickness, Color.black));
             }
 
             // 左、右边短划线
-            for (int y = 0; y < h; y += dash + gap)
+            for (int y = 0; y < h; y += HighlightDashLength + HighlightDashGap)
             {
-                int segH = Mathf.Min(dash, h - y);
-
-                var leftDash = new VisualElement();
-                leftDash.style.position = Position.Absolute;
-                leftDash.style.left = 0;
-                leftDash.style.top = y;
-                leftDash.style.width = thick;
-                leftDash.style.height = segH;
-                leftDash.style.backgroundColor = black;
-                frame.Add(leftDash);
-
-                var rightDash = new VisualElement();
-                rightDash.style.position = Position.Absolute;
-                rightDash.style.left = w - thick;
-                rightDash.style.top = y;
-                rightDash.style.width = thick;
-                rightDash.style.height = segH;
-                rightDash.style.backgroundColor = black;
-                frame.Add(rightDash);
+                int segH = Mathf.Min(HighlightDashLength, h - y);
+                frame.Add(CreateDash(0, y, HighlightThickness, segH, Color.black));
+                frame.Add(CreateDash(w - HighlightThickness, y, HighlightThickness, segH, Color.black));
             }
 
-            m_PreviewImageContainer.Add(frame);
-            m_HighlightByIndex[index] = (bg, frame);
+            return frame;
+        }
+
+        /// <summary>
+        /// 创建一条绝对定位的短划元素
+        /// </summary>
+        /// <param name="left">左偏移</param>
+        /// <param name="top">上偏移</param>
+        /// <param name="width">宽</param>
+        /// <param name="height">高</param>
+        /// <param name="color">填充色</param>
+        /// <returns>短划元素</returns>
+        private static VisualElement CreateDash(int left, int top, int width, int height, Color color)
+        {
+            var dash = new VisualElement();
+            dash.style.position = Position.Absolute;
+            dash.style.left = left;
+            dash.style.top = top;
+            dash.style.width = width;
+            dash.style.height = height;
+            dash.style.backgroundColor = color;
+            return dash;
         }
 
         /// <summary>
@@ -1868,7 +1956,17 @@ namespace Honor.Editor.MapTool.AtlasPacker
         /// </summary>
         private string AssetPathToFullPath(string assetPath)
         {
-            return AtlasPathUtils.AssetToFullPath(assetPath);
+            return MapToolPathHelper.ToAbsolutePath(assetPath);
+        }
+
+        /// <summary>
+        /// 精灵列表变更后统一刷新「计数 + 预览图」
+        /// 新增 / 删除 / 清空 / 载入工程 / 重置等入口共用，避免各入口各写两行
+        /// </summary>
+        private void RefreshSpriteListViews()
+        {
+            UpdateSpriteCount();
+            GeneratePreviewImage();
         }
 
         /// <summary>
@@ -1877,14 +1975,6 @@ namespace Honor.Editor.MapTool.AtlasPacker
         private void UpdateSpriteCount()
         {
             m_LblSpriteCount.text = string.Format(AtlasConstants.SpriteCountFormat, m_SpriteListManager.Items.Count);
-        }
-
-        /// <summary>
-        /// 创建 Sprite Atlas 资产（委托给 SpriteAtlasCreator）
-        /// </summary>
-        private void CreateSpriteAtlas(string atlasPath, string folderPath)
-        {
-            SpriteAtlasCreator.CreateOrUpdate(atlasPath, folderPath);
         }
 
         #endregion
@@ -1953,7 +2043,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             bool allowRotation = m_ToggleAllowRotation != null && m_ToggleAllowRotation.value;
             string heuristic = m_PopupHeuristics?.value;
-            string packMode = m_PopupPack?.value ?? "Best";
+            string packMode = m_PopupPack?.value ?? AtlasConstants.TokenBest;
             int innerPadding = m_IntInnerPadding != null ? m_IntInnerPadding.value : 0;
             int divisorX = m_IntDivisorX != null && m_IntDivisorX.value > 0 ? m_IntDivisorX.value : 1;
             int divisorY = m_IntDivisorY != null && m_IntDivisorY.value > 0 ? m_IntDivisorY.value : 1;
@@ -1961,7 +2051,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             int fixedH = ParseDropdownInt(m_PopupFixedHeight, 0);
             bool forceSquare = m_ToggleForceSquare != null && m_ToggleForceSquare.value;
             bool autoAlias = m_ToggleAutoAlias == null || m_ToggleAutoAlias.value;
-            string sizeConstraints = m_PopupSizeConstraints?.value ?? "POT";
+            string sizeConstraints = m_PopupSizeConstraints?.value ?? AtlasConstants.TokenPot;
             bool forceWordAligned = m_ToggleForceWord != null && m_ToggleForceWord.value;
             int extrude = m_IntExtrude != null ? m_IntExtrude.value : 0;
 
@@ -2013,8 +2103,8 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             if (target == null) return;
 
-            string dirFull = string.IsNullOrEmpty(m_LastOutputDir) ? "Assets" : AssetPathToFullPath(m_LastOutputDir);
-            string path = EditorUtility.OpenFilePanel("选择文件", dirFull ?? "Assets", extension);
+            string dirFull = string.IsNullOrEmpty(m_LastOutputDir) ? MapToolPathHelper.AssetsFolderName : AssetPathToFullPath(m_LastOutputDir);
+            string path = EditorUtility.OpenFilePanel("选择文件", dirFull ?? MapToolPathHelper.AssetsFolderName, extension);
             if (string.IsNullOrEmpty(path)) return;
 
             target.value = System.IO.Path.GetFileName(path);
@@ -2028,13 +2118,6 @@ namespace Honor.Editor.MapTool.AtlasPacker
             }
         }
 
-        private string PathToAssetPath(string fullPath)
-        {
-            int index = fullPath.IndexOf("Assets", System.StringComparison.Ordinal);
-            if (index >= 0)
-                return fullPath.Substring(index).Replace('\\', '/');
-            return fullPath;
-        }
 
         #endregion
     }

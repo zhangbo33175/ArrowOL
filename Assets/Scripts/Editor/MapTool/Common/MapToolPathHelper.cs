@@ -26,6 +26,11 @@ namespace Honor.Editor.MapTool
         public const string AssetsPrefix = "Assets/";
 
         /// <summary>
+        /// Assets 目录名（不带斜杠，用于 CreateFolder / 路径截取等只需要目录名的场景）
+        /// </summary>
+        public const string AssetsFolderName = "Assets";
+
+        /// <summary>
         /// 将任意路径规范化为 "Assets/xxx" 形式
         /// 处理：反斜杠转正斜杠、补 Assets/ 前缀、去掉前导斜杠
         /// </summary>
@@ -71,23 +76,24 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
-        /// 判断文件是否存在（Assets 相对路径）
+        /// 项目根目录（Assets 的上一级磁盘路径）
+        /// 统一口径：不再各处手写 Path.GetDirectoryName(Application.dataPath) 或 Path.Combine(dataPath, "..")
         /// </summary>
-        public static bool AssetFileExists(string assetRelativePath)
+        public static string ProjectRoot
         {
-            string fullPath = ToAbsolutePath(assetRelativePath);
-            return !string.IsNullOrEmpty(fullPath) && File.Exists(fullPath);
+            get { return Path.GetFullPath(Path.GetDirectoryName(Application.dataPath)); }
         }
 
         /// <summary>
-        /// 确保目录存在（Assets 相对路径形式的目录）
+        /// 将项目根目录相对路径转换为磁盘绝对路径（如 "Docs/Designs/xx.xlsx"）
         /// </summary>
-        public static string EnsureDirectory(string assetRelativeDir)
+        /// <param name="projectRelativePath">相对项目根目录的路径</param>
+        /// <returns>磁盘绝对路径；输入为空返回空字符串</returns>
+        public static string ToProjectAbsolutePath(string projectRelativePath)
         {
-            string fullDir = ToAbsolutePath(assetRelativeDir);
-            if (!string.IsNullOrEmpty(fullDir) && !Directory.Exists(fullDir))
-                Directory.CreateDirectory(fullDir);
-            return fullDir;
+            if (string.IsNullOrEmpty(projectRelativePath)) return string.Empty;
+            return Path.Combine(ProjectRoot, projectRelativePath.Replace("\\", "/"));
         }
+
     }
 }

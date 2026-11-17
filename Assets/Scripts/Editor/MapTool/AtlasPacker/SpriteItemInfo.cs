@@ -68,27 +68,43 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public bool IsAlias => AliasOf != null;
 
         /// <summary>
-        /// 获取图片宽度（从纹理加载）
+        /// 复位排布结果（坐标与旋转归零）
+        /// 排布失败 / 被排除 / 重新排布前统一调用，避免各处各写三行赋值
         /// </summary>
-        public int GetWidth(Texture2D tex)
+        public void ResetPlacement()
         {
-            return tex != null ? tex.width : 0;
+            PosX = 0;
+            PosY = 0;
+            Rotated = false;
         }
 
         /// <summary>
-        /// 获取图片高度（从纹理加载）
+        /// 标记为被排除（记录原因并复位排布结果），排布失败/超限/加载失败统一走这里
         /// </summary>
-        public int GetHeight(Texture2D tex)
+        /// <param name="reason">排除原因（写入 ExclusionReason）</param>
+        public void MarkExcluded(string reason)
         {
-            return tex != null ? tex.height : 0;
+            Excluded = true;
+            ExclusionReason = reason;
+            ResetPlacement();
         }
 
         /// <summary>
-        /// 获取图片面积
+        /// 清除排除标记（Excluded 与 ExclusionReason 必须成对清零，避免只清其中一个）
         /// </summary>
-        public long GetArea(Texture2D tex)
+        public void ClearExclusion()
         {
-            return tex != null ? (long)tex.width * tex.height : 0;
+            Excluded = false;
+            ExclusionReason = null;
+        }
+
+        /// <summary>
+        /// 标记为主项参与排布（清除排除标记并复位排布结果）
+        /// </summary>
+        public void MarkIncluded()
+        {
+            ClearExclusion();
+            ResetPlacement();
         }
     }
 }

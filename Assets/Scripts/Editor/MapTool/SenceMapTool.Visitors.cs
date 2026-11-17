@@ -8,6 +8,7 @@
  * descrip:   场景地图编辑器主窗口 - 字段与属性声明部分
  ***************************************************************/
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -34,26 +35,24 @@ namespace Honor.Editor.MapTool
         [SerializeField]
         private StyleSheet m_StyleSheet = default;
 
-        // 切页按钮引用
+        // 编辑模式 Tab 注册表（Tab 按钮 ↔ 模块 ↔ 激活后动作），由 InitModules 统一装配
         /// <summary>
-        /// 场景切页按钮
+        /// 编辑模式 Tab 绑定项
         /// </summary>
-        private Button m_TabScene;
-        /// <summary>
-        /// 物品元件切页按钮
-        /// </summary>
-        private Button m_TabItemElement;
-        /// <summary>
-        /// 迷雾切页按钮
-        /// </summary>
-        private Button m_TabFog;
-        /// <summary>
-        /// 资源整理切页按钮
-        /// </summary>
-        private Button m_TabResource;
+        private sealed class EditTabBinding
+        {
+            /// <summary>Tab 按钮</summary>
+            public Button Button;
+            /// <summary>绑定的编辑模块</summary>
+            public IMapEditModule Module;
+            /// <summary>激活后的刷新动作（可空）</summary>
+            public System.Action OnActivated;
+        }
 
-        /// <summary>资源整理面板</summary>
-        private VisualElement m_ResourcePanel;
+        /// <summary>
+        /// 全部编辑模式 Tab 绑定项
+        /// </summary>
+        private readonly List<EditTabBinding> m_EditTabs = new List<EditTabBinding>();
 
         // 模块引用
         /// <summary>

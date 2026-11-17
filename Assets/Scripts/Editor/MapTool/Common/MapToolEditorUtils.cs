@@ -34,13 +34,13 @@ namespace Honor.Editor.MapTool
         {
             try
             {
-                string absolutePath = System.IO.Path.Combine(Application.dataPath, tableRelativePath);
-                Debug.Log($"加载配置表: {absolutePath}");
+                string absolutePath = MapToolPathHelper.ToAbsolutePath(tableRelativePath);
+                MapToolLog.Info($"加载配置表: {absolutePath}");
                 return TableExportEditorUtility.GetExcelData(absolutePath).ToList<T>();
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"加载配置表失败 {tableRelativePath}: {e.Message}");
+                MapToolLog.Error($"加载配置表失败 {tableRelativePath}: {e.Message}");
                 return new List<T>();
             }
         }
@@ -78,7 +78,7 @@ namespace Honor.Editor.MapTool
         public static List<TableChapterEditor> LoadChaptersFromRuntimeLua()
         {
             var result = new List<TableChapterEditor>();
-            string luaPath = Path.Combine(Application.dataPath,"LuaScripts/Game/Tables/AlTables/LevelConfigs/TableChapters.lua.txt");
+            string luaPath = MapToolPathHelper.ToAbsolutePath(MapToolConstants.RuntimeChaptersLuaPath);
             if (!File.Exists(luaPath))
                 return result;
             try
@@ -110,7 +110,7 @@ namespace Honor.Editor.MapTool
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"加载运行时章节表失败: {e.Message}");
+                MapToolLog.Error($"加载运行时章节表失败: {e.Message}");
             }
             return result;
         }
@@ -152,13 +152,34 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 拆分资源键（格式：TemplateId_TemplateName）：首个下划线前为模板ID，其余为名称；
+        /// 无下划线（或下划线在首位）时 ID 与名称同为原字符串。
+        /// 左侧资源列表选中、配置表回填等多处共用同一拆分口径。
+        /// </summary>
+        /// <param name="key">资源键</param>
+        /// <param name="templateId">输出：模板ID</param>
+        /// <param name="templateName">输出：模板名称</param>
+        public static void SplitTemplateKey(string key, out string templateId, out string templateName)
+        {
+            templateId = key ?? string.Empty;
+            templateName = key ?? string.Empty;
+            if (string.IsNullOrEmpty(key)) return;
+
+            int underscoreIndex = key.IndexOf('_');
+            if (underscoreIndex <= 0) return;
+
+            templateId = key.Substring(0, underscoreIndex);
+            templateName = key.Substring(underscoreIndex + 1);
+        }
+
+        /// <summary>
         /// 获取物体类型的中文名称
         /// </summary>
         /// <param name="type">物体类型</param>
         /// <returns>中文类型名</returns>
         public static string FormatObjectTypeName(MapObjectType type)
         {
-            return FormatObjectTypeName(type, false);
+            return ObjectTypeNames.Of(type);
         }
 
         /// <summary>
@@ -169,15 +190,8 @@ namespace Honor.Editor.MapTool
         /// <returns>中文类型名</returns>
         public static string FormatObjectTypeName(MapObjectType type, bool isVehicle)
         {
-            if (isVehicle) return "载具";
-            switch (type)
-            {
-                case MapObjectType.Building: return "建筑";
-                case MapObjectType.Character: return "人物";
-                case MapObjectType.Prop: return "物件";
-                case MapObjectType.Cat: return "猫猫";
-                default: return "未知";
-            }
+            if (isVehicle) return MapToolConstants.TrafficRoleVehicleDisplay;
+            return FormatObjectTypeName(type);
         }
 
         /// <summary>
@@ -250,6 +264,41 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 把层内槽位叠回全局键：[基线, 基线 + (LayerSlotCount-1) * step]
+        /// 层内档位换算的唯一实现，避免各方法各自写「baseline + slot」
+        /// </summary>
+        /// <param name="baseline">层契约基线 SortOrder</param>
+        /// <param name="slot">层内槽位</param>
+        /// <param name="step">槽位等差步长（默认 1，uGUI 全局键传 LayerOrderSeqStep）</param>
+        /// <returns>全局 SortOrder 键</returns>
+        private static int GlobalFromSlot(int baseline, int slot, int step = 1)
+        {
+            return baseline + slot * step;
+        }
+
+        /// <summary>
+        /// 从全局键抽取层内槽位（相对指定基线，钳到 [0, LayerSlotCount-1]）
+        /// </summary>
+        /// <param name="baseline">该全局键所属层的基线 SortOrder</param>
+        /// <param name="globalOrder">全局 SortOrder 键</param>
+        /// <returns>层内槽位</returns>
+        private static int SlotFromGlobal(int baseline, int globalOrder)
+        {
+            return Mathf.Clamp(globalOrder - baseline, 0, MapToolConstants.LayerSlotCount - 1);
+        }
+
+        /// <summary>
+        /// 把全局键钳制到本层槽位区间 [基线, 基线 + LayerSlotCount - 1]
+        /// </summary>
+        /// <param name="baseline">层契约基线 SortOrder</param>
+        /// <param name="globalOrder">待校验的 SortOrder</param>
+        /// <returns>钳制后的合法 SortOrder</returns>
+        private static int ClampToLayerSlot(int baseline, int globalOrder)
+        {
+            return Mathf.Clamp(globalOrder, baseline, baseline + MapToolConstants.LayerSlotCount - 1);
+        }
+
+        /// <summary>
         /// 把层内手动 SortOrder 钳制到所属显示层档位区间：[基线, 基线 + LayerSlotCount - 1]，
         /// 避免手填越界值压到相邻层基线。
         /// </summary>
@@ -258,9 +307,7 @@ namespace Honor.Editor.MapTool
         /// <returns>钳制后的合法 SortOrder</returns>
         public static int ClampSortOrderToSlot(PlacedObject obj, int order)
         {
-            int baseline = GetDisplayBaseline(obj);
-            int maxOrder = baseline + MapToolConstants.LayerSlotCount - 1;
-            return Mathf.Clamp(order, baseline, maxOrder);
+            return ClampToLayerSlot(GetDisplayBaseline(obj), order);
         }
 
         /// <summary>取模板类型对应归属层基线 SortOrder（模板无独立显示档，基线由类型推导）</summary>
@@ -272,9 +319,7 @@ namespace Honor.Editor.MapTool
         /// <summary>把模板 SortOrder 钳到所属类型层区间 [基线, 基线+LayerSlotCount-1]，避免压到相邻层基线</summary>
         public static int ClampTemplateSortOrder(ObjectTemplate template, int order)
         {
-            int baseline = GetTemplateBaseline(template);
-            int maxOrder = baseline + MapToolConstants.LayerSlotCount - 1;
-            return Mathf.Clamp(order, baseline, maxOrder);
+            return ClampToLayerSlot(GetTemplateBaseline(template), order);
         }
 
         /// <summary>
@@ -282,6 +327,38 @@ namespace Honor.Editor.MapTool
         /// 旧存量 JSON 落盘的是旧全局键，读取时按旧基线所在层序回落到当前物件归属/显示层基线，避免旧大值越界压层。
         /// </summary>
         private static readonly int[] LegacyBaselines = { 0, 100, 200, 300, 400, 500, 600, 700 };
+
+        /// <summary>
+        /// 是否启用动画播放（有动画名且不是「无动画」占位值）
+        /// 序列化落盘与运行时判定共用同一口径
+        /// </summary>
+        /// <param name="obj">摆放物件</param>
+        /// <returns>启用返回 true</returns>
+        public static bool IsAnimEnabled(PlacedObject obj)
+        {
+            if (obj == null) return false;
+            return !string.IsNullOrEmpty(obj.AnimName) && obj.AnimName != MapToolConstants.NoAnimName;
+        }
+
+        /// <summary>
+        /// 尝试把旧版 100 步长全局 SortOrder 键解析为层内槽位
+        /// </summary>
+        /// <param name="raw">原始 SortOrder</param>
+        /// <param name="slot">命中时输出层内槽位</param>
+        /// <returns>是否命中旧版基线区间</returns>
+        private static bool TryMatchLegacySlot(int raw, out int slot)
+        {
+            for (int i = 0; i < LegacyBaselines.Length; i++)
+            {
+                if (raw >= LegacyBaselines[i] && raw < LegacyBaselines[i] + MapToolConstants.LayerSlotCount * 10)
+                {
+                    slot = raw - LegacyBaselines[i];
+                    return true;
+                }
+            }
+            slot = 0;
+            return false;
+        }
 
         /// <summary>
         /// 把旧版 100 步长全局 SortOrder 键换算到新版 10 步长坐标系：
@@ -294,24 +371,13 @@ namespace Honor.Editor.MapTool
         public static int NormalizeLegacySortOrder(PlacedObject obj, int raw)
         {
             int baseline = GetDisplayBaseline(obj);
-            int slot = 0;
-            bool matchedLegacy = false;
-            for (int i = 0; i < LegacyBaselines.Length; i++)
-            {
-                if (raw >= LegacyBaselines[i] && raw < LegacyBaselines[i] + MapToolConstants.LayerSlotCount * 10)
-                {
-                    slot = raw - LegacyBaselines[i];
-                    matchedLegacy = true;
-                    break;
-                }
-            }
-            if (!matchedLegacy)
+            if (!TryMatchLegacySlot(raw, out int slot))
             {
                 // 非旧全局键：视为层内裸槽位（旧三档值/新层内小值），直接钳到层内槽位区间
                 slot = raw;
             }
             slot = Mathf.Clamp(slot, 0, MapToolConstants.LayerSlotCount - 1);
-            return baseline + slot * MapToolConstants.LayerOrderSeqStep;
+            return GlobalFromSlot(baseline, slot, MapToolConstants.LayerOrderSeqStep);
         }
 
         /// <summary>
@@ -327,19 +393,8 @@ namespace Honor.Editor.MapTool
         public static int NormalizeTemplateSortOrder(MapObjectType type, int raw)
         {
             int baseline = MapLayerCatalog.GetSortOrder(type);
-            int slot = 0;
-            bool matchedLegacy = false;
             // 旧 100 步长全局键：按旧基线识别其层内槽位，避免旧大值被误当成裸槽位
-            for (int i = 0; i < LegacyBaselines.Length; i++)
-            {
-                if (raw >= LegacyBaselines[i] && raw < LegacyBaselines[i] + MapToolConstants.LayerSlotCount * 10)
-                {
-                    slot = raw - LegacyBaselines[i];
-                    matchedLegacy = true;
-                    break;
-                }
-            }
-            if (!matchedLegacy)
+            if (!TryMatchLegacySlot(raw, out int slot))
             {
                 slot = raw < MapToolConstants.LayerSlotCount ? raw : raw - baseline;
             }
@@ -353,10 +408,8 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public static int SortOrderFromTemplate(PlacedObject obj, ObjectTemplate template)
         {
-            int templateBaseline = MapLayerCatalog.GetSortOrder(template.Type);
-            int slot = Mathf.Clamp(template.SortOrder - templateBaseline, 0, MapToolConstants.LayerSlotCount - 1);
-            int instanceBaseline = GetDisplayBaseline(obj);
-            return instanceBaseline + slot;
+            int slot = SlotFromGlobal(GetTemplateBaseline(template), template.SortOrder);
+            return GlobalFromSlot(GetDisplayBaseline(obj), slot);
         }
 
         /// <summary>
@@ -365,9 +418,8 @@ namespace Honor.Editor.MapTool
         /// </summary>
         public static int SortOrderFromInstance(ObjectTemplate template, PlacedObject obj)
         {
-            int instanceBaseline = GetDisplayBaseline(obj);
-            int slot = Mathf.Clamp(obj.SortOrder - instanceBaseline, 0, MapToolConstants.LayerSlotCount - 1);
-            return MapLayerCatalog.GetSortOrder(template.Type) + slot;
+            int slot = SlotFromGlobal(GetDisplayBaseline(obj), obj.SortOrder);
+            return GlobalFromSlot(GetTemplateBaseline(template), slot);
         }
 
         /// <summary>
@@ -380,11 +432,41 @@ namespace Honor.Editor.MapTool
         public static int GetGlobalSortOrder(PlacedObject obj)
         {
             int baseline = GetDisplayBaseline(obj);
-            int slot = Mathf.Clamp(obj.SortOrder - baseline, 0, MapToolConstants.LayerSlotCount - 1);
-            return baseline + slot * MapToolConstants.LayerOrderSeqStep;
+            int slot = SlotFromGlobal(baseline, obj.SortOrder);
+            return GlobalFromSlot(baseline, slot, MapToolConstants.LayerOrderSeqStep);
         }
 
         #endregion
+
+        /// <summary>
+        /// 扫描指定目录下的纹理资源路径（AssetDatabase 查询 + 扩展名过滤，按路径升序）
+        /// 场景/资源整理/图集三处的「扫目录取图片」统一入口
+        /// </summary>
+        /// <param name="folder">Assets 相对目录</param>
+        /// <param name="extensions">允许的扩展名（小写含点，取 MapToolConstants.ImageExtensions 或单个 Ext*）</param>
+        /// <returns>资源路径列表；目录无效时返回空列表</returns>
+        public static List<string> ScanTextureAssets(string folder, params string[] extensions)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrEmpty(folder) || !AssetDatabase.IsValidFolder(folder)) return result;
+
+            string[] guids = AssetDatabase.FindAssets(MapToolConstants.TextureAssetFilter, new[] { folder });
+            foreach (var guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (string.IsNullOrEmpty(path)) continue;
+
+                if (extensions != null && extensions.Length > 0)
+                {
+                    string ext = Path.GetExtension(path).ToLowerInvariant();
+                    if (System.Array.IndexOf(extensions, ext) < 0) continue;
+                }
+                result.Add(path);
+            }
+
+            result.Sort(System.StringComparer.Ordinal);
+            return result;
+        }
 
         /// <summary>
         /// 按文件名在资源目录中查找纹理（递归搜索，支持 Sprite 类型）
@@ -396,7 +478,7 @@ namespace Honor.Editor.MapTool
             if (string.IsNullOrEmpty(imageName)) return null;
 
             string[] guids = AssetDatabase.FindAssets(
-                $"{imageName} t:Texture2D",
+                $"{imageName} {MapToolConstants.TextureAssetFilter}",
                 new[] { MapToolConstants.ResourceScanDir });
 
             if (guids.Length == 0) return null;
@@ -410,27 +492,6 @@ namespace Honor.Editor.MapTool
                 if (sprite != null) tex = sprite.texture;
             }
             return tex;
-        }
-
-        /// <summary>
-        /// 显示提示对话框（单按钮"确定"）
-        /// </summary>
-        /// <param name="title">标题</param>
-        /// <param name="message">内容</param>
-        public static void ShowInfo(string title, string message)
-        {
-            EditorUtility.DisplayDialog(title, message, "确定");
-        }
-
-        /// <summary>
-        /// 显示确认对话框（确定/取消）
-        /// </summary>
-        /// <param name="title">标题</param>
-        /// <param name="message">内容</param>
-        /// <returns>用户点确定返回 true，点取消返回 false</returns>
-        public static bool ShowConfirm(string title, string message)
-        {
-            return EditorUtility.DisplayDialog(title, message, "确定", "取消");
         }
 
         /// <summary>
@@ -448,6 +509,67 @@ namespace Honor.Editor.MapTool
             if (lowerName.StartsWith(MapToolConstants.PrefixCat)) return MapObjectType.Cat;
             if (lowerName.StartsWith(MapToolConstants.PrefixBg)) return MapObjectType.Prop; // 背景图归为 Prop
             return MapObjectType.Prop;
+        }
+
+        /// <summary>
+        /// 按图片名前缀取资源类型显示名（背景 / 建筑 / 人物 / 物件 / 猫猫；无法识别返回「未知」）
+        /// 分类前缀与显示名共用 s_CategoryRules 规则表，避免各处重复写前缀字面量
+        /// </summary>
+        /// <param name="fileNameOrPath">图片文件名或资产路径</param>
+        /// <returns>中文类型显示名</returns>
+        public static string GetResourceTypeDisplayName(string fileNameOrPath)
+        {
+            string fileName = GetFileNameOnly(fileNameOrPath);
+            foreach (var rule in s_CategoryRules)
+            {
+                if (fileName.StartsWith(rule.Prefix)) return rule.Display;
+            }
+            return ObjectTypeNames.Unknown;
+        }
+
+        /// <summary>
+        /// 按资源分类过滤文件名（未配置资源列表用；与配置表分类口径分开：这里只按文件名前缀判断）
+        /// </summary>
+        /// <param name="fileNameOrPath">文件名（不含扩展名）或资产路径</param>
+        /// <param name="filter">分类键（MapToolConstants.FilterXxx）</param>
+        /// <returns>命中返回 true；FilterAll 恒为 true</returns>
+        public static bool MatchesCategoryPrefix(string fileNameOrPath, string filter)
+        {
+            if (filter == MapToolConstants.FilterAll) return true;
+
+            string fileName = GetFileNameOnly(fileNameOrPath);
+            foreach (var rule in s_CategoryRules)
+            {
+                if (rule.Filter == filter) return fileName.StartsWith(rule.Prefix);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 资源分类规则表：筛选键 → 文件名前缀 → 中文显示名
+        /// 前缀过滤（MatchesCategoryPrefix）与显示名解析（GetResourceTypeDisplayName）共用同一张表，
+        /// 新增/调整分类只改这一处，避免两处 switch 分支漂移
+        /// </summary>
+        private static readonly (string Filter, string Prefix, string Display)[] s_CategoryRules =
+        {
+            (MapToolConstants.FilterBg, MapToolConstants.PrefixBg, ObjectTypeNames.Background),
+            (MapToolConstants.FilterBuilding, MapToolConstants.PrefixBuilding, ObjectTypeNames.Building),
+            (MapToolConstants.FilterCharacter, MapToolConstants.PrefixCharacter, ObjectTypeNames.Character),
+            (MapToolConstants.FilterProp, MapToolConstants.PrefixProp, ObjectTypeNames.Prop),
+            (MapToolConstants.FilterCat, MapToolConstants.PrefixCat, ObjectTypeNames.Cat),
+        };
+
+        /// <summary>
+        /// 取文件名（不含目录与扩展名）
+        /// </summary>
+        /// <param name="fileNameOrPath">文件名或路径</param>
+        /// <returns>文件名</returns>
+        private static string GetFileNameOnly(string fileNameOrPath)
+        {
+            if (string.IsNullOrEmpty(fileNameOrPath)) return string.Empty;
+
+            // 统一走 Path 口径（分隔符与扩展名裁剪只有一套实现）
+            return Path.GetFileNameWithoutExtension(fileNameOrPath).ToLowerInvariant();
         }
 
         /// <summary>

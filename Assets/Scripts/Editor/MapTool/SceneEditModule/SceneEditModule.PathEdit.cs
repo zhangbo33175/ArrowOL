@@ -42,14 +42,11 @@ namespace Honor.Editor.MapTool
             if (m_ObjEditTitle != null)
                 m_ObjEditTitle.text = $"对象编辑：{name}（未放置，放置后自动绑定路径）";
             if (m_BtnPathDraw != null)
-                m_BtnPathDraw.text = "开始绘制路径";
+                m_BtnPathDraw.text = MapToolConstants.PathDrawStartText;
             // 动画字段填充默认值
-            if (m_AnimNameField != null)
-                m_AnimNameField.SetValueWithoutNotify(MapToolConstants.DefaultAnimName);
-            if (m_AnimLoopToggle != null)
-                m_AnimLoopToggle.SetValueWithoutNotify(true);
-            if (m_AnimSpeedField != null)
-                m_AnimSpeedField.SetValueWithoutNotify("1.0");
+            m_AnimNameField.SetValueSafe(MapToolConstants.DefaultAnimName);
+            m_AnimLoopToggle.SetValueSafe(true);
+            m_AnimSpeedField.SetValueSafe("1.0");
             RefreshPathPointList();
         }
 
@@ -60,24 +57,20 @@ namespace Honor.Editor.MapTool
         private void SetActiveObjectTab(int index)
         {
             if (m_TabEditPath != null)
-                m_TabEditPath.RemoveFromClassList("active");
+                m_TabEditPath.RemoveFromClassList(MapToolStyleClasses.Active);
             if (m_TabEditAnim != null)
-                m_TabEditAnim.RemoveFromClassList("active");
+                m_TabEditAnim.RemoveFromClassList(MapToolStyleClasses.Active);
             if (index == 0)
             {
-                m_TabEditPath?.AddToClassList("active");
-                if (m_PathEditContent != null)
-                    m_PathEditContent.style.display = DisplayStyle.Flex;
-                if (m_AnimEditContent != null)
-                    m_AnimEditContent.style.display = DisplayStyle.None;
+                m_TabEditPath?.AddToClassList(MapToolStyleClasses.Active);
+                m_PathEditContent.SetVisible(true);
+                m_AnimEditContent.SetVisible(false);
             }
             else
             {
-                m_TabEditAnim?.AddToClassList("active");
-                if (m_PathEditContent != null)
-                    m_PathEditContent.style.display = DisplayStyle.None;
-                if (m_AnimEditContent != null)
-                    m_AnimEditContent.style.display = DisplayStyle.Flex;
+                m_TabEditAnim?.AddToClassList(MapToolStyleClasses.Active);
+                m_PathEditContent.SetVisible(false);
+                m_AnimEditContent.SetVisible(true);
             }
         }
 
@@ -124,19 +117,17 @@ namespace Honor.Editor.MapTool
             {
                 Vector2 p = m_EditTarget.PathPoints[i];
                 var item = new VisualElement();
-                item.AddToClassList("path-point-item");
+                item.AddToClassList(MapToolStyleClasses.PathPointItem);
                 if (i == m_SelectedPathPointIndex)
-                    item.AddToClassList("selected");
-                var idxLabel = new Label($"{(i + 1):D2}");
-                idxLabel.AddToClassList("path-point-index");
+                    item.AddToClassList(MapToolStyleClasses.Selected);
+                var idxLabel = MapToolUiFactory.CreateLabel($"{(i + 1):D2}", MapToolStyleClasses.PathPointIndex);
                 item.Add(idxLabel);
-                var posLabel = new Label($"({p.x:F0}, {p.y:F0})");
-                posLabel.AddToClassList("path-point-pos");
+                var posLabel = MapToolUiFactory.CreateLabel($"({p.x:F0}, {p.y:F0})", MapToolStyleClasses.PathPointPos);
                 item.Add(posLabel);
                 // 单个路径点删除按钮
                 var delBtn = new Button(() => RemovePathPointAt(i));
-                delBtn.text = "×";
-                delBtn.AddToClassList("path-point-del");
+                delBtn.text = MapToolConstants.RemoveIconText;
+                delBtn.AddToClassList(MapToolStyleClasses.PathPointDel);
                 item.Add(delBtn);
                 // 点击路径项：高亮选中（场景中同步画大圆）
                 int idx = i;
@@ -169,8 +160,8 @@ namespace Honor.Editor.MapTool
             if (m_EditTarget == null) return;
             m_IsPathDrawing = !m_IsPathDrawing;
             if (m_BtnPathDraw != null)
-                m_BtnPathDraw.text = m_IsPathDrawing ? "停止绘制路径" : "开始绘制路径";
-            Debug.Log($"{(m_IsPathDrawing ? "进入" : "退出")}路径绘制模式，目标: {m_EditTarget.Name}");
+                m_BtnPathDraw.text = m_IsPathDrawing ? MapToolConstants.PathDrawStopText : MapToolConstants.PathDrawStartText;
+            MapToolLog.Info($"{(m_IsPathDrawing ? "进入" : "退出")}路径绘制模式，目标: {m_EditTarget.Name}");
         }
 
         /// <summary>
@@ -181,7 +172,7 @@ namespace Honor.Editor.MapTool
             if (m_EditTarget == null || m_EditTarget.PathPoints.Count == 0) return;
             m_EditTarget.PathPoints.RemoveAt(m_EditTarget.PathPoints.Count - 1);
             RefreshPathPointList();
-            Debug.Log($"撤销路径点，剩余: {m_EditTarget.PathPoints.Count}");
+            MapToolLog.Info($"撤销路径点，剩余: {m_EditTarget.PathPoints.Count}");
         }
 
         /// <summary>
@@ -193,7 +184,7 @@ namespace Honor.Editor.MapTool
             m_EditTarget.PathPoints.Clear();
             m_SelectedPathPointIndex = -1;
             RefreshPathPointList();
-            Debug.Log($"清空 {m_EditTarget.Name} 的路径");
+            MapToolLog.Info($"清空 {m_EditTarget.Name} 的路径");
         }
 
         /// <summary>

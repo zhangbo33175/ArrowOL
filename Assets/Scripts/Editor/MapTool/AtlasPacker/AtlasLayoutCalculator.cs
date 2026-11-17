@@ -91,9 +91,9 @@ namespace Honor.Editor.MapTool.AtlasPacker
             int divisorX = 1, int divisorY = 1,
             int fixedW = 0, int fixedH = 0,
             bool forceSquare = false,
-            string packMode = "Best",
+            string packMode = AtlasConstants.TokenBest,
             bool enableAlias = true,
-            string sizeConstraints = "POT",
+            string sizeConstraints = AtlasConstants.TokenPot,
             bool forceWordAligned = false,
             int extrude = 0)
         {
@@ -116,11 +116,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 var tex = LoadTexture(item.Path);
                 if (tex == null)
                 {
-                    item.Excluded = true;
-                    item.ExclusionReason = "纹理加载失败";
-                    item.PosX = 0;
-                    item.PosY = 0;
-                    item.Rotated = false;
+                    item.MarkExcluded("纹理加载失败");
                     ExcludedNames.Add(item.Name);
                     continue;
                 }
@@ -130,17 +126,12 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 int fitH = allowRotation ? Math.Min(tex.width, tex.height) : tex.height;
                 if (fitW > contentW || fitH > contentH)
                 {
-                    item.Excluded = true;
-                    item.ExclusionReason = $"尺寸 {tex.width}x{tex.height} 超过图集上限 {contentW}x{contentH}";
-                    item.PosX = 0;
-                    item.PosY = 0;
-                    item.Rotated = false;
+                    item.MarkExcluded($"尺寸 {tex.width}x{tex.height} 超过图集上限 {contentW}x{contentH}");
                     ExcludedNames.Add(item.Name);
                     continue;
                 }
 
-                item.Excluded = false;
-                item.ExclusionReason = null;
+                item.ClearExclusion();
                 item.Rotated = false;
                 totalArea += (long)tex.width * tex.height;
                 maxSide = Math.Max(maxSide, Math.Max(tex.width, tex.height));
@@ -206,7 +197,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                     var sortedItems = orderedByKey[sortKey];
                     foreach (int strategy in fitStrategies)
                     {
-                        foreach (var it in layoutItems) { it.Excluded = false; it.Rotated = false; }
+                        foreach (var it in layoutItems) { it.ClearExclusion(); it.Rotated = false; }
                         ExcludedNames.Clear();
 
                         var pos = TryMaxRectsLayout(sortedItems, atlas.w, atlas.h, padding, effectiveShapePadding, allowRotation, strategy,
@@ -249,7 +240,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
             // 用最终选定的参数（含最优排序键）重跑一次，确保 ExcludedNames、PosX/PosY、Rotated 正确
             var finalOrdered = orderedByKey[bestSortKey];
-            foreach (var it in layoutItems) { it.Excluded = false; it.PosX = 0; it.PosY = 0; it.Rotated = false; }
+            foreach (var it in layoutItems) { it.MarkIncluded(); }
             ExcludedNames.Clear();
             bestPositions = TryMaxRectsLayout(finalOrdered, bestTryW, bestTryH, padding, effectiveShapePadding, allowRotation, bestStrategy,
                 extrude, out _, out _);
@@ -271,8 +262,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 item.PosX = item.AliasOf.PosX;
                 item.PosY = item.AliasOf.PosY;
                 item.Rotated = item.AliasOf.Rotated;
-                item.Excluded = false;
-                item.ExclusionReason = null;
+                item.ClearExclusion();
             }
 
             positions = bestPositions;
@@ -406,6 +396,19 @@ namespace Honor.Editor.MapTool.AtlasPacker
         }
 
         /// <summary>
+        /// 排序探测项：缓存纹理宽高与派生尺寸（面积/长短边），避免比较器内反复加载纹理
+        /// </summary>
+        private struct SpriteProbe
+        {
+            public SpriteItemInfo Item;
+            public int W;
+            public int H;
+            public long Area;
+            public int Max;
+            public int Min;
+        }
+
+        /// <summary>
         /// 按指定排序键对主项列表排序；先投影缓存宽/高/面积，避免比较器内反复加载纹理。
         /// </summary>
         private List<SpriteItemInfo> OrderItems(List<SpriteItemInfo> source, int sortKey)
@@ -415,7 +418,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 var tex = LoadTexture(it.Path);
                 int w = tex != null ? tex.width : 0;
                 int h = tex != null ? tex.height : 0;
-                return new
+                return new SpriteProbe
                 {
                     Item = it,
                     W = w,
@@ -426,37 +429,42 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 };
             }).ToList();
 
+            // 各排序键只声明主/次序键，名称次序键与投影回 SpriteItemInfo 由末尾统一处理
+            IOrderedEnumerable<SpriteProbe> ordered;
             switch (sortKey)
             {
                 case SortArea:
-                    return probe.OrderByDescending(p => p.Area).ThenByDescending(p => p.Max)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderByDescending(p => p.Area).ThenByDescending(p => p.Max);
+                    break;
                 case SortLongSide:
-                    return probe.OrderByDescending(p => p.Max)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderByDescending(p => p.Max);
+                    break;
                 case SortShortSide:
-                    return probe.OrderByDescending(p => p.Min).ThenByDescending(p => p.Area)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderByDescending(p => p.Min).ThenByDescending(p => p.Area);
+                    break;
                 case SortWidth:
-                    return probe.OrderByDescending(p => p.W).ThenByDescending(p => p.H)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderByDescending(p => p.W).ThenByDescending(p => p.H);
+                    break;
                 case SortHeight:
-                    return probe.OrderByDescending(p => p.H).ThenByDescending(p => p.W)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderByDescending(p => p.H).ThenByDescending(p => p.W);
+                    break;
                 case SortAreaAsc:
-                    return probe.OrderBy(p => p.Area).ThenBy(p => p.Max)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderBy(p => p.Area).ThenBy(p => p.Max);
+                    break;
                 case SortMaxSideAsc:
-                    return probe.OrderBy(p => p.Max).ThenBy(p => p.Area)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderBy(p => p.Max).ThenBy(p => p.Area);
+                    break;
                 case SortShortSideAsc:
-                    return probe.OrderBy(p => p.Min).ThenBy(p => p.Area)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderBy(p => p.Min).ThenBy(p => p.Area);
+                    break;
                 case SortMaxSide:
                 default:
-                    return probe.OrderByDescending(p => p.Max).ThenByDescending(p => p.Area)
-                        .ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase).Select(p => p.Item).ToList();
+                    ordered = probe.OrderByDescending(p => p.Max).ThenByDescending(p => p.Area);
+                    break;
             }
+
+            return ordered.ThenBy(p => p.Item.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(p => p.Item).ToList();
         }
 
         /// <summary>
@@ -671,11 +679,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
                 if (bestIndex < 0)
                 {
-                    item.Excluded = true;
-                    item.ExclusionReason = "图集空间不足";
-                    item.PosX = 0;
-                    item.PosY = 0;
-                    item.Rotated = false;
+                    item.MarkExcluded("图集空间不足");
                     ExcludedNames.Add(item.Name);
                     positions.Add(Vector2Int.zero);
                     continue;
@@ -851,18 +855,11 @@ namespace Honor.Editor.MapTool.AtlasPacker
         }
 
         /// <summary>
-        /// 计算下一个 2 的幂（POT 对齐）
+        /// 计算下一个 2 的幂（POT 对齐；实现统一在 AtlasPathUtils，避免两处副本漂移）
         /// </summary>
         private int NextPOT(int value)
         {
-            if (value <= 0) return 1;
-            value--;
-            value |= value >> 1;
-            value |= value >> 2;
-            value |= value >> 4;
-            value |= value >> 8;
-            value |= value >> 16;
-            return value + 1;
+            return AtlasPathUtils.NextPOT(value);
         }
 
         /// <summary>

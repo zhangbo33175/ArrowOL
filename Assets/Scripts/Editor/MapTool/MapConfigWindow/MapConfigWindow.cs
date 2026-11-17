@@ -53,12 +53,12 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private static readonly PathConfigItem[] PathConfigItems =
         {
-            new PathConfigItem("path-btn-table-chapters", "章节配置表", MapToolConstants.TableChaptersPathPrefsKey, true),
-            new PathConfigItem("path-btn-table-main-levels", "主关卡配置表", MapToolConstants.TableMainLevelsPathPrefsKey, true),
-            new PathConfigItem("path-btn-object-prefabs", "物体预览图目录一", MapToolConstants.ObjectPreviewPrefabsDirPrefsKey, false),
-            new PathConfigItem("path-btn-object-textures", "物体预览图目录二", MapToolConstants.ObjectPreviewTexturesDirPrefsKey, false),
-            new PathConfigItem("path-btn-level-background", "分区背景图目录", MapToolConstants.LevelBackgroundDirPrefsKey, false),
-            new PathConfigItem("path-btn-map-save", "地图保存目录", MapToolConstants.MapSaveDirPrefsKey, false),
+            new PathConfigItem(MapToolUiNames.PathBtnTableChapters, "章节配置表", MapToolConstants.TableChaptersPathPrefsKey, true),
+            new PathConfigItem(MapToolUiNames.PathBtnTableMainLevels, "主关卡配置表", MapToolConstants.TableMainLevelsPathPrefsKey, true),
+            new PathConfigItem(MapToolUiNames.PathBtnObjectPrefabs, "物体预览图目录一", MapToolConstants.ObjectPreviewPrefabsDirPrefsKey, false),
+            new PathConfigItem(MapToolUiNames.PathBtnObjectTextures, "物体预览图目录二", MapToolConstants.ObjectPreviewTexturesDirPrefsKey, false),
+            new PathConfigItem(MapToolUiNames.PathBtnLevelBackground, "分区背景图目录", MapToolConstants.LevelBackgroundDirPrefsKey, false),
+            new PathConfigItem(MapToolUiNames.PathBtnMapSave, "地图保存目录", MapToolConstants.MapSaveDirPrefsKey, false),
         };
 
         #endregion
@@ -154,7 +154,7 @@ namespace Honor.Editor.MapTool
                 : AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(MapToolConstants.MapConfigWindowUxmlPath);
             if (visualTree == null)
             {
-                Debug.LogWarning($"[MapConfigWindow] 视觉树资源缺失：{MapToolConstants.MapConfigWindowUxmlPath}");
+                MapToolLog.Warn($"[MapConfigWindow] 视觉树资源缺失：{MapToolConstants.MapConfigWindowUxmlPath}");
                 return;
             }
 
@@ -186,11 +186,11 @@ namespace Honor.Editor.MapTool
         {
             VisualElement root = rootVisualElement;
 
-            m_PrefabField = root.Q<ObjectField>(name: MapToolUiNames.MapPrefabField);
+            m_PrefabField = root.QByName<ObjectField>(MapToolUiNames.MapPrefabField);
             m_PrefabField?.RegisterValueChangedCallback(OnPrefabChanged);
 
             // 基线步长：回显当前编辑器配置（EditorPrefs 持久化值）
-            m_BaselineStepField = root.Q<IntegerField>(name: MapToolUiNames.MapBaselineStepField);
+            m_BaselineStepField = root.QByName<IntegerField>(MapToolUiNames.MapBaselineStepField);
             if (m_BaselineStepField != null)
                 m_BaselineStepField.value = MapToolConstants.LayerBaselineStep;
 
@@ -219,11 +219,11 @@ namespace Honor.Editor.MapTool
         {
             VisualElement root = rootVisualElement;
 
-            var cancelBtn = root.Q<Button>(name: MapToolUiNames.BtnCancel);
+            var cancelBtn = root.QByName<Button>(MapToolUiNames.BtnCancel);
             if (cancelBtn != null)
                 cancelBtn.clicked += CancelClicked;
 
-            var confirmBtn = root.Q<Button>(name: MapToolUiNames.BtnConfirm);
+            var confirmBtn = root.QByName<Button>(MapToolUiNames.BtnConfirm);
             if (confirmBtn != null)
                 confirmBtn.clicked += ConfirmClicked;
         }
@@ -281,7 +281,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private static string GetProjectRoot()
         {
-            return Path.GetDirectoryName(Application.dataPath);
+            return MapToolPathHelper.ProjectRoot;
         }
 
         /// <summary>

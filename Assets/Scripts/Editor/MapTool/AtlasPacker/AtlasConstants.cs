@@ -30,7 +30,47 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public const string IconDir = "Assets/Scripts/Editor/MapTool/AtlasPacker/Icons/";
         public const string ProjectFileExtension = ".atlasproj";
         public const string ExportFileExtension = ".txt";
-        public const string DefaultFolder = "Assets/Res/Textures/Map/Chapter1";
+        public const string DefaultFolder = MapToolConstants.MapTextureRoot + "/Chapter1";
+
+        /// <summary>最大尺寸下拉默认选项（"1024"）</summary>
+        public const string DefaultMaxSizeOption = "1024";
+
+        /// <summary>图集输出根目录（PNG/JSON 默认落盘目录，同时也是项目保存/打开的默认目录）</summary>
+        public const string DefaultOutputDir = "Assets/Res/Atlas";
+
+        /// <summary>导出数据文件名默认值</summary>
+        public const string DefaultDataFilename = "NewAtlas.txt";
+
+        /// <summary>导出纹理文件名默认值</summary>
+        public const string DefaultTextureFilename = "NewAtlasTex.png";
+
+        /// <summary>项目文件默认文件名（不含扩展名）</summary>
+        public const string DefaultProjectFileName = "NewAtlas";
+
+        /// <summary>裁剪模式：裁剪透明边（TexturePacker trim 模式 token）</summary>
+        public const string TrimModeTrim = "Trim";
+
+        /// <summary>裁剪模式：不裁剪（TexturePacker trim 模式 token）</summary>
+        public const string TrimModeNone = "None";
+
+        // ===== 输出/布局参数 token（TexturePacker 语义，项目文件与界面下拉共用）=====
+
+        /// <summary>数据格式：Unity3D</summary>
+        public const string TokenUnity3D = "Unity3D";
+        /// <summary>纹理格式：PNG</summary>
+        public const string TokenPng = "PNG";
+        /// <summary>像素格式：RGBA8888</summary>
+        public const string TokenRgba8888 = "RGBA8888";
+        /// <summary>抖动算法：最近邻</summary>
+        public const string TokenNearestNeighbour = "NearestNeighbour";
+        /// <summary>布局算法：MaxRects</summary>
+        public const string TokenMaxRects = "MaxRects";
+        /// <summary>尺寸约束：2 的幂</summary>
+        public const string TokenPot = "POT";
+        /// <summary>缩放模式：平滑</summary>
+        public const string TokenSmooth = "Smooth";
+        /// <summary>启发式/打包策略：Best</summary>
+        public const string TokenBest = "Best";
 
         // ===== UI 元素 ID（UXML 中的名字）=====
         public const string TogForceSquare = "toggleForceSquare";
@@ -107,8 +147,6 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public const int NoSelectionIndex = -1;
 
         // ===== 默认选项列表 =====
-        public static readonly string[] WidthOptions = { "64", "128", "256", "512", "1024", "2048", "4096" };
-        public static readonly string[] HeightOptions = { "64", "128", "256", "512", "1024", "2048", "4096" };
 
         // ===== UI 显示文本 =====
         public const string EmptyTextureHint = "Empty texture";
@@ -118,7 +156,6 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public const string NoImageInFolder = "文件夹里没有找到图片:\n{0}";
         public const string PleaseAddImagesFirst = "请先添加图片";
         public const string CannotLayoutError = "无法排布，请检查图片数量和尺寸";
-        public const string ExportSuccessTitle = "成功";
         public const string ExportSuccessMessage = "导出完成！\nPNG: {0}\nJSON: {1}";
         public const string ProjectLoadedMessage = "项目已加载，共 {0} 张图片";
         public const string ProjectSavedMessage = "项目已保存";

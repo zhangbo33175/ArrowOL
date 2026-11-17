@@ -36,12 +36,31 @@ namespace Honor.Editor.MapTool.AtlasPacker
         /// 把纹理编码为优化 PNG 字节流。
         /// </summary>
         /// <param name="tex">RGBA32 纹理（像素已做透明 RGB 清零）。</param>
-        /// <returns>PNG 文件字节；编码失败时由调用方兜底回退 EncodeToPNG。</returns>
+        /// <returns>PNG 文件字节；编码失败抛出异常，由 EncodeWithFallback 统一兜底。</returns>
         public static byte[] Encode(Texture2D tex)
         {
             if (tex == null) throw new ArgumentNullException(nameof(tex));
             Color32[] pixels = tex.GetPixels32();
             return Encode(pixels, tex.width, tex.height);
+        }
+
+        /// <summary>
+        /// 把纹理编码为优化 PNG 字节流；自建编码器失败时自动回退 Unity 内置 EncodeToPNG。
+        /// 供所有图集导出入口统一调用，避免各处重复写 try/catch 兜底。
+        /// </summary>
+        /// <param name="tex">待编码纹理</param>
+        /// <returns>PNG 文件字节</returns>
+        public static byte[] EncodeWithFallback(Texture2D tex)
+        {
+            try
+            {
+                return Encode(tex);
+            }
+            catch (Exception encoderEx)
+            {
+                MapToolLog.Warn($"[AtlasPacker] 自建 PNG 编码器失败，回退 EncodeToPNG：{encoderEx.Message}");
+                return tex.EncodeToPNG();
+            }
         }
 
         /// <summary>

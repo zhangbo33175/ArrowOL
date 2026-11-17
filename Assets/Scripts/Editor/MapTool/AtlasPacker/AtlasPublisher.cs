@@ -50,7 +50,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         {
             if (Items == null || Items.Count == 0)
             {
-                EditorUtility.DisplayDialog("提示", "请先添加图片", "确定");
+                MapToolDialog.Info(AtlasConstants.PleaseAddImagesFirst);
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             var layoutResult = CalculateLayout?.Invoke(maxW, maxH, padding, shapePadding);
             if (layoutResult == null || !layoutResult.Value.success)
             {
-                EditorUtility.DisplayDialog("错误", "无法排布，请检查图片数量和尺寸", "确定");
+                MapToolDialog.Error(AtlasConstants.CannotLayoutError);
                 return;
             }
             int atlasW = layoutResult.Value.width;
@@ -77,7 +77,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             ApplyPositions(positions);
 
             // 输出路径
-            string outputPath = TxtTexturePath?.value ?? "Assets/Res/Atlas";
+            string outputPath = TxtTexturePath?.value ?? AtlasConstants.DefaultOutputDir;
             string textureFilename = TxtTextureFile?.value ?? "atlas.png";
             string dataFilename = TxtDataFilename?.value ?? "atlas.txt";
 
@@ -98,16 +98,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
 
             // 保存 PNG：优先自建优化编码器（level 9 + 滤镜选优 + 策略择优）；失败兜底内置 EncodeToPNG
             string pngPath = System.IO.Path.Combine(outputPath, textureFilename);
-            byte[] pngBytes;
-            try
-            {
-                pngBytes = PngAtlasEncoder.Encode(atlasTex);
-            }
-            catch (Exception encoderEx)
-            {
-                Debug.LogWarning($"[AtlasPacker] 自建 PNG 编码器失败，回退 EncodeToPNG：{encoderEx.Message}");
-                pngBytes = atlasTex.EncodeToPNG();
-            }
+            byte[] pngBytes = PngAtlasEncoder.EncodeWithFallback(atlasTex);
             System.IO.File.WriteAllBytes(AssetToFullPath?.Invoke(pngPath) ?? pngPath, pngBytes);
 
             // 生成 JSON
@@ -121,7 +112,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 自动设置导出的 PNG 的导入设置（避免 DXT5 不兼容错误）
             SetAtlasTextureImportSettings(pngPath);
 
-            EditorUtility.DisplayDialog("成功", $"导出完成！\nPNG: {pngPath}\nJSON: {jsonPath}", "确定");
+            MapToolDialog.Success($"导出完成！\nPNG: {pngPath}\nJSON: {jsonPath}");
         }
 
         /// <summary>

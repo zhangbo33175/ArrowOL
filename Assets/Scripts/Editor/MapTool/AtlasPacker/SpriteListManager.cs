@@ -87,26 +87,13 @@ namespace Honor.Editor.MapTool.AtlasPacker
             // 先用磁盘直读（更可靠，不受特殊文件夹名影响）
             LoadFromDisk(folderPath);
 
-            // 如果磁盘直读结果也为空，再尝试 AssetDatabase.FindAssets
+            // 如果磁盘直读结果也为空，再尝试 AssetDatabase 扫描（扩展名口径见 MapToolConstants.ImageExtensions）
             if (Items.Count == 0)
             {
-                string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { folderPath });
-                foreach (string guid in guids)
+                foreach (var assetPath in MapToolEditorUtils.ScanTextureAssets(folderPath, MapToolConstants.ImageExtensions))
                 {
-                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                    if (string.IsNullOrEmpty(assetPath)) continue;
-
-                    // 跳过非图片文件
-                    string ext = Path.GetExtension(assetPath).ToLower();
-                    if (ext != ".png" && ext != ".jpg" && ext != ".jpeg" && ext != ".psd")
-                        continue;
-
                     // 避免重复添加
-                    bool exists = Items.Exists(x => x.Path == assetPath);
-                    if (!exists)
-                    {
-                        AddSpriteItem(assetPath);
-                    }
+                    if (!Items.Exists(x => x.Path == assetPath)) AddSpriteItem(assetPath);
                 }
             }
 
@@ -124,14 +111,14 @@ namespace Honor.Editor.MapTool.AtlasPacker
             string fullPath = AssetToFullPath?.Invoke(folderPath);
             if (string.IsNullOrEmpty(fullPath))
             {
-                Debug.LogWarning($"路径转换失败: {folderPath}");
+                MapToolLog.Warn($"路径转换失败: {folderPath}");
                 return;
             }
 
             fullPath = fullPath.Replace('\\', '/');
             if (!Directory.Exists(fullPath))
             {
-                Debug.LogWarning($"文件夹不存在: {fullPath}");
+                MapToolLog.Warn($"文件夹不存在: {fullPath}");
                 return;
             }
 
@@ -177,55 +164,5 @@ namespace Honor.Editor.MapTool.AtlasPacker
             Items.Clear();
         }
 
-        /// <summary>
-        /// 刷新列表 UI
-        /// </summary>
-        public void RefreshListUI()
-        {
-            if (ListContainer == null) return;
-
-            ListContainer.Clear();
-            for (int i = 0; i < Items.Count; i++)
-            {
-                var item = Items[i];
-                var itemElement = new VisualElement();
-                itemElement.AddToClassList("sprite-item");
-                itemElement.userData = i;
-
-                // 名称
-                var nameLabel = new Label(item.Name);
-                nameLabel.AddToClassList("sprite-name");
-                itemElement.Add(nameLabel);
-
-                // 尺寸
-                var sizeLabel = new Label(item.Size);
-                sizeLabel.AddToClassList("sprite-size");
-                itemElement.Add(sizeLabel);
-
-                // 点击事件
-                int index = i;
-                itemElement.RegisterCallback<ClickEvent>(evt =>
-                {
-                    OnItemSelected?.Invoke(index);
-                });
-
-                ListContainer.Add(itemElement);
-            }
-
-            // 更新计数
-            if (CountLabel != null)
-            {
-                CountLabel.text = $"{Items.Count} sprites";
-            }
-        }
-
-        /// <summary>
-        /// 获取指定索引的项
-        /// </summary>
-        public SpriteItemInfo GetAt(int index)
-        {
-            if (index < 0 || index >= Items.Count) return null;
-            return Items[index];
-        }
     }
 }

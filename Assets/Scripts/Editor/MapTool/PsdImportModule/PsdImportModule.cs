@@ -55,83 +55,151 @@ namespace Honor.Editor.MapTool.PsdImport
 
         #region 导入入口
 
-        /// <summary>
-        /// 点击"导入 PSD"按钮
-        /// 前置条件：必须先在左侧选择章节与关卡（确定资源归属目录）
-        /// </summary>
         public void ImportPsd()
         {
             // ===== 前置校验：章节/关卡 =====
-            string chapterId = m_Owner?.CurrentChapterId;
-            string levelId = m_Owner?.CurrentLevelId;
-
-            if (string.IsNullOrEmpty(chapterId))
-            {
-                EditorUtility.DisplayDialog("无法导入",
-                    "请先在左侧面板选择关卡，再导入PSD文件。\n\n资源会按 章节/关卡 分类存放，跨关卡复用资源自动归入章节公共目录。", "确定");
-                return;
-            }
-            if (string.IsNullOrEmpty(levelId))
-            {
-                levelId = "1";
-            }
+            string chapterId, levelId;
+            if (!TryResolveImportTarget(out chapterId, out levelId)) return;
 
             // ===== 选择 PSD 文件 =====
             string psdPath = EditorUtility.OpenFilePanel("选择 PSD/PSB 地图文件", "", "");
             if (string.IsNullOrEmpty(psdPath)) return;
 
-            // ===== 三级资源目录规划（磁盘绝对路径） =====
-            string mapRootDir = Path.GetFullPath(Path.Combine(Application.dataPath, "Res/Textures/Map"));
-            string sharedDir = Path.Combine(mapRootDir, "Shared");
-            string chapterDir = Path.Combine(mapRootDir, $"Chapter{chapterId}");
-            string jsonOutputDir = mapRootDir;
-
-            Directory.CreateDirectory(sharedDir);
-            Directory.CreateDirectory(chapterDir);
-
-            Debug.Log($"[PSD导入] 章节: {chapterId}, 关卡: {levelId}");
-            Debug.Log($"[PSD导入] 全局共享: {sharedDir}");
-            Debug.Log($"[PSD导入] 章节目录: {chapterDir}");
-
-            // ===== 调用 Python 脚本解析 PSD =====
-            string scriptPath = Path.Combine(Application.dataPath, "Scripts/Editor/MapTool/Common/psd_import.py");
-            string pythonExe = FindPython();
-            if (pythonExe == null)
-            {
-                EditorUtility.DisplayDialog("导入失败", "找不到 Python，请确认已安装 Python、psd-tools 并添加到 PATH", "确定");
-                return;
-            }
-
-            string output, error;
-            RunPythonScript(pythonExe, scriptPath, psdPath, chapterDir, sharedDir, jsonOutputDir, levelId, out output, out error);
-
-            // ===== 读取解析结果 JSON =====
-            string jsonPath = Path.Combine(jsonOutputDir, "import_result.json");
-            if (!File.Exists(jsonPath))
-            {
-                string errorMsg = $"未找到解析结果 JSON 文件\n\n章节目录: {chapterDir}\n共享目录: {sharedDir}\n\nPython 输出:\n{output}\n\n错误:\n{error}";
-                EditorUtility.DisplayDialog("导入失败", errorMsg, "确定");
-                return;
-            }
-
-            string json = File.ReadAllText(jsonPath);
-            var importData = JsonUtility.FromJson<PsdImportData>(json);
-            if (importData.objects == null) importData.objects = new List<PsdObjectInfo>();
+            // ===== 解析 PSD 并读取结果 =====
+            PsdImportData importData;
+            string pythonOutput;
+            if (!TryParsePsd(psdPath, chapterId, levelId, out importData, out pythonOutput)) return;
 
             // 应用到编辑器
             ApplyImportData(importData);
 
             // 自动优化新导出图片的纹理格式（压缩+关闭 mipmap，节省内存）
             int optimizedCount = OptimizeNewlyExportedTextures(importData);
-            Debug.Log($"[PSD导入] 已优化 {optimizedCount} 张图片的导入设置");
+            MapToolLog.Info($"[PSD导入] 已优化 {optimizedCount} 张图片的导入设置");
 
             // 生成 MD5 清单（记录所有导出图片 MD5，下次导入对比变化）
-            GenerateMD5Manifest(importData, chapterDir);
+            GenerateMD5Manifest(importData, GetChapterDir(chapterId));
 
-            // 统计新导出 vs 已存在（从 Python 输出中提取；global=跨章节公共，chapter=章节公共，level=既有关卡复用）
-            int newExported = CountOccurrences(output, "Exported:");
-            int skippedShared = CountOccurrences(output, "Skip global:") + CountOccurrences(output, "Skip chapter:") + CountOccurrences(output, "Skip level:");
-            int skippedDup = CountOccurrences(output, "Skip duplicate:");
+            ShowImportSummary(chapterId, levelId, importData, pythonOutput, optimizedCount);
+        }
+
+        /// <summary>
+        /// 校验并取回导入目标：章节缺失时提示并中止，关卡缺失时回退 "1"
+        /// </summary>
+        /// <param name="chapterId">输出：章节 ID</param>
+        /// <param name="levelId">输出：关卡 ID</param>
+        /// <returns>章节有效返回 true</returns>
+        private bool TryResolveImportTarget(out string chapterId, out string levelId)
+        {
+            chapterId = m_Owner?.CurrentChapterId;
+            levelId = m_Owner?.CurrentLevelId;
+
+            if (string.IsNullOrEmpty(chapterId))
+            {
+                MapToolDialog.Info("无法导入", "请先在左侧面板选择关卡，再导入PSD文件。\n\n资源会按 章节/关卡 分类存放，跨关卡复用资源自动归入章节公共目录。");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(levelId)) levelId = "1";
+            return true;
+        }
+
+        /// <summary>
+        /// 调用 Python 解析 PSD 并读取解析结果 JSON
+        /// </summary>
+        /// <param name="psdPath">PSD/PSB 文件路径</param>
+        /// <param name="chapterId">章节 ID</param>
+        /// <param name="levelId">关卡 ID</param>
+        /// <param name="importData">输出：解析数据</param>
+        /// <param name="pythonOutput">输出：Python 标准输出</param>
+        /// <returns>解析结果可用返回 true</returns>
+        private bool TryParsePsd(string psdPath, string chapterId, string levelId,
+            out PsdImportData importData, out string pythonOutput)
+        {
+            importData = null;
+            pythonOutput = string.Empty;
+
+            // ===== 三级资源目录规划（磁盘绝对路径） =====
+            string mapRootDir = GetMapRootDir();
+            string sharedDir = GetSharedDir();
+            string chapterDir = GetChapterDir(chapterId);
+
+            Directory.CreateDirectory(sharedDir);
+            Directory.CreateDirectory(chapterDir);
+
+            MapToolLog.Info($"[PSD导入] 章节: {chapterId}, 关卡: {levelId}");
+            MapToolLog.Info($"[PSD导入] 全局共享: {sharedDir}");
+            MapToolLog.Info($"[PSD导入] 章节目录: {chapterDir}");
+
+            // ===== 调用 Python 脚本解析 PSD =====
+            string scriptPath = MapToolPathHelper.ToAbsolutePath(MapToolConstants.PsdImportScriptPath);
+            string pythonExe = FindPython();
+            if (pythonExe == null)
+            {
+                MapToolDialog.Info("导入失败", "找不到 Python，请确认已安装 Python、psd-tools 并添加到 PATH");
+                return false;
+            }
+
+            string error;
+            RunPythonScript(pythonExe, scriptPath, psdPath, chapterDir, sharedDir, mapRootDir, levelId, out pythonOutput, out error);
+
+            // ===== 读取解析结果 JSON =====
+            string jsonPath = Path.Combine(mapRootDir, MapToolConstants.PsdImportResultFileName);
+            if (!File.Exists(jsonPath))
+            {
+                MapToolDialog.Info("导入失败", $"未找到解析结果 JSON 文件\n\n章节目录: {chapterDir}\n共享目录: {sharedDir}\n\nPython 输出:\n{pythonOutput}\n\n错误:\n{error}");
+                return false;
+            }
+
+            importData = JsonUtility.FromJson<PsdImportData>(File.ReadAllText(jsonPath));
+            if (importData.objects == null) importData.objects = new List<PsdObjectInfo>();
+            return true;
+        }
+
+        /// <summary>
+        /// 地图资源根目录（磁盘绝对路径）
+        /// </summary>
+        /// <returns>根目录路径</returns>
+        private static string GetMapRootDir()
+        {
+            return MapToolPathHelper.ToAbsolutePath(MapToolConstants.PsdMapTextureRootDir);
+        }
+
+        /// <summary>
+        /// 跨章节公共资源目录
+        /// </summary>
+        /// <returns>目录路径</returns>
+        private static string GetSharedDir()
+        {
+            return Path.Combine(GetMapRootDir(), MapToolConstants.PsdSharedDirName);
+        }
+
+        /// <summary>
+        /// 章节资源目录
+        /// </summary>
+        /// <param name="chapterId">章节 ID</param>
+        /// <returns>目录路径</returns>
+        private static string GetChapterDir(string chapterId)
+        {
+            return Path.Combine(GetMapRootDir(), MapToolConstants.ChapterDirPrefix + chapterId);
+        }
+
+        /// <summary>
+        /// 展示导入结果统计（新导出 / 复用公共 / 同 PSD 重复）
+        /// </summary>
+        /// <param name="chapterId">章节 ID</param>
+        /// <param name="levelId">关卡 ID</param>
+        /// <param name="importData">解析数据</param>
+        /// <param name="pythonOutput">Python 输出（用于统计计数）</param>
+        /// <param name="optimizedCount">已优化纹理数量</param>
+        private void ShowImportSummary(string chapterId, string levelId, PsdImportData importData,
+            string pythonOutput, int optimizedCount)
+        {
+            int newExported = CountOccurrences(pythonOutput, "Exported:");
+            int skippedShared = CountOccurrences(pythonOutput, "Skip global:")
+                                 + CountOccurrences(pythonOutput, "Skip chapter:")
+                                 + CountOccurrences(pythonOutput, "Skip level:");
+            int skippedDup = CountOccurrences(pythonOutput, "Skip duplicate:");
 
             string msg = $"当前章节: Chapter{chapterId} / 关卡 {levelId}\n" +
                          $"地图尺寸: {importData.mapWidth}x{importData.mapHeight}\n" +
@@ -144,7 +212,7 @@ namespace Honor.Editor.MapTool.PsdImport
                          $"  已自动优化纹理格式: {optimizedCount} 张\n\n" +
                          $"物件位置/尺寸已按 PSD 图层还原";
 
-            EditorUtility.DisplayDialog("PSD 导入完成", msg, "确定");
+            MapToolDialog.Info("PSD 导入完成", msg);
         }
 
         #endregion
@@ -163,115 +231,154 @@ namespace Honor.Editor.MapTool.PsdImport
             // 重新导入：先清空当前关卡旧摆放物 / 背景，按新 PSD 覆盖重建（避免重复导入追加残留）
             m_Owner?.ClearWorkingObjects();
 
-            // 1. 地图尺寸
-            OnMapSizeSet?.Invoke(data.mapWidth, data.mapHeight);
-            Debug.Log($"[PSD导入] 地图尺寸: {data.mapWidth} x {data.mapHeight}");
-            Debug.Log($"[PSD导入] 背景图路径: {data.backgroundPath}");
-            Debug.Log($"[PSD导入] 物件数量: {data.objects.Count}");
-
-            // 2. 背景图（转换为 Assets 相对路径）
-            if (!string.IsNullOrEmpty(data.backgroundPath))
-            {
-                string assetBgPath = MapToolPathHelper.ToAssetRelative(data.backgroundPath);
-                Texture2D bgTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetBgPath);
-                if (bgTexture != null)
-                    Debug.Log($"[PSD导入] 背景纹理实际尺寸: {bgTexture.width} x {bgTexture.height}");
-                else
-                    Debug.LogWarning($"[PSD导入] 背景纹理加载失败: {assetBgPath}");
-
-                OnBackgroundSet?.Invoke(assetBgPath);
-            }
+            // 1-2. 地图尺寸 + 背景图
+            ApplyMapMeta(data);
 
             // 3. 刷新 AssetDatabase，确保 Unity 扫描到刚导出的 PNG
             AssetDatabase.Refresh();
 
             // 4. 创建物件（已在配置表中的沿用模板类型与参数）
             var newObjects = new List<string>();
-
             foreach (var obj in data.objects)
             {
-                string layerType = MapLayerCatalog.Normalize(obj.layerType);
-                MapObjectType objType = MapLayerCatalog.ResolveObjectType(layerType);
+                PlacedObject placedObj = CreatePlacedObjectFromPsd(obj, out bool isNewTemplate);
+                if (placedObj == null) continue;
 
-                // 配置表已有同名模板 → 沿用模板类型；否则记入新物件提示
-                var template = ObjectTemplateManager.Instance.GetTemplateByName(obj.name);
-                if (template != null)
-                {
-                    objType = template.Type;
-                }
-                else
-                {
-                    newObjects.Add($"{obj.name} ({layerType})");
-                }
-
-                // 预览图
-                string assetPngPath = MapToolPathHelper.ToAssetRelative(obj.pngPath);
-                Texture2D previewTex = null;
-                if (!string.IsNullOrEmpty(assetPngPath))
-                {
-                    previewTex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPngPath);
-                    if (previewTex == null)
-                        Debug.LogWarning($"[PSD导入] 预览图加载失败: {assetPngPath}");
-                }
-
-                // 像素尺寸：优先新字段，旧 JSON 回退 width/height
-                float pixelWidth = obj.pixelWidth > 0 ? obj.pixelWidth : obj.width;
-                float pixelHeight = obj.pixelHeight > 0 ? obj.pixelHeight : obj.height;
-
-                // 格子尺寸（兼容旧网格占用计算；像素尺寸以 PixelWidth/PixelHeight 为准）
-                int widthCells = Mathf.Max(1, Mathf.RoundToInt(pixelWidth / MapToolConstants.GridSize));
-                int heightCells = Mathf.Max(1, Mathf.RoundToInt(pixelHeight / MapToolConstants.GridSize));
-
-                var placedObj = new PlacedObject
-                {
-                    Id = Guid.NewGuid().ToString("N").Substring(0, 8),
-                    TemplateId = obj.layerName,
-                    Name = obj.name,
-                    Type = objType,
-                    LayerType = layerType,
-                    Position = new Vector2(obj.x, obj.y),
-                    Width = widthCells,
-                    Height = heightCells,
-                    PixelWidth = pixelWidth,
-                    PixelHeight = pixelHeight,
-                    Stretch = obj.stretch,
-                    SortOrder = MapLayerCatalog.GetSortOrder(layerType),
-                    PreviewTexture = previewTex,
-                };
-                // ---TODO [存量归一] PSD 配置可能带旧 100 步长全局键/旧三档裸值；换算到新 10 步长八层基线坐标系
-                if (obj.sortOrder > 0)
-                {
-                    placedObj.SortOrder = MapToolEditorUtils.NormalizeLegacySortOrder(placedObj, obj.sortOrder);
-                }
-
+                if (isNewTemplate) newObjects.Add($"{placedObj.Name} ({placedObj.LayerType})");
                 OnObjectCreated?.Invoke(placedObj);
             }
 
-            // 5. 刷新场景
+            // 5-6. 刷新场景 + 自动落盘编辑器工作信息（仅写工作 JSON，不触发发布 Lua 导出）
+            //      下次选中关卡由 LoadMapConfig 直接还原，无需重新导入 PSD
             OnRefreshScene?.Invoke();
-
-            // 6. 导入完成后自动落盘编辑器工作信息（仅写工作 JSON，不触发发布 Lua 导出）
-            //    下次选中关卡由 LoadMapConfig 直接还原，无需重新导入 PSD
             m_Owner?.SaveWorkingConfig();
 
             // 7. 提示新物件
-            if (newObjects.Count > 0)
-            {
-                var msg = new System.Text.StringBuilder();
-                msg.AppendLine("导入完成！");
-                msg.AppendLine($"地图尺寸: {data.mapWidth}x{data.mapHeight}");
-                msg.AppendLine($"物件总数: {data.objects.Count}");
-                msg.AppendLine();
-                msg.AppendLine($"⚠️ 有 {newObjects.Count} 个新物件不在配置表里：");
-                foreach (var n in newObjects.Take(10))
-                    msg.AppendLine($"  • {n}");
-                if (newObjects.Count > 10)
-                    msg.AppendLine($"  ... 等共 {newObjects.Count} 个");
-                msg.AppendLine();
-                msg.AppendLine("请在「物品元件编辑」Tab 中添加到配置表。");
+            ShowImportResult(data, newObjects);
+        }
 
-                EditorUtility.DisplayDialog("PSD 导入完成", msg.ToString(), "确定");
+        /// <summary>
+        /// 应用地图尺寸与背景图（尺寸回调 + 背景纹理校验 + 背景回调）
+        /// </summary>
+        /// <param name="data">PSD 解析结果</param>
+        private void ApplyMapMeta(PsdImportData data)
+        {
+            OnMapSizeSet?.Invoke(data.mapWidth, data.mapHeight);
+            MapToolLog.Info($"[PSD导入] 地图尺寸: {data.mapWidth} x {data.mapHeight}");
+            MapToolLog.Info($"[PSD导入] 背景图路径: {data.backgroundPath}");
+            MapToolLog.Info($"[PSD导入] 物件数量: {data.objects.Count}");
+
+            if (string.IsNullOrEmpty(data.backgroundPath)) return;
+
+            string assetBgPath = MapToolPathHelper.ToAssetRelative(data.backgroundPath);
+            Texture2D bgTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetBgPath);
+            if (bgTexture != null)
+                MapToolLog.Info($"[PSD导入] 背景纹理实际尺寸: {bgTexture.width} x {bgTexture.height}");
+            else
+                MapToolLog.Warn($"[PSD导入] 背景纹理加载失败: {assetBgPath}");
+
+            OnBackgroundSet?.Invoke(assetBgPath);
+        }
+
+        /// <summary>
+        /// 由 PSD 单个图层信息生成摆放物（类型优先沿用配置表中的同名模板）
+        /// </summary>
+        /// <param name="obj">PSD 图层信息</param>
+        /// <param name="isNewTemplate">输出：配置表中无同名模板（需要在元件面板补录）</param>
+        /// <returns>摆放物实例，失败返回 null</returns>
+        private static PlacedObject CreatePlacedObjectFromPsd(PsdObjectInfo obj, out bool isNewTemplate)
+        {
+            isNewTemplate = false;
+
+            string layerType = MapLayerCatalog.Normalize(obj.layerType);
+            MapObjectType objType = MapLayerCatalog.ResolveObjectType(layerType);
+
+            // 配置表已有同名模板 → 沿用模板类型；否则标记为新物件
+            var template = ObjectTemplateManager.Instance.GetTemplateByName(obj.name);
+            if (template != null)
+            {
+                objType = template.Type;
             }
+            else
+            {
+                isNewTemplate = true;
+            }
+
+            Texture2D previewTex = LoadPsdPreview(obj);
+
+            // 像素尺寸：优先新字段，旧 JSON 回退 width/height
+            float pixelWidth = obj.pixelWidth > 0 ? obj.pixelWidth : obj.width;
+            float pixelHeight = obj.pixelHeight > 0 ? obj.pixelHeight : obj.height;
+
+            // 格子尺寸（兼容旧网格占用计算；像素尺寸以 PixelWidth/PixelHeight 为准）
+            int widthCells = Mathf.Max(1, Mathf.RoundToInt(pixelWidth / MapToolConstants.GridSize));
+            int heightCells = Mathf.Max(1, Mathf.RoundToInt(pixelHeight / MapToolConstants.GridSize));
+
+            var placedObj = new PlacedObject
+            {
+                Id = Guid.NewGuid().ToString("N").Substring(0, 8),
+                TemplateId = obj.layerName,
+                Name = obj.name,
+                Type = objType,
+                LayerType = layerType,
+                Position = new Vector2(obj.x, obj.y),
+                Width = widthCells,
+                Height = heightCells,
+                PixelWidth = pixelWidth,
+                PixelHeight = pixelHeight,
+                Stretch = obj.stretch,
+                SortOrder = MapLayerCatalog.GetSortOrder(layerType),
+                PreviewTexture = previewTex,
+            };
+
+            // ---TODO [存量归一] PSD 配置可能带旧 100 步长全局键/旧三档裸值；换算到新 10 步长八层基线坐标系
+            if (obj.sortOrder > 0)
+            {
+                placedObj.SortOrder = MapToolEditorUtils.NormalizeLegacySortOrder(placedObj, obj.sortOrder);
+            }
+
+            return placedObj;
+        }
+
+        /// <summary>
+        /// 加载 PSD 图层的预览纹理（路径非法或缺失时返回 null）
+        /// </summary>
+        /// <param name="obj">PSD 图层信息</param>
+        /// <returns>预览纹理</returns>
+        private static Texture2D LoadPsdPreview(PsdObjectInfo obj)
+        {
+            string assetPngPath = MapToolPathHelper.ToAssetRelative(obj.pngPath);
+            if (string.IsNullOrEmpty(assetPngPath)) return null;
+
+            Texture2D previewTex = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPngPath);
+            if (previewTex == null)
+                MapToolLog.Warn($"[PSD导入] 预览图加载失败: {assetPngPath}");
+            return previewTex;
+        }
+
+        /// <summary>
+        /// 展示导入结果对话框（含未配置新物件清单，最多列 10 条）
+        /// </summary>
+        /// <param name="data">PSD 解析结果</param>
+        /// <param name="newObjects">未在配置表中的新物件</param>
+        private static void ShowImportResult(PsdImportData data, List<string> newObjects)
+        {
+            if (newObjects.Count == 0) return;
+
+            var msg = new System.Text.StringBuilder();
+            msg.AppendLine("导入完成！");
+            msg.AppendLine($"地图尺寸: {data.mapWidth}x{data.mapHeight}");
+            msg.AppendLine($"物件总数: {data.objects.Count}");
+            msg.AppendLine();
+            msg.AppendLine($"⚠️ 有 {newObjects.Count} 个新物件不在配置表里：");
+            foreach (var n in newObjects.Take(10))
+                msg.AppendLine($"  • {n}");
+            if (newObjects.Count > 10)
+                msg.AppendLine($"  ... 等共 {newObjects.Count} 个");
+            msg.AppendLine();
+            msg.AppendLine("请在「物品元件编辑」Tab 中添加到配置表。");
+
+            MapToolDialog.Info("PSD 导入完成", msg.ToString());
         }
 
         #endregion
@@ -310,9 +417,6 @@ namespace Honor.Editor.MapTool.PsdImport
             return optimizedCount;
         }
 
-        /// <summary>
-        /// 优化单张图片纹理导入设置（已正确的不覆盖）
-        /// </summary>
         private bool OptimizeSpriteTexture(string assetPath)
         {
             var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
@@ -320,7 +424,41 @@ namespace Honor.Editor.MapTool.PsdImport
 
             bool changed = false;
 
-            // 1. Sprite 类型（2D UI 模式）
+            changed |= ApplySpriteIdentity(importer);              // Sprite 类型 / PPU / Mesh / Alpha
+            changed |= MapTextureImportRules.ApplyCommonBasics(importer, true); // Read/Write / mipmap / Filter / Wrap / RGBA32
+            changed |= ApplyNpotScaleToNearest(importer);
+            changed |= ApplyDefaultPlatformBudget(importer);        // Max Size 2048 + Mitchell
+
+            // 清除旧版本其他平台残留压缩覆盖
+            foreach (var platform in LegacyPlatforms)
+            {
+                ClearLegacyPlatformOverride(importer, platform, ref changed);
+            }
+
+            if (changed)
+            {
+                importer.SaveAndReimport();
+                MapToolLog.Info($"[纹理优化] {assetPath} → Sprite + RGBA32(不压缩) + 关闭mipmap + Read/Write");
+            }
+
+            return changed;
+        }
+
+        /// <summary>
+        /// 旧版本遗留的平台压缩覆盖（需逐个清除，避免继承旧压缩规则）
+        /// </summary>
+        private static readonly string[] LegacyPlatforms = { "Standalone", "Android", "iPhone" };
+
+        /// <summary>
+        /// 应用 Sprite 身份设置：类型 / 导入模式 / Pixels Per Unit / Mesh Type / Alpha 透明
+        /// </summary>
+        /// <param name="importer">纹理导入器</param>
+        /// <returns>是否发生修改</returns>
+        private static bool ApplySpriteIdentity(TextureImporter importer)
+        {
+            bool changed = false;
+
+            // Sprite 类型（2D UI 模式）
             if (importer.textureType != TextureImporterType.Sprite)
             {
                 importer.textureType = TextureImporterType.Sprite;
@@ -328,14 +466,14 @@ namespace Honor.Editor.MapTool.PsdImport
                 changed = true;
             }
 
-            // 2. Pixels Per Unit: 100
+            // Pixels Per Unit: 100
             if (!Mathf.Approximately(importer.spritePixelsPerUnit, 100f))
             {
                 importer.spritePixelsPerUnit = 100f;
                 changed = true;
             }
 
-            // 3. Mesh Type: Tight
+            // Mesh Type: Tight
             var importerSettings = new TextureImporterSettings();
             importer.ReadTextureSettings(importerSettings);
             if (importerSettings.spriteMeshType != SpriteMeshType.Tight)
@@ -345,77 +483,48 @@ namespace Honor.Editor.MapTool.PsdImport
                 changed = true;
             }
 
-            // 4. 关闭 mipmap
-            if (importer.mipmapEnabled)
-            {
-                importer.mipmapEnabled = false;
-                changed = true;
-            }
-
-            // 5. Alpha 透明
+            // Alpha 透明（PSD 图层导出图需要）
             if (!importer.alphaIsTransparency)
             {
                 importer.alphaIsTransparency = true;
                 changed = true;
             }
 
-            // 6. Read/Write 开启
-            if (!importer.isReadable)
-            {
-                importer.isReadable = true;
-                changed = true;
-            }
-
-            // 7. Wrap Mode: Clamp
-            if (importer.wrapMode != TextureWrapMode.Clamp)
-            {
-                importer.wrapMode = TextureWrapMode.Clamp;
-                changed = true;
-            }
-
-            // 8. Filter Mode: Bilinear
-            if (importer.filterMode != FilterMode.Bilinear)
-            {
-                importer.filterMode = FilterMode.Bilinear;
-                changed = true;
-            }
-
-            // 9. NPOT Scale: ToNearest
-            if (importer.npotScale != TextureImporterNPOTScale.ToNearest)
-            {
-                importer.npotScale = TextureImporterNPOTScale.ToNearest;
-                changed = true;
-            }
-
-            // 10. Default 平台: Max Size 2048 + Mitchell + RGBA32 + 关闭压缩
-            var defaultSettings = importer.GetPlatformTextureSettings("DefaultTexturePlatform");
-            if (!defaultSettings.overridden ||
-                defaultSettings.format != TextureImporterFormat.RGBA32 ||
-                defaultSettings.maxTextureSize != 2048 ||
-                defaultSettings.resizeAlgorithm != TextureResizeAlgorithm.Mitchell ||
-                defaultSettings.textureCompression != TextureImporterCompression.Uncompressed)
-            {
-                defaultSettings.overridden = true;
-                defaultSettings.format = TextureImporterFormat.RGBA32;
-                defaultSettings.maxTextureSize = 2048;
-                defaultSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
-                defaultSettings.textureCompression = TextureImporterCompression.Uncompressed;
-                importer.SetPlatformTextureSettings(defaultSettings);
-                changed = true;
-            }
-
-            // 11. 清除旧版本其他平台残留压缩覆盖
-            ClearLegacyPlatformOverride(importer, "Standalone", ref changed);
-            ClearLegacyPlatformOverride(importer, "Android", ref changed);
-            ClearLegacyPlatformOverride(importer, "iPhone", ref changed);
-
-            if (changed)
-            {
-                importer.SaveAndReimport();
-                Debug.Log($"[纹理优化] {assetPath} → Sprite + RGBA32(不压缩) + 关闭mipmap + Read/Write");
-            }
-
             return changed;
+        }
+
+        /// <summary>
+        /// NPOT 缩放策略设为 ToNearest（PSD 切片按最近邻取整，避免非 2 次幂缩放模糊）
+        /// </summary>
+        /// <param name="importer">纹理导入器</param>
+        /// <returns>是否发生修改</returns>
+        private static bool ApplyNpotScaleToNearest(TextureImporter importer)
+        {
+            if (importer.npotScale == TextureImporterNPOTScale.ToNearest) return false;
+
+            importer.npotScale = TextureImporterNPOTScale.ToNearest;
+            return true;
+        }
+
+        /// <summary>
+        /// Default 平台补充：Max Size 2048 + Mitchell 重采样
+        /// </summary>
+        /// <param name="importer">纹理导入器</param>
+        /// <returns>是否发生修改</returns>
+        private static bool ApplyDefaultPlatformBudget(TextureImporter importer)
+        {
+            var defaultSettings = importer.GetPlatformTextureSettings(MapTextureImportRules.DefaultPlatform);
+            if (defaultSettings.maxTextureSize == 2048 &&
+                defaultSettings.resizeAlgorithm == TextureResizeAlgorithm.Mitchell)
+            {
+                return false;
+            }
+
+            defaultSettings.overridden = true;
+            defaultSettings.maxTextureSize = 2048;
+            defaultSettings.resizeAlgorithm = TextureResizeAlgorithm.Mitchell;
+            importer.SetPlatformTextureSettings(defaultSettings);
+            return true;
         }
 
         /// <summary>
@@ -495,13 +604,13 @@ namespace Honor.Editor.MapTool.PsdImport
                 error = process.StandardError.ReadToEnd();
                 process.WaitForExit();
 
-                Debug.Log($"[PSD导入] 输出:\n{output}");
+                MapToolLog.Info($"[PSD导入] 输出:\n{output}");
                 if (!string.IsNullOrEmpty(error))
-                    Debug.LogWarning($"[PSD导入] 错误:\n{error}");
+                    MapToolLog.Warn($"[PSD导入] 错误:\n{error}");
             }
             catch (Exception e)
             {
-                EditorUtility.DisplayDialog("导入失败", $"无法调用 Python 脚本:\n{e.Message}\n\n请确认已安装 Python 和 psd-tools 库", "确定");
+                MapToolDialog.Info("导入失败", $"无法调用 Python 脚本:\n{e.Message}\n\n请确认已安装 Python 和 psd-tools 库");
             }
         }
 
@@ -535,7 +644,7 @@ namespace Honor.Editor.MapTool.PsdImport
             string json = JsonUtility.ToJson(manifest, true);
             File.WriteAllText(manifestPath, json);
 
-            Debug.Log($"[PSD导入] MD5 清单已生成: {manifestPath}，共 {manifest.items.Count} 个图片");
+            MapToolLog.Info($"[PSD导入] MD5 清单已生成: {manifestPath}，共 {manifest.items.Count} 个图片");
         }
 
         /// <summary>计算文件 MD5 值</summary>

@@ -50,10 +50,8 @@ namespace Honor.Editor.MapTool
             VisualElement visualTree = m_VisualTreeAsset.Instantiate();
             root.Add(visualTree);
 
-            // 查找切页按钮 / 初始化模块 / 绑定点击事件
-            FindElements(visualTree);
+            // 装配编辑模块（Tab 注册表统一驱动显隐与高亮）
             InitModules(visualTree);
-            BindTabEvents();
         }
     }
 }

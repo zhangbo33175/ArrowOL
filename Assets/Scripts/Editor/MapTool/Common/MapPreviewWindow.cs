@@ -307,77 +307,102 @@ namespace Honor.Editor.MapTool
             GUI.EndClip();
         }
 
-        /// <summary>
-        /// 处理鼠标拖动
-        /// </summary>
         private void HandleMouseDrag(Rect areaRect)
         {
             Event evt = Event.current;
 
-            // 鼠标滚轮缩放
             if (evt.type == EventType.ScrollWheel && areaRect.Contains(evt.mousePosition))
-            {
-                float scroll = evt.delta.y * 0.1f;
-                float newZoom = Mathf.Clamp(m_Zoom + scroll, 0.05f, 2f);
+                HandlePreviewScrollWheel(evt, areaRect);
+            else if (evt.type == EventType.MouseDown && areaRect.Contains(evt.mousePosition))
+                HandlePreviewMouseDown(evt);
+            else if (evt.type == EventType.MouseDrag && m_IsDragging)
+                HandlePreviewMouseDrag(evt);
+            else if (evt.type == EventType.MouseUp && m_IsDragging)
+                HandlePreviewMouseUp(evt);
 
-                // 以鼠标位置为中心缩放
-                Vector2 mousePos = evt.mousePosition;
-                float mapWidth = m_MapWidth * m_Zoom;
-                float mapHeight = m_MapHeight * m_Zoom;
-                float centerX = (areaRect.width - mapWidth) * 0.5f + m_PanOffset.x;
-                float centerY = (areaRect.height - mapHeight) * 0.5f + m_PanOffset.y;
+            UpdatePreviewCursor(areaRect);
+        }
 
-                // 计算鼠标在地图上的相对位置
-                float relX = (mousePos.x - centerX) / mapWidth;
-                float relY = (mousePos.y - centerY) / mapHeight;
+        /// <summary>
+        /// 滚轮缩放：以鼠标位置为中心缩放，缩放后回算平移保持鼠标下的地图点不动
+        /// </summary>
+        /// <param name="evt">当前事件</param>
+        /// <param name="areaRect">绘制区域内坐标</param>
+        private void HandlePreviewScrollWheel(Event evt, Rect areaRect)
+        {
+            float scroll = evt.delta.y * 0.1f;
+            float newZoom = Mathf.Clamp(m_Zoom + scroll, 0.05f, 2f);
 
-                // 应用新缩放
-                m_Zoom = newZoom;
+            // 以鼠标位置为中心缩放
+            Vector2 mousePos = evt.mousePosition;
+            float mapWidth = m_MapWidth * m_Zoom;
+            float mapHeight = m_MapHeight * m_Zoom;
+            float centerX = (areaRect.width - mapWidth) * 0.5f + m_PanOffset.x;
+            float centerY = (areaRect.height - mapHeight) * 0.5f + m_PanOffset.y;
 
-                // 调整平移，保持鼠标位置不变
-                float newMapWidth = m_MapWidth * m_Zoom;
-                float newMapHeight = m_MapHeight * m_Zoom;
-                m_PanOffset.x = mousePos.x - (areaRect.width - newMapWidth) * 0.5f - relX * newMapWidth;
-                m_PanOffset.y = mousePos.y - (areaRect.height - newMapHeight) * 0.5f - relY * newMapHeight;
+            // 计算鼠标在地图上的相对位置
+            float relX = (mousePos.x - centerX) / mapWidth;
+            float relY = (mousePos.y - centerY) / mapHeight;
 
-                evt.Use();
-                Repaint();
-            }
+            // 应用新缩放
+            m_Zoom = newZoom;
 
-            // 鼠标按下：开始拖动
-            if (evt.type == EventType.MouseDown && areaRect.Contains(evt.mousePosition))
-            {
-                if (evt.button == 0 || evt.button == 2) // 左键或中键拖动
-                {
-                    m_IsDragging = true;
-                    m_DragStartPos = evt.mousePosition;
-                    m_DragStartOffset = m_PanOffset;
-                    evt.Use();
-                }
-            }
+            // 调整平移，保持鼠标位置不变
+            float newMapWidth = m_MapWidth * m_Zoom;
+            float newMapHeight = m_MapHeight * m_Zoom;
+            m_PanOffset.x = mousePos.x - (areaRect.width - newMapWidth) * 0.5f - relX * newMapWidth;
+            m_PanOffset.y = mousePos.y - (areaRect.height - newMapHeight) * 0.5f - relY * newMapHeight;
 
-            // 鼠标拖动中
-            if (evt.type == EventType.MouseDrag && m_IsDragging)
-            {
-                Vector2 delta = evt.mousePosition - m_DragStartPos;
-                m_PanOffset = m_DragStartOffset + delta;
-                evt.Use();
-                Repaint();
-            }
+            evt.Use();
+            Repaint();
+        }
 
-            // 鼠标释放：结束拖动
-            if (evt.type == EventType.MouseUp && m_IsDragging)
-            {
-                m_IsDragging = false;
-                evt.Use();
-            }
+        /// <summary>
+        /// 鼠标按下：左键或中键开始拖动
+        /// </summary>
+        /// <param name="evt">当前事件</param>
+        private void HandlePreviewMouseDown(Event evt)
+        {
+            if (evt.button != 0 && evt.button != 2) return;
 
-            // 鼠标样式
+            m_IsDragging = true;
+            m_DragStartPos = evt.mousePosition;
+            m_DragStartOffset = m_PanOffset;
+            evt.Use();
+        }
+
+        /// <summary>
+        /// 鼠标拖动中：按起点偏移更新平移
+        /// </summary>
+        /// <param name="evt">当前事件</param>
+        private void HandlePreviewMouseDrag(Event evt)
+        {
+            m_PanOffset = m_DragStartOffset + (evt.mousePosition - m_DragStartPos);
+            evt.Use();
+            Repaint();
+        }
+
+        /// <summary>
+        /// 鼠标释放：结束拖动
+        /// </summary>
+        /// <param name="evt">当前事件</param>
+        private void HandlePreviewMouseUp(Event evt)
+        {
+            m_IsDragging = false;
+            evt.Use();
+        }
+
+        /// <summary>
+        /// 更新鼠标样式（拖动中显示移动，悬停显示可平移）
+        /// </summary>
+        /// <param name="areaRect">绘制区域内坐标</param>
+        private void UpdatePreviewCursor(Rect areaRect)
+        {
             if (m_IsDragging)
             {
                 EditorGUIUtility.AddCursorRect(areaRect, MouseCursor.MoveArrow);
             }
-            else if (areaRect.Contains(evt.mousePosition))
+            else if (areaRect.Contains(Event.current.mousePosition))
             {
                 EditorGUIUtility.AddCursorRect(areaRect, MouseCursor.Pan);
             }

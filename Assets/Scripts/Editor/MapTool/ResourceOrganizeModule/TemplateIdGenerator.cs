@@ -69,7 +69,7 @@ namespace Honor.Editor.MapTool.ResourceOrganize
                 {
                     // 通过管理器原子性更新ID（同步字典key和对象属性）
                     ObjectTemplateManager.Instance.UpdateTemplateId(template, idCounter.ToString());
-                    Debug.Log($"ID 重排序: {oldId} -> {idCounter} ({template.TemplateName})");
+                    MapToolLog.Info($"ID 重排序: {oldId} -> {idCounter} ({template.TemplateName})");
                 }
                 idCounter++;
             }

@@ -25,15 +25,15 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public string version = "1.0";
 
         // 输出设置
-        public string dataFormat = "Unity3D";
+        public string dataFormat = AtlasConstants.TokenUnity3D;
         public string dataFilename;
-        public string textureFormat = "PNG";
+        public string textureFormat = AtlasConstants.TokenPng;
         public string textureFile;
         public int pngOptLevel = 2;
         public int dpi = 72;
         public bool premultiplyAlpha = false;
-        public string imageFormat = "RGBA8888";
-        public string ditheringAlgorithm = "NearestNeighbour";
+        public string imageFormat = AtlasConstants.TokenRgba8888;
+        public string ditheringAlgorithm = AtlasConstants.TokenNearestNeighbour;
         public string texturePath;
 
         // 尺寸设置
@@ -41,15 +41,15 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public string maxHeight;
         public int fixedWidth = 0;
         public int fixedHeight = 0;
-        public string sizeConstraints = "POT";
+        public string sizeConstraints = AtlasConstants.TokenPot;
         public bool forceSquare = false;
         public float scale = 1f;
-        public string scaleMode = "Smooth";
+        public string scaleMode = AtlasConstants.TokenSmooth;
 
         // 布局设置
-        public string layoutAlgorithm = "MaxRects";
-        public string heuristicStrategy = "Best";
-        public string packMode = "Best";
+        public string layoutAlgorithm = AtlasConstants.TokenMaxRects;
+        public string heuristicStrategy = AtlasConstants.TokenBest;
+        public string packMode = AtlasConstants.TokenBest;
         public int borderPadding;
         public int shapePadding;
         public int innerPadding = 0;
@@ -58,7 +58,7 @@ namespace Honor.Editor.MapTool.AtlasPacker
         public int divisorY = 1;
         public bool allowRotation = false;
         public bool autoAlias = true;
-        public string trimMode = "None";
+        public string trimMode = AtlasConstants.TrimModeNone;
         public int trimThreshold = 1;
         public bool multipack = false;
         public bool reduceBorderArtifacts = false;

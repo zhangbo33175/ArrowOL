@@ -250,6 +250,19 @@ namespace Honor.Editor.MapTool
         }
 
         /// <summary>
+        /// 全部层的节点名数组（顺序与 <see cref="AllLayerTypes"/> 一致）
+        /// 场景层节点预创建与兄弟层级排序共用同一份节点名表，新增层只改 AllLayerTypes。
+        /// </summary>
+        /// <returns>节点名数组（八层）</returns>
+        public static string[] GetLayerNodeNames()
+        {
+            var names = new string[AllLayerTypes.Length];
+            for (int i = 0; i < AllLayerTypes.Length; i++)
+                names[i] = GetLayerDir(AllLayerTypes[i]);
+            return names;
+        }
+
+        /// <summary>
         /// 类型键 → 渲染层级 SortOrder 槽位基线（自底向上，每层预留 LayerSlotCount 个层内排序档位）：
         /// background 0 / greenery 10 / road 20 / building 30 / prop 40 / character 50 / foreground 60 / bubble 70。
         /// 基线按 <see cref="MapToolConstants.LayerBaselineStep"/> 等差拉开；层内次序按 LayerOrderSeqStep 等差叠加；
@@ -312,10 +325,10 @@ namespace Honor.Editor.MapTool
         {
             switch (Normalize(layerType))
             {
-                case Background: return "背景";
+                case Background: return ObjectTypeNames.Background;
                 case Greenery: return "绿化";
                 case Road: return "道路";
-                case Building: return "建筑";
+                case Building: return ObjectTypeNames.Building;
                 case Prop: return "道具";
                 case Character: return "角色/载具";
                 case Foreground: return "前景";

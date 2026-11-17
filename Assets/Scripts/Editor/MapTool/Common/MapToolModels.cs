@@ -13,335 +13,6 @@ using UnityEngine;
 
 namespace Honor.Editor.MapTool
 {
-    #region 枚举定义
-
-    /// <summary>
-    /// 地图物体类型枚举
-    /// </summary>
-    public enum MapObjectType
-    {
-        /// <summary>建筑类元素</summary>
-        Building = 0,
-
-        /// <summary>人物/NPC类元素</summary>
-        Character = 1,
-
-        /// <summary>场景物件类元素</summary>
-        Prop = 2,
-
-        /// <summary>猫猫类元素（主角/猫咪）</summary>
-        Cat = 3
-    }
-
-    #endregion
-
-    #region 模板交通类别目录
-
-    /// <summary>
-    /// 模板（元件）交通类别目录：在物品元件编辑中给模板打交通分类标签，
-    /// 放置实例时按类别继承默认交通角色/载具标记，实例仍可在右栏单独调整。
-    /// </summary>
-    public static class TemplateTrafficCategory
-    {
-        /// <summary>不参与交通规则（默认）</summary>
-        public const string None = "none";
-
-        /// <summary>路灯（静态道路设施）</summary>
-        public const string Streetlight = "streetlight";
-
-        /// <summary>汽车 / 载具</summary>
-        public const string Vehicle = "vehicle";
-
-        /// <summary>人物 / 行人</summary>
-        public const string Pedestrian = "pedestrian";
-
-        /// <summary>马路路面（可通行地面格，静态地形）</summary>
-        public const string Road = "road";
-
-        /// <summary>斑马线 / 人行横道</summary>
-        public const string Crosswalk = "crosswalk";
-
-        /// <summary>全部类别键（顺序与下拉展示一致）</summary>
-        public static readonly string[] AllKeys =
-        {
-            None, Streetlight, Vehicle, Pedestrian, Road, Crosswalk
-        };
-
-        /// <summary>类别键 → 中文显示名</summary>
-        private static readonly Dictionary<string, string> DisplayNameMap = new Dictionary<string, string>
-        {
-            { None, "不参与" },
-            { Streetlight, "路灯" },
-            { Vehicle, "汽车" },
-            { Pedestrian, "人物" },
-            { Road, "马路" },
-            { Crosswalk, "斑马线" }
-        };
-
-        /// <summary>下拉展示的中文名称列表（与 <see cref="AllKeys"/> 同序）</summary>
-        public static List<string> AllDisplayNames =>
-            new List<string> { "不参与", "路灯", "汽车", "人物", "马路", "斑马线" };
-
-        /// <summary>
-        /// 类别键转中文显示名；未知键回退为「不参与」
-        /// </summary>
-        public static string ToDisplayName(string category)
-        {
-            if (string.IsNullOrEmpty(category)) return DisplayNameMap[None];
-            string name;
-            return DisplayNameMap.TryGetValue(category, out name) ? name : DisplayNameMap[None];
-        }
-
-        /// <summary>
-        /// 中文显示名转类别键；未知名称回退为「不参与」
-        /// </summary>
-        public static string ToKey(string displayName)
-        {
-            if (string.IsNullOrEmpty(displayName)) return None;
-            foreach (var pair in DisplayNameMap)
-            {
-                if (pair.Value == displayName) return pair.Key;
-            }
-            return None;
-        }
-
-        /// <summary>
-        /// 类别是否为载具（汽车）。仅汽车类别继承载具标记，其余类别均为非载具。
-        /// </summary>
-        public static bool IsVehicle(string category)
-        {
-            return category == Vehicle;
-        }
-
-        /// <summary>
-        /// 类别是否参与交通规则：汽车/行人属于动态交通角色；路灯/道路/斑马线等静态类别不参与。
-        /// 与实例侧 IsTrafficRoleActive 判定口径一致，供元件面板按类别条件显隐交通分组。
-        /// </summary>
-        public static bool IsActive(string category)
-        {
-            return category == Vehicle || category == Pedestrian;
-        }
-
-        /// <summary>
-        /// 由模板类别解析实例默认交通角色：汽车→vehicle，人物→pedestrian，其余静态类别→none。
-        /// </summary>
-        public static string ResolveTrafficRole(string category)
-        {
-            if (category == Vehicle) return "vehicle";
-            if (category == Pedestrian) return "pedestrian";
-            return "none";
-        }
-
-        /// <summary>
-        /// 归一类别输入：兼容英文键与中文显示名，未知值回退为「不参与」。
-        /// </summary>
-        public static string Normalize(string raw)
-        {
-            if (string.IsNullOrEmpty(raw)) return None;
-            raw = raw.Trim();
-            if (DisplayNameMap.ContainsKey(raw)) return raw;
-            return ToKey(raw);
-        }
-    }
-
-    #endregion
-
-    #region 模板交互类型目录
-
-    /// <summary>
-    /// 模板交互类型目录：code（none/click/talk/enter/pickup）与右栏下拉中文显示名互转。
-    /// 实例右栏可能直接存中文，回写模板时统一归一为 code；未知值回退「无(none)」。
-    /// </summary>
-    public static class TemplateInteractType
-    {
-        /// <summary>不交互</summary>
-        public const string None = "none";
-        /// <summary>点击</summary>
-        public const string Click = "click";
-        /// <summary>对话</summary>
-        public const string Talk = "talk";
-        /// <summary>进入</summary>
-        public const string Enter = "enter";
-        /// <summary>收集</summary>
-        public const string Pickup = "pickup";
-
-        /// <summary>code → 中文显示名</summary>
-        private static readonly Dictionary<string, string> DisplayMap = new Dictionary<string, string>
-        {
-            { None, "无" },
-            { Click, "点击" },
-            { Talk, "对话" },
-            { Enter, "进入" },
-            { Pickup, "收集" }
-        };
-
-        /// <summary>中文显示名 → code（已是 code 时原样返回；未知回退 none）</summary>
-        public static string ToCode(string raw)
-        {
-            if (string.IsNullOrEmpty(raw)) return None;
-            raw = raw.Trim();
-            if (DisplayMap.ContainsKey(raw)) return raw;
-            foreach (var pair in DisplayMap)
-            {
-                if (pair.Value == raw) return pair.Key;
-            }
-            return None;
-        }
-
-        /// <summary>code → 中文显示名（未知回退「无」）</summary>
-        public static string ToDisplay(string code)
-        {
-            if (string.IsNullOrEmpty(code)) return DisplayMap[None];
-            return DisplayMap.TryGetValue(code.Trim(), out var name) ? name : DisplayMap[None];
-        }
-    }
-
-    #endregion
-
-    #region 模板朝向目录
-
-    /// <summary>
-    /// 模板初始朝向目录：code（up/down/left/right）与右栏下拉中文显示名互转。
-    /// 实例右栏可能直接存中文，回写模板时统一归一为 code；未知值回退「下(down)」。
-    /// </summary>
-    public static class TemplateFacing
-    {
-        /// <summary>上</summary>
-        public const string Up = "up";
-        /// <summary>下</summary>
-        public const string Down = "down";
-        /// <summary>左</summary>
-        public const string Left = "left";
-        /// <summary>右</summary>
-        public const string Right = "right";
-
-        /// <summary>code → 中文显示名</summary>
-        private static readonly Dictionary<string, string> DisplayMap = new Dictionary<string, string>
-        {
-            { Up, "上" },
-            { Down, "下" },
-            { Left, "左" },
-            { Right, "右" }
-        };
-
-        /// <summary>中文显示名 → code（已是 code 时原样返回；未知回退 down）</summary>
-        public static string ToCode(string raw)
-        {
-            if (string.IsNullOrEmpty(raw)) return Down;
-            raw = raw.Trim();
-            if (DisplayMap.ContainsKey(raw)) return raw;
-            foreach (var pair in DisplayMap)
-            {
-                if (pair.Value == raw) return pair.Key;
-            }
-            return Down;
-        }
-
-        /// <summary>code → 中文显示名（未知回退「下」）</summary>
-        public static string ToDisplay(string code)
-        {
-            if (string.IsNullOrEmpty(code)) return DisplayMap[Down];
-            return DisplayMap.TryGetValue(code.Trim(), out var name) ? name : DisplayMap[Down];
-        }
-    }
-
-    #endregion
-
-    #region 绘制形状目录
-
-    /// <summary>
-    /// 摆放/刷格绘制形状目录：code（"rect"/"diamond"）与底部属性面板下拉中文显示名互转。
-    /// 默认菱形绘制；矩形为轴对齐矩形区域。未知值回退菱形。
-    /// </summary>
-    public static class DrawShape
-    {
-        /// <summary>矩形（轴对齐矩形区域）</summary>
-        public const string Rect = "rect";
-        /// <summary>菱形（默认，两点为菱形对角）</summary>
-        public const string Diamond = "diamond";
-
-        /// <summary>code → 中文显示名</summary>
-        private static readonly Dictionary<string, string> DisplayMap = new Dictionary<string, string>
-        {
-            { Rect, "矩形绘制模式" },
-            { Diamond, "菱形绘制模式" }
-        };
-
-        /// <summary>中文显示名 → code（已是 code 时原样返回；未知回退菱形）</summary>
-        public static string ToCode(string raw)
-        {
-            if (string.IsNullOrEmpty(raw)) return Diamond;
-            raw = raw.Trim();
-            if (DisplayMap.ContainsKey(raw)) return raw;
-            foreach (var pair in DisplayMap)
-            {
-                if (pair.Value == raw) return pair.Key;
-            }
-            return Diamond;
-        }
-
-        /// <summary>code → 中文显示名（未知回退「菱形绘制模式」）</summary>
-        public static string ToDisplay(string code)
-        {
-            if (string.IsNullOrEmpty(code)) return DisplayMap[Diamond];
-            return DisplayMap.TryGetValue(code.Trim(), out var name) ? name : DisplayMap[Diamond];
-        }
-
-        /// <summary>是否为菱形形状（未知/空值一律按菱形处理）</summary>
-        public static bool IsDiamond(string code)
-        {
-            return ToCode(code) == Diamond;
-        }
-    }
-
-    #endregion
-
-    #region 区域类型目录
-
-    /// <summary>
-    /// 摆放区类型目录：code（"place"/"forbid"/"common"）与下拉中文显示名互转。
-    /// 默认摆放区；禁区禁止摆放，通用区为普通通行/展示区域。未知值回退摆放区。
-    /// </summary>
-    public static class RegionType
-    {
-        /// <summary>摆放区（默认，允许摆放物件）</summary>
-        public const string Place = "place";
-        /// <summary>禁区（禁止摆放物件）</summary>
-        public const string Forbid = "forbid";
-        /// <summary>通用区（普通通行/展示区域）</summary>
-        public const string Common = "common";
-
-        /// <summary>code → 中文显示名</summary>
-        private static readonly Dictionary<string, string> DisplayMap = new Dictionary<string, string>
-        {
-            { Place, "摆放区" },
-            { Forbid, "禁区" },
-            { Common, "通用区" }
-        };
-
-        /// <summary>中文显示名 → code（已是 code 时原样返回；未知回退摆放区）</summary>
-        public static string ToCode(string raw)
-        {
-            if (string.IsNullOrEmpty(raw)) return Place;
-            raw = raw.Trim();
-            if (DisplayMap.ContainsKey(raw)) return raw;
-            foreach (var pair in DisplayMap)
-            {
-                if (pair.Value == raw) return pair.Key;
-            }
-            return Place;
-        }
-
-        /// <summary>code → 中文显示名（未知回退「摆放区」）</summary>
-        public static string ToDisplay(string code)
-        {
-            if (string.IsNullOrEmpty(code)) return DisplayMap[Place];
-            return DisplayMap.TryGetValue(code.Trim(), out var name) ? name : DisplayMap[Place];
-        }
-    }
-
-    #endregion
-
     #region 编辑器运行时数据
 
     /// <summary>
@@ -392,7 +63,7 @@ namespace Honor.Editor.MapTool
         public bool Interactable = true;
 
         /// <summary>交互类型：none/enter/dialog/pickup/view</summary>
-        public string InteractType = "none";
+        public string InteractType = TemplateInteractType.None;
 
         /// <summary>对话气泡内容</summary>
         public string DialogBubble = string.Empty;
@@ -420,7 +91,7 @@ namespace Honor.Editor.MapTool
         public bool CollisionEnabled = true;
 
         /// <summary>初始朝向：up/down/left/right</summary>
-        public string FacingDirection = "down";
+        public string FacingDirection = TemplateFacing.Down;
 
         /// <summary>是否显示地面阴影</summary>
         public bool ShadowEnabled = true;
@@ -548,8 +219,8 @@ namespace Honor.Editor.MapTool
         /// <summary>Spine 动画资源路径（SkeletonDataAsset）</summary>
         public string SpineAssetPath = string.Empty;
 
-        /// <summary>动画名称</summary>
-        public string AnimName = "Idle";
+        /// <summary>动画名称（默认待机动画，口径见 MapToolConstants.DefaultAnimName）</summary>
+        public string AnimName = MapToolConstants.DefaultAnimName;
 
         /// <summary>是否循环播放动画</summary>
         public bool Loop = true;
@@ -565,7 +236,7 @@ namespace Honor.Editor.MapTool
         public bool Interactable = true;
 
         /// <summary>交互类型：none/enter/dialog/pickup/view</summary>
-        public string InteractType = "none";
+        public string InteractType = TemplateInteractType.None;
 
         /// <summary>对话气泡内容</summary>
         public string DialogBubble = string.Empty;
@@ -600,7 +271,7 @@ namespace Honor.Editor.MapTool
         public bool CollisionEnabled = true;
 
         /// <summary>初始朝向：up/down/left/right</summary>
-        public string FacingDirection = "down";
+        public string FacingDirection = TemplateFacing.Down;
 
         /// <summary>是否显示地面阴影</summary>
         public bool ShadowEnabled = true;
@@ -626,7 +297,7 @@ namespace Honor.Editor.MapTool
         #region 事件系统
 
         /// <summary>触发事件类型：none/chat（聊天）/interact（交互）</summary>
-        public string TriggerEventType = "none";
+        public string TriggerEventType = TemplateInteractType.None;
 
         /// <summary>触发目标ID（遇到哪个物体触发）</summary>
         public string TriggerTargetId = "";
@@ -674,7 +345,7 @@ namespace Honor.Editor.MapTool
         public bool IsVehicle = false;
 
         /// <summary>交通角色：pedestrian 行人 / vehicle 载具 / none 不参与</summary>
-        public string TrafficRole = "pedestrian";
+        public string TrafficRole = TemplateTrafficCategory.Pedestrian;
 
         /// <summary>车辆停止线 X（世界像素，仅载具）</summary>
         public float StopLineX = 0;
@@ -723,38 +394,6 @@ namespace Honor.Editor.MapTool
         {
             // 自动生成实例ID
             Id = Guid.NewGuid().ToString("N").Substring(0, 8);
-        }
-
-        /// <summary>
-        /// 从模板创建实例
-        /// </summary>
-        /// <param name="template">模板对象</param>
-        /// <returns>新创建的实例对象</returns>
-        public static PlacedObject CreateFromTemplate(ObjectTemplate template)
-        {
-            if (template == null)
-                return null;
-
-            return new PlacedObject
-            {
-                TemplateId = template.TemplateId,
-                Name = template.TemplateName,
-                Type = template.Type,
-                AnimName = template.AnimName,
-                Loop = template.Loop,
-                Speed = template.Speed,
-                Interactable = template.Interactable,
-                InteractType = template.InteractType,
-                SortOrder = template.SortOrder,
-                DisplayLayer = template.DisplayLayer,
-                CollisionEnabled = template.CollisionEnabled,
-                DialogBubble = template.DialogBubble,
-                bubbleId = template.BubbleId,
-                FacingDirection = template.FacingDirection,
-                ShadowEnabled = template.ShadowEnabled,
-                IsCollectible = template.IsCollectible,
-                RespawnTime = template.RespawnTime
-            };
         }
 
         /// <summary>
@@ -922,7 +561,7 @@ namespace Honor.Editor.MapTool
         public int gridY = 0;
 
         /// <summary>初始朝向：up/down/left/right</summary>
-        public string facing = "down";
+        public string facing = TemplateFacing.Down;
     }
 
     /// <summary>
@@ -1152,13 +791,13 @@ namespace Honor.Editor.MapTool
         public bool interactable = false;
 
         /// <summary>交互类型</summary>
-        public string interactType = "none";
+        public string interactType = TemplateInteractType.None;
 
         /// <summary>行走路径模式：once（单次）/ pingpong（往返）/ loop（循环）</summary>
         public string walkMode = "loop";
 
         /// <summary>初始朝向：up/down/left/right</summary>
-        public string facingDirection = "down";
+        public string facingDirection = TemplateFacing.Down;
 
         /// <summary>对话气泡内容</summary>
         public string dialogBubble = string.Empty;
@@ -1192,7 +831,7 @@ namespace Honor.Editor.MapTool
         public bool isVehicle = false;
 
         /// <summary>交通角色：pedestrian 行人 / vehicle 载具 / none 不参与</summary>
-        public string trafficRole = "pedestrian";
+        public string trafficRole = TemplateTrafficCategory.Pedestrian;
 
         /// <summary>车辆停止线 X（世界像素，仅载具）</summary>
         public float stopLineX = 0;
@@ -1306,7 +945,7 @@ namespace Honor.Editor.MapTool
         public int gridY = 0;
 
         /// <summary>管控横道朝向：horizontal 横向 / vertical 竖向</summary>
-        public string direction = "horizontal";
+        public string direction = MapToolConstants.TrafficDirectionHorizontal;
 
         /// <summary>对向端位：north/south/east/west</summary>
         public string side = "north";
@@ -1361,7 +1000,7 @@ namespace Honor.Editor.MapTool
         public float width = 32f;
 
         /// <summary>横穿方向：horizontal/vertical</summary>
-        public string direction = "horizontal";
+        public string direction = MapToolConstants.TrafficDirectionHorizontal;
 
         /// <summary>绑定红绿灯 ID（对向双灯取主灯）</summary>
         public string boundLightId = string.Empty;

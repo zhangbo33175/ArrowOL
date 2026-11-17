@@ -126,6 +126,16 @@ namespace Honor.Editor.MapTool
         /// 配置地图高度（按已解锁分区包围盒计算，用于JSON保存）
         /// </summary>
         private int m_ConfigMapHeight = MapToolConstants.LevelPixelSize;
+
+        /// <summary>
+        /// 用当前地图尺寸同步配置表尺寸口径（保存 / 切换关卡 / 读取地图等入口共用）
+        /// 宽高必须同时更新，避免只同步其中一个
+        /// </summary>
+        private void SyncConfigMapSize()
+        {
+            m_ConfigMapWidth = m_MapWidth;
+            m_ConfigMapHeight = m_MapHeight;
+        }
         // 章节配置表数据（场景名/场景ID/分区配置来源）
         /// <summary>
         /// 章节配置表数据（场景名/场景ID/分区配置来源）
@@ -262,10 +272,6 @@ namespace Honor.Editor.MapTool
         /// 路径点集合（世界坐标，吸附32px网格）
         /// </summary>
         private List<Vector2> m_PathPoints = new List<Vector2>();
-        /// <summary>
-        /// 是否处于路径编辑模式
-        /// </summary>
-        private bool m_IsEditingPath = false;
         // 关卡相关
         /// <summary>
         /// 当前关卡ID
@@ -303,19 +309,9 @@ namespace Honor.Editor.MapTool
         private readonly List<MapGridCellData> m_RoadCells = new List<MapGridCellData>();
 
         /// <summary>
-        /// 模板预制体缓存（类型 -> 预制体），避免每次场景同步重复 LoadAssetAtPath
+        /// 资源加载器（模板预制体 / Sprite / Texture 带缓存加载，场景重建时统一失效）
         /// </summary>
-        private readonly Dictionary<MapObjectType, GameObject> _templatePrefabCache = new Dictionary<MapObjectType, GameObject>();
-
-        /// <summary>
-        /// Sprite 资产缓存（资产路径 -> Sprite），避免同一张图在多次同步时重复加载
-        /// </summary>
-        private readonly Dictionary<string, UnityEngine.Sprite> _spriteCache = new Dictionary<string, UnityEngine.Sprite>();
-
-        /// <summary>
-        /// 背景纹理缓存（资产路径 -> Texture2D），避免每帧绘制背景时重复走 AssetDatabase
-        /// </summary>
-        private readonly Dictionary<string, Texture2D> _bgTextureCache = new Dictionary<string, Texture2D>();
+        private readonly MapAssetLoader m_Assets = new MapAssetLoader();
 
         /// <summary>
         /// PSD/PSB 导入模块

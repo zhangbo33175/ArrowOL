@@ -40,7 +40,7 @@ namespace Honor.Editor.MapTool
         public void SaveChapterMapPath(string chapterId, string prefabPath)
         {
             m_ChapterMapPaths[chapterId] = prefabPath;
-            Debug.Log($"保存配置到字典: 章节={chapterId}, 路径={prefabPath}");
+            MapToolLog.Info($"保存配置到字典: 章节={chapterId}, 路径={prefabPath}");
         }
 
         /// <summary>
@@ -55,17 +55,15 @@ namespace Honor.Editor.MapTool
             {
                 // 章节根节点（可展开/折叠）
                 var chapterItem = new VisualElement();
-                chapterItem.AddToClassList("chapter-item");
+                chapterItem.AddToClassList(MapToolUiNames.ChapterItemClass);
 
                 // 章节标题行（带展开箭头）
                 var chapterHeader = new VisualElement();
-                chapterHeader.AddToClassList("chapter-header");
+                chapterHeader.AddToClassList(MapToolUiNames.ChapterHeaderClass);
 
-                var arrowLabel = new Label("▼");
-                arrowLabel.AddToClassList("expand-arrow");
+                var arrowLabel = MapToolUiFactory.CreateLabel(MapToolConstants.ExpandArrowDownText, MapToolUiNames.ExpandArrowClass);
 
-                var titleLabel = new Label(chapter.ChapterTitle);
-                titleLabel.AddToClassList("chapter-title");
+                var titleLabel = MapToolUiFactory.CreateLabel(chapter.ChapterTitle, MapToolUiNames.ChapterTitleClass);
 
                 chapterHeader.Add(arrowLabel);
                 chapterHeader.Add(titleLabel);
@@ -73,7 +71,7 @@ namespace Honor.Editor.MapTool
 
                 // 关卡子节点容器
                 var levelContainer = new VisualElement();
-                levelContainer.AddToClassList("level-container");
+                levelContainer.AddToClassList(MapToolUiNames.LevelContainerClass);
                 chapterItem.Add(levelContainer);
 
                 // 解析关卡ID列表（从章节配置 ChapterInfoID 解析）
@@ -82,12 +80,11 @@ namespace Honor.Editor.MapTool
                 {
                     string levelId = levelIds[levelIndex];
                     // 显示序号从 1 开始，加载地图用原始 levelId
-                    var levelItem = new Label($"关卡 {levelIndex + 1}");
-                    levelItem.AddToClassList("level-item");
+                    var levelItem = MapToolUiFactory.CreateLabel($"关卡 {levelIndex + 1}", MapToolUiNames.LevelItemClass);
 
                     // 选中态高亮
                     if (chapter.ID == SelectedChapterId && levelId == SelectedLevelId)
-                        levelItem.AddToClassList("selected");
+                        levelItem.AddToClassList(MapToolUiNames.SelectedClass);
 
                     // 点击关卡（闭包捕获 id，避免循环变量共享）
                     string cid = chapter.ID;
@@ -101,7 +98,7 @@ namespace Honor.Editor.MapTool
                 {
                     bool collapsed = levelContainer.style.display == DisplayStyle.None;
                     levelContainer.style.display = collapsed ? DisplayStyle.Flex : DisplayStyle.None;
-                    arrowLabel.text = collapsed ? "▼" : "▶";
+                    arrowLabel.text = collapsed ? MapToolConstants.ExpandArrowDownText : MapToolConstants.ExpandArrowRightText;
                 });
 
                 m_ChapterList.Add(chapterItem);

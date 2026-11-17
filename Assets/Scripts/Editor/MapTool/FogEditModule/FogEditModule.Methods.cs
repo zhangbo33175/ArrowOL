@@ -24,10 +24,10 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void BindEvents()
         {
-            m_ClearFogBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnClearFog);
+            m_ClearFogBtn = m_Root.QByName<Button>(MapToolUiNames.BtnClearFog);
             if (m_ClearFogBtn != null)
                 m_ClearFogBtn.clicked += OnClearFogClicked;
-            m_ResetFogBtn = m_Root.Q<Button>(name: MapToolUiNames.BtnResetFog);
+            m_ResetFogBtn = m_Root.QByName<Button>(MapToolUiNames.BtnResetFog);
             if (m_ResetFogBtn != null)
                 m_ResetFogBtn.clicked += OnResetFogClicked;
         }
@@ -37,7 +37,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnClearFogClicked()
         {
-            Debug.Log("清除迷雾");
+            MapToolLog.Info("清除迷雾");
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void OnResetFogClicked()
         {
-            Debug.Log("重置迷雾");
+            MapToolLog.Info("重置迷雾");
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace Honor.Editor.MapTool
         /// </summary>
         private void FindElements()
         {
-            m_FogEnableToggle = m_Root.Q<Toggle>(className: "fog-enable-toggle");
-            m_FogDensitySlider = m_Root.Q<Slider>(className: "fog-density-slider");
-            m_FogColorField = m_Root.Q<ColorField>(className: "fog-color-field");
+            m_FogEnableToggle = m_Root.Q<Toggle>(className: MapToolStyleClasses.FogEnableToggle);
+            m_FogDensitySlider = m_Root.Q<Slider>(className: MapToolStyleClasses.FogDensitySlider);
+            m_FogColorField = m_Root.Q<ColorField>(className: MapToolStyleClasses.FogColorField);
         }
 
     }

@@ -17,6 +17,34 @@ namespace Honor.Editor.MapTool
     /// </summary>
     public static class MapToolUiNames
     {
+        // ==================== 样式类名 ====================
+        /// <summary>激活态样式类名（Tab / 子 Tab 高亮）</summary>
+        public const string ActiveClass            = MapToolStyleClasses.Active;
+        /// <summary>左侧面板样式类名（章节目录 + 资源列表容器）</summary>
+        public const string LeftPanelClass         = "left-panel";
+        /// <summary>顶部工具栏样式类名</summary>
+        public const string TopToolbarClass        = "top-toolbar";
+        /// <summary>选中态样式类名（章节/关卡/资源行）</summary>
+        public const string SelectedClass          = MapToolStyleClasses.Selected;
+        /// <summary>章节行样式类名</summary>
+        public const string ChapterItemClass       = "chapter-item";
+        /// <summary>章节标题行样式类名</summary>
+        public const string ChapterHeaderClass     = "chapter-header";
+        /// <summary>章节标题文字样式类名</summary>
+        public const string ChapterTitleClass      = "chapter-title";
+        /// <summary>展开箭头样式类名</summary>
+        public const string ExpandArrowClass       = "expand-arrow";
+        /// <summary>关卡容器样式类名</summary>
+        public const string LevelContainerClass    = "level-container";
+        /// <summary>关卡行样式类名</summary>
+        public const string LevelItemClass         = "level-item";
+        /// <summary>资源行样式类名</summary>
+        public const string ResourceItemClass      = "resource-item";
+        /// <summary>资源图标样式类名</summary>
+        public const string ResourceIconClass      = "resource-icon";
+        /// <summary>资源名称样式类名</summary>
+        public const string ResourceNameClass      = "resource-name";
+
         // ==================== 通用按钮 ====================
         /// <summary>保存地图按钮</summary>
         public const string BtnSave              = "btn-save";
@@ -204,6 +232,8 @@ namespace Honor.Editor.MapTool
         public const string PropTrafficToggle     = "prop-traffic-toggle";
         /// <summary>交通标记分组（标签+开关）</summary>
         public const string PropTrafficGroup      = "prop-traffic-group";
+        /// <summary>交通规则子面板（代码动态创建的容器名）</summary>
+        public const string PropTrafficPanel      = MapToolStyleClasses.TrafficPanel;
         /// <summary>排序值输入</summary>
         public const string PropSortOrder        = "prop-sort-order";
         /// <summary>显示层（渲染档位）下拉容器</summary>
@@ -240,6 +270,60 @@ namespace Honor.Editor.MapTool
         public const string ItemElementModePanel = "item-element-mode-panel";
         /// <summary>迷雾编辑模式面板（容器）</summary>
         public const string FogModePanel         = "fog-mode-panel";
+
+        // ==================== 资源整理面板子元素 ====================
+        /// <summary>未配置资源列表（容器）</summary>
+        public const string UnconfiguredResourcesList = "unconfigured-resources-list";
+        /// <summary>配置表列表（容器）</summary>
+        public const string ConfigListContainer        = "config-list-container";
+        /// <summary>当前配置表名称显示</summary>
+        public const string CurrentConfigName          = "current-config-name";
+        /// <summary>资源预览区（容器）</summary>
+        public const string ResourcePreviewContainer   = "resource-preview-container";
+        /// <summary>资源详情尺寸显示</summary>
+        public const string ResourceDetailSize         = "resource-detail-size";
+        /// <summary>资源详情名称显示</summary>
+        public const string ResourceDetailName         = "resource-detail-name";
+        /// <summary>资源详情类型显示</summary>
+        public const string ResourceDetailType         = "resource-detail-type";
+        /// <summary>资源详情路径显示</summary>
+        public const string ResourceDetailPath         = "resource-detail-path";
+        /// <summary>配置表编辑字段：模板ID</summary>
+        public const string FieldTemplateId            = "field-template-id";
+        /// <summary>配置表编辑字段：图片路径</summary>
+        public const string FieldImagePath             = "field-image-path";
+        /// <summary>配置表编辑字段：模板名称</summary>
+        public const string FieldTemplateName          = "field-template-name";
+        /// <summary>配置表编辑字段：动画名</summary>
+        public const string FieldAnimName              = "field-anim-name";
+        /// <summary>配置表编辑字段：循环开关</summary>
+        public const string FieldLoop                  = "field-loop";
+        /// <summary>配置表编辑字段：移动速度</summary>
+        public const string FieldSpeed                 = "field-speed";
+        /// <summary>配置表编辑字段：排序值</summary>
+        public const string FieldSortOrder             = "field-sort-order";
+        /// <summary>配置表编辑字段：阴影开关</summary>
+        public const string FieldShadow                = "field-shadow";
+        /// <summary>配置表编辑字段：可收集开关</summary>
+        public const string FieldCollectible           = "field-collectible";
+        /// <summary>只读预览：模板ID</summary>
+        public const string PreviewTemplateId          = "preview-template-id";
+        /// <summary>只读预览：图片路径</summary>
+        public const string PreviewImagePath           = "preview-image-path";
+        /// <summary>只读预览：模板名称</summary>
+        public const string PreviewTemplateName        = "preview-template-name";
+        /// <summary>只读预览：动画名</summary>
+        public const string PreviewAnimName            = "preview-anim-name";
+        /// <summary>只读预览：循环</summary>
+        public const string PreviewLoop                = "preview-loop";
+        /// <summary>只读预览：移动速度</summary>
+        public const string PreviewSpeed               = "preview-speed";
+        /// <summary>只读预览：排序值</summary>
+        public const string PreviewSortOrder           = "preview-sort-order";
+        /// <summary>只读预览：阴影</summary>
+        public const string PreviewShadow              = "preview-shadow";
+        /// <summary>只读预览：可收集</summary>
+        public const string PreviewCollectible         = "preview-collectible";
 
         // ==================== 左侧面板 ====================
         /// <summary>资源整理面板（容器）</summary>
@@ -320,5 +404,99 @@ namespace Honor.Editor.MapTool
         public const string ItemTeleportYField  = "item-teleport-y-field";
         /// <summary>交通类别下拉容器</summary>
         public const string ItemTrafficCategoryContainer = "item-traffic-category-container";
+        /// <summary>元件属性分组容器：动画</summary>
+        public const string ItemAnimContent        = "item-anim-content";
+        /// <summary>元件属性分组容器：交互</summary>
+        public const string ItemInteractableContent = "item-interactable-content";
+        /// <summary>元件属性分组容器：层级</summary>
+        public const string ItemLayerContent       = "item-layer-content";
+        /// <summary>元件属性分组容器：交通</summary>
+        public const string ItemTrafficContent     = "item-traffic-content";
+        /// <summary>元件属性分组容器：收集物</summary>
+        public const string ItemCollectibleContent = "item-collectible-content";
+        /// <summary>元件属性分组容器：Y 轴排序</summary>
+        public const string ItemYsSortContent      = "item-ysort-content";
+        /// <summary>元件属性分组容器：移动</summary>
+        public const string ItemMovableContent     = "item-movable-content";
+        /// <summary>元件属性分组容器：传送门</summary>
+        public const string ItemTeleportContent    = "item-teleport-content";
+        /// <summary>元件气泡 ID 输入字段</summary>
+        public const string ItemBubbleIdField      = "item-bubble-id-field";
+        /// <summary>元件排序值输入字段</summary>
+        public const string ItemSortOrderField     = "item-sort-order-field";
+        /// <summary>元件移动动画名称输入字段</summary>
+        public const string ItemMoveAnimField      = "item-move-anim-field";
+        /// <summary>元件交互类型下拉容器</summary>
+        public const string ItemInteractTypeContainer = "item-interact-type-container";
+        /// <summary>元件显示层下拉容器</summary>
+        public const string ItemLayerContainer     = "item-layer-container";
+
+        // ==================== 元件属性分组折叠头（标题行 / 箭头） ====================
+        /// <summary>分组折叠头：动画</summary>
+        public const string ItemAnimGroupHeader        = "item-anim-group-header";
+        /// <summary>分组折叠箭头：动画</summary>
+        public const string ItemAnimArrow              = "item-anim-arrow";
+        /// <summary>分组折叠头：交互</summary>
+        public const string ItemInteractableGroupHeader = "item-interactable-group-header";
+        /// <summary>分组折叠箭头：交互</summary>
+        public const string ItemInteractableArrow      = "item-interactable-arrow";
+        /// <summary>分组折叠头：层级</summary>
+        public const string ItemLayerGroupHeader       = "item-layer-group-header";
+        /// <summary>分组折叠箭头：层级</summary>
+        public const string ItemLayerArrow             = "item-layer-arrow";
+        /// <summary>分组折叠头：交通</summary>
+        public const string ItemTrafficGroupHeader     = "item-traffic-group-header";
+        /// <summary>分组折叠箭头：交通</summary>
+        public const string ItemTrafficArrow           = "item-traffic-arrow";
+        /// <summary>分组折叠头：收集物</summary>
+        public const string ItemCollectibleGroupHeader = "item-collectible-group-header";
+        /// <summary>分组折叠箭头：收集物</summary>
+        public const string ItemCollectibleArrow       = "item-collectible-arrow";
+        /// <summary>分组折叠头：Y 轴排序</summary>
+        public const string ItemYsSortGroupHeader      = "item-ysort-group-header";
+        /// <summary>分组折叠箭头：Y 轴排序</summary>
+        public const string ItemYsSortArrow            = "item-ysort-arrow";
+        /// <summary>分组折叠头：移动</summary>
+        public const string ItemMovableGroupHeader     = "item-movable-group-header";
+        /// <summary>分组折叠箭头：移动</summary>
+        public const string ItemMovableArrow           = "item-movable-arrow";
+        /// <summary>分组折叠头：传送门</summary>
+        public const string ItemTeleportGroupHeader    = "item-teleport-group-header";
+        /// <summary>分组折叠箭头：传送门</summary>
+        public const string ItemTeleportArrow          = "item-teleport-arrow";
+
+        // ==================== 场景视图 / 迷雾面板 ====================
+        /// <summary>场景视图容器</summary>
+        public const string SceneView              = MapToolStyleClasses.SceneView;
+        /// <summary>迷雾启用开关</summary>
+        public const string FogEnableToggle        = MapToolStyleClasses.FogEnableToggle;
+        /// <summary>迷雾浓度滑条</summary>
+        public const string FogDensitySlider       = MapToolStyleClasses.FogDensitySlider;
+        /// <summary>迷雾颜色字段</summary>
+        public const string FogColorField          = MapToolStyleClasses.FogColorField;
+
+        // ==================== 工程设置窗口（路径配置项） ====================
+        /// <summary>路径按钮：章节配置表</summary>
+        public const string PathBtnTableChapters    = "path-btn-table-chapters";
+        /// <summary>路径按钮：主关卡配置表</summary>
+        public const string PathBtnTableMainLevels  = "path-btn-table-main-levels";
+        /// <summary>路径按钮：物体预览图目录一</summary>
+        public const string PathBtnObjectPrefabs    = "path-btn-object-prefabs";
+        /// <summary>路径按钮：物体预览图目录二</summary>
+        public const string PathBtnObjectTextures   = "path-btn-object-textures";
+        /// <summary>路径按钮：分区背景图目录</summary>
+        public const string PathBtnLevelBackground  = "path-btn-level-background";
+        /// <summary>路径按钮：地图保存目录</summary>
+        public const string PathBtnMapSave          = "path-btn-map-save";
+
+        // ==================== 图集打包窗口 ====================
+        /// <summary>预览区滚动容器</summary>
+        public const string AtlasPreviewScroll = "preview-scroll";
+        /// <summary>棋盘格背景图</summary>
+        public const string AtlasBoardBackground = "board-bg";
+
+        // ==================== UI Toolkit 内置部件 ====================
+        /// <summary>TextField 内部文本输入元素（unity 内置类名，Q 查询用）</summary>
+        public const string InnerTextInput = "unity-text-input";
     }
 }

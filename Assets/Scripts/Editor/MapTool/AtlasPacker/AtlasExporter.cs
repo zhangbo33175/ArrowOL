@@ -47,7 +47,26 @@ namespace Honor.Editor.MapTool.AtlasPacker
             var atlasTex = new Texture2D(atlasWidth, atlasHeight, TextureFormat.RGBA32, false);
             atlasTex.hideFlags = HideFlags.HideAndDontSave;
 
-            // 填充透明背景
+            FillTransparentBackground(atlasTex, atlasWidth, atlasHeight);
+
+            // 复制每个小图（注意 y 坐标翻转：UI 左上角原点 vs Texture2D 左下角原点）
+            foreach (var item in items)
+                BlitItemIntoAtlas(atlasTex, atlasHeight, item, premultiplyAlpha, extrude);
+
+            ClearTransparentRgb(atlasTex);
+
+            atlasTex.Apply();
+            return atlasTex;
+        }
+
+        /// <summary>
+        /// 把图集整幅填充为全透明（写盘前底色）
+        /// </summary>
+        /// <param name="atlasTex">目标纹理</param>
+        /// <param name="atlasWidth">宽</param>
+        /// <param name="atlasHeight">高</param>
+        private static void FillTransparentBackground(Texture2D atlasTex, int atlasWidth, int atlasHeight)
+        {
             for (int px = 0; px < atlasWidth; px++)
             {
                 for (int py = 0; py < atlasHeight; py++)
@@ -55,59 +74,85 @@ namespace Honor.Editor.MapTool.AtlasPacker
                     atlasTex.SetPixel(px, py, Color.clear);
                 }
             }
+        }
 
-            // 复制每个小图（注意 y 坐标翻转：UI 左上角原点 vs Texture2D 左下角原点）
-            foreach (var item in items)
+        /// <summary>
+        /// 把单张精灵贴进图集：跳过排除项/别名项，旋转与预乘在临时缓冲中处理后再扩边写入
+        /// </summary>
+        /// <param name="atlasTex">目标图集纹理</param>
+        /// <param name="atlasHeight">图集高度（用于 y 翻转）</param>
+        /// <param name="item">精灵项（含位置/旋转/排除状态）</param>
+        /// <param name="premultiplyAlpha">是否预乘 alpha</param>
+        /// <param name="extrude">四周外扩像素数</param>
+        private void BlitItemIntoAtlas(Texture2D atlasTex, int atlasHeight, SpriteItemInfo item,
+            bool premultiplyAlpha, int extrude)
+        {
+            // 跳过被排除的超尺寸 / 加载失败图片；别名复用主项槽位，不重复拷贝
+            if (item.Excluded || item.IsAlias) return;
+
+            var tex = LoadTexture(item.Path);
+            if (tex == null) return;
+
+            int w = tex.width;
+            int h = tex.height;
+            int placedW = item.Rotated ? h : w;
+            int placedH = item.Rotated ? w : h;
+
+            // 占位四周已预留 extrude 边距，贴图主体内缩 extrude 放置。
+            // PosX/PosY 已由排布计算器按含 border padding 的左上角坐标给出，这里不再叠加 padding。
+            int destX = item.PosX + extrude;
+            int destY = atlasHeight - item.PosY - extrude - placedH;
+
+            var body = BuildItemBody(tex, item.Rotated, premultiplyAlpha);
+            WriteBodyAndExtrude(atlasTex, body, destX, destY, placedW, placedH, extrude);
+        }
+
+        /// <summary>
+        /// 把源图读入临时像素缓冲，按需顺时针旋转 90° 并做 alpha 预乘
+        /// </summary>
+        /// <param name="tex">源纹理</param>
+        /// <param name="rotated">是否顺时针旋转 90°</param>
+        /// <param name="premultiplyAlpha">是否预乘 alpha</param>
+        /// <returns>像素缓冲（宽高为放置后的尺寸）</returns>
+        private static Color[,] BuildItemBody(Texture2D tex, bool rotated, bool premultiplyAlpha)
+        {
+            int w = tex.width;
+            int h = tex.height;
+            var body = new Color[rotated ? h : w, rotated ? w : h];
+
+            if (rotated)
             {
-                // 跳过被排除的超尺寸 / 加载失败图片；别名复用主项槽位，不重复拷贝
-                if (item.Excluded || item.IsAlias) continue;
-
-                var tex = LoadTexture(item.Path);
-                if (tex == null) continue;
-
-                int w = tex.width;
-                int h = tex.height;
-                int placedW = item.Rotated ? h : w;
-                int placedH = item.Rotated ? w : h;
-
-                // 占位四周已预留 extrude 边距，贴图主体内缩 extrude 放置。
-                // PosX/PosY 已由排布计算器按含 border padding 的左上角坐标给出，这里不再叠加 padding。
-                int destX = item.PosX + extrude;
-                int destY = atlasHeight - item.PosY - extrude - placedH;
-
-                // 主体像素先落到临时缓冲，便于统一做预乘与扩边
-                var body = new Color[placedW, placedH];
-                if (item.Rotated)
+                // 顺时针旋转 90° 拷贝（对齐 TexturePacker 标准：图集内为原图顺时针 90°）。
+                // Texture2D 原点在左下，源 (x,y) -> 目标 (nx=y, ny=w-1-x)，新图宽 h、高 w。
+                for (int y = 0; y < h; y++)
                 {
-                    // 顺时针旋转 90° 拷贝（对齐 TexturePacker 标准：图集内为原图顺时针 90°）。
-                    // Texture2D 原点在左下，源 (x,y) -> 目标 (nx=y, ny=w-1-x)，新图宽 h、高 w。
-                    for (int y = 0; y < h; y++)
+                    for (int x = 0; x < w; x++)
                     {
-                        for (int x = 0; x < w; x++)
-                        {
-                            Color pixel = tex.GetPixel(x, y);
-                            int nx = y;
-                            int ny = w - 1 - x;
-                            body[nx, ny] = ApplyPremultiply(pixel, premultiplyAlpha);
-                        }
+                        body[y, w - 1 - x] = ApplyPremultiply(tex.GetPixel(x, y), premultiplyAlpha);
                     }
                 }
-                else
+            }
+            else
+            {
+                for (int y = 0; y < h; y++)
                 {
-                    for (int y = 0; y < h; y++)
+                    for (int x = 0; x < w; x++)
                     {
-                        for (int x = 0; x < w; x++)
-                        {
-                            body[x, y] = ApplyPremultiply(tex.GetPixel(x, y), premultiplyAlpha);
-                        }
+                        body[x, y] = ApplyPremultiply(tex.GetPixel(x, y), premultiplyAlpha);
                     }
                 }
-
-                WriteBodyAndExtrude(atlasTex, body, destX, destY, placedW, placedH, extrude);
             }
 
-            // 透明像素 RGB 清零：源图透明边常残留非零 RGB，保留会增加颜色种类、降低 PNG 压缩率。
-            // 对齐 TexturePacker 产物口径：alpha=0 的像素 rgb 统一为 0。
+            return body;
+        }
+
+        /// <summary>
+        /// 透明像素 RGB 清零：源图透明边常残留非零 RGB，保留会增加颜色种类、降低 PNG 压缩率。
+        /// 对齐 TexturePacker 产物口径：alpha=0 的像素 rgb 统一为 0。
+        /// </summary>
+        /// <param name="atlasTex">图集纹理</param>
+        private static void ClearTransparentRgb(Texture2D atlasTex)
+        {
             var pixels = atlasTex.GetPixels32();
             for (int i = 0; i < pixels.Length; i++)
             {
@@ -119,9 +164,6 @@ namespace Honor.Editor.MapTool.AtlasPacker
                 }
             }
             atlasTex.SetPixels32(pixels);
-
-            atlasTex.Apply();
-            return atlasTex;
         }
 
         /// <summary>按开关决定是否对颜色做 alpha 预乘（rgb *= a）。</summary>
